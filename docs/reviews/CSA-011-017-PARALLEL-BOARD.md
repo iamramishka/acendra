@@ -33,7 +33,7 @@ Draft PRs and completion evidence are recorded below. No task is DONE and no new
 | CSA-014 | DESIGN_SYSTEM 1.1 proposal and nine DS-AC checks | Source inspection and five contrast calculations; tokens preserved. Runtime UI and owner/design acceptance pending | [Design review](https://github.com/iamramishka/acendra/pull/9) |
 | CSA-015 | Data/control inventory, retention/deletion and operational proposal | Approved prior policy/threat baseline preserved; no deployed control claim. Owner/privacy/finance approval and legal retention unresolved | [Privacy/security review](https://github.com/iamramishka/acendra/pull/10) |
 | CSA-017 | 23 acceptance packages, actors, layers, traceability, release evidence | Independent security/design review corrected AT mappings and strengthened negative cases. No acceptance suite executed; strategy approval and suite implementation pending | [Acceptance review](https://github.com/iamramishka/acendra/pull/11) |
-| CSA-013 | PLAN/AGENTS path/governance refinements and this board | Independent governance review found no actionable conflict. Owner review and milestone/branch convention reconciliation pending | PR recorded after publication |
+| CSA-013 | PLAN/AGENTS path/governance refinements and this board | Independent governance review found no actionable conflict. Owner review and milestone/branch convention reconciliation pending | [Governance review](https://github.com/iamramishka/acendra/pull/12) |
 
 All six task diffs passed `git diff --check` and were inspected for exclusive
 documentation scope. No runtime Flutter/provider/database/browser/recovery pass
@@ -47,3 +47,9 @@ scope. Next owner is the project lead for review/decisions; infrastructure,
 backend, frontend and QA owners must separately claim implementation/PoC work.
 Use the PR head commits as the exact version under review. No purchase, live
 configuration, automatic scheduler, deployment or merge was performed.
+
+GitHub verification after publication: all six PRs are drafts with only the
+assigned documentation paths. statusCheckRollup is empty for every PR; no CI
+pass is claimed. CSA-017's explicit AT-001..014 and MUST-family inventory checks
+passed after mapping corrections; per-requirement executable coverage remains
+a downstream gate. Preparation locks have been released for owner review.
