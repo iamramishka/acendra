@@ -6,7 +6,7 @@ Accountable owner: CODEX
 Approver: project owner, in this chat
 Branch: docs/csa-001-005-finalization
 Workspace: C:/Users/ramis/.codex/worktrees/csa-001-005-finalization/acendra
-Base: dev at 63b4131
+Base: origin/dev at 39fe3c2 (documentation commits rebased during merge review)
 Related pull request: [PR #3](https://github.com/iamramishka/acendra/pull/3)
 
 ## Approval evidence
@@ -17,6 +17,8 @@ responded to the prepared MVP/roles/bank-policy approval request with
 of the versioned requirements baseline and the three prepared policy choices.
 Runtime implementation, operational readiness, production release and Git merge
 are separate from this approval.
+The owner subsequently requested "review and merge" on 2026-10-11, authorizing
+the reviewed documentation PR to merge into dev. Production release remains separate.
 
 ## Accepted deliverables
 
@@ -76,11 +78,14 @@ baseline under coordinated ownership before implementing affected operations.
 Documentation checks passed after approval integration: all 237 requirement
 IDs/priorities preserved, local links across seven documents resolved and Git
 whitespace checks passed. The diff was inspected. Independent review of the
-original packet was completed before owner acceptance.
+original packet was completed before owner acceptance. Merge review identified
+unrelated inherited Flutter commits in the PR; only this batch's documentation
+commits were rebased onto origin/dev. The resulting diff contains seven Markdown
+files and no runtime changes. Other branches and their widget work were preserved.
 
 Application tests: not run for Markdown-only changes. Payment, authorization,
 storage and acceptance scenarios remain unexecuted implementation requirements.
 GitHub reported no configured checks on PR #3 at the prior handoff; no CI pass
 is claimed. Next action: implement approved requirements in separately scoped
-tasks, resolving the listed operational dependencies. No production action or
-merge is performed by this documentation approval.
+tasks, resolving the listed operational dependencies. Merge verification is
+recorded in PR #3; no production action is part of this documentation task.
