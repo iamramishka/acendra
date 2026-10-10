@@ -1,9 +1,11 @@
 import 'package:acendra/app/router/route_names.dart';
+import 'package:acendra/features/authentication/presentation/screens/login_screen.dart';
+import 'package:acendra/features/authentication/presentation/screens/register_screen.dart';
+import 'package:acendra/features/authentication/presentation/screens/verify_email_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-// Placeholder screens replaced by real feature screens in later tasks.
 class _PlaceholderScreen extends StatelessWidget {
   const _PlaceholderScreen({required this.title});
   final String title;
@@ -21,36 +23,44 @@ class _PlaceholderScreen extends StatelessWidget {
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: RouteNames.home,
+    initialLocation: RouteNames.login,
     debugLogDiagnostics: false,
     routes: [
       GoRoute(
         path: RouteNames.home,
-        builder: (context, state) => const _PlaceholderScreen(title: 'Home'),
-        redirect: (context, state) => RouteNames.marketplace,
-      ),
-      GoRoute(
-        path: RouteNames.marketplace,
-        builder: (context, state) =>
-            const _PlaceholderScreen(title: 'Marketplace'),
+        redirect: (_, __) => RouteNames.marketplace,
       ),
       GoRoute(
         path: RouteNames.login,
-        builder: (context, state) => const _PlaceholderScreen(title: 'Login'),
+        builder: (_, __) => const LoginScreen(),
       ),
       GoRoute(
         path: RouteNames.register,
-        builder: (context, state) =>
-            const _PlaceholderScreen(title: 'Register'),
+        builder: (_, __) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.verifyEmail,
+        builder: (_, __) => const VerifyEmailScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.forgotPassword,
+        builder: (_, __) => const _PlaceholderScreen(title: 'Forgot Password'),
+      ),
+      GoRoute(
+        path: RouteNames.resetPassword,
+        builder: (_, __) => const _PlaceholderScreen(title: 'Reset Password'),
+      ),
+      GoRoute(
+        path: RouteNames.marketplace,
+        builder: (_, __) => const _PlaceholderScreen(title: 'Marketplace'),
       ),
       GoRoute(
         path: RouteNames.dashboard,
-        builder: (context, state) =>
-            const _PlaceholderScreen(title: 'Dashboard'),
+        builder: (_, __) => const _PlaceholderScreen(title: 'Dashboard'),
       ),
       GoRoute(
         path: RouteNames.admin,
-        builder: (context, state) => const _PlaceholderScreen(title: 'Admin'),
+        builder: (_, __) => const _PlaceholderScreen(title: 'Admin'),
       ),
     ],
   );

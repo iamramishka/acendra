@@ -152,7 +152,7 @@ void main() {
   group('CourseCard additional scenarios', () {
     testWidgets('shows rating and review count when provided', (tester) async {
       await tester.pumpWidget(
-        _wrap(CourseCard(
+        _wrap(const CourseCard(
           title: 'Flutter Course',
           instructorName: 'Jane Doe',
           price: '\$49.99',
@@ -167,7 +167,7 @@ void main() {
 
     testWidgets('shows placeholder icon when imageUrl is null', (tester) async {
       await tester.pumpWidget(
-        _wrap(CourseCard(
+        _wrap(const CourseCard(
           title: 'No Image Course',
           instructorName: 'John Smith',
           price: '\$29.99',
@@ -179,7 +179,7 @@ void main() {
 
     testWidgets('renders without error when onTap is null', (tester) async {
       await tester.pumpWidget(
-        _wrap(CourseCard(
+        _wrap(const CourseCard(
           title: 'No Tap Course',
           instructorName: 'Alex Lee',
           price: '\$19.99',
