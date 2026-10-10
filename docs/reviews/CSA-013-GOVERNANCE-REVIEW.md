@@ -1,7 +1,9 @@
 # CSA-013: PLAN.md and AGENTS.md review
 
+Owner approval recorded 2026-10-11 (Asia/Colombo): the project owner replied "go ahead" after these six reviews were presented. This accepts the documentation baseline and authorizes merge; runtime, legal/processor, provisioning and production gates remain unverified. See [approval and completion record](../requirements/CSA-011-017-APPROVAL.md). Earlier proposal/pending wording below describes preparation or retained downstream conditions, not a missing owner decision.
+
 Date: 2026-10-11 (Asia/Colombo)
-Status: IN_REVIEW; proposed refinements, not owner approval.
+Status: DONE - governance review accepted and merged on 2026-10-11.
 Owner: CODEX coordinator. Initial inspected local source: 9355311 (`dev`). PR base: origin/dev e1cf11f.
 Branch: `codex/docs/csa-013-phase0-review`.
 Workspace: `C:/Users/ramis/.codex/worktrees/csa-013-phase0/acendra`.

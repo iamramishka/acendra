@@ -4,7 +4,8 @@
 
 Document ID: CSA-PLAN-001
 Version: 2.0
-Status: Proposed - Pending Approval
+Status: Approved Documentation Baseline - Implementation and Release Gates Retained
+Approval: Project owner, 2026-10-11; see docs/requirements/CSA-011-017-APPROVAL.md.
 Project: Acedra Course Selling Application
 Project Type: Commercial E-Learning Platform
 Primary Platform: Flutter Web
@@ -378,10 +379,10 @@ VS Code
 ## External Providers
 
 Payment Gateway:
-PENDING SELECTION
+PayHere / LKR (approved CSA-004; merchant readiness gates retained)
 
 Protected Video Provider:
-PENDING SELECTION
+Mux Basic signed 1080p VOD (approved CSA-011; renewal/privacy PoC required)
 
 Transactional Email:
 PENDING SELECTION
@@ -2565,6 +2566,7 @@ Bank receipt validation limits.
 
 DEC-007:
 Protected video provider.
+Approved: Mux Basic signed 1080p VOD under CSA-011; PoC gates retained.
 
 DEC-008:
 PDF watermark generation strategy.
@@ -2586,6 +2588,8 @@ Production backup and recovery targets.
 
 DEC-014:
 Production cost limits.
+Approved CSA-012 infrastructure ceiling: USD 150/month (35 staging, 95 production,
+20 contingency); separate payment fees/quotes/recovery approval retained.
 
 DEC-015:
 Final branding approval.

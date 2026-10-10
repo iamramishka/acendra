@@ -4,7 +4,8 @@
 
 Document ID: CSA-AGENTS-001
 Version: 2.0
-Status: Proposed - Pending Approval
+Status: Approved Documentation Baseline - Implementation and Release Gates Retained
+Approval: Project owner, 2026-10-11; see docs/requirements/CSA-011-017-APPROVAL.md.
 Project: Acedra Course Selling Application
 Primary Platform: Flutter Web
 Backend: Supabase + PostgreSQL

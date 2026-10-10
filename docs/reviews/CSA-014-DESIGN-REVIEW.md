@@ -1,7 +1,9 @@
 # CSA-014 - Design system review
 
+Owner approval recorded 2026-10-11 (Asia/Colombo): the project owner replied "go ahead" after these six reviews were presented. This accepts the documentation baseline and authorizes merge; runtime, legal/processor, provisioning and production gates remain unverified. See [approval and completion record](../requirements/CSA-011-017-APPROVAL.md). Earlier proposal/pending wording below describes preparation or retained downstream conditions, not a missing owner decision.
+
 Date: 2026-10-11 (Asia/Colombo). Owner: CODEX design agent.
-Status: IN_REVIEW; proposed document refinements await owner/design review.
+Status: DONE - review accepted and merged; runtime design conformance unverified; refinements accepted by owner.
 Branch: `codex/docs/csa-014-phase0-review`. Integration base: `origin/dev`
 at `e1cf11f`. UI inspection source: local committed revision `9355311`.
 The documentation-only task commit was rebased onto the approved remote

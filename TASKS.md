@@ -931,20 +931,45 @@ All items start unchecked.
   Approve protected PDF delivery strategy.
   DONE, CODEX: [authenticated proxy/watermark strategy](docs/requirements/CSA-010-PDF-DELIVERY.md) accepted by owner on 2026-10-11; runtime/reader validation remains required.
 
-- [ ] CSA-011 [P1] [L]
+- [x] CSA-011 [P1] [L]
   Select protected video delivery provider.
+  Status: DONE - owner-accepted documentation deliverable; runtime/release gates retained.
+  Confirmed Owner: CODEX preparation; PROJECT LEAD approval on 2026-10-11.
+  Related Pull Request: https://github.com/iamramishka/acendra/pull/7
+  Completion Evidence: [approval record](docs/requirements/CSA-011-017-APPROVAL.md).
+  Verification: documentation checks and merged reviewed revision; no runtime CI pass claimed.
 
-- [ ] CSA-012 [P1] [L]
+- [x] CSA-012 [P1] [L]
   Approve environments and budget limits.
+  Status: DONE - owner-accepted documentation deliverable; runtime/release gates retained.
+  Confirmed Owner: CODEX preparation; PROJECT LEAD approval on 2026-10-11.
+  Related Pull Request: https://github.com/iamramishka/acendra/pull/8
+  Completion Evidence: [approval record](docs/requirements/CSA-011-017-APPROVAL.md).
+  Verification: documentation checks and merged reviewed revision; no runtime CI pass claimed.
 
-- [ ] CSA-013 [P1] [L]
+- [x] CSA-013 [P1] [L]
   Review PLAN.md and AGENTS.md.
+  Status: DONE - owner-accepted documentation deliverable; runtime/release gates retained.
+  Confirmed Owner: CODEX preparation; PROJECT LEAD approval on 2026-10-11.
+  Related Pull Request: https://github.com/iamramishka/acendra/pull/12
+  Completion Evidence: [approval record](docs/requirements/CSA-011-017-APPROVAL.md).
+  Verification: documentation checks and merged reviewed revision; no runtime CI pass claimed.
 
-- [ ] CSA-014 [P1] [C]
+- [x] CSA-014 [P1] [C]
   Review and refine DESIGN_SYSTEM.md.
+  Status: DONE - owner-accepted documentation deliverable; runtime/release gates retained.
+  Confirmed Owner: CODEX preparation; PROJECT LEAD approval on 2026-10-11.
+  Related Pull Request: https://github.com/iamramishka/acendra/pull/9
+  Completion Evidence: [approval record](docs/requirements/CSA-011-017-APPROVAL.md).
+  Verification: documentation checks and merged reviewed revision; no runtime CI pass claimed.
 
-- [ ] CSA-015 [P0] [L]
+- [x] CSA-015 [P0] [L]
   Approve privacy and security baseline.
+  Status: DONE - owner-accepted documentation deliverable; runtime/release gates retained.
+  Confirmed Owner: CODEX preparation; PROJECT LEAD approval on 2026-10-11.
+  Related Pull Request: https://github.com/iamramishka/acendra/pull/10
+  Completion Evidence: [approval record](docs/requirements/CSA-011-017-APPROVAL.md).
+  Verification: documentation checks and merged reviewed revision; no runtime CI pass claimed.
 
 - [x] CSA-016 [P1] [X]
   Draft initial architecture decision records.
@@ -953,7 +978,7 @@ All items start unchecked.
   Work Completed:
   - Drafted twelve ADRs in merged PR #2; reconciled eleven Accepted records
     against owner-approved architecture/policies from PR #3/#4.
-  - Moved accepted records to docs/decisions/; ADR-010 stays pending under CSA-011.
+  - Moved accepted records to docs/decisions/; ADR-010 was subsequently accepted under CSA-011; see the six-task approval record.
   - Numbering reconciled by CSA-007; [canonical index](docs/decisions/README.md).
   Related Pull Request:
   https://github.com/iamramishka/acendra/pull/2
@@ -962,15 +987,20 @@ All items start unchecked.
   - git diff --cached --check passed; application tests do not apply.
   Current Blockers:
   - None for the initial drafting/reconciliation task. Video provider selection
-    remains CSA-011; production and implementation gates are separate.
+    was subsequently accepted under CSA-011; production and implementation gates remain separate.
   Next Action:
-  - Complete CSA-011 and other open Phase 0 decisions. See the
+  - Complete remaining operational Phase 0 inputs. See the
     [completion reconciliation](docs/requirements/CSA-009-016-RECONCILIATION.md).
   Next Owner: PROJECT LEAD
   Last Updated: 2026-10-11
 
-- [ ] CSA-017 [P1] [L]
+- [x] CSA-017 [P1] [L]
   Define MVP acceptance test strategy.
+  Status: DONE - owner-accepted documentation deliverable; runtime/release gates retained.
+  Confirmed Owner: CODEX preparation; PROJECT LEAD approval on 2026-10-11.
+  Related Pull Request: https://github.com/iamramishka/acendra/pull/11
+  Completion Evidence: [approval record](docs/requirements/CSA-011-017-APPROVAL.md).
+  Verification: documentation checks and merged reviewed revision; no runtime CI pass claimed.
 
 Phase 0 Exit:
 

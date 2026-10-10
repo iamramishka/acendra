@@ -1,7 +1,9 @@
 # CSA-015 - Privacy and security baseline
 
+Owner approval recorded 2026-10-11 (Asia/Colombo): the project owner replied "go ahead" after these six reviews were presented. This accepts the documentation baseline and authorizes merge; runtime, legal/processor, provisioning and production gates remain unverified. See [approval and completion record](../requirements/CSA-011-017-APPROVAL.md). Earlier proposal/pending wording below describes preparation or retained downstream conditions, not a missing owner decision.
+
 Date: 2026-10-11 (Asia/Colombo)
-Status: PROPOSED - IN_REVIEW; no policy or production approval recorded
+Status: APPROVED control baseline - owner accepted 2026-10-11; legal/financial retention and production gates retained
 Preparation owner: CODEX security agent
 Decision owner: Project Lead, with finance and privacy/legal review
 Policy base: e1cf11f on origin/dev (merged approved policy baseline); initial foundation inspection: 9355311
@@ -9,7 +11,7 @@ Scope: Documentation only; no backend, configuration or deployment changes
 
 ## Decision requested
 
-Approve the control baseline below for MVP implementation after resolving the decision register. Existing mandatory security requirements remain applicable while this proposal is under review. Approval of this document means approval of a design, not proof that deployed controls work. CSA-015 must remain IN_REVIEW until the Lead records approval; implementation and release verification remain separate gates.
+Approve the control baseline below for MVP implementation after resolving the decision register. Existing mandatory security requirements remain applicable while this proposal is under review. Approval of this document means approval of a design, not proof that deployed controls work. Lead baseline approval is recorded above; implementation and release verification remain separate gates.
 
 Sources reviewed: AGENTS.md, TASKS.md (Phase 0), SRS.md, SECURITY.md, ARCHITECTURE.md, DATABASE_DESIGN.md, the parallel review board, and foundation code listed below. The approved requirements/policy records on origin/dev were subsequently reviewed: docs/requirements/README.md, CSA-003-ROLES.md, CSA-006-ENROLLMENT-REFUNDS.md and CSA-010-PDF-DELIVERY.md, plus updated SRS/SECURITY and merged threat register. Sri Lanka, PayHere/LKR, roles/MFA, bank limits, lifetime purchased access, seven-day refund requests and authenticated proxy PDF delivery are approved. Full customer territories, financial retention periods, processor terms and production configuration remain gates.
 
@@ -121,10 +123,10 @@ Production security/privacy gate (every item requires actual evidence):
 
 ## Preparation handoff
 
-Task/owner: CSA-015 / CODEX preparation; Lead approval pending.
+Task/owner: CSA-015 / CODEX preparation; Lead accepted control baseline 2026-10-11.
 Branch: codex/docs/csa-015-phase0-review.
 Files changed: this document only. Shared contracts changed: none.
 Completed: reviewable inventory, retention/deletion proposal, control/evidence map, decisions and release gates.
-Remaining: owner/legal/finance approval; approved-policy integration; implementation and operational verification.
+Remaining: privacy/legal/finance operational review, financial/audit retention and implementation verification.
 Verification: documentation whitespace and diff self-review; no runtime-control verification claimed.
 Next action: coordinator submits for review and reconciles CSA-017; do not mark DONE before formal acceptance.

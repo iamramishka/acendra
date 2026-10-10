@@ -3,7 +3,8 @@
 Reconciled: 2026-10-11. Approver: project owner through accepted CSA-007 and
 related CSA-001..008/010 baselines. Acceptance approves design; implementation,
 configuration and production verification remain separate. CSA-013 governance
-review remains open.
+and CSA-011 video selection were accepted on 2026-10-11; see the
+[six-task acceptance record](../requirements/CSA-011-017-APPROVAL.md).
 
 | Record | Decision | Status |
 | --- | --- | --- |
@@ -16,7 +17,7 @@ review remains open.
 | [ADR-007](ADR-007-trusted-payments.md) | Trusted payments; PayHere/LKR | Accepted; verification gates |
 | [ADR-008](ADR-008-private-course-content.md) | Private content and grant checks | Accepted |
 | [ADR-009](ADR-009-protected-pdf-delivery.md) | Authenticated personalized PDF proxy | Accepted; runtime/reader gates |
-| [ADR-010](drafts/ADR-010-protected-video-delivery.md) | Protected video delivery | Pending CSA-011 |
+| [ADR-010](ADR-010-protected-video-delivery.md) | Mux Basic signed 1080p VOD | Accepted; privacy/playback PoC gates |
 | [ADR-011](ADR-011-parallel-engineering.md) | Isolated coordinated work | Accepted architectural boundary |
 | [ADR-012](ADR-012-controlled-github-integration.md) | Reviewed GitHub integration | Accepted; protections/CI gates |
 

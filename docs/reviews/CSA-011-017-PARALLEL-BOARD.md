@@ -5,14 +5,14 @@ Authority: the project owner requested CSA-011, 012, 013, 014, 015 and 017 in pa
 
 No open GitHub issues were returned by `gh issue list --state open --limit 100`. This board records local assignments, not fabricated GitHub assignments. Existing mutable UI files in the primary checkout are outside scope.
 
-| Task | Preparation owner | Review status | Exclusive writable scope | Branch / worktree |
+| Task | Preparation owner | Accepted task status | Exclusive writable scope | Branch / worktree |
 | --- | --- | --- | --- | --- |
-| CSA-011 | CODEX video-budget agent | IN_REVIEW | docs/decisions/CSA-011-VIDEO-PROVIDER.md | codex/docs/csa-011-phase0-review / C:/Users/ramis/.codex/worktrees/csa-011-phase0/acendra |
-| CSA-012 | CODEX video-budget agent | IN_REVIEW | docs/decisions/CSA-012-ENVIRONMENTS-BUDGET.md | codex/docs/csa-012-phase0-review / C:/Users/ramis/.codex/worktrees/csa-012-phase0/acendra |
-| CSA-013 | CODEX coordinator | IN_REVIEW | PLAN.md, AGENTS.md, this board, docs/reviews/CSA-013-GOVERNANCE-REVIEW.md | codex/docs/csa-013-phase0-review / C:/Users/ramis/.codex/worktrees/csa-013-phase0/acendra |
-| CSA-014 | CODEX design agent | IN_REVIEW | DESIGN_SYSTEM.md, docs/reviews/CSA-014-DESIGN-REVIEW.md | codex/docs/csa-014-phase0-review / C:/Users/ramis/.codex/worktrees/csa-014-phase0/acendra |
-| CSA-015 | CODEX security agent | IN_REVIEW | docs/decisions/CSA-015-PRIVACY-SECURITY-BASELINE.md | codex/docs/csa-015-phase0-review / C:/Users/ramis/.codex/worktrees/csa-015-phase0/acendra |
-| CSA-017 | CODEX coordinator | IN_REVIEW | docs/testing/CSA-017-MVP-ACCEPTANCE.md | codex/docs/csa-017-phase0-review / C:/Users/ramis/.codex/worktrees/csa-017-phase0/acendra |
+| CSA-011 | CODEX video-budget agent | DONE | docs/decisions/CSA-011-VIDEO-PROVIDER.md | codex/docs/csa-011-phase0-review / C:/Users/ramis/.codex/worktrees/csa-011-phase0/acendra |
+| CSA-012 | CODEX video-budget agent | DONE | docs/decisions/CSA-012-ENVIRONMENTS-BUDGET.md | codex/docs/csa-012-phase0-review / C:/Users/ramis/.codex/worktrees/csa-012-phase0/acendra |
+| CSA-013 | CODEX coordinator | DONE | PLAN.md, AGENTS.md, this board, docs/reviews/CSA-013-GOVERNANCE-REVIEW.md | codex/docs/csa-013-phase0-review / C:/Users/ramis/.codex/worktrees/csa-013-phase0/acendra |
+| CSA-014 | CODEX design agent | DONE | DESIGN_SYSTEM.md, docs/reviews/CSA-014-DESIGN-REVIEW.md | codex/docs/csa-014-phase0-review / C:/Users/ramis/.codex/worktrees/csa-014-phase0/acendra |
+| CSA-015 | CODEX security agent | DONE | docs/decisions/CSA-015-PRIVACY-SECURITY-BASELINE.md | codex/docs/csa-015-phase0-review / C:/Users/ramis/.codex/worktrees/csa-015-phase0/acendra |
+| CSA-017 | CODEX coordinator | DONE | docs/testing/CSA-017-MVP-ACCEPTANCE.md | codex/docs/csa-017-phase0-review / C:/Users/ramis/.codex/worktrees/csa-017-phase0/acendra |
 
 PLAN.md and AGENTS.md were exclusively held by the coordinator; DESIGN_SYSTEM.md was exclusively held by the design agent. Preparation locks release at submission for review; subsequent amendments require the same task owner. TASKS.md, SECURITY.md, code, migrations, dependencies and CI are read-only for this batch.
 
@@ -22,9 +22,9 @@ Dependencies: drafts may proceed independently from the committed proposed basel
 
 Deviation: higher-priority desktop branch prefix `codex/` is used. The six requested preparations exceed the suggested initial one-task concurrency limit by explicit owner request, with independent scopes and worktrees. Four agents execute the six tasks; video/budget sequence their paired tasks; the coordinator prepared governance and acceptance while other agents completed independent research, design and security.
 
-Draft PRs and completion evidence are recorded below. No task is DONE and no new policy is approved by this board.
+All six review PRs below are now merged and owner-accepted for documentation scope. Earlier pending/IN_REVIEW evidence describes preparation; the current approval record supersedes it. See [approval record](../requirements/CSA-011-017-APPROVAL.md).
 
-## Submitted deliverables and handoff
+## Submitted deliverables and preparation evidence (historical)
 
 | Task | Deliverable | Review evidence / remaining acceptance | Draft PR |
 | --- | --- | --- | --- |
@@ -42,7 +42,7 @@ proof of current behavior; concurrent UI commits reached remote dev after the
 documentation base e1cf11f. Three-dot PR comparisons confirm these branches add
 only their assigned documentation and do not remove or export other agents' UI.
 
-Task owner for preparation amendments remains CODEX within the same isolated
+Task owner for subsequent amendments remains CODEX within the same isolated
 scope. Next owner is the project lead for review/decisions; infrastructure,
 backend, frontend and QA owners must separately claim implementation/PoC work.
 Use the PR head commits as the exact version under review. No purchase, live
@@ -53,3 +53,8 @@ assigned documentation paths. statusCheckRollup is empty for every PR; no CI
 pass is claimed. CSA-017's explicit AT-001..014 and MUST-family inventory checks
 passed after mapping corrections; per-requirement executable coverage remains
 a downstream gate. Preparation locks have been released for owner review.
+
+Current milestone: all six documentation tasks DONE after owner acceptance on
+2026-10-11 and reviewed PR merges. Runtime, privacy/legal, PoC, provisioning and
+production gates remain retained in the approval record. No paid service or
+production change occurred. Preparation/reconciliation locks release after merge.

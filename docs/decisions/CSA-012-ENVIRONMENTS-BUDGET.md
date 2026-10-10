@@ -1,7 +1,9 @@
 # CSA-012: Environments and budget approval proposal
 
+Owner approval recorded 2026-10-11 (Asia/Colombo): the project owner replied "go ahead" after these six reviews were presented. This accepts the documentation baseline and authorizes merge; runtime, legal/processor, provisioning and production gates remain unverified. See [approval and completion record](../requirements/CSA-011-017-APPROVAL.md). Earlier proposal/pending wording below describes preparation or retained downstream conditions, not a missing owner decision.
+
 Date: 2026-10-11 (Asia/Colombo)
-Status: IN_REVIEW - environment and USD limits proposed; Project Owner approval pending
+Status: APPROVED environment/budget baseline - owner accepted 2026-10-11; provisioning/recovery gates retained
 Preparation owner: CODEX video-budget agent
 Integration base: e1cf11f (origin/dev); branch: codex/docs/csa-012-phase0-review
 Scope: this document only. No environment was provisioned, bill incurred or live configuration changed.
@@ -98,11 +100,11 @@ A stricter financial RPO/PITR decision is open: [Supabase pricing](https://supab
 - [ ] RPO/RTO accepted after financial recovery review, restore drill succeeds with private object backups, retention/deletion agreed and backup quote included.
 - [ ] Explicit release approval precedes production provision/deploy/live payments; task moves to DONE only after formal acceptance and required integration.
 
-Approval record: Project Owner/date = pending; billing owner = pending; USD limits = proposed; region/processor review = pending; recovery objectives = proposed; provider accounts = not provisioned by this task. Required final approval covers these concrete choices; implementation evidence remains a later release gate.
+Approval record: Project Owner accepted environment/budget baseline on 2026-10-11; USD 150 planning limit approved; named billing owner, region/processor review and recovery feasibility pending; provider accounts not provisioned. Required final approval covers these concrete choices; implementation evidence remains a later release gate.
 
 ## Handoff
 
-Task/owner: CSA-012 / CODEX preparation. Status: IN_REVIEW.
+Task/owner: CSA-012 / CODEX preparation. Status: DONE for accepted documentation; downstream verification retained.
 Files changed: docs/decisions/CSA-012-ENVIRONMENTS-BUDGET.md only.
 Shared contracts changed: none; environment operations and billing proposal only.
 Checks: git diff --check, arithmetic and scope self-review. No service configuration, load, restore, Flutter or database tests executed for this documentation-only change. Commit/PR: recorded by coordinator at submission.

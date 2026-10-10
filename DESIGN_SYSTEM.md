@@ -4,7 +4,8 @@
 
 Document ID: CSA-DS-001
 Version: 1.1
-Status: Proposed - Pending Approval
+Status: Approved Documentation Baseline - Implementation and Release Gates Retained
+Approval: Project owner, 2026-10-11; see docs/requirements/CSA-011-017-APPROVAL.md.
 Review: CSA-014, 2026-10-11; proposed clarifications, no implementation sign-off
 Project: Course Selling Application
 Working Brand: Acedra
