@@ -911,20 +911,24 @@ All items start unchecked.
   Define bank transfer verification policy.
   DONE, CODEX: [bank verification policy](docs/requirements/CSA-005-BANK-POLICY.md) approved by owner on 2026-10-11; listed operational gates remain.
 
-- [ ] CSA-006 [P0] [L]
+- [x] CSA-006 [P0] [L]
   Define enrollment, expiry, and refund rules.
+  DONE, CODEX: [enrollment/refund policy](docs/requirements/CSA-006-ENROLLMENT-REFUNDS.md) accepted by owner on 2026-10-11; operational terms and implementation remain gated.
 
-- [ ] CSA-007 [P1] [L]
+- [x] CSA-007 [P1] [L]
   Approve ARCHITECTURE.md.
+  DONE, CODEX: [architecture baseline](docs/requirements/CSA-007-ARCHITECTURE.md) accepted by owner on 2026-10-11; implementation unverified.
 
-- [ ] CSA-008 [P0] [X]
+- [x] CSA-008 [P0] [X]
   Design database entities and relationships.
+  DONE, CODEX: [entity/relationship baseline](docs/requirements/CSA-008-DATABASE.md) accepted by owner on 2026-10-11; existing draft preserved; migrations/tests remain future work.
 
 - [ ] CSA-009 [P0] [X]
   Create initial security threat model.
 
-- [ ] CSA-010 [P0] [L]
+- [x] CSA-010 [P0] [L]
   Approve protected PDF delivery strategy.
+  DONE, CODEX: [authenticated proxy/watermark strategy](docs/requirements/CSA-010-PDF-DELIVERY.md) accepted by owner on 2026-10-11; runtime/reader validation remains required.
 
 - [ ] CSA-011 [P1] [L]
   Select protected video delivery provider.
