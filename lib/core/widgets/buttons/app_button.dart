@@ -76,21 +76,26 @@ class AppButton extends StatelessWidget {
               )
             : Text(label);
 
-    return ElevatedButton(
-      onPressed: effectiveOnPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: bgColor,
-        foregroundColor: fgColor,
-        elevation: 0,
-        minimumSize: Size(0, minHeight),
-        padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
-        side: borderColor != null ? BorderSide(color: borderColor) : null,
-        textStyle: tt.labelLarge?.copyWith(fontWeight: FontWeight.w600),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.button),
+    return Semantics(
+      label: isLoading ? '$label, loading' : null,
+      button: true,
+      enabled: effectiveOnPressed != null,
+      child: ElevatedButton(
+        onPressed: effectiveOnPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: bgColor,
+          foregroundColor: fgColor,
+          elevation: 0,
+          minimumSize: Size(0, minHeight),
+          padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
+          side: borderColor != null ? BorderSide(color: borderColor) : null,
+          textStyle: tt.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.button),
+          ),
         ),
+        child: content,
       ),
-      child: content,
     );
   }
 }
