@@ -1,6 +1,6 @@
 # ADR-004: go_router for Application Navigation
 
-- Status: Proposed; pending Project Lead approval
+- Status: Accepted - implementation and operational gates retained
 - Decision owner: Project Lead
 - Date: 2026-10-11
 - Related tasks: CSA-007, CSA-016
@@ -13,7 +13,7 @@ documents propose go_router.
 
 ## Decision
 
-Proposed: use go_router for route composition, URL handling, and navigation
+use go_router for route composition, URL handling, and navigation
 integration in the Flutter client. Keep authorization enforcement in
 trusted backend services and database policies.
 
@@ -38,5 +38,8 @@ payment, or private storage data in URLs.
 
 ## Approval
 
-Pending Project Lead approval. This record does not authorize a dependency
-version change.
+Accepted by the project owner on 2026-10-11 through the approved CSA-007
+architecture baseline (PR #4). Reconciled at the owner's request under CSA-016.
+This accepts the decision, not evidence of implementation or production readiness.
+See [approved architecture](../../ARCHITECTURE.md) and
+[reconciliation record](../requirements/CSA-009-016-RECONCILIATION.md).

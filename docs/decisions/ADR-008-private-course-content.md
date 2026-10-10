@@ -1,6 +1,6 @@
 # ADR-008: Private Course Content with Entitlement Authorization
 
-- Status: Proposed security invariant; delivery details pending
+- Status: Accepted - implementation and operational gates retained
 - Decision owner: Project Lead
 - Date: 2026-10-11
 - Related tasks: CSA-006, CSA-010, CSA-011, CSA-016
@@ -13,11 +13,11 @@ Browser-delivered bytes cannot be made impossible to copy.
 
 ## Decision
 
-Proposed: store protected assets privately and authorize each protected delivery
+store protected assets privately and authorize each protected delivery
 using trusted identity and entitlement state. Verify ownership, course,
 resource, entitlement status, expiry, and revocation at the trusted
-delivery boundary. Keep the exact PDF and video delivery mechanisms open
-for their dedicated decisions.
+delivery boundary. PDF delivery follows accepted CSA-010 proxy/derivative rules;
+video provider selection remains open under CSA-011.
 
 ## Alternatives considered
 
@@ -44,5 +44,8 @@ practices and avoid collecting unrelated learner data.
 
 ## Approval
 
-Pending Project Lead approval. The baseline does not settle CSA-010 PDF
-delivery or CSA-011 video provider selection.
+Accepted by the project owner on 2026-10-11 through the approved CSA-007
+architecture baseline (PR #4). Reconciled at the owner's request under CSA-016.
+This accepts the decision, not evidence of implementation or production readiness.
+See [approved architecture](../../ARCHITECTURE.md) and
+[reconciliation record](../requirements/CSA-009-016-RECONCILIATION.md).
