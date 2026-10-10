@@ -37,7 +37,7 @@ void main() {
 
   testWidgets('CourseCard renders price', (tester) async {
     await tester.pumpWidget(_wrap(
-      CourseCard(
+      const CourseCard(
         title: 'X',
         instructorName: 'Y',
         price: r'$99',

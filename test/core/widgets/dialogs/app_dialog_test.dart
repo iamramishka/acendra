@@ -18,22 +18,20 @@ void main() {
   group('AppDialog', () {
     testWidgets('shows title and body text', (tester) async {
       await tester.pumpWidget(_app(() {}));
-      BuildContext? capturedCtx;
       await tester.pumpWidget(
         MaterialApp(
           theme: ThemeData(useMaterial3: true),
           home: Scaffold(
-            body: Builder(builder: (ctx) {
-              capturedCtx = ctx;
-              return ElevatedButton(
+            body: Builder(
+              builder: (ctx) => ElevatedButton(
                 onPressed: () => AppDialog.show(
                   ctx,
                   title: 'Delete item',
                   body: 'Are you sure?',
                 ),
                 child: const Text('Open'),
-              );
-            }),
+              ),
+            ),
           ),
         ),
       );

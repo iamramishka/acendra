@@ -1,5 +1,4 @@
 import 'package:acendra/app/theme/app_spacing.dart';
-import 'package:acendra/app/theme/app_theme_extension.dart';
 import 'package:flutter/material.dart';
 
 enum ButtonVariant { primary, secondary, outlined, destructive }
@@ -28,8 +27,6 @@ class AppButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    // AppThemeExtension may be absent in minimal test themes — use null-safe access
-    final ext = Theme.of(context).extension<AppThemeExtension>();
 
     final minHeight = switch (size) {
       ButtonSize.small => 36.0,
