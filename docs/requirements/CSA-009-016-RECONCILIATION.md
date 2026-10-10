@@ -39,3 +39,8 @@ not applicable to Markdown-only reconciliation; no runtime/security pass claimed
 CSA-011, CSA-013, CSA-015 and provider/retention/CI/migration/PDF runtime/release
 gates remain open. Old draft paths remain discoverable through Git history and
 the updated indexes. No other worktree or uncommitted draft was changed.
+
+Merge review on 2026-10-11 corrected a stale provider-selection sentence in
+ADR-007. ADR counts/statuses, local links and whitespace checks passed. The owner
+authorized review and merge; no remaining blocking findings. GitHub reports no
+configured CI checks for this documentation PR; no runtime CI pass is claimed.

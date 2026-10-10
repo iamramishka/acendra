@@ -13,7 +13,7 @@ unverified callbacks are not trusted evidence of settlement.
 
 ## Decision
 
-require all payment state changes that can grant access to pass through
+Require all payment state changes that can grant access to pass through
 trusted backend verification and transactional database finalization.
 For provider events, verify authenticity and match the trusted order,
 amount, currency, provider reference, and outcome. Enforce idempotency and
@@ -39,8 +39,8 @@ implementation, reconciliation and production verification remain gated.
 
 - Trusted functions and database transactions are required for finalization.
 - Provider-specific signature validation, retries, refunds, and dispute
-  handling remain open until the payment provider and business rules are
-  selected.
+  handling must implement accepted CSA-004..006 policies. Provider capability,
+  reconciliation and production verification remain implementation gates.
 - Auditable transitions and concurrency tests add implementation work but
   protect financial integrity.
 
