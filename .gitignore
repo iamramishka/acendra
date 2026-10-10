@@ -49,3 +49,10 @@ app.*.map.json
 
 # Local environment secrets — never commit
 .env
+.env.*
+!.env.example
+/config/*.local.json
+/node_modules/
+/supabase/.temp/
+/supabase/.branches/
+/supabase/signing_keys*.json

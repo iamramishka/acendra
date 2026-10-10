@@ -1,0 +1,5 @@
+{
+  "APP_ENV": "development",
+  "SUPABASE_URL": "http://127.0.0.1:58000",
+  "SUPABASE_PUBLISHABLE_KEY": "REPLACE_WITH_LOCAL_PUBLIC_KEY"
+}

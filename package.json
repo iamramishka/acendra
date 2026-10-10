@@ -1,0 +1,19 @@
+{
+  "name": "acendra-local-tooling",
+  "private": true,
+  "description": "Pinned Supabase development tools; not Flutter application dependencies",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "tool:test": "node --test tool/local_supabase.test.mjs",
+    "db:prepare": "node tool/local_supabase.mjs prepare dev",
+    "db:start": "node tool/local_supabase.mjs start dev",
+    "db:stop": "node tool/local_supabase.mjs stop dev",
+    "db:status": "node tool/local_supabase.mjs status dev",
+    "db:reset": "node tool/local_supabase.mjs reset dev",
+    "db:test": "node tool/local_supabase.mjs test test",
+    "db:lint": "node tool/local_supabase.mjs lint test",
+    "db:test:stop": "node tool/local_supabase.mjs stop test",
+    "client:env": "node tool/local_supabase.mjs client-env dev"
+  },
+  "devDependencies": { "supabase": "2.120.0" }
+}

@@ -1,0 +1,4 @@
+-- Local synthetic seed entry point. Role definitions are seeded by migrations.
+-- No user, privileged role assignment, payment or entitlement fixtures are
+-- installed by default. Database tests create synthetic users transactionally.
+-- Add future development fixtures only through reviewed nonproduction changes.
