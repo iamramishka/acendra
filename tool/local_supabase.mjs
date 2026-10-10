@@ -56,19 +56,26 @@ export function isLocalDockerEndpoint(endpoint) {
   return typeof endpoint === 'string' && (/^unix:\/\/\//.test(endpoint) || /^npipe:\/{3,4}\.\/pipe\/[^/]+$/.test(endpoint));
 }
 
-function localDocker(layout, env) {
-  const docker = process.platform === 'win32' ? 'docker.exe' : 'docker';
-  function call(args) {
-    return spawnSync(docker, args, { env, encoding: 'utf8' });
-  }
+export function pinLocalDockerEndpoint(env, call) {
   let endpoint = env.DOCKER_HOST;
-  if (!endpoint) {
+  // Docker gives DOCKER_CONTEXT precedence over DOCKER_HOST. Resolve that same
+  // effective target, then remove the override so Docker and Supabase agree.
+  if (env.DOCKER_CONTEXT || !endpoint) {
     const context = call(['context', 'inspect', ...(env.DOCKER_CONTEXT ? [env.DOCKER_CONTEXT] : [])]);
     if (context.status !== 0) throw new Error('Docker CLI/context unavailable. Start a local Docker Linux engine.');
     endpoint = JSON.parse(context.stdout)[0]?.Endpoints?.docker?.Host;
   }
   if (!isLocalDockerEndpoint(endpoint)) throw new Error('Only a local Docker socket is allowed; remote Docker endpoints are rejected.');
   env.DOCKER_HOST = endpoint;
+  delete env.DOCKER_CONTEXT;
+}
+
+function localDocker(layout, env) {
+  const docker = process.platform === 'win32' ? 'docker.exe' : 'docker';
+  function call(args) {
+    return spawnSync(docker, args, { env, encoding: 'utf8' });
+  }
+  pinLocalDockerEndpoint(env, call);
   const info = call(['info', '--format', '{{.OSType}}']);
   if (info.status !== 0 || info.stdout.trim() !== 'linux') {
     throw new Error('Local Docker Linux engine is unavailable. Start Docker Desktop in Linux-container mode before running database commands.');

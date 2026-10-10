@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { createLayout, renderConfig, publicClientConfig, allowedCommand, isLocalDockerEndpoint, prepareSnapshot } from './local_supabase.mjs';
+import { createLayout, renderConfig, publicClientConfig, allowedCommand, isLocalDockerEndpoint, pinLocalDockerEndpoint, prepareSnapshot } from './local_supabase.mjs';
 
 test('worktrees and dev/test have different IDs, volumes and ports', () => {
   const dev = createLayout('C:/worktrees/task-a', 'dev');
@@ -49,6 +49,24 @@ test('Docker must use a local socket, not a remote endpoint', () => {
   assert.ok(!isLocalDockerEndpoint('tcp://remote-server:2376'));
   assert.ok(!isLocalDockerEndpoint('ssh://remote-server'));
   assert.ok(!isLocalDockerEndpoint('npipe:////remote-server/pipe/docker_engine'));
+});
+
+test('Docker context precedence cannot bypass the local endpoint guard', () => {
+  const local = 'unix:///var/run/docker.sock';
+  const remoteEnv = { DOCKER_HOST: local, DOCKER_CONTEXT: 'remote' };
+  assert.throws(() => pinLocalDockerEndpoint(remoteEnv, args => {
+    assert.deepEqual(args, ['context', 'inspect', 'remote']);
+    return { status: 0, stdout: JSON.stringify([{ Endpoints: { docker: { Host: 'ssh://remote-server' } } }]) };
+  }), /Only a local Docker socket/);
+
+  const localEnv = { DOCKER_HOST: 'tcp://remote-server:2376', DOCKER_CONTEXT: 'desktop-linux' };
+  pinLocalDockerEndpoint(localEnv, args => {
+    assert.deepEqual(args, ['context', 'inspect', 'desktop-linux']);
+    return { status: 0, stdout: JSON.stringify([{ Endpoints: { docker: { Host: local } } }]) };
+  });
+  assert.equal(localEnv.DOCKER_HOST, local);
+  assert.ok(!('DOCKER_CONTEXT' in localEnv));
+  pinLocalDockerEndpoint(localEnv, () => assert.fail('Explicit host must stay pinned'));
 });
 
 test('generated Flutter config contains only local public values', () => {
