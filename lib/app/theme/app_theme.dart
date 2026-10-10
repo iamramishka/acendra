@@ -4,15 +4,11 @@ import 'package:acendra/app/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 
 abstract final class AppTheme {
-  static ThemeData get light => _build(
-        brightness: Brightness.light,
-        tokens: AppColors.light,
-      );
+  static ThemeData get light =>
+      _build(brightness: Brightness.light, tokens: AppColors.light);
 
-  static ThemeData get dark => _build(
-        brightness: Brightness.dark,
-        tokens: AppColors.dark,
-      );
+  static ThemeData get dark =>
+      _build(brightness: Brightness.dark, tokens: AppColors.dark);
 
   static ThemeData _build({
     required Brightness brightness,
@@ -107,8 +103,9 @@ abstract final class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.button),
           ),
-          textStyle:
-              textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+          textStyle: textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -122,15 +119,17 @@ abstract final class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.button),
           ),
-          textStyle:
-              textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+          textStyle: textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: tokens.primary,
-          textStyle:
-              textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+          textStyle: textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       dividerTheme: DividerThemeData(
