@@ -1,6 +1,6 @@
 # ADR-009: Protected PDF Delivery
 
-- Status: Decision pending Project Lead approval
+- Status: Accepted - implementation and operational gates retained
 - Decision owner: Project Lead
 - Date: 2026-10-11
 - Related tasks: CSA-010, CSA-016
@@ -9,13 +9,18 @@
 
 PDF lessons must be readable at useful quality while access remains
 limited to authorized learners. Private storage and entitlement checks are
-required, but project documents do not approve a delivery mechanism.
+required. CSA-010 now selects authenticated proxy delivery.
 
 ## Decision
 
-No delivery mechanism is selected in this record. CSA-010 must compare
-candidate approaches and obtain Project Lead approval before implementation
-relies on a PDF delivery contract.
+Select authenticated proxy delivery of private, server-watermarked personalized
+PDF derivatives under the accepted CSA-010 policy. Reauthorize descriptor, GET,
+HEAD and range requests against surviving valid grant sources and restrictions.
+Do not expose original Storage paths or redirect to signed download URLs. Preserve
+immutable derivative versions and fail closed when transformation fails.
+See [PDF policy](../requirements/CSA-010-PDF-DELIVERY.md) for watermark, privacy,
+cache and range semantics. Runtime/library/reader compatibility and operational
+limits remain implementation gates; already delivered bytes cannot be recalled.
 
 ## Alternatives considered
 
@@ -30,7 +35,7 @@ relies on a PDF delivery contract.
   controls, but introduces provider, privacy, accessibility, integration,
   and cost decisions.
 
-These are comparison candidates, not recommendations or selected products.
+The authenticated proxy strategy is selected; other alternatives remain documented tradeoffs.
 
 ## Tradeoffs and evaluation criteria
 
@@ -50,5 +55,8 @@ credentials. Do not log full signed URLs or private object paths.
 
 ## Approval
 
-Pending CSA-010 and Project Lead approval. No implementation mechanism is
-authorized by this draft.
+Accepted by the project owner on 2026-10-11 through the approved CSA-007
+architecture baseline (PR #4). Reconciled at the owner's request under CSA-016.
+This accepts the decision, not evidence of implementation or production readiness.
+See [approved architecture](../../ARCHITECTURE.md) and
+[reconciliation record](../requirements/CSA-009-016-RECONCILIATION.md).

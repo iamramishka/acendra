@@ -923,8 +923,9 @@ All items start unchecked.
   Design database entities and relationships.
   DONE, CODEX: [entity/relationship baseline](docs/requirements/CSA-008-DATABASE.md) accepted by owner on 2026-10-11; existing draft preserved; migrations/tests remain future work.
 
-- [ ] CSA-009 [P0] [X]
+- [x] CSA-009 [P0] [X]
   Create initial security threat model.
+  DONE, CODEX: SECURITY.md threat model merged in PR #1 (be0aede); completion reconciled at owner's request on 2026-10-11. [Evidence and remaining security work](docs/requirements/CSA-009-016-RECONCILIATION.md).
 
 - [x] CSA-010 [P0] [L]
   Approve protected PDF delivery strategy.
@@ -945,26 +946,26 @@ All items start unchecked.
 - [ ] CSA-015 [P0] [L]
   Approve privacy and security baseline.
 
-- [ ] CSA-016 [P1] [X]
+- [x] CSA-016 [P1] [X]
   Draft initial architecture decision records.
-  Status: IN_REVIEW
+  Status: DONE - draft deliverable and approval reconciliation complete
   Confirmed Owner: CODEX (user-directed; no GitHub issue found)
   Work Completed:
-  - Drafted 12 proposed ADRs and an index in docs/decisions/drafts/.
-  - Kept PDF/video delivery and provider choices pending.
-  - Documented the ADR numbering mismatch between PLAN.md section 42 and
-    ARCHITECTURE.md section 4 for review.
+  - Drafted twelve ADRs in merged PR #2; reconciled eleven Accepted records
+    against owner-approved architecture/policies from PR #3/#4.
+  - Moved accepted records to docs/decisions/; ADR-010 stays pending under CSA-011.
+  - Numbering reconciled by CSA-007; [canonical index](docs/decisions/README.md).
   Related Pull Request:
   https://github.com/iamramishka/acendra/pull/2
   Completion Evidence:
   - Commit b4ef00e; documentation field and index-link checks passed.
   - git diff --cached --check passed; application tests do not apply.
   Current Blockers:
-  - Project Lead review and approval of the ADR drafts and numbering.
+  - None for the initial drafting/reconciliation task. Video provider selection
+    remains CSA-011; production and implementation gates are separate.
   Next Action:
-  - Project Lead: review PR #2, reconcile the ADR numbering, then approve or
-    request revisions. Keep CSA-016 unchecked until accepted.
-  - After the Phase 0 approval gate is cleared, assign Phase 1 work.
+  - Complete CSA-011 and other open Phase 0 decisions. See the
+    [completion reconciliation](docs/requirements/CSA-009-016-RECONCILIATION.md).
   Next Owner: PROJECT LEAD
   Last Updated: 2026-10-11
 

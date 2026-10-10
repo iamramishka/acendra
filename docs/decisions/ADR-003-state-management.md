@@ -1,6 +1,6 @@
 # ADR-003: Riverpod for Client State Management
 
-- Status: Proposed; pending Project Lead approval
+- Status: Accepted - implementation and operational gates retained
 - Decision owner: Project Lead
 - Date: 2026-10-11
 - Related tasks: CSA-007, CSA-016
@@ -13,7 +13,7 @@ Project documents propose Riverpod.
 
 ## Decision
 
-Proposed: use Riverpod for application-level dependency injection and state where
+use Riverpod for application-level dependency injection and state where
 shared or asynchronous state needs an explicit lifecycle. Keep short-lived
 widget state local when that is simpler.
 
@@ -40,5 +40,8 @@ role, payment, or entitlement.
 
 ## Approval
 
-Pending Project Lead approval. This proposal does not establish a package
-version or authorize a dependency change.
+Accepted by the project owner on 2026-10-11 through the approved CSA-007
+architecture baseline (PR #4). Reconciled at the owner's request under CSA-016.
+This accepts the decision, not evidence of implementation or production readiness.
+See [approved architecture](../../ARCHITECTURE.md) and
+[reconciliation record](../requirements/CSA-009-016-RECONCILIATION.md).

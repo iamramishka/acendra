@@ -1,6 +1,6 @@
 # ADR-012: Controlled GitHub Integration
 
-- Status: Proposed workflow; pending Project Lead approval
+- Status: Accepted - implementation and operational gates retained
 - Decision owner: Project Lead
 - Date: 2026-10-11
 - Related tasks: CSA-013, CSA-016
@@ -14,7 +14,7 @@ review.
 
 ## Decision
 
-Proposed: use GitHub Issues to record live ownership, dependencies, allowed file
+use GitHub Issues to record live ownership, dependencies, allowed file
 scope, acceptance criteria, and completion evidence once configured. Submit
 task branches through pull requests targeting the repository's configured
 default branch. Require review and applicable CI before integration; do not
@@ -45,4 +45,8 @@ needs appropriate review.
 
 ## Approval
 
-Pending Project Lead approval and repository-protection verification.
+Accepted by the project owner on 2026-10-11 through the approved CSA-007
+architecture baseline (PR #4). Reconciled at the owner's request under CSA-016.
+This accepts the decision, not evidence of implementation or production readiness.
+See [approved architecture](../../ARCHITECTURE.md) and
+[reconciliation record](../requirements/CSA-009-016-RECONCILIATION.md).

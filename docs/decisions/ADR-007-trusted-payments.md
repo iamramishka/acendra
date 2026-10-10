@@ -1,6 +1,6 @@
 # ADR-007: Trusted Payment Verification and Finalization
 
-- Status: Proposed security invariant; implementation details pending
+- Status: Accepted - implementation and operational gates retained
 - Decision owner: Project Lead
 - Date: 2026-10-11
 - Related tasks: CSA-004, CSA-005, CSA-006, CSA-016
@@ -13,7 +13,7 @@ unverified callbacks are not trusted evidence of settlement.
 
 ## Decision
 
-Proposed: require all payment state changes that can grant access to pass through
+Require all payment state changes that can grant access to pass through
 trusted backend verification and transactional database finalization.
 For provider events, verify authenticity and match the trusted order,
 amount, currency, provider reference, and outcome. Enforce idempotency and
@@ -22,9 +22,9 @@ an authorized reviewer must independently confirm settlement before an
 audited transaction can approve payment and grant the corresponding
 entitlement.
 
-This is a security and correctness requirement, not a selection of a
-payment gateway, currency, bank-review policy, refund rule, or settlement
-provider protocol.
+PayHere/LKR are selected under CSA-004; bank review follows CSA-005 and
+lifetime access/refund/reversal behavior follows CSA-006. Provider protocol
+implementation, reconciliation and production verification remain gated.
 
 ## Alternatives considered
 
@@ -39,8 +39,8 @@ provider protocol.
 
 - Trusted functions and database transactions are required for finalization.
 - Provider-specific signature validation, retries, refunds, and dispute
-  handling remain open until the payment provider and business rules are
-  selected.
+  handling must implement accepted CSA-004..006 policies. Provider capability,
+  reconciliation and production verification remain implementation gates.
 - Auditable transitions and concurrency tests add implementation work but
   protect financial integrity.
 
@@ -52,6 +52,8 @@ payment secrets or unnecessary receipt contents.
 
 ## Approval
 
-The security invariant is required by the project guidance. The Project
-Lead must approve the architecture and decide provider and business rules
-under CSA-004 through CSA-006 before production use.
+Accepted by the project owner on 2026-10-11 through the approved CSA-007
+architecture baseline (PR #4). Reconciled at the owner's request under CSA-016.
+This accepts the decision, not evidence of implementation or production readiness.
+See [approved architecture](../../ARCHITECTURE.md) and
+[reconciliation record](../requirements/CSA-009-016-RECONCILIATION.md).

@@ -1,6 +1,6 @@
 # ADR-011: Isolated Parallel Engineering
 
-- Status: Proposed workflow; pending Project Lead approval
+- Status: Accepted - implementation and operational gates retained
 - Decision owner: Project Lead
 - Date: 2026-10-11
 - Related tasks: CSA-013, CSA-016
@@ -13,7 +13,7 @@ database migrations, and sensitive state machines.
 
 ## Decision
 
-Proposed: allow parallel work only when requirements, ownership, dependencies, file
+allow parallel work only when requirements, ownership, dependencies, file
 scopes, and integration points are clear. Give each active task one
 accountable owner, use an isolated branch/worktree, coordinate shared files,
 and integrate through reviewed pull requests.
@@ -41,5 +41,8 @@ must not edit another owner's worktree or change shared contracts silently.
 
 ## Approval
 
-Pending Project Lead approval of the proposed workflow and related
-`AGENTS.md`/`docs/PARALLEL_WORKFLOW.md` policies.
+Accepted by the project owner on 2026-10-11 through the approved CSA-007
+architecture baseline (PR #4). Reconciled at the owner's request under CSA-016.
+This accepts the decision, not evidence of implementation or production readiness.
+See [approved architecture](../../ARCHITECTURE.md) and
+[reconciliation record](../requirements/CSA-009-016-RECONCILIATION.md).

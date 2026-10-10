@@ -1,6 +1,6 @@
 # ADR-005: Supabase as the Backend Platform
 
-- Status: Proposed; pending Project Lead approval
+- Status: Accepted - implementation and operational gates retained
 - Decision owner: Project Lead
 - Date: 2026-10-11
 - Related tasks: CSA-007, CSA-016, CSA-032
@@ -13,7 +13,7 @@ propose Supabase as an integrated backend platform.
 
 ## Decision
 
-Proposed: use Supabase services for the initial backend: Supabase Auth, PostgreSQL,
+use Supabase services for the initial backend: Supabase Auth, PostgreSQL,
 private Supabase Storage, and Edge Functions, subject to separate review
 of production configuration, provider capabilities, budget, and operational
 requirements.
@@ -44,4 +44,8 @@ Flutter Web assets or client configuration.
 
 ## Approval
 
-Pending Project Lead approval and production provider/cost review.
+Accepted by the project owner on 2026-10-11 through the approved CSA-007
+architecture baseline (PR #4). Reconciled at the owner's request under CSA-016.
+This accepts the decision, not evidence of implementation or production readiness.
+See [approved architecture](../../ARCHITECTURE.md) and
+[reconciliation record](../requirements/CSA-009-016-RECONCILIATION.md).

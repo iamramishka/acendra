@@ -1,6 +1,6 @@
 # ADR-002: Feature-First Clean Architecture
 
-- Status: Proposed; pending Project Lead approval
+- Status: Accepted - implementation and operational gates retained
 - Decision owner: Project Lead
 - Date: 2026-10-11
 - Related tasks: CSA-007, CSA-016
@@ -13,7 +13,7 @@ needs feature ownership without coupling business rules to Flutter widgets.
 
 ## Decision
 
-Proposed: organize application code by feature and keep presentation, domain, and
+organize application code by feature and keep presentation, domain, and
 data responsibilities separated where the feature warrants those layers.
 Keep shared core modules small and avoid circular dependencies.
 
@@ -41,5 +41,8 @@ must be enforced by trusted backend and database controls.
 
 ## Approval
 
-Pending Project Lead approval. The directory structure in current project
-documents is a proposal until accepted.
+Accepted by the project owner on 2026-10-11 through the approved CSA-007
+architecture baseline (PR #4). Reconciled at the owner's request under CSA-016.
+This accepts the decision, not evidence of implementation or production readiness.
+See [approved architecture](../../ARCHITECTURE.md) and
+[reconciliation record](../requirements/CSA-009-016-RECONCILIATION.md).

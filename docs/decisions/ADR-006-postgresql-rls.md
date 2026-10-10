@@ -1,6 +1,6 @@
 # ADR-006: PostgreSQL with Row Level Security
 
-- Status: Proposed; pending Project Lead approval
+- Status: Accepted - implementation and operational gates retained
 - Decision owner: Project Lead
 - Date: 2026-10-11
 - Related tasks: CSA-007, CSA-008, CSA-016
@@ -13,7 +13,7 @@ client query or identifier. The proposed backend uses Supabase/PostgreSQL.
 
 ## Decision
 
-Proposed: use PostgreSQL as the source of truth for relational records and enable
+use PostgreSQL as the source of truth for relational records and enable
 Row Level Security for exposed tables. Define database grants and policies
 alongside trusted function authorization; RLS is a defense layer, not a
 replacement for correct transaction design.
@@ -32,7 +32,7 @@ replacement for correct transaction design.
 - Policies need explicit tests for owner, role, and unauthenticated cases.
 - Privileged functions require narrow grants and careful review because
   elevated execution can bypass ordinary caller restrictions.
-- The physical schema remains subject to review of the CSA-008 proposal.
+- The schema design follows accepted CSA-008; migrations and negative tests remain required.
 
 ## Security and privacy impact
 
@@ -42,5 +42,8 @@ query.
 
 ## Approval
 
-Pending Project Lead approval. Database entity details and policies must
-be reviewed in their own task and migration changes.
+Accepted by the project owner on 2026-10-11 through the approved CSA-007
+architecture baseline (PR #4). Reconciled at the owner's request under CSA-016.
+This accepts the decision, not evidence of implementation or production readiness.
+See [approved architecture](../../ARCHITECTURE.md) and
+[reconciliation record](../requirements/CSA-009-016-RECONCILIATION.md).

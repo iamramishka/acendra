@@ -1,6 +1,6 @@
 # ADR-001: Flutter Web as the MVP Platform
 
-- Status: Proposed; pending Project Lead approval
+- Status: Accepted - implementation and operational gates retained
 - Decision owner: Project Lead
 - Date: 2026-10-11
 - Related tasks: CSA-001, CSA-002, CSA-016
@@ -10,11 +10,11 @@
 Acedra needs a responsive course-selling application for students and
 administrators. The project documents identify browser delivery as the
 initial platform and list Android and iOS as possible future platforms.
-The product scope and acceptance criteria are still awaiting approval.
+The product scope and acceptance criteria were accepted under CSA-001/002.
 
 ## Decision
 
-Proposed: use Flutter Web for the MVP client, with responsive layouts and browser
+use Flutter Web for the MVP client, with responsive layouts and browser
 navigation behavior. Treat mobile applications as future clients, not as
 part of the MVP commitment.
 
@@ -44,5 +44,8 @@ boundaries.
 
 ## Approval
 
-Pending. Do not treat this proposal as an approved platform commitment
-until the Project Lead records an approval decision.
+Accepted by the project owner on 2026-10-11 through the approved CSA-007
+architecture baseline (PR #4). Reconciled at the owner's request under CSA-016.
+This accepts the decision, not evidence of implementation or production readiness.
+See [approved architecture](../../ARCHITECTURE.md) and
+[reconciliation record](../requirements/CSA-009-016-RECONCILIATION.md).
