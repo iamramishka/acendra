@@ -913,18 +913,22 @@ All items start unchecked.
 
 - [ ] CSA-006 [P0] [L]
   Define enrollment, expiry, and refund rules.
+  IN_REVIEW, CODEX: lifetime access / seven-day refund window confirmed; [precise policy candidate](docs/requirements/CSA-006-ENROLLMENT-REFUNDS.md) and remaining choices await owner acceptance.
 
 - [ ] CSA-007 [P1] [L]
   Approve ARCHITECTURE.md.
+  IN_REVIEW, CODEX: [architecture candidate](docs/requirements/CSA-007-ARCHITECTURE.md); owner acceptance pending.
 
 - [ ] CSA-008 [P0] [X]
   Design database entities and relationships.
+  IN_REVIEW, CODEX: [entity/relationship candidate](docs/requirements/CSA-008-DATABASE.md); existing uncommitted draft preserved read-only; policy acceptance pending.
 
 - [ ] CSA-009 [P0] [X]
   Create initial security threat model.
 
 - [ ] CSA-010 [P0] [L]
   Approve protected PDF delivery strategy.
+  IN_REVIEW, CODEX: [authenticated proxy/watermark candidate](docs/requirements/CSA-010-PDF-DELIVERY.md); owner acceptance pending.
 
 - [ ] CSA-011 [P1] [L]
   Select protected video delivery provider.

@@ -3,10 +3,18 @@
 # Acedra - Software and System Architecture
 
 Document ID: CSA-ARCH-001
-Version: 2.0
-Status: Proposed - Pending Approval
+Version: 2.1
+Status: Review Candidate - Pending Approval
 Project: Acedra Course Selling Application
 Product Type: Commercial E-Learning Platform
+
+Review date: 2026-10-11
+Candidate evidence: [CSA-007 architecture review](docs/requirements/CSA-007-ARCHITECTURE.md).
+Approved SRS 1.1 and CSA-003..005 policies govern existing decisions. New
+[enrollment/refund](docs/requirements/CSA-006-ENROLLMENT-REFUNDS.md),
+[database](docs/requirements/CSA-008-DATABASE.md) and
+[PDF delivery](docs/requirements/CSA-010-PDF-DELIVERY.md) candidates require the
+explicit acceptance gates recorded in this coordinated review.
 
 Primary Platform: Flutter Web
 Future Platforms: Android and iOS
@@ -119,9 +127,9 @@ remain consistent with:
 - DESIGN_SYSTEM.md
 - SECURITY.md
 - CONTRIBUTING.md
-- TESTING.md
+- docs/TESTING.md
 - docs/PARALLEL_WORKFLOW.md
-- docs/API_CONTRACTS.md
+- docs/API_CONTRACTS.MD
 
 Document responsibilities:
 
@@ -284,7 +292,17 @@ authorization.
 Status:
 Mandatory architectural requirement.
 
-## ADR-009 - Parallel Engineering
+## ADR-009 - PDF Delivery
+
+Decision candidate:
+Authenticated proxy delivery of private personalized derivatives; see CSA-010.
+Status: Pending strategy approval and implementation evaluation.
+
+## ADR-010 - Video Delivery
+
+Decision: Provider selection and protected playback contract remain pending.
+
+## ADR-011 - Parallel Engineering
 
 Decision:
 Independent Claude/Codex workspaces
@@ -293,12 +311,17 @@ with GitHub coordination.
 Status:
 Proposed workflow.
 
-## ADR-010 - External Providers
+## ADR-012 - Controlled Integration
+
+Decision: Task-owned isolated workspaces and reviewed PR integration with
+dependency-aware schema/API/frontend ordering. Status: Existing workflow baseline;
+formal ADR approval remains tracked separately under CSA-016.
+
+## External Provider Decisions
 
 Decision:
-Select payment, video, email,
-hosting and monitoring providers
-through separate review.
+PayHere and LKR are selected under approved CSA-004. Video, email, hosting and
+monitoring providers require their separate decisions.
 
 Status:
 Pending.
@@ -572,6 +595,11 @@ Arrows above show request flow.
 
 Dependency direction must be
 controlled through interfaces.
+Compile-time imports are presentation -> domain and data -> domain; data also
+imports SDK adapters. Domain never imports concrete data implementations.
+Application composition wires implementations into domain contracts. Features
+consume other features' domain interfaces without importing presentation/data
+internals; shared dependencies must remain acyclic.
 
 ## 10.1 Presentation Layer
 
@@ -1247,8 +1275,8 @@ May:
 - Manage assigned courses
 - Manage curriculum
 - Upload approved lesson assets
-- Publish content through
-  authorized operations
+- Author drafts only; publication/unpublication/archive and price changes
+  require super-admin authority under the approved CSA-003 matrix
 
 ## Finance Admin
 
@@ -1340,7 +1368,7 @@ Content management operations:
 
 A publish operation should verify:
 
-- Authorized content manager
+- Current authorized super admin, with required production MFA
 - Valid course metadata
 - Valid currency and price
 - Required course fields
@@ -1365,7 +1393,8 @@ direct database requests.
 
 Payment provider:
 
-TO BE SELECTED
+PayHere; primary billing currency LKR. Merchant activation, domain setup,
+sandbox verification and release readiness remain unverified.
 
 The architecture must support
 an authenticated checkout
@@ -1620,6 +1649,11 @@ approve uploaded receipts.
 
 # 31. BANK TRANSFER SECURITY
 
+The approved CSA-005 policy governs 5 MiB JPEG/PNG/PDF private validation,
+independent exact credit verification, no self-approval, immutable resubmission,
+settlement non-reuse and one fulfillment across competing payment channels.
+Receipt viewing exposes only owner-safe evidence and authorized finance records.
+
 Requirements:
 
 - Private storage
@@ -1661,6 +1695,11 @@ previous review history.
 ---
 
 # 32. ENROLLMENT ARCHITECTURE
+
+Owner-selected purchased access is lifetime with no scheduled expiry. Source
+validity, refund window precision, disputes and scoped restrictions are specified
+in the CSA-006 candidate; CSA-008 defines the related source/lifecycle model.
+Enrollment projection alone must not erase independent valid funding sources.
 
 Enrollment provides the
 authoritative course entitlement.
@@ -1785,6 +1824,11 @@ knowing its storage path.
 ---
 
 # 35. PDF DELIVERY ARCHITECTURE
+
+CSA-010 recommends Option B: authenticated proxy delivery with server-applied
+personalized watermark derivatives and authorization on every new request.
+This remains a candidate until strategy acceptance and runtime/reader validation.
+Do not implement the alternative signed-URL examples as an approved contract.
 
 PDF files are valuable paid assets.
 
@@ -3656,10 +3700,12 @@ by its appearance in this document.
 ARCH-OPEN-001:
 
 Payment gateway provider.
+Resolved selection: PayHere under approved CSA-004; activation remains a gate.
 
 ARCH-OPEN-002:
 
 Supported payment currency.
+Resolved selection: LKR under approved CSA-004.
 
 ARCH-OPEN-003:
 
@@ -3688,10 +3734,14 @@ Monitoring platform.
 ARCH-OPEN-009:
 
 Admin MFA requirements.
+Resolved policy: production finance/super-admin operations require MFA under
+approved CSA-003. Setup/recovery and enforcement implementation remain unverified.
 
 ARCH-OPEN-010:
 
 Enrollment expiration policy.
+Owner selected lifetime purchased access on 2026-10-11; CSA-006 candidate defines
+grant timing and other lifecycle details for review.
 
 ARCH-OPEN-011:
 

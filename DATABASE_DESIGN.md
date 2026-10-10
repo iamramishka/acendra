@@ -3,8 +3,8 @@
 # Acedra - Database Design and Data Security Architecture
 
 Document ID: CSA-DB-001
-Version: 1.0
-Status: Proposed - Pending Approval
+Version: 1.1
+Status: Finalized Design Candidate - Pending Approval
 Project: Acedra Course Selling Application
 Primary Database: PostgreSQL
 Database Platform: Supabase
@@ -13,6 +13,14 @@ Authorization: PostgreSQL Row Level Security
 Backend Operations: Supabase Edge Functions
 Development Model: Claude + Codex Parallel Engineering
 Classification: Internal Engineering Documentation
+
+Review date: 2026-10-11
+Canonical candidate addendum: [CSA-008 entities and relationships](docs/requirements/CSA-008-DATABASE.md).
+The addendum supplies immutable bank destinations, verified settlement identity,
+refund/reversal cases, source-level grant validity, scoped access restrictions
+and private PDF derivative relationships missing from the illustrative baseline.
+It is part of this candidate design, not an applied migration. Existing CSA-003..005
+approvals govern permissions and bank rules; new CSA-006/010 choices remain gated.
 
 ---
 

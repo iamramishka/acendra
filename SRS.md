@@ -2371,9 +2371,15 @@ reviewer for disputes. Named reviewers, response targets and contacts remain ope
 
 DEC-006:
 Course enrollment lifetime and expiry rules.
+Owner selected lifetime purchased access on 2026-10-11: no scheduled paid-course
+expiry. Grant timing and source lifecycle details are in the
+[CSA-006 candidate](docs/requirements/CSA-006-ENROLLMENT-REFUNDS.md).
 
 DEC-007:
 Refund policy and refunded-course access.
+Owner selected refund requests within seven days on 2026-10-11. Precise cutoff,
+eligibility/review, confirmed payout and source-specific access effects remain
+in the CSA-006 candidate awaiting acceptance.
 
 DEC-008:
 Content watermark format and privacy policy.
