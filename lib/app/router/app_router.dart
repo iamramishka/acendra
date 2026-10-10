@@ -1,6 +1,8 @@
 import 'package:acendra/app/router/route_names.dart';
+import 'package:acendra/features/authentication/presentation/screens/forgot_password_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/login_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/register_screen.dart';
+import 'package:acendra/features/authentication/presentation/screens/reset_password_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/verify_email_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,11 +46,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.forgotPassword,
-        builder: (_, __) => const _PlaceholderScreen(title: 'Forgot Password'),
+        builder: (_, __) => const ForgotPasswordScreen(),
       ),
       GoRoute(
         path: RouteNames.resetPassword,
-        builder: (_, __) => const _PlaceholderScreen(title: 'Reset Password'),
+        builder: (_, __) => const ResetPasswordScreen(),
       ),
       GoRoute(
         path: RouteNames.marketplace,
