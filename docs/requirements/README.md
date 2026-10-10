@@ -38,7 +38,8 @@ Release condition: documentation handoff; later policy integration requires revi
 
 All five task records share the branch, workspace, scope and ownership above.
 Related requirements and completion evidence appear in each deliverable.
-Related pull request: pending submission. Application tests are not claimed by
+Related pull request: [draft PR #3](https://github.com/iamramishka/acendra/pull/3),
+targeting dev. Application tests are not claimed by
 this documentation review; listed test scenarios are requirements for future work.
 
 Dependencies do not prevent parallel review and preparation. They do prevent
@@ -87,6 +88,7 @@ alignment with API_CONTRACTS.MD and related policies under coordinated ownership
 Verification: independent read-only packet review completed; all 237 requirement
 IDs/priorities preserved; local links across seven documents passed; Git
 whitespace checks passed. These checks verify documentation, not application behavior.
+GitHub reported no CI checks on the draft PR at handoff; no CI pass is claimed.
 Application tests: not run because this batch changes only Markdown; all payment,
 authorization, storage and acceptance scenarios remain unexecuted requirements.
 Known risks: unresolved business/operational gates; provider readiness unverified.
