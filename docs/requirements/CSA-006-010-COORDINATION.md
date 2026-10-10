@@ -1,7 +1,7 @@
 # CSA-006 / CSA-007 / CSA-008 / CSA-010 coordination
 
 Date: 2026-10-11 (Asia/Colombo)
-Status: IN_REVIEW - four coordinated decision candidates prepared
+Status: DONE - four documentation/decision baselines accepted on 2026-10-11
 Accountable owner: CODEX; policy approver: project owner
 Branch: docs/csa-006-010-policy-review
 Workspace: C:/Users/ramis/.codex/worktrees/csa-006-010-policies/acendra
@@ -32,12 +32,13 @@ existing ADR drafts and other worktrees are restricted.
 | CSA-008 | P0 | CODEX review candidate; existing draft owner retained | CSA-006 financial/access policy; CSA-003 roles | Entity/relationship invariants, exact money, RLS/grants, constraints and migration test plan; no executed SQL claims |
 | CSA-010 | P0 | CODEX; owner approves | CSA-006 access/revocation; private storage and PDF requirements | Concrete delivery/watermark design, revocation limitations, reader/accessibility/performance gates and primary-source research |
 
-Related PR: [draft PR #4](https://github.com/iamramishka/acendra/pull/4).
+Related PR: [PR #4](https://github.com/iamramishka/acendra/pull/4).
 Related requirements and proposed tests are in the task
 deliverables. Approval for new policy choices is not inferred from the request
 to prepare these tasks. Lifetime access and refund requests within seven days
 were explicitly selected by the owner during this batch; other choices will be
-presented concretely for acceptance. Pending operational values remain gates.
+accepted by the owner through the instruction "review and merge that" on
+2026-10-11. That instruction also authorizes merging the reviewed PR into dev. Pending operational values remain gates.
 
 ## Review result and acceptance choices
 
@@ -53,22 +54,22 @@ presented concretely for acceptance. Pending operational values remain gates.
   personalized server-watermarked PDFs, with current authorization per request,
   no raw storage URL, bounded transformation and reader/accessibility gates.
 
-Owner acceptance is requested for the remaining CSA-006 policy details, the
-architecture/database candidates and the PDF strategy together. That acceptance
+The owner accepted the specified CSA-006 policy details, architecture/database
+baselines and PDF strategy together on 2026-10-11. That acceptance
 does not supply unspecified refund eligibility terms, operational contacts,
 retention, runtime/hosting, workload limits or production validation evidence.
 
 ## Verification and handoff
 
-All four are documentation candidates, not DONE. Relevant business decisions
-remain explicitly pending rather than invented. Required documentation checks:
+All four tasks are DONE through formal acceptance of their documentation and
+decision deliverables. Runtime implementation and unspecified operational facts
+remain unverified. Required documentation checks:
 all 237 requirement IDs/priorities preserved, local links across nine documents
 passed, and Git whitespace checks passed. Cross-task review identified and
 corrected PDF denial wording to preserve independent valid grants. Runtime tests
 are not applicable to Markdown-only
 edits; listed financial/security/reader tests are future acceptance requirements.
 No migration, payment, database reset, package install or production action run.
-Next action: owner accepts or requests changes to the concrete candidates, then
-separately scoped implementation aligns API/security/schema contracts and proves
+Next action: merge the accepted documentation and perform separately scoped implementation aligns API/security/schema contracts and proves
 the required negative/concurrency/reader behavior. Shared edit ownership releases
 at this handoff.

@@ -4,17 +4,17 @@
 
 Document ID: CSA-ARCH-001
 Version: 2.1
-Status: Review Candidate - Pending Approval
+Status: Approved Baseline - Implementation and Operational Gates Retained
 Project: Acedra Course Selling Application
 Product Type: Commercial E-Learning Platform
 
 Review date: 2026-10-11
-Candidate evidence: [CSA-007 architecture review](docs/requirements/CSA-007-ARCHITECTURE.md).
+Approval evidence: [CSA-007 architecture review](docs/requirements/CSA-007-ARCHITECTURE.md).
 Approved SRS 1.1 and CSA-003..005 policies govern existing decisions. New
 [enrollment/refund](docs/requirements/CSA-006-ENROLLMENT-REFUNDS.md),
 [database](docs/requirements/CSA-008-DATABASE.md) and
-[PDF delivery](docs/requirements/CSA-010-PDF-DELIVERY.md) candidates require the
-explicit acceptance gates recorded in this coordinated review.
+[PDF delivery](docs/requirements/CSA-010-PDF-DELIVERY.md) baselines were accepted by the owner on 2026-10-11 through the review-and-merge
+instruction. Runtime and unspecified operational values remain downstream gates.
 
 Primary Platform: Flutter Web
 Future Platforms: Android and iOS
@@ -294,9 +294,9 @@ Mandatory architectural requirement.
 
 ## ADR-009 - PDF Delivery
 
-Decision candidate:
+Decision:
 Authenticated proxy delivery of private personalized derivatives; see CSA-010.
-Status: Pending strategy approval and implementation evaluation.
+Status: Strategy accepted under CSA-010; implementation evaluation pending.
 
 ## ADR-010 - Video Delivery
 
@@ -1698,7 +1698,7 @@ previous review history.
 
 Owner-selected purchased access is lifetime with no scheduled expiry. Source
 validity, refund window precision, disputes and scoped restrictions are specified
-in the CSA-006 candidate; CSA-008 defines the related source/lifecycle model.
+in the approved CSA-006 policy; CSA-008 defines the related source/lifecycle model.
 Enrollment projection alone must not erase independent valid funding sources.
 
 Enrollment provides the
@@ -1827,7 +1827,7 @@ knowing its storage path.
 
 CSA-010 recommends Option B: authenticated proxy delivery with server-applied
 personalized watermark derivatives and authorization on every new request.
-This remains a candidate until strategy acceptance and runtime/reader validation.
+Strategy accepted under CSA-010; runtime/reader validation remains required.
 Do not implement the alternative signed-URL examples as an approved contract.
 
 PDF files are valuable paid assets.
@@ -3740,7 +3740,7 @@ approved CSA-003. Setup/recovery and enforcement implementation remain unverifie
 ARCH-OPEN-010:
 
 Enrollment expiration policy.
-Owner selected lifetime purchased access on 2026-10-11; CSA-006 candidate defines
+Owner selected lifetime purchased access on 2026-10-11; CSA-006 policy defines
 grant timing and other lifecycle details for review.
 
 ARCH-OPEN-011:

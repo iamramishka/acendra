@@ -1,7 +1,7 @@
-# CSA-006: Enrollment, expiry and refund policy candidate
+# CSA-006: Enrollment, expiry and refund policy
 
 Date: 2026-10-11
-Status: IN_REVIEW - duration/window confirmed; remaining rules proposed
+Status: APPROVED baseline - owner accepted and authorized merge on 2026-10-11
 Requirements: FR-ENROLL-001..010, FR-PAY, FR-BANK, BR-001..016;
 SRS:DEC-006/007, PLAN:DEC-004/005; approved CSA-003..005 policies.
 
@@ -15,14 +15,14 @@ Lifetime describes no scheduled access end; service closure/content availability
 limits must be disclosed in published terms, not hidden or represented as a
 promise that a company will operate forever.
 
-## Proposed precise policy
+## Approved precise policy
 
 1. A request is timely when received by the backend at or before the first
    committed fulfillment time plus 168 hours. Store UTC timestamps and display
    the deadline in Asia/Colombo time. Bank-transfer buyers get the full window
    after approval. Retry, course editing and access requests cannot restart it.
 2. Timely requests receive finance review. Request, review, rejection and
-   approval alone do not change paid status or access. Proposed MVP ordinary
+   approval alone do not change paid status or access. Approved MVP ordinary
    refund outcome is a full refund of the purchased order's paid amount once
    approved; do not deduct fees or invent consumption/download thresholds.
    Partial refunds require a separate approved policy and remain outside the
@@ -40,7 +40,7 @@ promise that a company will operate forever.
    a trusted full-refund confirmation. In the same transaction invalidate only
    that order-funded grant, recompute current access, record adjustment/audit and
    enqueue notice. A valid independent admin or later-purchase grant survives.
-6. Record provider-confirmed disputes separately from refunds. Proposed risk
+6. Record provider-confirmed disputes separately from refunds. Approved risk
    behavior: restrict the disputed transaction's grant during review; a student
    allegation alone cannot impose that restriction. On verified favorable
    resolution lift that restriction only if the grant remains valid. Confirmed
@@ -62,7 +62,7 @@ promise that a company will operate forever.
 | Approved execution | Case approved -> processing | None absent separate restriction |
 | Uncertain/failed payout | Reconciliation/failed case, no confirmed refund | None |
 | Confirmed full refund | Paid order -> REFUNDED; confirmed adjustment | Invalidate associated grant, recompute |
-| Trusted dispute opens | Record dispute | Proposed source-specific temporary restriction |
+| Trusted dispute opens | Record dispute | Approved source-specific temporary restriction |
 | Verified favorable resolution | Record resolution | Lift only that valid dispute restriction |
 | Confirmed reversal | Record reversal adjustment | Invalidate associated grant |
 | Audited administrative restriction | No invented payment change | Deny at explicitly recorded scope |
@@ -100,8 +100,8 @@ uncertain, not permission for blind duplicate payouts. Notifications follow comm
 - Injected transaction failure leaves no partial financial/access/audit writes.
 - Student responses omit internal notes and bank evidence; history is preserved.
 
-No implementation tests were run. Owner acceptance is still needed for cutoff
-anchoring, finance-reviewed full-only default, dispute restrictions and the
-remaining policy details above. Eligibility grounds, contact/response targets,
+No implementation tests were run. The owner accepted cutoff anchoring,
+finance-reviewed full-only default, dispute restrictions and the specified policy
+by requesting review and merge on 2026-10-11. Eligibility grounds, contact/response targets,
 provider refund capability/fees, beneficiary verification procedure and retention
 are explicit operational/terms gates, not invented values.

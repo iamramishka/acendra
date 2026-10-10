@@ -1,11 +1,11 @@
-# CSA-010: Protected PDF delivery decision candidate
+# CSA-010: Protected PDF delivery decision
 
 Date: 2026-10-11
-Status: IN_REVIEW - proposed strategy; owner approval pending
+Status: APPROVED strategy - owner accepted and authorized merge on 2026-10-11
 Requirements: FR-PDF-001..015, FR-PDF-SEC-001..010; AT-009/010;
 ARCHITECTURE sections 34..37/40/41/53; API content descriptor/PDF contracts.
 
-## Proposed decision
+## Approved decision
 
 Use authenticated backend proxy delivery (`proxied_stream`) of a server-generated
 personalized PDF derivative stored in private storage. Check current session,
@@ -15,7 +15,7 @@ to students. Keep the original and all derivatives private; student Storage
 policies must not provide a bypass around the proxy. Staff authoring preview is
 a separately scoped, audited operation, not an implicit purchased entitlement.
 
-This selects architecture Option B as a review candidate. It is not an already
+This selects architecture Option B, accepted by the owner on 2026-10-11. It is not an already
 deployed proxy, a viewer package approval, or a claim of capture prevention.
 
 ## Why this strategy
@@ -23,7 +23,7 @@ deployed proxy, a viewer package approval, or a claim of capture prevention.
 | Alternative | Tradeoff | Disposition |
 | --- | --- | --- |
 | Signed URL to private personalized PDF | Simple direct/range delivery; bearer URL remains usable until expiry, even after current account/entitlement changes | Not default when next-request revocation is required |
-| Authenticated proxy of personalized PDF | Current authorization on each request; costs backend bandwidth and needs verified range/renderer compatibility | Recommended MVP candidate |
+| Authenticated proxy of personalized PDF | Current authorization on each request; costs backend bandwidth and needs verified range/renderer compatibility | Selected MVP strategy |
 | Provider-rendered pages/tiles | Adds dependency/cost and may harm selectable text, accessibility and rendering quality | Defer unless measured constraints require it |
 
 Primary sources checked on 2026-10-11:
@@ -71,7 +71,7 @@ Do not silently reinterpret its illustrative signed_url example as a real API.
 
 ## Watermark and document safety
 
-Proposed watermark: visible "Licensed to <display name> - <opaque license ID>"
+Approved watermark: visible "Licensed to <display name> - <opaque license ID>"
 on every page, bound to trusted actor/asset version. Avoid email, phone, NIC or
 bank information. Explain the watermark and purpose before first reading.
 The license identifier must not expose authentication credentials and may be
@@ -110,7 +110,7 @@ resource/streaming limits fit. PDF transformation belongs in a bounded trusted
 worker approved within the existing backend, not assumed to fit an Edge request.
 Select its library/runtime/hosting after compatibility, cost and workload tests;
 do not add microservices or new dependencies without the required coordination.
-If no viable runtime is proven, CSA-010 remains an architectural candidate and
+If no viable runtime is proven, the strategy remains selected but
 dependent delivery implementation is blocked rather than silently relaxed.
 
 ## Acceptance gates

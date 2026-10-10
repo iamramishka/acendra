@@ -1044,6 +1044,12 @@ this reduces readability.
 
 ## PDF Protection Requirements
 
+The approved [CSA-010 delivery strategy](docs/requirements/CSA-010-PDF-DELIVERY.md)
+selects authenticated proxy delivery of private server-watermarked derivatives.
+New requests evaluate surviving grant sources and restrictions under CSA-006.
+Reader/runtime/accessibility validation and unspecified operational limits remain
+implementation gates; already delivered bytes cannot be recalled.
+
 FR-PDF-SEC-001 [MUST]
 Paid PDF files shall be stored
 in private storage.
@@ -2373,13 +2379,14 @@ DEC-006:
 Course enrollment lifetime and expiry rules.
 Owner selected lifetime purchased access on 2026-10-11: no scheduled paid-course
 expiry. Grant timing and source lifecycle details are in the
-[CSA-006 candidate](docs/requirements/CSA-006-ENROLLMENT-REFUNDS.md).
+[approved CSA-006 policy](docs/requirements/CSA-006-ENROLLMENT-REFUNDS.md).
 
 DEC-007:
 Refund policy and refunded-course access.
 Owner selected refund requests within seven days on 2026-10-11. Precise cutoff,
-eligibility/review, confirmed payout and source-specific access effects remain
-in the CSA-006 candidate awaiting acceptance.
+eligibility/review, confirmed payout and source-specific access effects follow
+the approved CSA-006 policy accepted on 2026-10-11. Unspecified eligibility terms
+and operational values remain production gates.
 
 DEC-008:
 Content watermark format and privacy policy.

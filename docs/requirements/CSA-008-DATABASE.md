@@ -1,7 +1,7 @@
-# CSA-008: Database entities and relationships candidate
+# CSA-008: Database entities and relationships baseline
 
 Date: 2026-10-11
-Status: IN_REVIEW - finalized design candidate; lifecycle/PDF acceptance pending
+Status: APPROVED design baseline - owner accepted and authorized merge on 2026-10-11
 Baseline: DATABASE_DESIGN.md 1.0 on origin/dev b9bc60b.
 Existing csa-008-db-design uncommitted draft was inspected read-only. It expands
 ER diagrams/FK documentation; this review preserves it without copying its edits.
@@ -13,7 +13,7 @@ Retain existing identity/roles/course staff, categories/courses/sections/lessons
 private media, orders/payment attempts/events, bank submissions/reviews,
 enrollments/grants, progress and audit/outbox entities. The following addendum
 resolves missing integrity boundaries; it takes precedence over illustrative
-base tables for the candidate design, subject to owner acceptance.
+base tables for the accepted design. Owner acceptance is recorded in the coordination document.
 
 | Entity | Relationships and invariants |
 | --- | --- |
@@ -26,7 +26,7 @@ base tables for the candidate design, subject to owner acceptance.
 | access_restrictions (private) | Explicit grant, user-course or account scope, reason, current lifecycle and audit; exactly one valid target shape; dispute restriction does not masquerade as enrollment expiry |
 | enrollments | UNIQUE(user_id,course_id); current access projection derived from surviving eligible sources and restrictions; ACTIVE/EXPIRED/REVOKED remain existing vocabulary |
 | media_assets | Immutable content digest/version and validated/readiness state; invalid or uninspected asset cannot be delivered |
-| pdf_derivatives (private) | Proposed CSA-010 output linked to original version + user/license + watermark policy version, immutable digest/size/readiness and private object; uniqueness prevents cross-user cache reuse |
+| pdf_derivatives (private) | CSA-010 output linked to original version + user/license + watermark policy version, immutable digest/size/readiness and private object; uniqueness prevents cross-user cache reuse |
 | protected_delivery_records (private) | If opaque resource IDs are used, bind to actor, derivative, version and validity; not a bearer permission; proxy reauthorizes every request |
 | idempotency_records (private) | Non-null principal/service scope + operation + key unique, request hash and safe result; avoids NULL-actor uniqueness bypass for service callbacks |
 
@@ -35,7 +35,7 @@ only for authorized admin sources. One order funds at most one source grant in
 the one-course MVP; one enrollment may have independent valid sources.
 
 Purchased grants use valid_until=null for the owner's lifetime selection. Store
-first trusted fulfillment timestamp immutably for the proposed 168-hour request
+first trusted fulfillment timestamp immutably for the approved 168-hour request
 deadline. New purchases have new sources, not rewritten original grants. Source
 invalidation and restrictions are separate from deletion.
 
@@ -69,7 +69,7 @@ profile/order/enrollment/progress projections under RLS plus narrow grants.
 Do not broadly SELECT bank submissions exposing receipt_asset_id/internal notes.
 Private financial records, bank versions, settlements, reversals, restrictions and
 derivatives have no direct student grants. Own receipt delivery uses the approved
-safe-view API; PDF delivery uses the CSA-010 candidate boundary.
+safe-view API; PDF delivery uses the CSA-010 approved boundary.
 
 Resolve current roles, MFA and assignments on sensitive calls, including old
 tokens. Restrict privileged RPC EXECUTE, use safe search_path/schema qualification,
@@ -86,7 +86,7 @@ cannot restore a refunded source or remove a broader restriction.
 
 ## Migration and acceptance plan
 
-1. Approve CSA-006/007/010 contracts and map entity/state additions into API
+1. Map the accepted CSA-006/007/010 contracts and entity/state additions into API
    contracts. Assign one migration owner; do not change shared/applied migrations.
 2. Add versioned bank instructions, settlement/reversal/refund/restriction/source
    lifecycle and derivative schema with constraints and supporting indexes.

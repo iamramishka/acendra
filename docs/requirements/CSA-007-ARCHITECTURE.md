@@ -1,11 +1,11 @@
-# CSA-007: Architecture approval candidate
+# CSA-007: Approved architecture baseline
 
 Date: 2026-10-11
-Status: IN_REVIEW - technical baseline candidate; owner approval pending
+Status: APPROVED baseline - owner accepted and authorized merge on 2026-10-11
 Sources: ARCHITECTURE.md, SRS 1.1, approved CSA-003..005 policies,
 SECURITY.md, API contracts and twelve ADR drafts.
 
-## Proposed architectural contract
+## Approved architectural contract
 
 - Keep Flutter Web/Dart/Material 3, Riverpod and go_router in a feature-first
   modular application. Presentation depends on domain; data implements domain
@@ -27,17 +27,17 @@ SECURITY.md, API contracts and twelve ADR drafts.
   restrictions. Use server time. Refund/reversal invalidates its funding source;
   unrelated valid grants survive. CSA-006 supplies the reviewed lifecycle rules.
 - Private lesson delivery resolves user/course/lesson/asset version and checks
-  live authorization. CSA-010 proposes authenticated proxy PDFs and server-applied
+  live authorization. CSA-010 selects authenticated proxy PDFs and server-applied
   personalized derivatives; its runtime and reader compatibility remain gates.
 - Feature dependencies stay acyclic. Consume another feature's domain contract,
   never its data or presentation internals. Shared router/theme/core/schema/API
   changes retain one coordinated owner and reviewed integration.
 
-## Candidate corrections applied to ARCHITECTURE.md
+## Corrections applied to ARCHITECTURE.md
 
 Previously approved PayHere/LKR, finance/super-admin MFA and scoped authoring
 policies are reflected instead of marked unselected. Publication/pricing authority
-follows CSA-003. The candidate links the four coordinated deliverables and clearly
+follows CSA-003. The baseline links the four accepted deliverables and clearly
 separates unresolved decisions from previously approved rules.
 
 Section 4 numbering is aligned to the twelve existing ADR drafts: 009 PDF,
