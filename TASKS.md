@@ -398,7 +398,7 @@ because an AI generated code.
 
 # 8. TASK METADATA CONTRACT
 
-Every active GitHub task must include:
+Every active task record in GitHub or this backlog must include:
 
 Task ID:
 Task Title:
@@ -417,6 +417,17 @@ Acceptance Criteria:
 Required Tests:
 Related Pull Request:
 Completion Evidence:
+Work Completed:
+Current Blockers:
+Next Action:
+Next Owner:
+Last Updated:
+
+Keep the completion checkbox separate from task status. Update the work
+summary, evidence, blockers, and next action when the status changes or
+the task is handed off. Record only work that was actually performed and
+verification that was actually run. Use `None` or `Not started` when a
+field has no current value; do not leave the next owner implicit.
 
 Example:
 
@@ -468,6 +479,27 @@ Acceptance:
 - Loading and empty states
 - Accessibility
 - Widget tests
+
+Related Pull Request:
+Not created.
+
+Completion Evidence:
+Not run.
+
+Work Completed:
+Not started.
+
+Current Blockers:
+Dependencies pending confirmation.
+
+Next Action:
+Confirm the task owner and dependency readiness.
+
+Next Owner:
+Project Lead.
+
+Last Updated:
+<YYYY-MM-DD>
 
 Actual ownership, PR links,
 and test evidence are recorded
@@ -906,6 +938,26 @@ All items start unchecked.
 
 - [ ] CSA-016 [P1] [X]
   Draft initial architecture decision records.
+  Status: IN_REVIEW
+  Confirmed Owner: CODEX (user-directed; no GitHub issue found)
+  Work Completed:
+  - Drafted 12 proposed ADRs and an index in docs/decisions/drafts/.
+  - Kept PDF/video delivery and provider choices pending.
+  - Documented the ADR numbering mismatch between PLAN.md section 42 and
+    ARCHITECTURE.md section 4 for review.
+  Related Pull Request:
+  https://github.com/iamramishka/acendra/pull/2
+  Completion Evidence:
+  - Commit b4ef00e; documentation field and index-link checks passed.
+  - git diff --cached --check passed; application tests do not apply.
+  Current Blockers:
+  - Project Lead review and approval of the ADR drafts and numbering.
+  Next Action:
+  - Project Lead: review PR #2, reconcile the ADR numbering, then approve or
+    request revisions. Keep CSA-016 unchecked until accepted.
+  - After the Phase 0 approval gate is cleared, assign Phase 1 work.
+  Next Owner: PROJECT LEAD
+  Last Updated: 2026-10-11
 
 - [ ] CSA-017 [P1] [L]
   Define MVP acceptance test strategy.
