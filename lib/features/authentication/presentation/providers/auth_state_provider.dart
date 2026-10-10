@@ -11,5 +11,17 @@ final isAuthenticatedProvider = Provider<bool>((ref) {
   return ref.watch(authStreamProvider).valueOrNull?.session != null;
 });
 
+/// CSA-069 — exposes the current Supabase session (null when signed out).
+/// Derived from the auth stream so it stays in sync with all auth events.
+final currentSessionProvider = Provider<Session?>((ref) {
+  return ref.watch(authStreamProvider).valueOrNull?.session;
+});
+
+/// CSA-069 — true once the auth stream has emitted its first event,
+/// meaning Supabase has finished restoring any persisted session.
+final sessionRestoredProvider = Provider<bool>((ref) {
+  return ref.watch(authStreamProvider).hasValue;
+});
+
 // Holds the email awaiting verification after sign-up.
 final pendingVerificationEmailProvider = StateProvider<String?>((ref) => null);
