@@ -147,13 +147,13 @@ DATABASE_DESIGN.md
 DESIGN_SYSTEM.md
 SECURITY.md
 CONTRIBUTING.md
-TESTING.md
+docs/TESTING.md
 CLAUDE.md
 
 docs/
   PARALLEL_WORKFLOW.md
   decisions/
-  api-contracts/
+  API_CONTRACTS.MD
 
 ## Document Responsibilities
 
@@ -184,7 +184,7 @@ Security policy and mandatory controls.
 CONTRIBUTING.md:
 GitHub and contribution workflow.
 
-TESTING.md:
+docs/TESTING.md:
 Testing and quality assurance standards.
 
 CLAUDE.md:
@@ -515,6 +515,11 @@ when needed.
 Increase concurrency only after
 the workflow proves reliable.
 
+An explicit project-owner request may authorize a bounded parallel
+documentation review before that dry-run. Record isolated worktrees,
+exclusive file scopes and local coordination evidence. This exception
+does not establish readiness for concurrent production implementation.
+
 ---
 
 # 10. GITHUB COORDINATION MODEL
@@ -679,7 +684,7 @@ DATABASE_DESIGN.md
 DESIGN_SYSTEM.md
 SECURITY.md
 CONTRIBUTING.md
-TESTING.md
+docs/TESTING.md
 CLAUDE.md
 
 pubspec.yaml
@@ -888,6 +893,14 @@ Approve:
 - [ ] Database design reviewed.
 - [ ] Critical technology decisions recorded.
 
+For CSA-011 through CSA-017, distinguish a submitted proposal from an
+accepted decision. Record video-provider approval and playback proof,
+environment and budget approval, governance review, design review,
+privacy/security baseline approval and the MVP acceptance strategy.
+Resolve SRS DEC-009, DEC-011 and DEC-014 before the respective dependent
+implementation or release gate. The owner must record who approved which
+revision and when; documentation preparation cannot waive these gates.
+
 Do not start security-critical
 implementation using unresolved
 payment or enrollment assumptions.
@@ -982,7 +995,7 @@ CSA-236:
 Configure task ownership fields.
 
 CSA-237:
-Create PARALLEL_WORKFLOW.md.
+Review existing docs/PARALLEL_WORKFLOW.md and approve its workflow.
 
 CSA-238:
 Create CLAUDE.md.
@@ -2656,9 +2669,9 @@ Before regular parallel implementation:
 - [ ] Approve CONTRIBUTING.md v2.0.
 - [ ] Review SECURITY.md.
 - [ ] Complete DATABASE_DESIGN.md.
-- [ ] Complete TESTING.md.
+- [ ] Review and approve docs/TESTING.md.
 - [ ] Create CLAUDE.md.
-- [ ] Create PARALLEL_WORKFLOW.md.
+- [ ] Review existing docs/PARALLEL_WORKFLOW.md and approve its workflow.
 - [ ] Configure GitHub Issues.
 - [ ] Configure task ownership.
 - [ ] Configure isolated branches.
