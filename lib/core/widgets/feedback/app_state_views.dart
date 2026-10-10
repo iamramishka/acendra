@@ -20,10 +20,12 @@ class AppEmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.inbox_outlined,
-              size: 56,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ExcludeSemantics(
+              child: Icon(
+                Icons.inbox_outlined,
+                size: 56,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 16),
             Text(
@@ -65,10 +67,12 @@ class AppErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 56,
-              color: Theme.of(context).colorScheme.error,
+            ExcludeSemantics(
+              child: Icon(
+                Icons.error_outline,
+                size: 56,
+                color: Theme.of(context).colorScheme.error,
+              ),
             ),
             const SizedBox(height: 16),
             Text(
