@@ -55,7 +55,7 @@ abstract final class AppTheme {
       colorScheme: colorScheme,
       textTheme: textTheme,
       scaffoldBackgroundColor: tokens.background,
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: tokens.surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
