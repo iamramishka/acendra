@@ -95,7 +95,7 @@ Relevant project documentation includes:
 - DESIGN_SYSTEM.md
 - SECURITY.md
 - CONTRIBUTING.md
-- TESTING.md
+- docs/TESTING.md
 - docs/PARALLEL_WORKFLOW.md
 - Approved architecture decision records
 
@@ -364,6 +364,20 @@ code was merely generated.
 ---
 
 # 8. TASK CLAIMING PROTOCOL
+
+## Documentation preparation before GitHub task setup
+
+When the project owner explicitly requests review or decision preparation
+and no corresponding GitHub Issue exists, record a local assignment in a
+task-specific repository coordination board before editing. Record the
+owner, file scope, dependencies, branch, worktree, approval authority and
+verification criteria. Check open Issues, PRs, task records and worktrees
+for overlapping ownership. Do not describe a local record as a GitHub claim.
+
+This fallback permits bounded documentation preparation only. It does not
+authorize dependent financial implementation, production configuration,
+paid purchases, policy approval or merging. Reconcile with GitHub when
+coordination is established; keep proposals IN_REVIEW until accepted.
 
 Before starting implementation:
 
