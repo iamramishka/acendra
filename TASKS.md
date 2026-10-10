@@ -891,20 +891,25 @@ not permission to ignore dependencies.
 
 All items start unchecked.
 
-- [ ] CSA-001 [P1] [L]
+- [x] CSA-001 [P1] [L]
   Review and finalize SRS.md.
+  DONE, CODEX: SRS 1.1 baseline formally accepted by owner on 2026-10-11; [approval and explicit downstream gates](docs/requirements/README.md).
 
-- [ ] CSA-002 [P1] [L]
+- [x] CSA-002 [P1] [L]
   Finalize MVP scope and acceptance criteria.
+  DONE, CODEX: [MVP scope and acceptance matrix](docs/requirements/CSA-001-002-SRS-MVP.md) accepted by owner on 2026-10-11; product verification remains future work.
 
-- [ ] CSA-003 [P1] [L]
+- [x] CSA-003 [P1] [L]
   Approve roles and permissions.
+  DONE, CODEX: [permission matrix](docs/requirements/CSA-003-ROLES.md) approved by owner on 2026-10-11; implementation unverified.
 
-- [ ] CSA-004 [P0] [L]
+- [x] CSA-004 [P0] [L]
   Select payment gateway and currency.
+  DONE, CODEX: [PayHere/LKR selection and documentation](docs/requirements/CSA-004-PAYMENT-DECISION.md) accepted by owner on 2026-10-11. Merchant readiness unverified.
 
-- [ ] CSA-005 [P0] [L]
+- [x] CSA-005 [P0] [L]
   Define bank transfer verification policy.
+  DONE, CODEX: [bank verification policy](docs/requirements/CSA-005-BANK-POLICY.md) approved by owner on 2026-10-11; listed operational gates remain.
 
 - [ ] CSA-006 [P0] [L]
   Define enrollment, expiry, and refund rules.
