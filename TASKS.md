@@ -398,7 +398,7 @@ because an AI generated code.
 
 # 8. TASK METADATA CONTRACT
 
-Every active GitHub task must include:
+Every active task record in GitHub or this backlog must include:
 
 Task ID:
 Task Title:
@@ -417,6 +417,17 @@ Acceptance Criteria:
 Required Tests:
 Related Pull Request:
 Completion Evidence:
+Work Completed:
+Current Blockers:
+Next Action:
+Next Owner:
+Last Updated:
+
+Keep the completion checkbox separate from task status. Update the work
+summary, evidence, blockers, and next action when the status changes or
+the task is handed off. Record only work that was actually performed and
+verification that was actually run. Use `None` or `Not started` when a
+field has no current value; do not leave the next owner implicit.
 
 Example:
 
@@ -468,6 +479,27 @@ Acceptance:
 - Loading and empty states
 - Accessibility
 - Widget tests
+
+Related Pull Request:
+Not created.
+
+Completion Evidence:
+Not run.
+
+Work Completed:
+Not started.
+
+Current Blockers:
+Dependencies pending confirmation.
+
+Next Action:
+Confirm the task owner and dependency readiness.
+
+Next Owner:
+Project Lead.
+
+Last Updated:
+<YYYY-MM-DD>
 
 Actual ownership, PR links,
 and test evidence are recorded
@@ -859,35 +891,45 @@ not permission to ignore dependencies.
 
 All items start unchecked.
 
-- [ ] CSA-001 [P1] [L]
+- [x] CSA-001 [P1] [L]
   Review and finalize SRS.md.
+  DONE, CODEX: SRS 1.1 baseline formally accepted by owner on 2026-10-11; [approval and explicit downstream gates](docs/requirements/README.md).
 
-- [ ] CSA-002 [P1] [L]
+- [x] CSA-002 [P1] [L]
   Finalize MVP scope and acceptance criteria.
+  DONE, CODEX: [MVP scope and acceptance matrix](docs/requirements/CSA-001-002-SRS-MVP.md) accepted by owner on 2026-10-11; product verification remains future work.
 
-- [ ] CSA-003 [P1] [L]
+- [x] CSA-003 [P1] [L]
   Approve roles and permissions.
+  DONE, CODEX: [permission matrix](docs/requirements/CSA-003-ROLES.md) approved by owner on 2026-10-11; implementation unverified.
 
-- [ ] CSA-004 [P0] [L]
+- [x] CSA-004 [P0] [L]
   Select payment gateway and currency.
+  DONE, CODEX: [PayHere/LKR selection and documentation](docs/requirements/CSA-004-PAYMENT-DECISION.md) accepted by owner on 2026-10-11. Merchant readiness unverified.
 
-- [ ] CSA-005 [P0] [L]
+- [x] CSA-005 [P0] [L]
   Define bank transfer verification policy.
+  DONE, CODEX: [bank verification policy](docs/requirements/CSA-005-BANK-POLICY.md) approved by owner on 2026-10-11; listed operational gates remain.
 
-- [ ] CSA-006 [P0] [L]
+- [x] CSA-006 [P0] [L]
   Define enrollment, expiry, and refund rules.
+  DONE, CODEX: [enrollment/refund policy](docs/requirements/CSA-006-ENROLLMENT-REFUNDS.md) accepted by owner on 2026-10-11; operational terms and implementation remain gated.
 
-- [ ] CSA-007 [P1] [L]
+- [x] CSA-007 [P1] [L]
   Approve ARCHITECTURE.md.
+  DONE, CODEX: [architecture baseline](docs/requirements/CSA-007-ARCHITECTURE.md) accepted by owner on 2026-10-11; implementation unverified.
 
-- [ ] CSA-008 [P0] [X]
+- [x] CSA-008 [P0] [X]
   Design database entities and relationships.
+  DONE, CODEX: [entity/relationship baseline](docs/requirements/CSA-008-DATABASE.md) accepted by owner on 2026-10-11; existing draft preserved; migrations/tests remain future work.
 
-- [ ] CSA-009 [P0] [X]
+- [x] CSA-009 [P0] [X]
   Create initial security threat model.
+  DONE, CODEX: SECURITY.md threat model merged in PR #1 (be0aede); completion reconciled at owner's request on 2026-10-11. [Evidence and remaining security work](docs/requirements/CSA-009-016-RECONCILIATION.md).
 
-- [ ] CSA-010 [P0] [L]
+- [x] CSA-010 [P0] [L]
   Approve protected PDF delivery strategy.
+  DONE, CODEX: [authenticated proxy/watermark strategy](docs/requirements/CSA-010-PDF-DELIVERY.md) accepted by owner on 2026-10-11; runtime/reader validation remains required.
 
 - [ ] CSA-011 [P1] [L]
   Select protected video delivery provider.
@@ -904,8 +946,28 @@ All items start unchecked.
 - [ ] CSA-015 [P0] [L]
   Approve privacy and security baseline.
 
-- [ ] CSA-016 [P1] [X]
+- [x] CSA-016 [P1] [X]
   Draft initial architecture decision records.
+  Status: DONE - draft deliverable and approval reconciliation complete
+  Confirmed Owner: CODEX (user-directed; no GitHub issue found)
+  Work Completed:
+  - Drafted twelve ADRs in merged PR #2; reconciled eleven Accepted records
+    against owner-approved architecture/policies from PR #3/#4.
+  - Moved accepted records to docs/decisions/; ADR-010 stays pending under CSA-011.
+  - Numbering reconciled by CSA-007; [canonical index](docs/decisions/README.md).
+  Related Pull Request:
+  https://github.com/iamramishka/acendra/pull/2
+  Completion Evidence:
+  - Commit b4ef00e; documentation field and index-link checks passed.
+  - git diff --cached --check passed; application tests do not apply.
+  Current Blockers:
+  - None for the initial drafting/reconciliation task. Video provider selection
+    remains CSA-011; production and implementation gates are separate.
+  Next Action:
+  - Complete CSA-011 and other open Phase 0 decisions. See the
+    [completion reconciliation](docs/requirements/CSA-009-016-RECONCILIATION.md).
+  Next Owner: PROJECT LEAD
+  Last Updated: 2026-10-11
 
 - [ ] CSA-017 [P1] [L]
   Define MVP acceptance test strategy.

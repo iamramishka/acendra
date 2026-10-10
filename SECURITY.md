@@ -440,58 +440,94 @@ Backend to video provider.
 Boundary H:
 Developer/CI access to production.
 
-## 9.3 Threat Categories
+## 9.3 Threat Register Conventions
 
-THREAT-001:
-Unauthorized course access.
+The register below describes credible MVP attack paths and the security
+properties they threaten. Impact is qualitative and provisional; it is
+not a likelihood estimate or a claim that a control is implemented.
+Controls are required design controls, with verification evidence
+identified separately.
 
-THREAT-002:
-Forged payment confirmation.
+## 9.4 Threat Actors and Assumptions
 
-THREAT-003:
-Duplicate payment event processing.
+Threat actors considered:
 
-THREAT-004:
-Fake bank receipt approval.
+- An unauthenticated internet user probing public endpoints.
+- A malicious or compromised student account attempting to access
+  another user's data, alter client requests, or obtain paid content.
+- A compromised administrator account or an authorized insider making
+  an improper or mistaken change.
+- A caller forging, replaying, or racing payment-provider events.
+- A user submitting crafted files or rich text.
+- A compromised dependency, developer credential, CI job, or deployment
+  secret.
+- An external provider or storage service experiencing a security or
+  availability failure.
 
-THREAT-005:
-Administrative privilege escalation.
+Assumptions and limits:
 
-THREAT-006:
-Cross-student data exposure.
+- Flutter Web runs in an attacker-controlled browser. Client state,
+  route guards, displayed prices, and success screens are not trusted.
+- Supabase Auth identifies a caller; database grants, RLS, and trusted
+  backend authorization must still determine what that caller may do.
+- Payment, video, email, hosting, MFA, retention, monitoring, and recovery
+  decisions remain open. Provider-specific controls cannot be finalized
+  until the relevant provider is selected.
+- The architecture and controls in this document are proposed. They are
+  not evidence of a deployed or verified implementation.
 
-THREAT-007:
-Leaked private PDF URLs.
+## 9.5 Threat Register
 
-THREAT-008:
-Compromised backend secrets.
+| ID / impact | Attack path and affected assets | Required controls | Verification evidence |
+| --- | --- | --- | --- |
+| **THREAT-001 Unauthorized course access — Critical** | A guest or student changes course, lesson, or asset identifiers; calls APIs directly; or reuses a previously issued content link. Entitlements, PDFs, video, and lesson content are at risk. | Keep paid content private. Re-authenticate and check current entitlement, course, lesson, status, and expiry at the trusted delivery boundary. Object identifiers and URLs are not authorization. | Negative tests for guest, non-owner, expired, revoked, wrong-course, and replayed access through database, function, and storage paths. |
+| **THREAT-002 Forged payment confirmation — Critical** | A student fabricates a redirect, client result, or callback body that claims an order was paid. Order integrity and paid access are at risk. | Verify provider authenticity and compare trusted order, amount, currency, transaction reference, and outcome. Finalize payment and entitlement only through an authorized transaction; clients cannot set paid state. Provider-specific verification remains open. | Forged, altered, mismatched, and unsuccessful payment events must not mark an order paid or grant access. |
+| **THREAT-003 Duplicate payment event processing — Critical** | A provider retry, replay, or concurrent delivery processes the same settlement more than once or applies an old event after a newer state. Financial records and entitlements are at risk. | Verify the event before reserving its identifier; enforce provider/event uniqueness, idempotency, valid state transitions, and atomic order/enrollment updates. | Duplicate, delayed, replayed, and concurrent event tests prove one financial finalization and no invalid state reversal. |
+| **THREAT-004 Fake bank receipt approval — Critical** | A student uploads fabricated, altered, or reused evidence; a reviewer approves it without independently confirming settlement. Funds and entitlements are at risk. | Treat receipts as evidence only. Keep them private; require authorized finance review, independent bank settlement verification, order/amount/currency matching, auditable decisions, and safe concurrent processing. Receipt limits and resubmission policy remain open. | Tests prove receipt submission alone grants no access; unauthorized, duplicate, mismatched, rejected, and concurrent reviews cannot approve or grant twice. |
+| **THREAT-005 Administrative privilege escalation — Critical** | A student changes profile metadata, writes role records, replays an admin request, or abuses an over-privileged function. Roles, payments, course content, and student data are at risk. | Resolve roles from trusted records, enforce least privilege in backend and database controls, deny client role writes, audit grants/revocations, and protect privileged accounts. Production MFA and final role policy remain open. | Negative authorization tests for each role and operation, including forged client claims and revoked staff/admin access. |
+| **THREAT-006 Cross-student data exposure — High** | A user guesses identifiers, alters filters, or calls APIs/storage directly to read another student's profile, orders, receipts, enrollments, progress, or bookmarks. | Apply grants and RLS to every exposed table; enforce ownership in trusted functions and private storage policies; minimize returned fields. | Two-user isolation tests cover read, insert, update, delete, function, and storage paths for owned and foreign records. |
+| **THREAT-007 Leaked private PDF or media reference — High** | A private object path or signed URL escapes through client data, logs, cache, or sharing and is reused by another user. | Keep protected assets in private storage; authorize before issuing delivery credentials; limit credential lifetime where supported; prevent sensitive URLs and paths from entering logs or public records. Watermarking and delivery method remain open. | Unauthorized/revoked access tests, URL expiry checks, cache/header review, and log inspection. A URL is not a substitute for entitlement checks. |
+| **THREAT-008 Compromised backend secret — Critical** | A service-role key, payment secret, or signing credential is committed, exposed in web assets, leaked by CI, or stolen from an operator. RLS bypass and financial or data compromise may result. | Keep privileged secrets server-side; use least-privilege access, protected secret storage, scanning, rotation, and incident procedures. Treat service-role access as capable of bypassing RLS. | Inspect built web assets and repository history; exercise secret scanning; verify CI and operator permissions; rehearse rotation without exposing values. |
+| **THREAT-009 Malicious file upload — High** | A user disguises a file type, uploads an oversized or malformed PDF/image, or supplies content that exploits a parser or downstream renderer. Other users, staff, and storage are at risk. | Authorize uploads; enforce approved size/type limits; validate actual content and ownership; keep uploads private; render untrusted content safely. Scanning and exact limits remain undecided. | Test spoofed MIME/extensions, malformed files, oversized files, unauthorized object paths, and safe failure behavior. |
+| **THREAT-010 Cross-site scripting — High** | Attacker-controlled course text, rich lesson content, metadata, or filenames is rendered as executable browser content. Student/admin sessions and displayed data are at risk. | Encode output and sanitize any supported rich text using an approved allowlist; avoid unsafe HTML execution; apply suitable browser security headers and safe link handling. | Security tests cover stored and reflected payloads in course, lesson, profile, and upload metadata rendering. |
+| **THREAT-011 Public API abuse — Medium/High** | Bots or attackers automate authentication attempts, catalog queries, receipt uploads, checkout creation, or other exposed operations, consuming resources or degrading availability. | Validate and bound requests, apply endpoint-appropriate rate limits and upload quotas, make retries safe, and monitor abuse without collecting unnecessary personal data. Exact limits and monitoring tools remain open. | Load/abuse tests and configuration review demonstrate limits, safe rejection, and no duplicate financial effects. |
+| **THREAT-012 Sensitive data leaked through logs — High** | Application, function, CI, or provider logs capture tokens, secrets, receipts, private paths, signed URLs, or excessive student/payment data. | Use allowlisted safe fields, redact sensitive values, restrict log access, and apply approved retention. Never log credentials, raw card data, full receipts, or complete signed URLs. | Automated log-content checks and access/retention review using synthetic data. |
+| **THREAT-013 Unauthorized or accidental data deletion — Critical** | A user abuses delete access, a privileged operation cascades through financial history, or an operator removes data without recovery. Orders, audit history, entitlements, and content may be lost. | Deny unneeded delete privileges; avoid cascading deletion of financial/audit/grant history; audit privileged changes; use an approved retention workflow and tested backups. Deletion and retention policies remain open. | Negative delete tests, migration review of FK actions, and documented backup restore exercises. |
+| **THREAT-014 Compromised CI/CD pipeline — Critical** | A malicious change, dependency, action, or over-privileged workflow steals secrets or deploys unreviewed code. Production credentials and application integrity are at risk. | Restrict workflow permissions and secrets, protect branches/environments, review third-party actions and dependency changes, and require authorized production release. CI and GitHub protections are not yet verified. | Workflow permission review, secret-scanning evidence, protected deployment checks, and an authorized release dry-run. |
+| **THREAT-015 Lost or corrupted storage assets — High** | Operator error, provider failure, compromised credentials, or an incomplete database/storage operation deletes or corrupts course files or receipts. Content availability and financial evidence are at risk. | Separate private/public asset policy, audit lifecycle operations, define backup and retention, and reconcile database references with storage. Recovery targets and provider capabilities remain open. | Restore and integrity-check exercises for course media and receipt records; verify orphan handling. |
+| **THREAT-016 Vulnerable or compromised dependency — High** | A vulnerable or malicious direct/transitive package is introduced into the browser, backend, or CI build and exposes users or credentials. | Review dependency provenance and changes, maintain lockfiles, monitor advisories, update supported versions, and limit build permissions. Monitoring tooling and update policy remain open. | Dependency scanning, review of alerts and lockfile changes, and regression checks for security updates. |
+| **THREAT-017 Browser content capture — High, residual** | An authorized learner screenshots, records, copies delivered bytes, or photographs the display. Proprietary course content may be redistributed. | Use proportionate authenticated delivery and disclosed personalization/watermarking where approved. Do not claim that a browser can prevent capture. Acceptable residual risk and watermark policy remain open. | Verify access controls and watermark behavior where implemented; document that screenshots, recording, and external capture remain possible. |
+| **THREAT-018 Account or session takeover — High; Critical for privileged accounts** | Credential stuffing, phishing, recovery abuse, or a stolen session lets an attacker act as a student or administrator. Personal data, orders, course access, and privileged operations are at risk. | Use Supabase Auth protections, rate-limit authentication and recovery, protect sessions, revoke compromised sessions, and require approved stronger authentication for privileged accounts. Production MFA policy remains open. | Test authentication throttling, recovery and session lifecycle, revoked-session rejection, and privileged-action controls once approved. |
 
-THREAT-009:
-Malicious file uploads.
+## 9.6 Residual Risks and Open Decisions
 
-THREAT-010:
-Cross-site scripting.
+The following materially affect the final risk assessment and must not be
+silently assumed:
 
-THREAT-011:
-Abuse of public APIs.
+- Payment provider, signature/replay protocol, settlement and refund rules.
+- Production administrator MFA and role/approval boundaries.
+- Receipt validation limits, retention, and bank resubmission rules.
+- PDF/video delivery, watermark privacy, and acceptable content-copy risk.
+- Data retention/deletion, applicable privacy obligations, and audit retention.
+- CI protections, incident monitoring, backup provider, and recovery targets.
+- Rate-limit thresholds and abuse response ownership.
 
-THREAT-012:
-Sensitive data leaked through logs.
+Threat likelihood, exploitability, and residual-risk acceptance cannot be
+finalized from the proposed architecture alone. The project owner must
+approve the relevant decisions and explicitly accept any residual risk
+before production release. Browser content capture cannot be eliminated
+by Flutter Web controls.
 
-THREAT-013:
-Unauthorized data deletion.
+## 9.7 Verification and Maintenance
 
-THREAT-014:
-Compromised CI/CD pipeline.
-
-THREAT-015:
-Lost or corrupted storage assets.
-
-THREAT-016:
-Unpatched third-party dependencies.
-
-Threat models must be updated when
-trust boundaries or sensitive workflows change.
+- Treat each control above as a requirement until implementation evidence
+  demonstrates it; this register does not claim controls are deployed.
+- Map each threat to its security test and release gate in
+  `docs/TESTING.md` and the applicable task/PR.
+- Reassess the model when a provider, trust boundary, role, data flow,
+  storage policy, or sensitive workflow changes.
+- Record accepted residual risks and unresolved controls with an owner
+  and decision record before production release.
 
 ---
 
