@@ -1,5 +1,5 @@
--- Transactional TAP output, runnable by pg_prove / supabase test db or psql
--- with ON_ERROR_STOP=1. Helpers exist only for this test transaction.
+-- Manual transactional TAP snapshot, run with psql ON_ERROR_STOP=1.
+-- Helpers exist only for this test transaction.
 begin;
 create temporary sequence csa059_assertion;
 grant usage, select on sequence csa059_assertion to anon, authenticated;
