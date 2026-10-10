@@ -893,18 +893,23 @@ All items start unchecked.
 
 - [ ] CSA-001 [P1] [L]
   Review and finalize SRS.md.
+  IN_REVIEW, CODEX: SRS 1.1 candidate; see [review and coordination record](docs/requirements/README.md). Owner baseline approval pending.
 
 - [ ] CSA-002 [P1] [L]
   Finalize MVP scope and acceptance criteria.
+  IN_REVIEW, CODEX: [MVP scope and acceptance matrix](docs/requirements/CSA-001-002-SRS-MVP.md); owner approval pending.
 
 - [ ] CSA-003 [P1] [L]
   Approve roles and permissions.
+  IN_REVIEW, CODEX: [permission matrix](docs/requirements/CSA-003-ROLES.md); owner approval pending.
 
 - [ ] CSA-004 [P0] [L]
   Select payment gateway and currency.
+  IN_REVIEW, CODEX: [PayHere/LKR selection](docs/requirements/CSA-004-PAYMENT-DECISION.md) confirmed by owner on 2026-10-11; documentation acceptance pending. Merchant readiness unverified.
 
 - [ ] CSA-005 [P0] [L]
   Define bank transfer verification policy.
+  IN_REVIEW, CODEX: [bank verification policy](docs/requirements/CSA-005-BANK-POLICY.md); owner approval pending.
 
 - [ ] CSA-006 [P0] [L]
   Define enrollment, expiry, and refund rules.

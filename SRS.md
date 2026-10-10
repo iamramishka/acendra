@@ -3,13 +3,19 @@
 # Course Selling Application
 
 Document ID: CSA-SRS-001
-Version: 1.0
-Status: Draft - Pending Approval
+Version: 1.1
+Status: Review Candidate - Pending Baseline Approval
 Project: Course Selling Application
 Primary Platform: Flutter Web
 Future Platforms: Android and iOS
 Development Approach: Agile + Clean Architecture
 Classification: Internal Project Documentation
+
+Review date: 2026-10-11
+Review evidence: [CSA-001/002 SRS and MVP baseline](docs/requirements/CSA-001-002-SRS-MVP.md).
+Payment provider/currency confirmed by project owner: PayHere / LKR, Sri Lanka.
+Other proposed policies remain subject to the explicit approval gates in the
+[requirements review packet](docs/requirements/README.md).
 
 ---
 
@@ -255,6 +261,10 @@ Restrictions:
 ## 4.3 Content Manager
 
 Permissions:
+
+Course operations require a current authorized course assignment or an
+explicitly authorized course-creation operation. A role label alone does not
+grant access to every course.
 
 - Create and edit courses
 - Manage curriculum
@@ -1090,6 +1100,10 @@ Required statistics:
 - Pending bank payments
 - Confirmed revenue
 
+Each statistic shall be returned and displayed only when the current actor
+has the corresponding permission. The backend shall omit unauthorized counts,
+receipt aggregates and financial totals, not merely hide them in the UI.
+
 FR-ADMIN-003 [MUST]
 Administrators shall access modules
 according to their permissions.
@@ -1338,8 +1352,9 @@ The application shall not expose
 server-side secrets to Flutter Web.
 
 NFR-SEC-004 [MUST]
-Protected database resources shall
-use appropriate RLS or trusted API controls.
+Protected exposed database tables shall use enabled Row Level Security and
+reviewed grants. Trusted APIs shall additionally enforce operation and resource
+authorization. Privileged backend credentials shall never be exposed to clients.
 
 NFR-SEC-005 [MUST]
 Sensitive operations shall validate input.
@@ -2289,12 +2304,17 @@ before relevant implementation begins.
 
 DEC-001:
 Production payment gateway.
+Selected: PayHere, confirmed by the project owner on 2026-10-11.
+Merchant activation and integration verification remain separate gates.
 
 DEC-002:
 Primary billing currency.
+Selected: LKR, confirmed by the project owner on 2026-10-11.
 
 DEC-003:
 Supported countries and customer regions.
+Business country confirmed: Sri Lanka. The full customer-territory and
+cross-border acceptance policy remains open.
 
 DEC-004:
 Bank receipt size and file-type limits.
