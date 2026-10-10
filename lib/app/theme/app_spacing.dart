@@ -13,8 +13,8 @@ abstract final class AppRadius {
   static const double sm = 8.0;
   static const double md = 12.0;
   static const double lg = 16.0;
-  static const double card = 16.0;
-  static const double button = 10.0;
+  static const double card = 18.0;
+  static const double button = 12.0;
   static const double chip = 100.0;
   static const double dialog = 20.0;
 }

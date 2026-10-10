@@ -1,5 +1,6 @@
 import 'package:acendra/app/theme/app_colors.dart';
 import 'package:acendra/app/theme/app_spacing.dart';
+import 'package:acendra/app/theme/app_theme_extension.dart';
 import 'package:acendra/app/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 
@@ -49,6 +50,7 @@ abstract final class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
+      extensions: [AppThemeExtension.fromTokens(tokens)],
       textTheme: textTheme,
       scaffoldBackgroundColor: tokens.background,
       cardTheme: CardThemeData(
