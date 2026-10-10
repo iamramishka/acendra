@@ -300,7 +300,7 @@ Status: Strategy accepted under CSA-010; implementation evaluation pending.
 
 ## ADR-010 - Video Delivery
 
-Decision: Provider selection and protected playback contract remain pending.
+Decision: Mux Basic signed 1080p VOD accepted under CSA-011 on 2026-10-11; trusted token issuance and conditional renewal/PoC gates retained.
 
 ## ADR-011 - Parallel Engineering
 
@@ -1966,7 +1966,9 @@ Do not promise impossible DRM guarantees.
 
 Video provider:
 
-PENDING SELECTION
+Mux Basic signed 1080p VOD, accepted CSA-011.
+See docs/decisions/CSA-011-VIDEO-PROVIDER.md; privacy, browser and five-minute
+token renewal/revocation proof remains required before implementation acceptance.
 
 Preferred capabilities:
 

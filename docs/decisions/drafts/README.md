@@ -1,7 +1,7 @@
 # Pending Architecture Decisions
 
-Only [ADR-010](ADR-010-protected-video-delivery.md) remains pending under CSA-011.
-No video provider or delivery contract is selected. The other eleven records
-are accepted and appear in the [canonical ADR index](../README.md).
-Numbering follows PLAN.md's twelve topics, reconciled by CSA-007. Unspecified
-provider, budget, retention and operational decisions remain gated.
+ADR-010 is now accepted under CSA-011 and lives in the
+[canonical ADR index](../README.md) with the other eleven records.
+No initial ADR remains pending. Historical drafts are preserved in Git history.
+Numbering follows PLAN.md's twelve topics. Acceptance of the selected designs
+does not resolve unspecified financial retention or operational/release gates.

@@ -1,14 +1,16 @@
 # CSA-011: Protected video provider selection
 
+Owner approval recorded 2026-10-11 (Asia/Colombo): the project owner replied "go ahead" after these six reviews were presented. This accepts the documentation baseline and authorizes merge; runtime, legal/processor, provisioning and production gates remain unverified. See [approval and completion record](../requirements/CSA-011-017-APPROVAL.md). Earlier proposal/pending wording below describes preparation or retained downstream conditions, not a missing owner decision.
+
 Date: 2026-10-11 (Asia/Colombo)
-Status: IN_REVIEW - recommendation prepared; Project Owner approval pending
+Status: APPROVED selection - owner accepted 2026-10-11; implementation/PoC gates retained
 Preparation owner: CODEX video-budget agent
 Integration base: e1cf11f (origin/dev); branch: codex/docs/csa-011-phase0-review
 Scope: this document only. No account, paid service, dependency or runtime change.
 
-## Recommended decision
+## Accepted decision
 
-Select **Mux Video, Basic on-demand quality, pay-as-you-go, signed playback only**, initially limited to 1080p. Use a trusted Supabase Edge Function to authorize each lesson and sign playback credentials. Use a pinned Mux Player web component through a Flutter Web platform view, subject to the proof-of-concept gates below. This is a proposed selection, not an approved purchase or verified integration.
+Select **Mux Video, Basic on-demand quality, pay-as-you-go, signed playback only**, initially limited to 1080p. Use a trusted Supabase Edge Function to authorize each lesson and sign playback credentials. Use a pinned Mux Player web component through a Flutter Web platform view, subject to the proof-of-concept gates below. This is an owner-approved selection, not a purchase or verified integration.
 
 Mux best fits the small MVP because it combines signed adaptive browser playback, a documented web player, and favorable initial delivery allowances. Cloudflare Stream is the fallback if the Mux integration or privacy review fails. A DRM requirement would reopen selection and budget approval before implementation.
 
@@ -84,11 +86,11 @@ Documentation preparation is complete when comparison, sources, scenarios, propo
 - [ ] Synthetic Sri Lanka-facing test records startup/rebuffer performance and actual provider billed minutes; performance targets are coordinated with CSA-017, not fabricated here.
 - [ ] Source-master recovery and provider deletion/key rotation rehearsed; privacy/network, CSP and credential-redaction checks pass.
 
-Approval record: Project Owner = pending; security/privacy reviewer = pending; budget approval = pending; PoC evidence = none. Only reviewed integration may update ADR-010, PLAN.md and ARCHITECTURE.md provider fields.
+Approval record: Project Owner accepted selection on 2026-10-11; CSA-012 planning budget accepted; security/privacy operational review and PoC evidence remain pending. Only reviewed integration may update ADR-010, PLAN.md and ARCHITECTURE.md provider fields.
 
 ## Handoff
 
-Task/owner: CSA-011 / CODEX preparation. Status: IN_REVIEW.
+Task/owner: CSA-011 / CODEX preparation. Status: DONE for accepted documentation; downstream verification retained.
 Files changed: docs/decisions/CSA-011-VIDEO-PROVIDER.md only.
 Shared contracts changed: none; proposed contract requires coordinated acceptance.
 Checks: git diff --check and document self-review; no Flutter/backend/provider runtime tests for this documentation-only change. Commit/PR: recorded by coordinator after submission.

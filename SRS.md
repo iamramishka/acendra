@@ -1790,8 +1790,8 @@ The video provider shall support:
 - Reasonable playback performance
 - Course access integration
 
-The provider and pricing plan
-remain subject to selection.
+Approved CSA-011 selection: Mux Basic signed 1080p VOD.
+Provider privacy and playback/token-renewal PoC remain implementation gates.
 
 ---
 
@@ -2393,12 +2393,15 @@ Content watermark format and privacy policy.
 
 DEC-009:
 Protected video hosting provider.
+Approved Mux Basic signed 1080p VOD on 2026-10-11 under CSA-011; PoC retained.
 
 DEC-010:
 Maximum expected concurrent users.
 
 DEC-011:
 Hosting budget and operational limits.
+Approved CSA-012: USD 150/month infrastructure planning ceiling; environment
+separation accepted, quotes/region/financial recovery readiness remain gated.
 
 DEC-012:
 Supported browser/version matrix.
@@ -2408,6 +2411,8 @@ Initial interface and course languages.
 
 DEC-014:
 Data retention periods and deletion rules.
+CSA-015 control/nonfinancial baseline accepted on 2026-10-11; financial/audit
+periods, legal review, processor terms and operational verification remain open.
 
 DEC-015:
 Final availability and recovery objectives.
