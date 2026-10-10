@@ -3,8 +3,9 @@
 # Acedra - UI/UX Design System
 
 Document ID: CSA-DS-001
-Version: 1.0
+Version: 1.1
 Status: Proposed - Pending Approval
+Review: CSA-014, 2026-10-11; proposed clarifications, no implementation sign-off
 Project: Course Selling Application
 Working Brand: Acedra
 Primary Platform: Flutter Web
@@ -486,6 +487,13 @@ Avoid excessive font-weight variations.
 
 All size values are logical pixels.
 
+Proposed Flutter mapping: Display = displayLarge; H1 = headlineLarge;
+H2 = headlineMedium; H3 = headlineSmall; H4 = titleLarge;
+Body Large = bodyLarge; Body = bodyMedium; Body Small = bodySmall;
+Label = labelLarge; Caption = labelSmall.
+The table above defines the intended values; current Dart styles are
+not evidence that these values are approved or correctly implemented.
+
 Small text must not carry essential
 information when larger text is feasible.
 
@@ -713,6 +721,11 @@ Minimum-width testing should include
 
 Breakpoints depend on available width,
 not device brand or device category.
+
+Use half-open intervals: Compact width < 600, Medium 600 <= width < 1024,
+Expanded width >= 1024. Evaluate the actual available content constraints
+after shell navigation takes space. A sidebar must collapse when the
+remaining content cannot fit its controls, including at enlarged text sizes.
 
 ## 15.2 Page Margins
 
@@ -952,6 +965,10 @@ Compact toolbar action.
 
 For touch-first critical actions,
 prefer 44 or larger.
+
+These heights describe visual sizing, not guaranteed pointer target bounds.
+Use at least a 44 x 44 logical-pixel hit region for primary touch actions,
+including small confirmation buttons; allow labels to wrap or grow.
 
 ## 21.3 Button States
 
@@ -1209,6 +1226,10 @@ the total and action clearly visible.
 - Online payment gateway
 - Bank transfer
 
+Approved MVP: PayHere, LKR, one course per order (SRS 1.1 and CSA-004).
+Show the approved lifetime-access and seven-day refund-request terms accurately
+under CSA-006; a request is subject to review, not a guaranteed refund.
+
 The selected method must
 be visually and semantically clear.
 
@@ -1272,6 +1293,10 @@ Required interface elements:
 - Receipt under review
 
 ## 27.2 Upload Design Rules
+
+Approved receipt policy: JPEG, PNG or PDF; maximum 5 MiB (5,242,880 bytes).
+Display these limits before file selection. Follow CSA-005 for same-order
+resubmission when still payable; preserve prior rejected submission history.
 
 - Explain accepted file formats.
 - Explain maximum file size.
@@ -1478,6 +1503,14 @@ is explicitly selected and tested.
 
 ## 30.6 Watermark Design
 
+CSA-010 selects authenticated proxy delivery of private, server-watermarked
+derivatives. A presentation-layer watermark may complement that delivery;
+it does not replace the approved server watermark. Appearance and disclosed
+personal information remain subject to the approved privacy/security review.
+Approved CSA-010 text: "Licensed to <display name> - <opaque license ID>"
+on every page, derived from trusted identity. Exclude email, phone, NIC and
+bank information; disclose its purpose before first reading.
+
 Watermarks should:
 
 - Be visible but subtle.
@@ -1612,6 +1645,11 @@ Available actions:
 - Open transaction details
 
 ## 32.4 Approval Safety
+
+CSA-003/005 require an authorized independent finance reviewer and prohibit
+own-purchase approval, including for super admins. Production finance actions
+require MFA. Show only permitted case details, and keep internal bank evidence
+and reviewer notes out of student-facing rejection/status messages.
 
 Before approval:
 
@@ -1834,6 +1872,10 @@ only on an animation.
 Target:
 WCAG 2.2 AA where applicable.
 
+This remains a proposed target subject to DS-OPEN-009. SRS NFR-ACC-001
+through 005 and 007 remain mandatory regardless of that decision.
+Reference: [W3C WCAG 2.2](https://www.w3.org/TR/WCAG22/).
+
 Actual conformance requires testing.
 
 ## 37.1 Text Contrast
@@ -1851,6 +1893,13 @@ Test actual foreground/background pairs.
 
 Do not assume a token is accessible
 in every possible combination.
+
+The existing light focusRing and both border tokens are unsuitable as
+the sole contrasting boundary on their default surface backgrounds.
+Keep their palette values; pair them with an independently visible,
+tested focus/control boundary. Decorative dividers may retain subtle borders.
+Verify computed Material foregrounds, overlays and component states as well
+as the raw token pairs; never infer accessibility from a palette table.
 
 ## 37.2 Interaction Targets
 
@@ -2517,6 +2566,10 @@ before their dependent production release.
 
 # 51. DESIGN SYSTEM DEFINITION OF DONE
 
+CSA-014 review completion is distinct from implementation completion:
+the review supplies a refined proposal, source findings and acceptance
+criteria. It does not check off the implementation checklist below.
+
 The design system is considered
 implementation-ready when:
 
@@ -2538,6 +2591,44 @@ implementation-ready when:
 - [ ] Bank payment review layout is validated.
 - [ ] Developers understand component ownership.
 - [ ] Changes can be reviewed through GitHub.
+
+## 51.1 Proposed MVP Verification Contract
+
+The approved SRS 1.1 retains MUST requirements and defers SHOULD features.
+This matrix does not promote captions, optional reader search/bookmarks,
+video timestamp resume or theme persistence into mandatory MVP features.
+Check optional features when implemented, or record them as deferred; assess
+any impact on the proposed accessibility target before a conformance claim.
+
+Use this matrix for implementation review after the relevant screens exist.
+All rows require both light and dark themes. Capture the application revision,
+browser/version, viewport, scale, fixture, observed result and evidence link.
+Record failures and limitations explicitly. Synthetic finance and entitlement
+fixtures must be identified; a UI fixture never proves backend authorization.
+
+| ID | Scope and requirement | Observable acceptance | Evidence required |
+| --- | --- | --- | --- |
+| DS-AC-01 | Responsive shells; NFR-RESP-001 through 005 | At widths 320, 390, 599, 600, 768, 1023, 1024 and 1440, navigation, totals and primary actions remain reachable without page-wide horizontal overflow. A PDF at deliberate zoom or a wide data table may scroll within its own region. | Screenshots plus overflow assertions at boundaries; keyboard walkthrough of student/admin shells. |
+| DS-AC-02 | Typography and layout; NFR-UX-001 through 009, NFR-ACC-003 | Documented token mapping is consistent. At 200% text scale and browser zoom, headings, price labels and form errors remain readable; at a 320 CSS-pixel content width the main workflow reflows. Test text scaling and browser zoom separately. | Token comparison, screenshots and browser checks; document any content-specific exception. |
+| DS-AC-03 | Keyboard and focus; NFR-ACC-001, 002, 005 | Forward/reverse traversal follows the screen order. Menus, forms, media controls and dialogs work with keyboard input. Dialog dismissal returns focus to its opener; sticky headers/action bars leave the focused control visible. Shortcuts do not intercept typing in inputs. | Recorded keyboard sequence and focus assertions; accessible names/roles checked in the browser. |
+| DS-AC-04 | Color and status; NFR-ACC-003, 004 | Actual text and control contrast meets section 37 for each supported state; pending, rejected, verified and locked states include words. | Measured foreground/background pairs for both themes; visual and semantics checks. |
+| DS-AC-05 | Authentication/forms; NFR-ACC-002, NFR-UX-004 | Labels persist; password visibility has an action name and announced state. Invalid submission identifies fields and provides an actionable message. Recoverable errors preserve safe entered values. Password paste/autofill remains usable. | Invalid/valid/disabled fixtures; keyboard and screen reader checks. |
+| DS-AC-06 | Feedback and motion; NFR-UX-006 through 008 | Loading preserves an accessible action name and announces busy state. Error/empty screens offer only valid next actions. Reduced motion uses static skeletons. Critical status remains visible after transient feedback disappears. | Loading/error/empty/offline fixtures, reduced-motion browser setting and announcements. |
+| DS-AC-07 | Checkout and receipts; FR-PAY-001 through 014, FR-BANK-001 through 018 | Server state determines status. Return from gateway, upload success and pending review never imply paid access. Show amount/currency, upload limits and retry context. Concurrent finance decisions refresh authoritative state before another action; approval confirmation explains the entitlement consequence. | Synthetic pending/rejected/verified/unknown/conflict fixtures; trusted integration evidence separately required. |
+| DS-AC-08 | Learning/PDF/video; FR-PDF-001 through 015, NFR-ACC-007 | Navigation/zoom/fit controls remain usable on mobile. Original PDF colors and aspect ratio remain intact in dark mode. Expired/revoked access yields recovery guidance without restricted previews; failed progress save is not presented as saved. Captions and document accessibility limitations are recorded. | Representative document/media fixtures and both-theme controls checks; authorization tested separately. |
+| DS-AC-09 | Theme preference; NFR-UX-002, NFR-UX-010 (SHOULD) | User can select light/dark; proposed persistence survives reload using approved storage. If system mode is offered, it follows system changes without resetting the reading position. | Reload/system-switch browser evidence; no entitlement or payment data changes. |
+
+These checks validate design behavior; they do not establish complete WCAG
+conformance. The accessibility reviewer must assess applicable criteria across
+complete supported user journeys and document unresolved limitations.
+
+## 51.2 Implementation Handoff
+
+The CSA-014 source review and open owner decisions are recorded in
+[CSA-014 design review](docs/reviews/CSA-014-DESIGN-REVIEW.md).
+Existing implementation mismatches must be assigned as bounded follow-up
+work with ownership of shared theme/widget files before changing code.
+Do not update golden baselines merely to accept an unexplained mismatch.
 
 ---
 
