@@ -32,7 +32,8 @@ existing ADR drafts and other worktrees are restricted.
 | CSA-008 | P0 | CODEX review candidate; existing draft owner retained | CSA-006 financial/access policy; CSA-003 roles | Entity/relationship invariants, exact money, RLS/grants, constraints and migration test plan; no executed SQL claims |
 | CSA-010 | P0 | CODEX; owner approves | CSA-006 access/revocation; private storage and PDF requirements | Concrete delivery/watermark design, revocation limitations, reader/accessibility/performance gates and primary-source research |
 
-Related PR: pending submission. Related requirements and proposed tests are in the task
+Related PR: [draft PR #4](https://github.com/iamramishka/acendra/pull/4).
+Related requirements and proposed tests are in the task
 deliverables. Approval for new policy choices is not inferred from the request
 to prepare these tasks. Lifetime access and refund requests within seven days
 were explicitly selected by the owner during this batch; other choices will be
