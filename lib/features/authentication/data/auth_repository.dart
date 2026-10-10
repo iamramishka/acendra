@@ -52,6 +52,26 @@ class AuthRepository {
     }
   }
 
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    try {
+      await _client!.auth.resetPasswordForEmail(email);
+    } on AuthException catch (e) {
+      throw _map(e);
+    } catch (_) {
+      throw const NetworkError();
+    }
+  }
+
+  Future<void> updatePassword({required String newPassword}) async {
+    try {
+      await _client!.auth.updateUser(UserAttributes(password: newPassword));
+    } on AuthException catch (e) {
+      throw _map(e);
+    } catch (_) {
+      throw const NetworkError();
+    }
+  }
+
   Future<void> signOut() async {
     await _client!.auth.signOut();
   }
