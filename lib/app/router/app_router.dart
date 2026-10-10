@@ -13,10 +13,7 @@ class _PlaceholderScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: Center(
-        child: Text(
-          title,
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
+        child: Text(title, style: Theme.of(context).textTheme.headlineMedium),
       ),
     );
   }
@@ -29,8 +26,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: RouteNames.home,
-        builder: (context, state) =>
-            const _PlaceholderScreen(title: 'Home'),
+        builder: (context, state) => const _PlaceholderScreen(title: 'Home'),
         redirect: (context, state) => RouteNames.marketplace,
       ),
       GoRoute(
@@ -40,8 +36,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.login,
-        builder: (context, state) =>
-            const _PlaceholderScreen(title: 'Login'),
+        builder: (context, state) => const _PlaceholderScreen(title: 'Login'),
       ),
       GoRoute(
         path: RouteNames.register,
@@ -55,8 +50,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.admin,
-        builder: (context, state) =>
-            const _PlaceholderScreen(title: 'Admin'),
+        builder: (context, state) => const _PlaceholderScreen(title: 'Admin'),
       ),
     ],
   );

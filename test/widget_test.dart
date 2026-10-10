@@ -6,9 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('AcendraApp renders without crashing', (tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(child: AcendraApp()),
-    );
+    await tester.pumpWidget(const ProviderScope(child: AcendraApp()));
     expect(find.byType(MaterialApp), findsOneWidget);
   });
 }
