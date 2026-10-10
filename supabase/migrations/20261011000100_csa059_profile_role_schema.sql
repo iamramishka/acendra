@@ -10,7 +10,8 @@ create table public.profiles (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint profiles_display_name_valid check (
-    char_length(btrim(display_name)) between 1 and 100
+    char_length(display_name) between 1 and 100
+    and display_name ~ '[^[:space:]]'
   ),
   constraint profiles_avatar_path_nonempty check (
     avatar_path is null or char_length(btrim(avatar_path)) > 0
