@@ -1,11 +1,11 @@
 # CSA-003: Roles and permissions
 
 Date: 2026-10-11
-Status: IN_REVIEW - proposed policy; project-owner approval pending
+Status: APPROVED baseline - project owner accepted on 2026-10-11; implementation unverified
 Requirements: SRS section 4; FR-ADMIN, FR-STUDENT, FR-APAY, FR-ENROLL;
 SECURITY sections on authorization; DATABASE_DESIGN role grants/course staff.
 
-## Proposed permission matrix
+## Approved permission matrix
 
 Own means authenticated ownership. Scoped means a current course assignment
 and allowed operation. Explicit means a trusted backend permission check,
@@ -30,9 +30,9 @@ never unrestricted database access. Staff purchases follow student rules.
 | Audit review | No | No | No | Relevant finance history | Explicit |
 | Rewrite/delete audit history | No | No | No | No | No |
 
-## Concrete approval choices
+## Approved policy choices
 
-The following choices are proposals, not new approved permissions:
+The project owner approved the following policy choices on 2026-10-11:
 
 1. Content managers author assigned courses; only super admins publish, archive
    or change prices in MVP. Authoring previews do not create student access.
@@ -79,7 +79,7 @@ Filter dashboard aggregates on the backend as well as individual rows.
 | Concurrent approval/rejection or repeated grant | One legal final result; no duplicate grant |
 | Injected privileged transaction failure | No partial payment, grant or audit write |
 
-Required follow-up contract alignment after approval: clarify authorized student
+Required downstream contract alignment: clarify authorized student
 search, manual grants, role self-modification and review separation in
 docs/API_CONTRACTS.MD. That file is not changed by this review batch.
 No permission implementation or negative test execution is claimed here.

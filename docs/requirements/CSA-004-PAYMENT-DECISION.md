@@ -1,7 +1,7 @@
 # CSA-004: Payment gateway and currency
 
 Date: 2026-10-11 (Asia/Colombo)
-Status: Selection confirmed by project owner; technical/merchant readiness unverified
+Status: APPROVED selection and documentation - owner accepted on 2026-10-11; technical/merchant readiness unverified
 Owner: CODEX (documentation); project owner (commercial decision)
 
 ## Recorded decision
@@ -38,7 +38,7 @@ Official sources checked on 2026-10-11:
   An education plan is also listed. Rates, extra fees and eligibility require
   confirmation before selecting a plan. No plan is selected by this document.
 
-## Proposed implementation requirements
+## Approved implementation requirements
 
 These supplement FR-CHECKOUT-001..010, FR-PAY-001..014, BR-001..016 and
 NFR-SEC-001..012. Existing backend authority requirements remain mandatory.
@@ -81,6 +81,6 @@ NFR-SEC-001..012. Existing backend authority requirements remain mandatory.
 | Failure/recovery | Pending/cancel/failure/timeout and delayed callback handled without false success | Not run |
 | Reversal | Agreed CSA-006 refund/chargeback behavior and reconciliation tested | Policy pending |
 
-The selection portion of CSA-004 is complete. Its repository task stays
-IN_REVIEW until documentation acceptance is recorded. Implementation and
-production readiness are separate downstream tasks, not implied by selection.
+CSA-004 is DONE as a formally accepted selection/documentation task on
+2026-10-11. Implementation and production readiness are separate downstream
+tasks, not implied by selection.

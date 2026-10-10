@@ -4,7 +4,7 @@
 
 Document ID: CSA-SRS-001
 Version: 1.1
-Status: Review Candidate - Pending Baseline Approval
+Status: Approved Requirements Baseline - Explicit Downstream Gates Retained
 Project: Course Selling Application
 Primary Platform: Flutter Web
 Future Platforms: Android and iOS
@@ -14,8 +14,10 @@ Classification: Internal Project Documentation
 Review date: 2026-10-11
 Review evidence: [CSA-001/002 SRS and MVP baseline](docs/requirements/CSA-001-002-SRS-MVP.md).
 Payment provider/currency confirmed by project owner: PayHere / LKR, Sri Lanka.
-Other proposed policies remain subject to the explicit approval gates in the
-[requirements review packet](docs/requirements/README.md).
+The project owner approved the MVP scope, role permissions and bank policy on
+2026-10-11. The linked [approval record](docs/requirements/README.md) records
+the accepted baseline and unresolved operational/release gates. This approval
+does not claim implementation, test completion or production readiness.
 
 ---
 
@@ -158,6 +160,12 @@ Requirements should be independently testable.
 
 ## 3.1 In Scope - MVP
 
+All MUST requirements remain binding. SHOULD features are deferred unless
+explicitly promoted. The approved [MVP acceptance matrix](docs/requirements/CSA-001-002-SRS-MVP.md)
+defines verification gates. Checkout supports one course per order; carts and
+bundles are outside MVP. Public curriculum preview contains approved metadata;
+playable free lessons remain optional under FR-CAT-012 and expose no paid assets.
+
 The initial application shall include:
 
 1. Student registration and authentication
@@ -212,6 +220,14 @@ before being added to the MVP.
 ---
 
 # 4. USER ROLES
+
+The approved [permission matrix](docs/requirements/CSA-003-ROLES.md) is normative
+for operation-level authority. Course authoring is assignment-scoped; only super
+admins publish/unpublish, change prices and issue audited manual grants. Finance
+and super-admin operations require MFA in production. Self-approval of purchases,
+self-role changes and self-issued complimentary grants are prohibited. Current
+roles and assignments are checked on each sensitive request. No role bypasses
+independent payment verification, entitlement checks or audit requirements.
 
 ## 4.1 Guest User
 
@@ -269,7 +285,7 @@ grant access to every course.
 - Create and edit courses
 - Manage curriculum
 - Upload lessons and learning resources
-- Manage course publishing if authorized
+- Course publishing and price changes require the separate super-admin authority
 
 Restrictions:
 
@@ -561,6 +577,8 @@ and unpublish courses.
 FR-COURSE-009 [MUST]
 Course modifications shall not silently
 invalidate existing purchases.
+Unpublishing removes public visibility and new purchases but preserves existing
+entitlements. Revocation requires the separately approved audited access policy.
 
 FR-COURSE-010 [MUST]
 Permanent course deletion shall require
@@ -699,6 +717,14 @@ when a payment is verified.
 ---
 
 # 6.7 BANK TRANSFER PAYMENT SYSTEM
+
+The approved [bank verification policy](docs/requirements/CSA-005-BANK-POLICY.md)
+is normative. Receipt types are JPEG/PNG/PDF with a 5 MiB maximum and server-side
+validation in private storage. A currently authorized independent finance reviewer
+must verify settled credit against the exact LKR amount and official destination.
+The same verified bank transaction cannot fund multiple orders. Receipt appearance
+or submission alone never grants access. Inspection technology, bank destination,
+reviewer assignments, retention and exceptional matching remain explicit gates.
 
 FR-BANK-001 [MUST]
 Students shall be able to select
@@ -851,6 +877,8 @@ The system shall save lesson progress.
 
 FR-LEARN-007 [MUST]
 Students shall be able to resume learning.
+MVP persists completion and the last-opened lesson, plus PDF page/position.
+Video timestamp persistence remains SHOULD under FR-VIDEO-005.
 
 FR-LEARN-008 [MUST]
 The system shall display course
@@ -1197,6 +1225,9 @@ FR-NOTIFY-002 [MUST]
 The system shall notify students
 when bank transfer verification
 is approved or rejected.
+The decision shall appear in the student's order status and generate a
+transactional email. Delivery failures shall be observable and shall not reverse
+committed payment or access; automatic retry remains SHOULD under FR-NOTIFY-006.
 
 FR-NOTIFY-003 [SHOULD]
 The system should provide purchase
@@ -1303,6 +1334,10 @@ An order may have:
 
 Permitted transitions must be controlled
 by backend business rules.
+Payment verification, order transition, entitlement action and required audit
+evidence shall commit atomically; transaction failure grants no access. External
+notification delivery follows commit. Refund/chargeback transitions remain gated
+on CSA-006 rather than inferred from these state names.
 
 ---
 
@@ -1314,10 +1349,11 @@ by backend business rules.
 - APPROVED
 - REJECTED
 
-Rejection may permit a new receipt
-submission under the same order or
-a replacement order, depending on
-the finalized business policy.
+Rejection permits a new linked submission under the same still-payable order,
+returning that order to PENDING_PAYMENT. Rejected evidence remains immutable.
+Paid, cancelled and refunded orders cannot be revived through resubmission.
+The approved bank policy defines legal transitions, settlement non-reuse,
+idempotency, concurrency and dispute handling.
 
 ---
 
@@ -1643,6 +1679,12 @@ its security protections.
 ---
 
 # 10. USER INTERFACE REQUIREMENTS
+
+Screen identifiers describe logical views and may share routes/components.
+Their MVP priority follows the corresponding functional requirement. UI-AD-007
+and UI-AD-015 remain deferred with FR-COURSE-011 and FR-APAY-008; required
+operational statistics remain in scope. Listing an optional screen does not
+promote a SHOULD requirement to MUST.
 
 ## 10.1 Student Screens
 
@@ -2318,9 +2360,14 @@ cross-border acceptance policy remains open.
 
 DEC-004:
 Bank receipt size and file-type limits.
+Approved on 2026-10-11: 5 MiB maximum; JPEG, PNG and PDF. Safe inspection and
+resource limits remain implementation/production gates in the bank policy.
 
 DEC-005:
 Bank transfer review and dispute process.
+Baseline approved on 2026-10-11: independent exact credit verification,
+no self-approval, immutable reviews, same-order resubmission and a different
+reviewer for disputes. Named reviewers, response targets and contacts remain open.
 
 DEC-006:
 Course enrollment lifetime and expiry rules.
@@ -2354,6 +2401,8 @@ Final availability and recovery objectives.
 
 DEC-016:
 Admin permission and approval separation policy.
+Approved on 2026-10-11: the normative CSA-003 permission matrix and separation
+rules. Operator assignment and secure bootstrap remain implementation gates.
 
 DEC-017:
 Production PDF document size/performance limits.

@@ -1,7 +1,7 @@
 # CSA-005: Bank transfer verification policy
 
 Date: 2026-10-11
-Status: IN_REVIEW - proposed operational choices; owner approval pending
+Status: APPROVED baseline - project owner accepted on 2026-10-11; operational gates remain
 Requirements: FR-BANK-001..018, FR-APAY-001..008, FR-ENROLL;
 SECURITY bank/upload rules; DATABASE_DESIGN review/state rules;
 docs/API_CONTRACTS.MD upload, review and idempotency contracts.
@@ -13,7 +13,7 @@ The backend creates an owned payable order with immutable course, exact amount,
 currency, reference and versioned official bank destination. Production cannot
 use placeholder bank details. Upload completion never grants paid access.
 
-Proposed upload policy: JPEG, PNG or PDF, at most 5,242,880 bytes (5 MiB), matching
+Approved upload policy: JPEG, PNG or PDF, at most 5,242,880 bytes (5 MiB), matching
 the existing API proposal. Server-side validation checks actual size, extension,
 MIME, file signature and parseability. Reject unsupported, malformed, encrypted
 or unsafe files that cannot be inspected. Approve scanner/safe renderer and
@@ -37,7 +37,7 @@ Record destination account identifier, independently confirmed bank transaction
 identity, amount, currency, settlement date/source, reviewer and notes. Match
 the actual credit to the order's destination, exact LKR amount and reference.
 
-Proposed standard path: no FX conversion, underpayment tolerance, fee deduction,
+Approved standard path: no FX conversion, underpayment tolerance, fee deduction,
 split-transfer aggregation or automatic overpayment approval. Missing/truncated
 references, unsettled funds and other mismatches remain UNDER_REVIEW for
 documented exception handling. A sender-name mismatch alone is not fraud.
@@ -45,7 +45,7 @@ Third-party payments/exceptional matches require an approved evidence policy.
 
 ## Approval and state transitions
 
-Use the CSA-003 permission proposal, including MFA and no own-purchase approval.
+Use the approved CSA-003 permission policy, including MFA and no own-purchase approval.
 All financial writes occur through one trusted transactional operation with a
 consistent lock order. Recheck permissions, state, identity and settlement reuse
 inside that operation. Notifications occur after commit and are retryable work.
@@ -80,7 +80,7 @@ payment, grant and audit changes; notification failure preserves committed state
 
 ## Rejection, disputes and privacy
 
-Proposed resubmission policy: permit a new receipt on the same still-payable
+Approved resubmission policy: permit a new receipt on the same still-payable
 order, preserving the rejected record. Do not revive cancelled, paid or refunded
 orders. Keep student-safe rejection reasons separate from internal notes.
 
@@ -90,8 +90,8 @@ Reconsideration creates linked new evidence; it does not rewrite history.
 Corrections after approval, refunds and revocations use the separately approved
 CSA-006 workflow. Never silently turn a paid order into a rejected order.
 
-Only authorized finance and the submitting owner under the CSA-003 safe-view
-proposal may access receipt bytes. Status responses omit private paths/internal
+Only authorized finance and the submitting owner under the approved CSA-003 safe-view
+policy may access receipt bytes. Status responses omit private paths/internal
 notes. No receipt attachments in email or capability URLs in logs. Define
 separate retention/deletion rules for receipts, settlement evidence, audits and
 abandoned uploads before production acceptance. No legal period is invented here.
@@ -111,10 +111,11 @@ abandoned uploads before production acceptance. No legal period is invented here
 - Resubmission preserves rejected evidence and keeps internal notes private.
 - Stale receipts cannot revive paid/cancelled/refunded orders or revoked access.
 
-## Owner decisions still required
+## Outstanding operational gates
 
-Approve the upload limit/types and inspection approach, strict matching and
-exception policy, independent-review/MFA rules, same-order resubmission, named
-finance/alternate reviewers, review/dispute response targets and contacts,
-official destination account, retention and CSA-006 refund/entitlement rules.
+The owner approved upload types/size, strict matching, independent review/MFA,
+no self-approval and same-order resubmission. Still required before production:
+receipt inspection technology/resource limits, any exceptional matching policy,
+named finance/alternate reviewers, review/dispute targets and contacts, official
+bank destination, retention and CSA-006 refund/entitlement rules.
 No live bank access, receipt processing or implementation tests were performed.
