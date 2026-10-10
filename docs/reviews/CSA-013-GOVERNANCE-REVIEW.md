@@ -30,6 +30,7 @@ AGENTS sections 8, 12, 19, 40, 52 and 54.
 | Generic phase gate can obscure outstanding decisions | SRS DEC-009 video, DEC-011 budget, DEC-014 retention remain open on origin/dev | Add explicit proposal/approval distinction and acceptance evidence to Phase 0 |
 | Proposed documents use wording such as approved technology baseline | Header still says Proposed - Pending Approval | Treat stack as requested engineering constraint; do not infer formal approval from section titles |
 | Dev has UI commits and uncommitted work while early phase gates remain unchecked | Base 9355311 and primary status inspection | No invented phase completion or regression result; owner must reconcile milestones using evidence |
+| AGENTS names main but hosted default is dev | gh repo view and remote heads confirm dev; no main ref found | Target dev for this documentation batch; do not rename branches or alter repository governance silently. Owner must reconcile the convention in a separate accepted change |
 
 ## Safe parallel allocation
 
@@ -57,8 +58,9 @@ reopened; remaining operational gates and new proposals still need acceptance.
 
 ## Verification and handoff
 
-Documentation verification: review the small PLAN/AGENTS diff and run
-`git diff --check`. No runtime code changed; Flutter/database suites are
+Documentation verification: reviewed the small PLAN/AGENTS diff and ran
+`git diff --check` successfully. A design agent independently checked governance
+compatibility and found no actionable conflict. No runtime code changed; Flutter/database suites are
 not evidence for this documentation review and are not run for this task.
 No backend implementation, operational security, purchase, deployment,
 merge or policy acceptance is claimed.
