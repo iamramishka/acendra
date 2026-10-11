@@ -21,12 +21,12 @@ export function createHandler({ env, fetch: request = globalThis.fetch }) {
       if (incoming.headers.get('Access-Control-Request-Method') !== 'POST') return respond(405, 'METHOD_NOT_ALLOWED');
       const requestedHeaders = (incoming.headers.get('Access-Control-Request-Headers') ?? '')
         .split(',').map(value => value.trim().toLowerCase()).filter(Boolean);
-      if (requestedHeaders.some(value => !['authorization', 'content-type'].includes(value))) {
+      if (requestedHeaders.some(value => !['authorization', 'content-type', 'apikey', 'x-client-info'].includes(value))) {
         return respond(403, 'HEADERS_FORBIDDEN');
       }
       return new Response(null, { status: 204, headers: {
         'Access-Control-Allow-Origin': origin, Vary: 'Origin', 'Cache-Control': 'no-store',
-        'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Authorization, Content-Type',
+        'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Authorization, Content-Type, apikey, x-client-info',
       } });
     }
     if (incoming.method !== 'POST') return respond(405, 'METHOD_NOT_ALLOWED');

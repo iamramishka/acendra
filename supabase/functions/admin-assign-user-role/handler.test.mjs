@@ -63,7 +63,7 @@ test('SQL failures and transport errors never expose privileged details', async 
 
 test('approved browser preflight permits only the required method and headers without authentication', async () => {
   const handler = createHandler({ env, fetch: () => assert.fail('Preflight must not perform privileged requests') });
-  const preflight = (origin = 'http://127.0.0.1:8080', method = 'POST', headers = 'Authorization, Content-Type') => new Request('http://local/function', {
+  const preflight = (origin = 'http://127.0.0.1:8080', method = 'POST', headers = 'Authorization, Content-Type, apikey, x-client-info') => new Request('http://local/function', {
     method: 'OPTIONS', headers: { Origin: origin, 'Access-Control-Request-Method': method, 'Access-Control-Request-Headers': headers },
   });
   const result = await handler(preflight());
@@ -71,7 +71,7 @@ test('approved browser preflight permits only the required method and headers wi
   assert.equal(await result.text(), '');
   assert.equal(result.headers.get('Access-Control-Allow-Origin'), 'http://127.0.0.1:8080');
   assert.equal(result.headers.get('Access-Control-Allow-Methods'), 'POST');
-  assert.equal(result.headers.get('Access-Control-Allow-Headers'), 'Authorization, Content-Type');
+  assert.equal(result.headers.get('Access-Control-Allow-Headers'), 'Authorization, Content-Type, apikey, x-client-info');
   assert.equal(result.headers.get('Vary'), 'Origin');
   assert.equal(result.headers.get('Access-Control-Allow-Credentials'), null);
   assert.equal((await handler(preflight(undefined, 'DELETE'))).status, 405);

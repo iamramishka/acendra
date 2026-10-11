@@ -74,6 +74,18 @@ async function main() {
   sql(`select public.csa061_bootstrap_super_admin('${admin.id}','Synthetic CI first admin','${randomUUID()}');`);
   const body = { student_id: target.id, role_code: 'finance_admin', action: 'grant', reason: 'Synthetic approved reviewer', request_id: randomUUID() };
   const endpoint = '/functions/v1/admin-assign-user-role';
+  stage = 'real Flutter Web browser preflight';
+  const preflight = await fetch(base + endpoint, { method: 'OPTIONS', headers: {
+    Origin: 'http://127.0.0.1:8080', 'Access-Control-Request-Method': 'POST',
+    'Access-Control-Request-Headers': 'authorization,content-type,apikey,x-client-info',
+  }, signal: AbortSignal.timeout(30000) });
+  assert.equal(preflight.status, 204);
+  assert.equal(preflight.headers.get('Access-Control-Allow-Origin'), 'http://127.0.0.1:8080');
+  const deniedOrigin = await fetch(base + endpoint, { method: 'OPTIONS', headers: {
+    Origin: 'https://unapproved.example', 'Access-Control-Request-Method': 'POST',
+  }, signal: AbortSignal.timeout(30000) });
+  assert.equal(deniedOrigin.status, 403);
+  assert.equal(deniedOrigin.headers.get('Access-Control-Allow-Origin'), null);
   stage = 'MFA and caller injection denial';
   assert.equal((await request(endpoint, admin.token, body)).status, 403);
   assert.equal((await request(endpoint, target.token, body)).status, 403);
