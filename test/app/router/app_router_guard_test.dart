@@ -12,7 +12,7 @@ Widget _app({required bool sessionRestored, required bool isAuthenticated}) =>
         authStreamProvider.overrideWith((ref) => const Stream.empty()),
       ],
       child: Consumer(
-        builder: (_, ref, __) =>
+        builder: (_, ref, _) =>
             MaterialApp.router(routerConfig: ref.watch(appRouterProvider)),
       ),
     );
