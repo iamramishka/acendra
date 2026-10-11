@@ -12,15 +12,11 @@ class _FakeAuthRepository extends AuthRepository {
 }
 
 Widget _wrap() => ProviderScope(
-      overrides: [
-        authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
-      ],
-      child: const MaterialApp(
-        home: Scaffold(
-          body: Center(child: LogoutButton()),
-        ),
-      ),
-    );
+  overrides: [authRepositoryProvider.overrideWithValue(_FakeAuthRepository())],
+  child: const MaterialApp(
+    home: Scaffold(body: Center(child: LogoutButton())),
+  ),
+);
 
 void main() {
   testWidgets('renders logout button with sign out tooltip', (tester) async {

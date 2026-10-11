@@ -8,11 +8,13 @@ class InvalidCredentials extends AuthFailure {
 }
 
 class EmailAlreadyInUse extends AuthFailure {
-  const EmailAlreadyInUse() : super('An account with this email already exists.');
+  const EmailAlreadyInUse()
+    : super('An account with this email already exists.');
 }
 
 class EmailNotConfirmed extends AuthFailure {
-  const EmailNotConfirmed() : super('Please verify your email before signing in.');
+  const EmailNotConfirmed()
+    : super('Please verify your email before signing in.');
 }
 
 class WeakPassword extends AuthFailure {

@@ -8,11 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget shell) => ProviderScope(
-      child: MaterialApp(
-        theme: ThemeData(useMaterial3: true),
-        home: shell,
-      ),
-    );
+  child: MaterialApp(theme: ThemeData(useMaterial3: true), home: shell),
+);
 
 void main() {
   group('PublicShell responsive', () {
@@ -22,23 +19,21 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(_wrap(
-        const PublicShell(child: SizedBox()),
-      ));
+      await tester.pumpWidget(_wrap(const PublicShell(child: SizedBox())));
 
       expect(find.byIcon(Icons.menu), findsOneWidget);
       expect(find.text('Courses'), findsNothing);
     });
 
-    testWidgets('desktop 1440: shows nav links, hides hamburger', (tester) async {
+    testWidgets('desktop 1440: shows nav links, hides hamburger', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1440, 900);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(_wrap(
-        const PublicShell(child: SizedBox()),
-      ));
+      await tester.pumpWidget(_wrap(const PublicShell(child: SizedBox())));
 
       expect(find.text('Courses'), findsOneWidget);
       expect(find.text('Sign in'), findsOneWidget);
@@ -53,22 +48,20 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(_wrap(
-        const StudentShell(child: SizedBox()),
-      ));
+      await tester.pumpWidget(_wrap(const StudentShell(child: SizedBox())));
 
       expect(find.byType(NavigationBar), findsOneWidget);
     });
 
-    testWidgets('desktop 1440: hides NavigationBar, shows AppBar links', (tester) async {
+    testWidgets('desktop 1440: hides NavigationBar, shows AppBar links', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1440, 900);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(_wrap(
-        const StudentShell(child: SizedBox()),
-      ));
+      await tester.pumpWidget(_wrap(const StudentShell(child: SizedBox())));
 
       expect(find.byType(NavigationBar), findsNothing);
       expect(find.text('My Courses'), findsOneWidget);
@@ -82,9 +75,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(_wrap(
-        const AdminShell(child: SizedBox()),
-      ));
+      await tester.pumpWidget(_wrap(const AdminShell(child: SizedBox())));
 
       expect(find.byType(AppBar), findsOneWidget);
     });
@@ -95,9 +86,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(_wrap(
-        const AdminShell(child: SizedBox()),
-      ));
+      await tester.pumpWidget(_wrap(const AdminShell(child: SizedBox())));
 
       expect(find.byType(AppBar), findsNothing);
       expect(find.text('Dashboard'), findsOneWidget);
@@ -112,9 +101,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(_wrap(
-        const AuthShell(child: SizedBox()),
-      ));
+      await tester.pumpWidget(_wrap(const AuthShell(child: SizedBox())));
 
       expect(find.text('Acedra'), findsOneWidget);
     });
@@ -125,9 +112,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(_wrap(
-        const AuthShell(child: SizedBox()),
-      ));
+      await tester.pumpWidget(_wrap(const AuthShell(child: SizedBox())));
 
       expect(find.text('Acedra'), findsOneWidget);
     });
@@ -140,9 +125,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(_wrap(
-        const LearningShell(child: SizedBox()),
-      ));
+      await tester.pumpWidget(_wrap(const LearningShell(child: SizedBox())));
 
       expect(find.byType(AppBar), findsOneWidget);
     });
@@ -153,9 +136,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(_wrap(
-        const LearningShell(child: SizedBox()),
-      ));
+      await tester.pumpWidget(_wrap(const LearningShell(child: SizedBox())));
 
       expect(find.byType(AppBar), findsOneWidget);
     });

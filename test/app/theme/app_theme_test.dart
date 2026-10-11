@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-
   group('AppColors', () {
     test('light primary matches design spec', () {
       expect(AppColors.light.primary, const Color(0xFF5146E5));

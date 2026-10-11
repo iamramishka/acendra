@@ -15,13 +15,13 @@ abstract final class AppSnackbar {
 
     final (Color bg, Color fg) = switch (variant) {
       SnackbarVariant.success => (
-          ext?.successContainer ?? cs.primaryContainer,
-          ext?.success ?? cs.primary,
-        ),
+        ext?.successContainer ?? cs.primaryContainer,
+        ext?.success ?? cs.primary,
+      ),
       SnackbarVariant.warning => (
-          ext?.warningContainer ?? cs.secondaryContainer,
-          ext?.warning ?? cs.secondary,
-        ),
+        ext?.warningContainer ?? cs.secondaryContainer,
+        ext?.warning ?? cs.secondary,
+      ),
       SnackbarVariant.error => (cs.errorContainer, cs.onErrorContainer),
       SnackbarVariant.info => (cs.primaryContainer, cs.onPrimaryContainer),
     };
@@ -32,9 +32,7 @@ abstract final class AppSnackbar {
         backgroundColor: bg,
         duration: duration,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }

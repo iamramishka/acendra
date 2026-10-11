@@ -65,13 +65,15 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final tt = Theme.of(context).textTheme;
 
     return AuthShell(
-      child: _emailSent ? _SuccessView(email: _emailController.text.trim()) : _FormView(
-        emailController: _emailController,
-        emailError: _emailError,
-        isLoading: _isLoading,
-        onSubmit: _submit,
-        tt: tt,
-      ),
+      child: _emailSent
+          ? _SuccessView(email: _emailController.text.trim())
+          : _FormView(
+              emailController: _emailController,
+              emailError: _emailError,
+              isLoading: _isLoading,
+              onSubmit: _submit,
+              tt: tt,
+            ),
     );
   }
 }
@@ -96,7 +98,10 @@ class _FormView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Forgot password?', style: tt.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+        Text(
+          'Forgot password?',
+          style: tt.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
         Text(
           'Enter your email and we\'ll send you a link to reset your password.',

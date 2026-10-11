@@ -19,18 +19,20 @@ class _FakeProfileRepository extends ProfileRepository {
 }
 
 Widget _wrap({bool shouldFail = false, String? currentName}) => ProviderScope(
-      overrides: [
-        profileRepositoryProvider
-            .overrideWithValue(_FakeProfileRepository(shouldFail: shouldFail)),
-        displayNameProvider.overrideWithValue(currentName),
-        authStreamProvider.overrideWith((ref) => const Stream.empty()),
-      ],
-      child: const MaterialApp(home: ProfileEditScreen()),
-    );
+  overrides: [
+    profileRepositoryProvider.overrideWithValue(
+      _FakeProfileRepository(shouldFail: shouldFail),
+    ),
+    displayNameProvider.overrideWithValue(currentName),
+    authStreamProvider.overrideWith((ref) => const Stream.empty()),
+  ],
+  child: const MaterialApp(home: ProfileEditScreen()),
+);
 
 void main() {
-  testWidgets('renders edit profile screen with display name field',
-      (tester) async {
+  testWidgets('renders edit profile screen with display name field', (
+    tester,
+  ) async {
     await tester.pumpWidget(_wrap());
     await tester.pumpAndSettle();
     expect(find.text('Edit profile'), findsOneWidget);
@@ -59,8 +61,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          profileRepositoryProvider.overrideWithValue(
-              _FakeProfileRepository()),
+          profileRepositoryProvider.overrideWithValue(_FakeProfileRepository()),
           displayNameProvider.overrideWithValue(null),
           authStreamProvider.overrideWith((ref) => const Stream.empty()),
         ],

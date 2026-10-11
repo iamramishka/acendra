@@ -32,10 +32,9 @@ class PublicShell extends ConsumerWidget {
         ),
         title: Text(
           'Acedra',
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge
-              ?.copyWith(fontWeight: FontWeight.w700),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
         ),
         actions: isMobile
             ? [
@@ -98,9 +97,7 @@ class PublicShell extends ConsumerWidget {
             )
           : null,
       body: Column(
-        children: [
-          Expanded(child: ResponsiveContainer(child: child)),
-        ],
+        children: [Expanded(child: ResponsiveContainer(child: child))],
       ),
     );
   }

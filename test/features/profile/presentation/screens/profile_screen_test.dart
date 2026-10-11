@@ -7,29 +7,37 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap({String? displayName, String? email}) => ProviderScope(
-      overrides: [
-        displayNameProvider.overrideWithValue(displayName),
-        currentEmailProvider.overrideWithValue(email),
-        logoutProvider.overrideWith(LogoutNotifier.new),
-        authStreamProvider.overrideWith((ref) => const Stream.empty()),
-      ],
-      child: const MaterialApp(home: ProfileScreen()),
-    );
+  overrides: [
+    displayNameProvider.overrideWithValue(displayName),
+    currentEmailProvider.overrideWithValue(email),
+    logoutProvider.overrideWith(LogoutNotifier.new),
+    authStreamProvider.overrideWith((ref) => const Stream.empty()),
+  ],
+  child: const MaterialApp(home: ProfileScreen()),
+);
 
 void main() {
   testWidgets('shows initials avatar from display name', (tester) async {
-    await tester.pumpWidget(_wrap(displayName: 'Jane Doe', email: 'jane@example.com'));
+    await tester.pumpWidget(
+      _wrap(displayName: 'Jane Doe', email: 'jane@example.com'),
+    );
     await tester.pumpAndSettle();
     expect(find.text('JD'), findsOneWidget);
   });
 
-  testWidgets('shows single initial when display name is one word', (tester) async {
-    await tester.pumpWidget(_wrap(displayName: 'Jane', email: 'jane@example.com'));
+  testWidgets('shows single initial when display name is one word', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(displayName: 'Jane', email: 'jane@example.com'),
+    );
     await tester.pumpAndSettle();
     expect(find.text('J'), findsOneWidget);
   });
 
-  testWidgets('shows initial from email when display name is null', (tester) async {
+  testWidgets('shows initial from email when display name is null', (
+    tester,
+  ) async {
     await tester.pumpWidget(_wrap(email: 'alice@example.com'));
     await tester.pumpAndSettle();
     expect(find.text('A'), findsOneWidget);

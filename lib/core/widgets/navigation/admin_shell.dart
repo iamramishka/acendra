@@ -12,7 +12,8 @@ class AdminShell extends StatelessWidget {
   Widget _buildSidebar(BuildContext context) {
     final ext = Theme.of(context).extension<AppThemeExtension>();
     final sidebarBg =
-        ext?.surfaceSecondary ?? Theme.of(context).colorScheme.surfaceContainerHighest;
+        ext?.surfaceSecondary ??
+        Theme.of(context).colorScheme.surfaceContainerHighest;
     final borderColor = ext?.border ?? Theme.of(context).dividerColor;
     String matchedLocation;
     try {
@@ -25,9 +26,7 @@ class AdminShell extends StatelessWidget {
       width: AppBreakpoints.adminSidebarWidth,
       decoration: BoxDecoration(
         color: sidebarBg,
-        border: Border(
-          right: BorderSide(color: borderColor, width: 1),
-        ),
+        border: Border(right: BorderSide(color: borderColor, width: 1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -39,18 +38,18 @@ class AdminShell extends StatelessWidget {
               children: [
                 Text(
                   'Acedra',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   'Admin',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: ext?.textSecondary ??
-                            Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                    color:
+                        ext?.textSecondary ??
+                        Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
@@ -61,7 +60,8 @@ class AdminShell extends StatelessWidget {
             icon: Icons.dashboard_outlined,
             label: 'Dashboard',
             route: '/admin',
-            isActive: matchedLocation.startsWith('/admin') &&
+            isActive:
+                matchedLocation.startsWith('/admin') &&
                 !matchedLocation.startsWith('/admin/'),
           ),
           _AdminNavItem(
@@ -104,9 +104,7 @@ class AdminShell extends StatelessWidget {
           elevation: 0,
           backgroundColor: Theme.of(context).colorScheme.surface,
         ),
-        drawer: Drawer(
-          child: SafeArea(child: _buildSidebar(context)),
-        ),
+        drawer: Drawer(child: SafeArea(child: _buildSidebar(context))),
         body: child,
       );
     }
@@ -141,7 +139,8 @@ class _AdminNavItem extends StatelessWidget {
     final activeColor = Theme.of(context).colorScheme.primary;
     final inactiveColor =
         ext?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
-    final activeBg = ext?.surfaceTertiary ??
+    final activeBg =
+        ext?.surfaceTertiary ??
         Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3);
 
     return Padding(
@@ -172,10 +171,9 @@ class _AdminNavItem extends StatelessWidget {
               Text(
                 label,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: isActive ? activeColor : inactiveColor,
-                      fontWeight:
-                          isActive ? FontWeight.w600 : FontWeight.normal,
-                    ),
+                  color: isActive ? activeColor : inactiveColor,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                ),
               ),
             ],
           ),

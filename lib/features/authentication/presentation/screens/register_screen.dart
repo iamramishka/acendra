@@ -38,19 +38,21 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   bool _validate() {
-    final nameErr = _nameController.text.trim().isEmpty ? 'Enter your full name' : null;
+    final nameErr = _nameController.text.trim().isEmpty
+        ? 'Enter your full name'
+        : null;
     final emailVal = _emailController.text.trim();
     final emailErr = emailVal.isEmpty
         ? 'Enter your email'
         : (!emailVal.contains('@') || !emailVal.contains('.'))
-            ? 'Enter a valid email'
-            : null;
+        ? 'Enter a valid email'
+        : null;
     final pass = _passwordController.text;
     final passErr = pass.isEmpty
         ? 'Enter a password'
         : pass.length < 6
-            ? 'Password must be at least 6 characters'
-            : null;
+        ? 'Password must be at least 6 characters'
+        : null;
     final confirmErr = _confirmPasswordController.text != pass
         ? 'Passwords do not match'
         : null;
@@ -61,7 +63,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       _passwordError = passErr;
       _confirmPasswordError = confirmErr;
     });
-    return nameErr == null && emailErr == null && passErr == null && confirmErr == null;
+    return nameErr == null &&
+        emailErr == null &&
+        passErr == null &&
+        confirmErr == null;
   }
 
   Future<void> _submit() async {
@@ -70,7 +75,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     setState(() => _isLoading = true);
     try {
       final email = _emailController.text.trim();
-      await ref.read(authRepositoryProvider).signUp(
+      await ref
+          .read(authRepositoryProvider)
+          .signUp(
             email: email,
             password: _passwordController.text,
             fullName: _nameController.text.trim(),

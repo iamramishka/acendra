@@ -15,13 +15,13 @@ class StatusBadge extends StatelessWidget {
 
     final (Color bg, Color fg) = switch (variant) {
       BadgeVariant.success => (
-          ext?.successContainer ?? cs.primaryContainer,
-          ext?.success ?? cs.primary,
-        ),
+        ext?.successContainer ?? cs.primaryContainer,
+        ext?.success ?? cs.primary,
+      ),
       BadgeVariant.warning => (
-          ext?.warningContainer ?? cs.secondaryContainer,
-          ext?.warning ?? cs.secondary,
-        ),
+        ext?.warningContainer ?? cs.secondaryContainer,
+        ext?.warning ?? cs.secondary,
+      ),
       BadgeVariant.error => (cs.errorContainer, cs.onErrorContainer),
       BadgeVariant.info => (cs.primaryContainer, cs.onPrimaryContainer),
     };
@@ -35,9 +35,9 @@ class StatusBadge extends StatelessWidget {
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: fg,
-              fontWeight: FontWeight.w600,
-            ),
+          color: fg,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

@@ -10,9 +10,7 @@ void main() {
     test('returns false when auth stream has no value yet', () {
       final container = ProviderContainer(
         overrides: [
-          authStreamProvider.overrideWith(
-            (ref) => const Stream.empty(),
-          ),
+          authStreamProvider.overrideWith((ref) => const Stream.empty()),
         ],
       );
       addTearDown(container.dispose);
@@ -42,9 +40,7 @@ void main() {
     test('returns null when auth stream has no session', () {
       final container = ProviderContainer(
         overrides: [
-          authStreamProvider.overrideWith(
-            (ref) => const Stream.empty(),
-          ),
+          authStreamProvider.overrideWith((ref) => const Stream.empty()),
         ],
       );
       addTearDown(container.dispose);
@@ -56,9 +52,7 @@ void main() {
     test('returns false when stream has no value', () {
       final container = ProviderContainer(
         overrides: [
-          authStreamProvider.overrideWith(
-            (ref) => const Stream.empty(),
-          ),
+          authStreamProvider.overrideWith((ref) => const Stream.empty()),
         ],
       );
       addTearDown(container.dispose);

@@ -16,9 +16,9 @@ class AuthShell extends StatelessWidget {
               child: Text(
                 'Acedra',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
             ),
           ),
