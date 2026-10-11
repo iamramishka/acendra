@@ -12,4 +12,6 @@ abstract final class RouteNames {
   static const String learn = '/learn/:courseId';
   static const String admin = '/admin';
   static const String checkout = '/checkout/:courseId';
+  static const String profile = '/profile';
+  static const String profileEdit = '/profile/edit';
 }
