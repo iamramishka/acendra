@@ -22,3 +22,4 @@ CSA124 proves current merged backend boundaries only; full protected lesson deli
 integration with proposed PR86 verifier remains a downstream release check.
 Tasks remain IN_REVIEW until authorized review/merge. Approver project owner.
 Local npm run tool:test:266 passed,3 database concurrency suites intentionally skipped in local mode. Full real database suite/concurrency runs in CI. Draft PR88; status IN_REVIEW.
+New SQL regression file:26 assertions pass on fresh native PostgreSQL16 after ordered001–018 migrations using synthetic Auth/Storage schema shims. Initial CI exposed a fixture-only renamed RPC reference; corrected to unchanged csa108_prepare_receipt. Real Supabase CI remains required.
