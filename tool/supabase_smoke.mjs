@@ -5,14 +5,15 @@ import path from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { createLayout } from './local_supabase.mjs';
+import { createLayout, pinLocalDockerEndpoint } from './local_supabase.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dev = createLayout(root, 'dev', process.env.ACENDRA_LOCAL_PORT_BASE);
 const test = createLayout(root, 'test', process.env.ACENDRA_LOCAL_PORT_BASE);
+const dockerEnv = { ...process.env };
 
 function docker(args) {
-  const result = spawnSync('docker', args, { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+  const result = spawnSync('docker', args, { env: dockerEnv, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
   // Inspect/exec diagnostics can contain private local keys; never echo them.
   if (result.status !== 0) throw new Error('Task-owned Docker inspection failed.');
   return result.stdout.trim();
@@ -45,6 +46,7 @@ async function request(base, key, route, { token, method = 'GET', body } = {}) {
 }
 
 async function main() {
+  pinLocalDockerEndpoint(dockerEnv, args => spawnSync('docker', args, { env: dockerEnv, encoding: 'utf8' }));
   const config = JSON.parse(fs.readFileSync(path.join(root, 'config/development.local.json'), 'utf8'));
   assert.deepEqual(Object.keys(config).sort(), ['APP_ENV', 'SUPABASE_PUBLISHABLE_KEY', 'SUPABASE_URL']);
   assert.equal(config.SUPABASE_URL, `http://127.0.0.1:${dev.portBase}`);
