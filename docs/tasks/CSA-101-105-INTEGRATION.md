@@ -70,7 +70,8 @@ exact stored amounts, global scoped settlement serialization, duplicate conflict
 late/extra reconciliation, conservative revoked projection and transactional
 settlement/grant/audit/outbox rollback are consistent. This AI cross-review does
 not replace authorized financial approval. A trusted-config snapshot timing issue
-in checkout initialization is being fixed with a regression; Auth/database requests
+in checkout initialization was fixed with a regression; Auth/database requests
 also explicitly reject redirects. Final current-head CI is required after that fix.
 Root config sets provider webhook verify_jwt=false for callback transport only;
 its deployed entry point remains hard disabled before all parsing or external I/O.
+Final checkout handler now passes29 boundary tests including config mutation and redirect controls. Final tooling suite184 pass, two database suites gated and separately verified. Required current-head CI links/results are recorded on PR #79/issue #76 when available.
