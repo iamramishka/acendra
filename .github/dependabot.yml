@@ -1,0 +1,62 @@
+# CSA-037: updates are reviewable PRs; this configuration does not auto-merge.
+version: 2
+updates:
+  - package-ecosystem: "pub"
+    directory: "/"
+    target-branch: "dev"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Colombo"
+    open-pull-requests-limit: 3
+    groups:
+      # Runtime, annotations and generator must be reviewed together.
+      riverpod:
+        patterns:
+          - "flutter_riverpod"
+          - "riverpod*"
+      flutter-minor-patch:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "flutter_riverpod"
+          - "riverpod*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    target-branch: "dev"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:30"
+      timezone: "Asia/Colombo"
+    open-pull-requests-limit: 3
+    groups:
+      # Updating supabase regenerates its exact-version platform lock entries.
+      local-tooling-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "dev"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "Asia/Colombo"
+    open-pull-requests-limit: 3
+    groups:
+      actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
