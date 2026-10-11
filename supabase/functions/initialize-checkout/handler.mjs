@@ -9,6 +9,7 @@ const contact = value => value && typeof value === 'object' && !Array.isArray(va
   /^\+?[0-9 ()-]{7,30}$/.test(value.phone);
 
 export function createHandler({ env, fetch: request = globalThis.fetch, onlineCheckoutEnabled = false, paymentConfig }) {
+  const config = Object.freeze({ ...paymentConfig });
   return async incoming => {
     const origin = incoming.headers.get('Origin');
     const allowed = new Set((env('ACENDRA_CHECKOUT_ALLOWED_ORIGINS') ?? 'http://127.0.0.1:8080')
@@ -91,10 +92,10 @@ export function createHandler({ env, fetch: request = globalThis.fetch, onlineCh
 
     try {
       // Validate trusted provider configuration before creating an attempt.
-      const config = Object.freeze({ ...paymentConfig });
       const adapter = createPayHereAdapter(config);
       const result = await request(`${url}/auth/v1/user`, {
         headers: { Authorization: authorization, apikey: publicKey },
+        redirect: 'error',
         signal: AbortSignal.timeout(15000),
       });
       if (!result.ok) return respond(401, 'AUTH_REQUIRED');
@@ -129,6 +130,7 @@ export function createHandler({ env, fetch: request = globalThis.fetch, onlineCh
           p_actor: user.id, p_session_id: claims.session_id, p_aal: claims.aal, p_key: key,
           p_order: body.order_id, p_merchant: config.merchantId, p_environment: config.environment,
         }),
+        redirect: 'error',
         signal: AbortSignal.timeout(15000),
       });
       const stored = await mutation.json();

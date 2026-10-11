@@ -28,3 +28,42 @@ test('unconfigured provider fails before Auth or RPC',async()=>{let calls=0;cons
 test('foreign origin rejected before collaborator calls',async()=>{const f=fixture();const req=request();req.headers.set('Origin','https://evil.test');assert.equal((await f.handler(req)).status,403);assert.equal(f.calls.length,0);});
 test('valid preflight admits only declared headers',async()=>{const f=fixture();const r=await f.handler(new Request('https://example.test/init',{method:'OPTIONS',headers:{Origin:'http://127.0.0.1:8080','Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'Authorization, Idempotency-Key, Content-Type'}}));assert.equal(r.status,204);assert.equal(f.calls.length,0);});
 test('stored merchant mismatch fails closed',async()=>{const f=fixture({rpc:{replayed:false,order_id:order,attempt:{attemptId:attempt,orderId:attempt,method:'online',provider:'payhere',merchantId:'wrong',environment:'sandbox',currency:'LKR',amountMinor:'10001',title:'Stored course'}}});assert.equal((await f.handler(f.req)).status,503);});
+
+test('snapshots trusted configuration at handler construction', async () => {
+  const trusted = { ...config };
+  const calls = [];
+  const handler = createHandler({
+    env: name => ({ SUPABASE_URL: 'https://db.test', SUPABASE_ANON_KEY: 'public', SUPABASE_SERVICE_ROLE_KEY: 'private' }[name]),
+    onlineCheckoutEnabled: true,
+    paymentConfig: trusted,
+    fetch: async (url, options) => {
+      calls.push({ url, options });
+      return Response.json(url.includes('/auth/') ? { id: actor, email: 'verified@example.test' } : {
+        replayed: false, order_id: order,
+        attempt: { attemptId: attempt, orderId: attempt, method: 'online', provider: 'payhere',
+          merchantId: config.merchantId, environment: config.environment, currency: 'LKR', amountMinor: '10001', title: 'Stored course' },
+      });
+    },
+  });
+  trusted.merchantId = 'mutated-merchant';
+  trusted.environment = 'production';
+  trusted.merchantSecret = 'mutated-secret';
+  const response = await handler(request());
+  assert.equal(response.status, 201);
+  const result = await response.json();
+  const expected = fixture();
+  const original = await (await expected.handler(expected.req)).json();
+  assert.equal(result.data.checkout.action, original.data.checkout.action);
+  assert.equal(result.data.checkout.fields.hash, original.data.checkout.fields.hash);
+  assert.equal(result.data.checkout.fields.merchant_id, config.merchantId);
+  const args = JSON.parse(calls[1].options.body);
+  assert.equal(args.p_merchant, config.merchantId);
+  assert.equal(args.p_environment, config.environment);
+});
+
+test('Auth and privileged RPC requests reject redirects', async () => {
+  const f = fixture();
+  assert.equal((await f.handler(f.req)).status, 201);
+  assert.equal(f.calls.length, 2);
+  for (const call of f.calls) assert.equal(call.options.redirect, 'error');
+});
