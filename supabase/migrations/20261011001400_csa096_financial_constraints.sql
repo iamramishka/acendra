@@ -95,7 +95,7 @@ begin
  end if;
  if new.settlement_id is not null then
   select method into settlement_method from app_private.verified_settlements where id=new.settlement_id and order_id=new.source_order_id;
-  if settlement_method is distinct from case when new.source_type='online_payment' then 'online' else 'bank_transfer' end then
+  if settlement_method is distinct from (case when new.source_type='online_payment' then 'online' else 'bank_transfer' end) then
    raise exception using errcode='23514',message='Grant funding method does not match settlement.';
   end if;
  end if;
