@@ -389,6 +389,9 @@ deno_version = 2
 [functions.admin-assign-user-role]
 enabled = true
 verify_jwt = true
+[functions.create-course]
+enabled = true
+verify_jwt = true
 # secret_key = "env(SECRET_VALUE)"
 
 [analytics]

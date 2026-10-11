@@ -1,0 +1,10 @@
+begin;
+grant select(id,name,slug,description,sort_order,is_active) on public.categories to anon,authenticated;
+grant select(id,category_id,slug,title,short_description,description,thumbnail_path,price_minor,currency_code,status,published_at) on public.courses to anon,authenticated;
+grant select(id,course_id,title,description,position,is_published) on public.course_sections to anon,authenticated;
+grant select(id,section_id,title,description,lesson_type,position,duration_seconds,is_preview,is_published) on public.lessons to anon,authenticated;
+create policy csa079_active_categories on public.categories for select to anon,authenticated using(is_active);
+create policy csa079_published_courses on public.courses for select to anon,authenticated using(status='published' and published_at is not null);
+create policy csa079_published_sections on public.course_sections for select to anon,authenticated using(is_published and exists(select 1 from public.courses c where c.id=course_id and c.status='published' and c.published_at is not null));
+create policy csa079_published_lessons on public.lessons for select to anon,authenticated using(is_published and exists(select 1 from public.course_sections s join public.courses c on c.id=s.course_id where s.id=section_id and s.is_published and c.status='published' and c.published_at is not null));
+commit;

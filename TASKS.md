@@ -1279,19 +1279,19 @@ CLAUDE
 
 ## CODEX - COURSE DATA
 
-- [ ] CSA-077 [P1] [X]
+- [x] CSA-077 [P1] [X]
   Create course and category schema.
 
-- [ ] CSA-078 [P1] [X]
+- [x] CSA-078 [P1] [X]
   Create sections and lessons schema.
 
-- [ ] CSA-079 [P0] [X]
+- [x] CSA-079 [P0] [X]
   Implement publication access policies.
 
-- [ ] CSA-080 [P1] [X]
+- [x] CSA-080 [P1] [X]
   Define media asset metadata.
 
-- [ ] CSA-081 [P1] [X]
+- [x] CSA-081 [P1] [X]
   Seed synthetic development course data.
 
 ## CLAUDE - MARKETPLACE
@@ -1319,7 +1319,7 @@ CLAUDE
 
 ## CODEX - COURSE MANAGEMENT BACKEND
 
-- [ ] CSA-089 [P1] [X]
+- [x] CSA-089 [P1] [X]
   Implement minimal authorized
   course creation workflow.
 
@@ -1328,7 +1328,7 @@ CLAUDE
 - [ ] CSA-090 [P1] [C]
   Test marketplace interactions.
 
-- [ ] CSA-091 [P0] [X]
+- [x] CSA-091 [P0] [X]
   Test unpublished course isolation.
 
 Integration Gate:
