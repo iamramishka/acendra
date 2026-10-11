@@ -25,6 +25,14 @@ void main() {
       expect(course.currencyCode, 'LKR');
     });
 
+    test('accepts a published course without a short description', () {
+      final nullableJson = Map<String, dynamic>.from(rawJson)
+        ..['short_description'] = null;
+      final course = CourseSummaryDto.fromJson(nullableJson);
+      expect(course.id, rawJson['id']);
+      expect(course.shortDescription, '');
+    });
+
     test('throws ArgumentError when required field is missing', () {
       final bad = Map<String, dynamic>.from(rawJson)..remove('id');
       expect(() => CourseSummaryDto.fromJson(bad), throwsArgumentError);

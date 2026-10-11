@@ -13,7 +13,7 @@ class MarketplaceScreen extends ConsumerWidget {
 
     return state.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => AppErrorState(
+      error: (_, _) => AppErrorState(
         message: 'Failed to load courses. Please try again.',
         actionLabel: 'Retry',
         onRetry: () => ref.read(marketplaceProvider.notifier).refresh(),

@@ -1,6 +1,5 @@
 import 'package:acendra/features/marketplace/data/repositories/supabase_course_repository.dart';
 import 'package:acendra/features/marketplace/domain/repositories/course_repository.dart';
-import 'package:acendra/features/marketplace/presentation/providers/marketplace_provider.dart';
 import 'package:acendra/features/marketplace/presentation/screens/marketplace_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -55,12 +54,14 @@ void main() {
     container.dispose();
   });
 
-  testWidgets('draft courses do not appear (empty repo simulates draft-only DB)',
-      (tester) async {
-    final container = _container(FakeCourseRepository());
-    await tester.pumpWidget(_wrap(const MarketplaceScreen(), container));
-    await tester.pumpAndSettle();
-    expect(find.text('No courses available yet.'), findsOneWidget);
-    container.dispose();
-  });
+  testWidgets(
+    'draft courses do not appear (empty repo simulates draft-only DB)',
+    (tester) async {
+      final container = _container(FakeCourseRepository());
+      await tester.pumpWidget(_wrap(const MarketplaceScreen(), container));
+      await tester.pumpAndSettle();
+      expect(find.text('No courses available yet.'), findsOneWidget);
+      container.dispose();
+    },
+  );
 }
