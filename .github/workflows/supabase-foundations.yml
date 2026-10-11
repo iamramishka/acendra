@@ -41,8 +41,9 @@ jobs:
           npm run client:env
       - name: Verify live APIs, loopback ports, volumes and database isolation
         run: node tool/supabase_smoke.mjs
-      - name: Stop only task-owned stacks
+      - name: Stop task-owned development stack
         if: always()
-        run: |
-          npm run db:stop
-          npm run db:test:stop
+        run: npm run db:stop
+      - name: Stop task-owned test stack even if development cleanup fails
+        if: always()
+        run: npm run db:test:stop
