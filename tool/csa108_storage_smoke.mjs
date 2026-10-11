@@ -19,7 +19,7 @@ export async function runReceiptStorageSmoke({ root, layout, env, sql, base, key
     stage='local service credential presence';
     // New CLI status exports opaque keys. Storage's task-owned container retains
     // the legacy internal service JWT used by the deployed handler transport.
-    const service = status.SERVICE_ROLE_KEY ?? storageContainer?.Config?.Env
+    const service = status.SERVICE_ROLE_KEY || storageContainer?.Config?.Env
       ?.find(value => value.startsWith('SERVICE_KEY='))?.slice('SERVICE_KEY='.length);
     assert.ok(typeof service === 'string' && service.length > 20);
     const bytes = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jfWQAAAAASUVORK5CYII=','base64');
