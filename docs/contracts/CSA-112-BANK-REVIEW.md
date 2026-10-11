@@ -106,3 +106,4 @@ bounds, redirect policy, replay, opposing result, private note isolation,
 configuration stability and hard disablement. Mocked SQL errors do not establish
 actual role/race/atomic enforcement; database agent supplies separate actual SQL
 and concurrent-session verification. CI and authorized financial review required.
+On idempotent replay, submission_status acknowledges the immutable original decision and order_status is omitted. Retrieve current order state separately; a later linked submission may have changed it.
