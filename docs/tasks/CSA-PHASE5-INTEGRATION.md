@@ -37,6 +37,11 @@ the destination bound to its order. AI review is not human approval.
 
 ## Remaining acceptance and next action
 
+Review fixes at commit `870c03f` passed both complete workflows:
+
+- [Flutter format/analyze/test/build](https://github.com/iamramishka/acendra/actions/runs/38143420079)
+- [Supabase migrations, financial assertions/races, lint, live isolation and MFA](https://github.com/iamramishka/acendra/actions/runs/38143420037)
+
 The owner's request to fix PR #71 findings authorized focused tests. Issue #72
 records isolated test ownership and integration scope. Added 68 checkout-handler
 tests, 14 payment-adapter tests, 55 financial database assertions and 41 trusted
