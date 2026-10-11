@@ -81,7 +81,7 @@ test('generated Flutter config contains only local public values', () => {
 test('snapshot copies SQL inputs without hosted links, credentials or stage checks', t => {
   const worktree = fs.mkdtempSync(path.join(os.tmpdir(), 'acendra-tool-test-'));
   t.after(() => fs.rmSync(worktree, { recursive: true, force: true }));
-  for (const dir of ['migrations', 'tests/database', '.temp', 'stage_checks']) {
+  for (const dir of ['migrations', 'tests/database', 'functions/example', '.temp', 'stage_checks']) {
     fs.mkdirSync(path.join(worktree, 'supabase', dir), { recursive: true });
   }
   const fixture = (name, value) => fs.writeFileSync(path.join(worktree, 'supabase', name), value);
@@ -90,6 +90,9 @@ test('snapshot copies SQL inputs without hosted links, credentials or stage chec
   fixture('migrations/001.sql', 'select 1;');
   fixture('tests/database/example.sql', 'select 1;');
   fixture('tests/database/private.env', 'SECRET=never-copy');
+  fixture('functions/example/index.ts', 'import "./handler.mjs";');
+  fixture('functions/example/handler.mjs', 'export const handler = () => {};');
+  fixture('functions/example/.env', 'SECRET=never-copy');
   fixture('.temp/project-ref', 'hosted-project');
   fixture('stage_checks/initial.sql', 'select 1;');
   const layout = createLayout(worktree, 'test');
@@ -97,12 +100,16 @@ test('snapshot copies SQL inputs without hosted links, credentials or stage chec
   const snapshot = path.join(layout.workdir, 'supabase');
   assert.ok(fs.existsSync(path.join(snapshot, 'migrations/001.sql')));
   assert.ok(fs.existsSync(path.join(snapshot, 'tests/database/example.sql')));
-  for (const excluded of ['.temp/project-ref', 'stage_checks/initial.sql', 'tests/database/private.env']) {
+  assert.ok(fs.existsSync(path.join(snapshot, 'functions/example/index.ts')));
+  assert.ok(fs.existsSync(path.join(snapshot, 'functions/example/handler.mjs')));
+  for (const excluded of ['.temp/project-ref', 'stage_checks/initial.sql', 'tests/database/private.env', 'functions/example/.env']) {
     assert.ok(!fs.existsSync(path.join(snapshot, excluded)));
   }
   fs.unlinkSync(path.join(worktree, 'supabase/migrations/001.sql'));
   fs.unlinkSync(path.join(worktree, 'supabase/tests/database/example.sql'));
+  fs.unlinkSync(path.join(worktree, 'supabase/functions/example/handler.mjs'));
   prepareSnapshot(worktree, layout);
   assert.ok(!fs.existsSync(path.join(snapshot, 'migrations/001.sql')));
   assert.ok(!fs.existsSync(path.join(snapshot, 'tests/database/example.sql')));
+  assert.ok(!fs.existsSync(path.join(snapshot, 'functions/example/handler.mjs')));
 });

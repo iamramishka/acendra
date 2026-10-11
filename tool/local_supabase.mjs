@@ -91,19 +91,20 @@ function localDocker(layout, env) {
 export function prepareSnapshot(worktree, layout) {
   const target = path.join(layout.workdir, 'supabase');
   fs.mkdirSync(target, { recursive: true });
-  // Mirror only repository-owned SQL inputs, never .temp links or secret files.
-  for (const directory of ['migrations', 'tests']) {
+  // Mirror only allowlisted repository inputs, never links or secret files.
+  for (const directory of ['migrations', 'tests', 'functions']) {
     const source = path.join(worktree, 'supabase', directory);
     const destination = path.join(target, directory);
     fs.mkdirSync(destination, { recursive: true });
-    mirrorSql(source, destination);
+    mirrorSql(source, destination, directory === 'functions' ? /\.(ts|mjs|json)$/ : /\.(sql|pg)$/);
   }
   fs.copyFileSync(path.join(worktree, 'supabase', 'seed.sql'), path.join(target, 'seed.sql'));
   fs.writeFileSync(path.join(target, 'config.toml'), renderConfig(fs.readFileSync(path.join(worktree, 'supabase', 'config.toml'), 'utf8'), layout));
 }
 
-function mirrorSql(source, destination) {
-  const inputs = fs.existsSync(source) ? fs.readdirSync(source, { withFileTypes: true }) : [];
+function mirrorSql(source, destination, allowed) {
+  const inputs = (fs.existsSync(source) ? fs.readdirSync(source, { withFileTypes: true }) : [])
+    .filter(input => input.isDirectory() || input.isSymbolicLink() || allowed.test(input.name));
   for (const input of inputs) {
     if (input.isSymbolicLink()) throw new Error('SQL inputs must not contain symbolic links.');
     const from = path.join(source, input.name);
@@ -111,8 +112,8 @@ function mirrorSql(source, destination) {
     if (fs.existsSync(to) && fs.lstatSync(to).isSymbolicLink()) throw new Error('Snapshot must not contain symbolic links.');
     if (input.isDirectory()) {
       fs.mkdirSync(to, { recursive: true });
-      mirrorSql(from, to);
-    } else if (input.name.endsWith('.sql') || input.name.endsWith('.pg')) {
+      mirrorSql(from, to, allowed);
+    } else {
       fs.copyFileSync(from, to);
     }
   }
@@ -120,7 +121,7 @@ function mirrorSql(source, destination) {
   for (const entry of fs.readdirSync(destination, { withFileTypes: true })) {
     if (entry.isSymbolicLink()) throw new Error('Snapshot must not contain symbolic links.');
     if (entry.isDirectory() && !inputs.some(input => input.name === entry.name)) {
-      mirrorSql('', path.join(destination, entry.name));
+      mirrorSql('', path.join(destination, entry.name), allowed);
     } else if (entry.isFile() && !inputs.some(input => input.name === entry.name)) {
       fs.unlinkSync(path.join(destination, entry.name));
     }

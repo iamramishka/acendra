@@ -2,7 +2,7 @@ name: Supabase foundations
 
 on:
   pull_request:
-    branches: [dev]
+    branches: [dev, security/csa-060-profile-rls]
     paths:
       - '.github/workflows/supabase-foundations.yml'
       - 'supabase/**'
@@ -31,6 +31,8 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm run tool:test
+      - name: Test verified role request boundary
+        run: node --test supabase/functions/admin-assign-user-role/handler.test.mjs
       - name: Replay migrations and run real Supabase database tests
         run: npm run db:test
       - name: Lint the disposable Supabase database
@@ -41,6 +43,8 @@ jobs:
           npm run client:env
       - name: Verify live APIs, loopback ports, volumes and database isolation
         run: node tool/supabase_smoke.mjs
+      - name: Verify real MFA and trusted role API
+        run: node tool/role_api_smoke.mjs
       - name: Stop task-owned development stack
         if: always()
         run: npm run db:stop
