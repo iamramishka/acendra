@@ -26,15 +26,19 @@ export async function runReceiptStorageSmoke({ root, layout, env, sql, base, key
       field('SUPABASE_SERVICE_ROLE_KEY') || field('SUPABASE_SECRET_KEY') ||
       (secrets ? Object.values(JSON.parse(secrets))[0] : undefined);
     assert.ok(typeof service === 'string' && service.length > 20);
+    stage='synthetic session identity';
     const bytes = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jfWQAAAAASUVORK5CYII=','base64');
     const digest = createHash('sha256').update(bytes).digest('hex');
     const session = JSON.parse(Buffer.from(token.split('.')[1],'base64url')).session_id;
     assert.match(session,/^[0-9a-f-]{36}$/);
     const course=randomUUID(),bank=randomUUID(),version=randomUUID();
+    stage='synthetic catalog and bank fixtures';
     sql(`insert into public.courses(id,slug,title,price_minor,status,published_at) values('${course}','receipt-${course}','Synthetic transport',10000,'published',now());
       insert into app_private.bank_account_versions(id,bank_account_id,version,bank_name,account_holder,account_number,branch_name,currency_code)
       values('${version}','${bank}',1,'Synthetic bank','Synthetic owner','TEST-ONLY','Synthetic branch','LKR');`);
+    stage='synthetic trusted order';
     const order=JSON.parse(sql(`select public.csa098_create_checkout_order('${studentId}','${session}','aal1','${randomUUID()}','${course}','bank_transfer','${version}')`)).data.order_id;
+    stage='receipt reservation';
     const upload=JSON.parse(sql(`select public.csa108_prepare_receipt('${studentId}','${session}','aal1','${randomUUID()}','${order}','${digest}',${bytes.length},'image/png','png')`));
     assert.match(upload.object_path,/^[0-9a-f/.-]+$/);
     const route='/storage/v1/object/bank-receipts/'+upload.object_path;
