@@ -3,7 +3,20 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { createLayout, renderConfig, publicClientConfig, allowedCommand, isLocalDockerEndpoint, pinLocalDockerEndpoint, prepareSnapshot } from './local_supabase.mjs';
+import { createLayout, renderConfig, publicClientConfig, allowedCommand, isLocalDockerEndpoint, pinLocalDockerEndpoint, prepareSnapshot, safeLintSummary } from './local_supabase.mjs';
+
+test('lint failure summary excludes raw messages, SQL, unknown identifiers and credentials', () => {
+  const known = new Set(['public.csa104_finalize_payment']);
+  const summary = safeLintSummary(JSON.stringify([
+    { function: 'public.csa104_finalize_payment', issues: [
+      { level: 'warning', sqlState: '00000', message: 'unused variable secret-token', detail: 'private customer', query: 'secret SQL' },
+    ] },
+    { function: 'private-secret', issues: [{ level: 'error', message: 'secret-token' }] },
+  ]), known);
+  assert.equal(summary, 'public.csa104_finalize_payment:warning:00000:unused_identifier');
+  assert.equal(safeLintSummary('private raw error', known), '');
+  assert.equal(safeLintSummary('{}', known), '');
+});
 
 test('worktrees and dev/test have different IDs, volumes and ports', () => {
   const dev = createLayout('C:/worktrees/task-a', 'dev');

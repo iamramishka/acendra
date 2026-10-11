@@ -75,3 +75,15 @@ also explicitly reject redirects. Final current-head CI is required after that f
 Root config sets provider webhook verify_jwt=false for callback transport only;
 its deployed entry point remains hard disabled before all parsing or external I/O.
 Final checkout handler now passes29 boundary tests including config mutation and redirect controls. Final tooling suite184 pass, two database suites gated and separately verified. Required current-head CI links/results are recorded on PR #79/issue #76 when available.
+
+## Strict lint repair
+
+CI at5097028 passed full Supabase db:test (ordered replay, all SQL suites and
+both enabled concurrency suites) but strict warning-level lint failed. Review
+identified a settlement row variable assigned only to inspect FOUND; migration016
+now uses PERFORM1 with the same condition/FOUND behavior. All32 actual native SQL
+assertions passed after this repair; task-owned cluster stopped cleanly.
+Lint strictness is unchanged. Wrapper now emits only known repository function
+names, severity, bounded SQLSTATE and fixed diagnostic categories; raw messages,
+queries, customer values and credentials remain private. A focused redaction test
+passes. Final current-head CI must confirm the warning repair and full integration.
