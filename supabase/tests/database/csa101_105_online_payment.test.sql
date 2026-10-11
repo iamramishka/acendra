@@ -47,6 +47,3 @@ select pg_temp.assert_ok(not has_function_privilege(r,'public.csa104_finalize_pa
 select pg_temp.assert_ok(not has_table_privilege(r,'app_private.notification_outbox','SELECT'),'outbox private to '||r) from unnest(array['anon','authenticated','service_role']) r;
 select '1..'||last_value from csa101_105_assertion;
 rollback;
-
-
-

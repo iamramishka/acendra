@@ -125,6 +125,3 @@ revoke all on function public.csa101_initialize_checkout(uuid,uuid,text,text,uui
 grant execute on function public.csa101_initialize_checkout(uuid,uuid,text,text,uuid,text,text),public.csa102_lookup_payment_attempt(text),public.csa104_finalize_payment(uuid,text,text,text,text,text,bigint,text,timestamptz,text) to service_role;
 comment on function public.csa104_finalize_payment(uuid,text,text,text,text,text,bigint,text,timestamptz,text) is 'Verified Edge retrieval success only. Atomic fulfillment, scoped duplicate conflict and late/extra settlement reconciliation. Never call using callback checksum alone.';
 commit;
-
-
-

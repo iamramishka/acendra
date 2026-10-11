@@ -7,4 +7,3 @@ Implemented retrieved-evidence exact terms/scope validation, globally scoped rea
 Verification: native isolated PostgreSQL16 on loopback port55504 with minimal Supabase auth bootstrap. RED: SQL failed missing initialization function before016. GREEN: 32 actual transactional SQL assertions pass after016, including injected outbox failure rollback, invalid evidence no replay reservation, extra payment and refunded late success. Root verified three real independent-session race scenarios: initialization distinct keys, duplicate verified payment, and two distinct real payments with one grant. Docker daemon unavailable; native auth bootstrap does not establish GoTrue/PostgREST integration acceptance.
 
 CSA100 real sandbox checkout/callback/retrieval unavailable per owner. Checkout remains disabled; no hosted database or provider operations, no production credentials. IN_REVIEW until CI/security review and provider acceptance; not DONE.
-
