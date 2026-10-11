@@ -1357,28 +1357,32 @@ CLAUDE
 - [x] CSA-092 [P0] [X]
   Create orders and payment attempts.
 
-- [ ] CSA-093 [P0] [X]
+- [x] CSA-093 [P0] [X]
   Create payment event records.
 
-- [ ] CSA-094 [P0] [X]
+- [x] CSA-094 [P0] [X]
   Create bank transfer submission schema.
 
-- [ ] CSA-095 [P0] [X]
+- [x] CSA-095 [P0] [X]
   Create enrollment records.
 
-- [ ] CSA-096 [P0] [X]
+- [x] CSA-096 [P0] [X]
   Implement financial uniqueness
   and transaction constraints.
 
 ## CLAUDE - CHECKOUT UI
 
-Phase 5 CODEX coordination (2026-10-11): CSA-092 merged in PR #61 with passing
-Flutter/Supabase CI. CSA-093/094/095/096/098/100 are implemented in isolated
-parallel worktrees and integrated in draft PR #71, IN_REVIEW. Claims #62–67
-record exclusive ownership. New financial flows require focused runtime and
-concurrency verification; CSA-100 also requires sandbox retrieval acceptance.
-Unchecked tasks remain unaccepted. See docs/tasks/CSA-092.md through CSA-100.md
-for actual scope and evidence (only requested task IDs have records).
+Phase 5 CODEX reconciliation (2026-10-11, issue #74): CSA-092/093/094/095/096/098
+are DONE for their bounded foundation scopes. PRs #61 and #68–71 are merged into
+dev; final PR #71 Flutter and Supabase CI passed, including financial assertions
+and five database races. Local reconciliation rerun: 120 tests pass, one database
+race suite skipped locally (covered by CI). CSA-100 remains BLOCKED for provider
+acceptance: the owner confirmed no approved sandbox web integration/domain is
+available. Its adapter is merged and synthetic tests pass; real checkout,
+callback and authenticated retrieval binding remain unverified. Online checkout
+stays disabled. Issues #62–64/#66–67 are completion reconciliation; #65 retains
+the provider gate. See docs/tasks/CSA-PHASE5-PROGRESS.md. Downstream tasks and
+Phase 5 integration/release gates remain unchecked.
 
 - [ ] CSA-097 [P1] [C]
   Implement checkout interface.
@@ -1391,7 +1395,7 @@ for actual scope and evidence (only requested task IDs have records).
 
 ## CODEX - ONLINE PAYMENT BACKEND
 
-- [ ] CSA-098 [P0] [X]
+- [x] CSA-098 [P0] [X]
   Implement trusted order creation.
 
 - [ ] CSA-100 [P0] [X]

@@ -1,3 +1,10 @@
+# Current reconciliation — 2026-10-11
+
+PR #71 is merged; earlier draft/IN_REVIEW statements below are historical.
+CSA-093/094/095/096/098 are DONE for foundation scopes; CSA-100 is BLOCKED for
+real provider acceptance, as confirmed by the owner. See [current evidence](CSA-PHASE5-PROGRESS.md).
+No production deployment or online payment enablement is authorized.
+
 # Phase 5 parallel implementation handoff
 
 Date: 2026-10-11. Integration owner: CODEX root. Draft PR #71 targets dev.
