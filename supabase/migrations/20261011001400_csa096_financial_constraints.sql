@@ -141,4 +141,3 @@ comment on table app_private.verified_settlements is 'Independently verified exa
 comment on table app_private.idempotency_records is 'Private non-null principal/operation/key response cache. Trusted operations compare request_hash and commit safe_result atomically with their writes.';
 comment on column public.enrollment_grants.settlement_id is 'Purchased sources require independently verified settlement, exactly once. Status/receipt/callback alone cannot fund a grant.';
 commit;
-
