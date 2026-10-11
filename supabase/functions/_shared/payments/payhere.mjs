@@ -121,6 +121,9 @@ export function createPayHereAdapter(config, { fetch: fetcher = globalThis.fetch
       if (matches.length !== 1) deny('SETTLEMENT_NOT_VERIFIED');
       const row = matches[0];
       if (row.order_id !== attempt.orderId || row.status !== 'RECEIVED' || row.currency !== 'LKR' || decimalMinor(row.amount) !== minor(attempt.amountMinor)) deny('SETTLEMENT_NOT_VERIFIED');
+      const detail = row.amount_detail;
+      if (!detail || detail.currency !== 'LKR' || detail.exchange_from !== 'LKR' || detail.exchange_to !== 'LKR' ||
+          !['1', '1.0', '1.00'].includes(detail.exchange_rate) || decimalMinor(detail.gross) !== minor(attempt.amountMinor)) deny('SETTLEMENT_NOT_VERIFIED');
       return Object.freeze({ provider: 'payhere', merchantId: merchant, environment: config.environment, attemptId: attempt.attemptId, orderId: attempt.orderId, paymentId: notification.paymentId, amountMinor: attempt.amountMinor, currency: 'LKR', evidence: 'authenticated_retrieval', retrievedAt: new Date().toISOString() });
     },
   });
