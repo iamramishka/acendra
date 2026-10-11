@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { createHash, randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
-export async function runReceiptStorageSmoke({ root, layout, env, sql, base, key, token, studentId }) {
+export async function runReceiptStorageSmoke({ root, layout, env, sql, base, key, token, studentId, storageContainer }) {
   let stage = 'local credentials';
   try {
     assert.equal(base, `http://127.0.0.1:${layout.portBase}`);
@@ -17,7 +17,10 @@ export async function runReceiptStorageSmoke({ root, layout, env, sql, base, key
     stage='local status URL';
     assert.equal(status.API_URL,base);
     stage='local service credential presence';
-    const service = status.SERVICE_ROLE_KEY;
+    // New CLI status exports opaque keys. Storage's task-owned container retains
+    // the legacy internal service JWT used by the deployed handler transport.
+    const service = status.SERVICE_ROLE_KEY ?? storageContainer?.Config?.Env
+      ?.find(value => value.startsWith('SERVICE_KEY='))?.slice('SERVICE_KEY='.length);
     assert.ok(typeof service === 'string' && service.length > 20);
     const bytes = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jfWQAAAAASUVORK5CYII=','base64');
     const digest = createHash('sha256').update(bytes).digest('hex');
