@@ -16,7 +16,7 @@ const request = (body = payload, headers = {}, method = 'POST') => new Request('
 });
 function fixture({ auth = { id: actor }, rpc = { replayed: false, data: { order_id: order, amount_minor: 25000, currency_code: 'LKR' } }, environment = {}, authStatus = 200, rpcStatus = 200 } = {}) {
   const calls = [];
-  const handler = createHandler({ env: key => ({ ...settings, ...environment })[key], fetch: async (url, options) => {
+  const handler = createHandler({ onlineCheckoutEnabled: true, env: key => ({ ...settings, ...environment })[key], fetch: async (url, options) => {
     calls.push({ url, options });
     return calls.length === 1 ? Response.json(auth, { status: authStatus }) : Response.json(rpc, { status: rpcStatus });
   } });
@@ -185,7 +185,7 @@ for (const failurePhase of ['auth', 'rpc']) {
   for (const failure of ['exception', 'timeout', 'invalid-json']) {
     test(`${failurePhase} ${failure} fails closed and hides diagnostics`, async () => {
       let calls = 0;
-      const handler = createHandler({ env: key => settings[key], fetch: async () => {
+      const handler = createHandler({ onlineCheckoutEnabled: true, env: key => settings[key], fetch: async () => {
         calls++;
         if (failurePhase === 'rpc' && calls === 1) return Response.json({ id: actor });
         if (failure === 'invalid-json') return new Response('private upstream details');
@@ -204,3 +204,10 @@ for (const rpc of [null, {}, { replayed: 'true', data: { order_id: order } }, { 
     await error(await handler(request()), 503, 'SERVICE_UNAVAILABLE');
   });
 }
+
+test('online checkout is disabled by default before authentication or database mutation', async () => {
+  let calls = 0;
+  const handler = createHandler({ env: key => settings[key], fetch: async () => { calls++; throw Error('Unexpected request'); } });
+  await error(await handler(request()), 503, 'ONLINE_CHECKOUT_UNAVAILABLE');
+  assert.equal(calls, 0);
+});

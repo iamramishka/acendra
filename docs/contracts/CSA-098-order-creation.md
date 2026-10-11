@@ -31,7 +31,7 @@ it. No payment attempt, settlement or enrollment is created by this operation.
 
 Errors: 400 invalid request/key; 401 AUTH_REQUIRED; 403 FORBIDDEN/origin denial;
 404 COURSE_NOT_FOUND; 409 ORDER_CONFLICT/ALREADY_ENROLLED; 413 oversized body;
-503 SERVICE_UNAVAILABLE/BANK_CHECKOUT_UNAVAILABLE. Internal SQL messages are
+503 SERVICE_UNAVAILABLE/BANK_CHECKOUT_UNAVAILABLE/ONLINE_CHECKOUT_UNAVAILABLE. Internal SQL messages are
 not returned. A timeout may follow a committed order; retry with the same key.
 
 Configuration: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, server-only
@@ -46,3 +46,11 @@ destination bound to its order; account versions share that stable identity.
 Dependency order: CSA-092 → CSA-095/096 → CSA-098. CSA-101 initializes attempts;
 CSA-104/116 finalize verified payments and grant entitlements. This contract
 does not replace those tasks or imply production payment readiness.
+
+Owner decision, 2026-10-11: merge the foundations into dev with online payments
+disabled while real sandbox checkout/retrieval verification is deferred. The
+deployed handler rejects online creation before Auth/RPC calls; no environment
+flag enables it. Tests explicitly opt into the underlying order contract.
+Re-enabling requires a separately reviewed entry-point change and real provider
+verification. Private service-only SQL foundations remain available to trusted
+backend code; they do not initiate a payment or grant access.

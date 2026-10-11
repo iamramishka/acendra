@@ -78,6 +78,12 @@ made. No new dependencies were introduced; node:crypto is supported by Deno.
 
 ## Read-only sandbox acceptance probe
 
+Owner-approved dev integration exception (2026-10-11): real checkout acceptance
+is deferred, with the deployed online order endpoint disabled by default and no
+environment enable flag. Real sandbox OAuth succeeded; controlled checkout and
+callback/retrieval binding remain unverified. This is not provider acceptance.
+Online enablement requires a separately reviewed change after verification.
+
 Run `npm run payment:sandbox:verify` in the integration checkout after securely
 configuring these environment variables (never commit or log their values):
 

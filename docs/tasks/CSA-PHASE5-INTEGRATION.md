@@ -56,6 +56,25 @@ Auth schema; full Supabase Auth behavior remains a CI check. The complete Node
 suite passed with only the deliberately gated database-race suite skipped;
 the separate enabled race run passed all five scenarios.
 
+## Owner-approved deferred provider acceptance
+
+On 2026-10-11 the owner explicitly approved deferring sandbox checkout
+verification and merging the foundations into dev with online payments disabled.
+The deployed create-checkout-order handler now rejects online requests with
+503 ONLINE_CHECKOUT_UNAVAILABLE before any Auth or database request. Its default
+is disabled and there is no environment enable switch. Regression tests verify
+zero external requests while disabled; contract tests opt in only in tests.
+
+Actual sandbox OAuth passed using a retrieval-only key. A simulated payment-link
+payment succeeded, but it does not prove this adapter's callback/retrieval binding.
+The controlled web checkout was rejected using the App integration credential;
+PayHere also rejected a temporary tunnel subdomain as a web integration. The
+tunnel and isolated local server were stopped. No provider verification pass is
+claimed and no credentials were committed. This recorded owner decision permits
+dev integration of the disabled foundations; it does not approve deployment or
+online payment enablement. Re-enable only in a reviewed follow-up after real
+sandbox checkout, callback and authenticated reference/amount binding pass.
+
 CSA100 still requires real sandbox retrieval binding
 and merchant readiness evidence per approved CSA004; official response amount
 ambiguity fails closed until verified. Bank checkout needs a reviewed destination
@@ -65,8 +84,8 @@ The merchant secret supplied by the owner is insufficient for Retrieval API
 OAuth. Separate sandbox App ID/App Secret and an existing successful sandbox
 payment are required. The read-only `npm run payment:sandbox:verify` probe
 documents these inputs in the adapter contract. Synthetic fixtures do not
-resolve this acceptance gate. Keep PR #71 IN_REVIEW until actual sandbox evidence
-and required review are complete.
+resolve this acceptance gate. Provider acceptance remains deferred under the
+owner decision above; task implementation acceptance is not payment readiness.
 
 Downstream CSA101/102/104/105/112/114/116/117 implement checkout initialization,
 webhook processing, atomic audited fulfillment, bank review and live entitlement

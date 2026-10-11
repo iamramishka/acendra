@@ -1,6 +1,6 @@
 const uuid = value => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 
-export function createHandler({ env, fetch: request = globalThis.fetch }) {
+export function createHandler({ env, fetch: request = globalThis.fetch, onlineCheckoutEnabled = false }) {
   return async incoming => {
     const origin = incoming.headers.get('Origin');
     const allowed = new Set((env('ACENDRA_CHECKOUT_ALLOWED_ORIGINS') ?? 'http://127.0.0.1:8080').split(',').map(value => value.trim()).filter(Boolean));
@@ -37,6 +37,8 @@ export function createHandler({ env, fetch: request = globalThis.fetch }) {
       body = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
     } catch { return respond(400, 'INVALID_REQUEST'); }
     if (!body || typeof body !== 'object' || Array.isArray(body) || Object.keys(body).some(name => !['course_id','payment_method'].includes(name)) || !uuid(body.course_id) || !['online','bank_transfer'].includes(body.payment_method)) return respond(400, 'INVALID_REQUEST');
+    // Owner deferred provider acceptance. The deployed entry point does not opt in.
+    if (body.payment_method === 'online' && onlineCheckoutEnabled !== true) return respond(503, 'ONLINE_CHECKOUT_UNAVAILABLE');
     const url = env('SUPABASE_URL'), publicKey = env('SUPABASE_ANON_KEY'), serviceKey = env('SUPABASE_SERVICE_ROLE_KEY');
     if (!url || !publicKey || !serviceKey) return respond(503, 'SERVICE_UNAVAILABLE');
     try {
