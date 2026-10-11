@@ -46,7 +46,7 @@ async function main() {
     const result = await fetch(base + route, { method: 'POST',
       headers: { apikey: key, 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify(body), signal: AbortSignal.timeout(30000) });
-    return { status: result.status, data: await result.json() };
+    return { status: result.status, data: result.status === 204 ? null : await result.json() };
   }
   async function signup() {
     const email = `role-${randomBytes(8).toString('hex')}@example.com`;
@@ -132,6 +132,23 @@ async function main() {
   assert.equal(sql("select count(*) from public.user_roles ur join public.roles r on r.id=ur.role_id where r.code='super_admin' and ur.revoked_at is null;"), '1');
   const revokedToken = results[0].status === 200 ? secondToken : token;
   assert.equal((await request(endpoint, revokedToken, { ...body, request_id: randomUUID() })).status, 403);
-  console.log('PASS: real Edge/Auth TOTP, forged/direct RPC denial, audited idempotency, revocation and concurrent admin handoff.');
+  stage = 'current MFA downgrade, expiry and logout denial';
+  const currentToken = results[0].status === 200 ? token : secondToken;
+  const currentId = results[0].status === 200 ? admin.id : nextAdmin.id;
+  const currentClaims = JSON.parse(Buffer.from(currentToken.split('.')[1], 'base64url'));
+  assert.match(currentClaims.session_id, /^[0-9a-f-]{36}$/i);
+  const sessionId = currentClaims.session_id;
+  const denyBody = { ...body, request_id: randomUUID() };
+  const auditBefore = sql(`select count(*) from public.csa061_role_audit where actor_id='${currentId}';`);
+  sql(`update auth.sessions set aal='aal1' where id='${sessionId}' and user_id='${currentId}';`);
+  assert.equal((await request(endpoint, currentToken, denyBody)).status, 403);
+  sql(`update auth.sessions set aal='aal2',not_after=now()-interval '1 second' where id='${sessionId}' and user_id='${currentId}';`);
+  assert.equal((await request(endpoint, currentToken, denyBody)).status, 403);
+  sql(`update auth.sessions set not_after=null where id='${sessionId}' and user_id='${currentId}';`);
+  assert.equal((await request('/auth/v1/logout?scope=local', currentToken, {})).status, 204);
+  assert.equal((await request(endpoint, currentToken, denyBody)).status, 401);
+  assert.equal(sql(`select count(*) from public.csa061_role_audit where actor_id='${currentId}';`), auditBefore);
+  assert.equal(sql(`select count(*) from auth.sessions where id='${sessionId}';`), '0');
+  console.log('PASS: real Edge/Auth TOTP, forged/direct RPC denial, audited idempotency, role/session revocation, MFA downgrade, expiry, logout and concurrent admin handoff.');
 }
 main().catch(() => { console.error(`Role API smoke failed at ${stage}; private response data omitted.`); process.exitCode = 1; });

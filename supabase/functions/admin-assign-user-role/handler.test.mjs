@@ -46,6 +46,8 @@ test('only verified actor and verified assurance reach the restricted RPC', asyn
   assert.equal(result.status, 200);
   assert.equal(calls.length, 2);
   const request = JSON.parse(calls[1].options.body);
+  assert.equal(calls[1].url, 'http://local/rest/v1/rpc/csa073_change_role');
+  assert.equal(request.p_session_id, '06100000-0000-0000-0000-000000000099');
   assert.equal(request.p_actor, actor);
   assert.equal(request.p_aal, 'aal2');
   assert.equal(request.p_request_id, payload.request_id);
