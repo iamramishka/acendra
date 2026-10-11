@@ -49,11 +49,19 @@ async function main() {
     return { status: result.status, data: await result.json() };
   }
   async function signup() {
-    const result = await request('/auth/v1/signup', undefined, {
-      email: `role-${randomBytes(8).toString('hex')}@example.com`, password: randomBytes(24).toString('hex') + 'Aa!1' });
+    const email = `role-${randomBytes(8).toString('hex')}@example.com`;
+    const password = randomBytes(24).toString('hex') + 'Aa!1';
+    const result = await request('/auth/v1/signup', undefined, { email, password });
     assert.equal(result.status, 200);
-    assert.ok(result.data.access_token && result.data.user?.id);
-    return { id: result.data.user.id, token: result.data.access_token };
+    const id = result.data.user?.id ?? result.data.id;
+    assert.match(id, /^[0-9a-f-]{36}$/);
+    // Operator confirms only this disposable synthetic MFA fixture account.
+    // Auth security smoke separately exercises the provider verification token.
+    sql(`update auth.users set email_confirmed_at=coalesce(email_confirmed_at,now()) where id='${id}';`);
+    const login = await request('/auth/v1/token?grant_type=password', undefined, { email, password });
+    assert.equal(login.status, 200);
+    assert.ok(login.data.access_token && login.data.user?.id === id);
+    return { id, token: login.data.access_token };
   }
   async function mfa(user) {
     const factor = await request('/auth/v1/factors', user.token, { factor_type: 'totp', friendly_name: 'Synthetic CI TOTP' });
