@@ -1,6 +1,6 @@
 # Phase 4 parallel integration
 
-Owner: CODEX root. Status: IN_PROGRESS. Authorized by project owner in chat.
+Owner: CODEX root. Status: DONE. Authorized by project owner in chat.
 Date: 2026-10-11. Base: dev; branch: codex/feat/csa-phase4-integration.
 Worktree: C:/Users/ramis/.codex/worktrees/csa-phase4-integration/acendra.
 Claims: issues #52 (077), #53 (078), #56 (079/089), #57 (080), #58 (081/091).
@@ -21,3 +21,10 @@ lint, live API/MFA checks, handler tests, and existing Flutter CI.
 Approval authority: project owner/designated maintainer; no production deployment.
 Next action: review/collect worker commits and run integrated CI before merge.
 Next owner: CODEX root. Completion evidence pending.
+
+
+Integrated verification: commit6509436, Supabase38123736061 and Flutter38123736029
+passed all required checks, including actual create-course API and current-role
+revocation. Implementation reviewed, scopes combined and seven registry items
+completed. PR#54/#55 merged; PR#59 integrates the remaining tasks and records.
+Temporary shared locks release on merge. No production deployment performed.
