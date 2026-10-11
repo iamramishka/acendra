@@ -1,7 +1,7 @@
 # CSA-101–105 coordinated integration
 
 Date: 2026-10-11 (Asia/Colombo). Owner: CODEX root. Issue #76.
-Status: IN_PROGRESS. User explicitly requested all five tasks in parallel.
+Status: IN_REVIEW. Integrated draft PR #79. User explicitly requested all five tasks in parallel.
 Base: origin/dev. Branch: codex/feat/csa-101-105-integration.
 Root worktree: C:/Users/ramis/.codex/worktrees/csa-101-105-integration/acendra.
 
@@ -49,3 +49,16 @@ creates one settlement/grant/event/outbox/audit, and distinct actual settlements
 preserve extra money for reconciliation with one grant. Final hardened migration,
 a fourth cross-order settlement reuse race and CI remain pending.
 No native bootstrap result is claimed as full Supabase Auth/PostgREST verification.
+## Final local integrated evidence
+
+Final migration001–016 replay passed on a fresh native PostgreSQL16 database.
+Financial SQL suites CSA092/096/098/101_105 passed; new workflow suite32 assertions
+passed. Root reran final hardened RPCs with four real independent-session race
+scenarios: all passed (five tests including parent). Cross-order settlement reuse
+loser raises22023 and leaves its order unpaid; duplicate delivery yields one
+settlement/event/grant/audit/outbox; extra real payments preserve two settlements
+with one grant. These results supersede the earlier in-progress race note.
+Full native pgTAP suites were unavailable because extension is not installed;
+full Supabase migration/lint/API/Auth and current-head CI are still required.
+No production/provider calls occurred. Draft PR #79 contains ordered disjoint
+worker commits. Tasks remain IN_REVIEW with external provider acceptance blocked.
