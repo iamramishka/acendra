@@ -16,34 +16,37 @@ select pg_temp.assert_ok((select count(*)=1 from public.payment_attempts where o
 select pg_temp.assert_ok(not exists(select 1 from public.enrollments where user_id='10400000-0000-0000-0000-000000000001'),'initialization never grants');
 select pg_temp.expect_error($q$select public.csa101_initialize_checkout('10400000-0000-0000-0000-000000000002','10400000-0000-0000-0000-000000000011','aal1','foreign',(select (data->>'order_id')::uuid from csa104_orders),'synthetic-merchant','sandbox')$q$,'42501','foreign session denied');
 create function pg_temp.finalize(payment text default 'synthetic-payment',amount bigint default 12345,hash text default repeat('a',64),merchant text default 'synthetic-merchant',environment text default 'sandbox',currency text default 'LKR') returns jsonb language sql as $$select public.csa104_finalize_payment((select (data->'attempt'->>'attemptId')::uuid from csa104_init),merchant,environment,'payhere:received:'||payment,hash,payment,amount,currency,clock_timestamp(),'payhere:authenticated_retrieval:'||payment);$$;
+select pg_temp.expect_error($q$select public.csa104_finalize_payment((select (data->'attempt'->>'attemptId')::uuid from csa104_init),'synthetic-merchant','sandbox','payhere:received:infinite',repeat('a',64),'infinite',12345,'LKR','-infinity','payhere:authenticated_retrieval:infinite')$q$,'22023','nonfinite evidence rejected');
 select pg_temp.expect_error($q$select pg_temp.finalize('mismatch',12346)$q$,'22023','amount mismatch rejected');
 select pg_temp.expect_error($q$select pg_temp.finalize('mismatch',12345,repeat('a',64),'other')$q$,'22023','merchant mismatch rejected');
 select pg_temp.expect_error($q$select pg_temp.finalize('mismatch',12345,repeat('a',64),'synthetic-merchant','production')$q$,'22023','environment mismatch rejected');
 select pg_temp.expect_error($q$select pg_temp.finalize('mismatch',12345,repeat('a',64),'synthetic-merchant','sandbox','USD')$q$,'22023','currency mismatch rejected');
-select pg_temp.assert_ok(not exists(select 1 from app_private.payment_events),'invalid evidence reserves no event');
+select pg_temp.assert_ok(not exists(select 1 from app_private.payment_events where payment_attempt_id=(select (data->'attempt'->>'attemptId')::uuid from csa104_init)),'invalid evidence reserves no event');
 create function pg_temp.inject_failure() returns trigger language plpgsql as $$begin raise exception 'injected outbox failure'; end;$$;
 create trigger csa104_fail before insert on app_private.notification_outbox for each row execute function pg_temp.inject_failure();
 select pg_temp.expect_error($q$select pg_temp.finalize()$q$,'P0001','outbox failure propagated');
-select pg_temp.assert_ok(not exists(select 1 from app_private.verified_settlements) and not exists(select 1 from app_private.payment_events) and not exists(select 1 from app_private.audit_logs) and not exists(select 1 from public.enrollment_grants),'failure rolls back financial source audit evidence');
+select pg_temp.assert_ok(not exists(select 1 from app_private.verified_settlements where order_id=(select (data->>'order_id')::uuid from csa104_orders)) and not exists(select 1 from app_private.payment_events where payment_attempt_id=(select (data->'attempt'->>'attemptId')::uuid from csa104_init)) and not exists(select 1 from app_private.audit_logs where resource_id=(select (data->>'order_id')::uuid from csa104_orders)) and not exists(select 1 from public.enrollment_grants where user_id='10400000-0000-0000-0000-000000000001'),'failure rolls back financial source audit evidence');
 select pg_temp.assert_ok((select status='pending_payment' from public.orders where id=(select (data->>'order_id')::uuid from csa104_orders)),'failure rolls back paid transition');
 drop trigger csa104_fail on app_private.notification_outbox;
 select pg_temp.assert_ok(pg_temp.finalize()->>'outcome'='processed','success finalizes');
 set constraints all immediate;
-select pg_temp.assert_ok((select count(*)=1 from public.enrollment_grants),'exactly one source grant');
-select pg_temp.assert_ok((select count(*)=1 from app_private.notification_outbox),'one durable notification');
-select pg_temp.assert_ok((select count(*)=1 from app_private.audit_logs),'one atomic audit');
+select pg_temp.assert_ok((select count(*)=1 from public.enrollment_grants where user_id='10400000-0000-0000-0000-000000000001'),'exactly one source grant');
+select pg_temp.assert_ok((select count(*)=1 from app_private.notification_outbox where recipient_user_id='10400000-0000-0000-0000-000000000001'),'one durable notification');
+select pg_temp.assert_ok((select count(*)=1 from app_private.audit_logs where resource_id=(select (data->>'order_id')::uuid from csa104_orders)),'one atomic audit');
 select pg_temp.expect_error($q$select pg_temp.initialize()$q$,'55000','paid order cannot replay checkout');
 select pg_temp.assert_ok(pg_temp.finalize()->>'outcome'='duplicate','retry duplicates safely');
 select pg_temp.expect_error($q$select pg_temp.finalize('synthetic-payment',12345,repeat('b',64))$q$,'22023','same event changed payload conflicts');
 select pg_temp.assert_ok(pg_temp.finalize('second-real-payment')->>'outcome'='reconciliation_required','extra real payment reconciles');
-select pg_temp.assert_ok((select count(*)=2 from app_private.verified_settlements),'extra settlement preserved');
-select pg_temp.assert_ok((select count(*)=1 from public.enrollment_grants) and (select count(*)=1 from app_private.notification_outbox),'extra payment grants and notifies no second time');
+select pg_temp.assert_ok((select count(*)=2 from app_private.verified_settlements where order_id=(select (data->>'order_id')::uuid from csa104_orders)),'extra settlement preserved');
+select pg_temp.assert_ok((select count(*)=1 from public.enrollment_grants where user_id='10400000-0000-0000-0000-000000000001') and (select count(*)=1 from app_private.notification_outbox where recipient_user_id='10400000-0000-0000-0000-000000000001'),'extra payment grants and notifies no second time');
 update public.orders set status='refunded' where id=(select (data->>'order_id')::uuid from csa104_orders);
-update public.enrollment_grants set invalidated_at=clock_timestamp(),invalidation_reason='Synthetic reversal';
+update public.enrollment_grants set invalidated_at=clock_timestamp(),invalidation_reason='Synthetic reversal' where user_id='10400000-0000-0000-0000-000000000001';
 select pg_temp.assert_ok(pg_temp.finalize('late-payment')->>'outcome'='reconciliation_required','late success remains reconciliation');
-select pg_temp.assert_ok((select status='refunded' from public.orders where id=(select (data->>'order_id')::uuid from csa104_orders)) and not exists(select 1 from public.enrollment_grants where invalidated_at is null),'late success never revives refunded source');
+select pg_temp.assert_ok((select status='refunded' from public.orders where id=(select (data->>'order_id')::uuid from csa104_orders)) and not exists(select 1 from public.enrollment_grants where invalidated_at is null and user_id='10400000-0000-0000-0000-000000000001'),'late success never revives refunded source');
 select pg_temp.assert_ok(not has_function_privilege(r,'public.csa104_finalize_payment(uuid,text,text,text,text,text,bigint,text,timestamptz,text)','EXECUTE'),'finalization denied to '||r) from unnest(array['anon','authenticated']) r;
 select pg_temp.assert_ok(not has_table_privilege(r,'app_private.notification_outbox','SELECT'),'outbox private to '||r) from unnest(array['anon','authenticated','service_role']) r;
 select '1..'||last_value from csa101_105_assertion;
 rollback;
+
+
 

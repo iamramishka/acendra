@@ -79,7 +79,7 @@ begin
  or p_payload_hash !~ '^[0-9a-f]{64}$' or p_external_settlement_id is null or char_length(p_external_settlement_id) not between 1 and 500
  or p_external_settlement_id !~ '[^[:space:]]' or p_event_id is distinct from 'payhere:received:'||p_external_settlement_id
  or p_evidence_reference is distinct from 'payhere:authenticated_retrieval:'||p_external_settlement_id
- or p_confirmed_at is null or p_confirmed_at>clock_timestamp() or p_amount_minor is null or p_currency is null then
+ or p_confirmed_at is null or not isfinite(p_confirmed_at) or p_confirmed_at>clock_timestamp() or p_amount_minor is null or p_currency is null then
  raise exception using errcode='22023',message='Verified success evidence required.'; end if;
  -- Global settlement identity first; then order, attempt, beneficiary/course. All fulfillment/reversal callers must reuse this ordering.
  perform pg_advisory_xact_lock(hashtext('payhere:'||p_merchant||':'||p_environment),hashtext(p_external_settlement_id));
@@ -125,5 +125,6 @@ revoke all on function public.csa101_initialize_checkout(uuid,uuid,text,text,uui
 grant execute on function public.csa101_initialize_checkout(uuid,uuid,text,text,uuid,text,text),public.csa102_lookup_payment_attempt(text),public.csa104_finalize_payment(uuid,text,text,text,text,text,bigint,text,timestamptz,text) to service_role;
 comment on function public.csa104_finalize_payment(uuid,text,text,text,text,text,bigint,text,timestamptz,text) is 'Verified Edge retrieval success only. Atomic fulfillment, scoped duplicate conflict and late/extra settlement reconciliation. Never call using callback checksum alone.';
 commit;
+
 
 
