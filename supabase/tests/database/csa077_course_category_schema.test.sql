@@ -35,7 +35,7 @@ select pg_temp.expect_error($q$update public.categories set sort_order=-1 where 
 select pg_temp.expect_error($q$update public.courses set price_minor=-1 where slug='synthetic-course'$q$, '23514', 'negative price rejected');
 select pg_temp.expect_error($q$update public.courses set currency_code='USD' where slug='synthetic-course'$q$, '23514', 'unsupported currency rejected');
 insert into auth.users(id) values('07700000-0000-0000-0000-000000000003');
-insert into public.profiles(id,display_name) values('07700000-0000-0000-0000-000000000003','Synthetic author');
+insert into public.profiles(id,display_name) values('07700000-0000-0000-0000-000000000003','Synthetic author') on conflict (id) do update set display_name=excluded.display_name;
 update public.courses set created_by='07700000-0000-0000-0000-000000000003' where slug='synthetic-course';
 select pg_temp.expect_error($q$delete from public.profiles where id='07700000-0000-0000-0000-000000000003'$q$,'23503','course author deletion cannot cascade course');
 update public.categories set name='Updated category' where slug='synthetic-category';
