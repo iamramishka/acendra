@@ -32,8 +32,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   String? _validateEmail(String value) {
     if (value.trim().isEmpty) return 'Enter your email';
-    if (!value.contains('@') || !value.contains('.'))
+    if (!value.contains('@') || !value.contains('.')) {
       return 'Enter a valid email';
+    }
     return null;
   }
 
