@@ -1,7 +1,9 @@
 # Local Supabase development
 
-Use an isolated task worktree, Node.js 20 or newer, Flutter from the repository
-baseline, and a running local Docker Linux engine. The CLI is pinned to 2.120.0
+Use an isolated task worktree, Node.js 20 or newer, and Flutter from the repository
+baseline. Full Supabase stack commands require a Docker Linux engine in a suitable
+test environment; Docker on the project owner's laptop is not required. Native
+PostgreSQL supports the database-only verification described below. The CLI is pinned to 2.120.0
 in package.json/package-lock.json; Node tooling does not change Flutter dependencies.
 Docker Desktop is the supported Windows runtime. No hosted project, account,
 payment provider or paid resource is needed for this workflow.
@@ -145,3 +147,42 @@ Sources: [Supabase local development](https://supabase.com/docs/guides/local-dev
 [CLI configuration](https://supabase.com/docs/guides/local-development/cli/config),
 [database testing](https://supabase.com/docs/reference/cli/supabase-test-db),
 and [API key guidance](https://supabase.com/docs/guides/api/api-keys).
+
+## Native PostgreSQL verification without Docker
+
+The owner explicitly removed laptop Docker verification as a requirement on
+2026-10-11. Do not require repairing Docker/WSL or running containers on that
+laptop. Tooling tests (`npm run tool:test`) and Dart configuration tests can run
+without Docker. For database-only checks, use a new task-owned PostgreSQL 17
+cluster bound to 127.0.0.1 on an unused port, with synthetic fixtures only. Do not
+use an existing personal, shared or production database.
+
+Native verification executed on 2026-10-11 used installed PostgreSQL 17.7,
+port 55435 and ignored `.superpowers/csa032035-native-pg`. Two fresh databases,
+`csa032035_dev` and `csa032035_test`, each received the migration and empty seed.
+The synthetic fixture supplies roles anon/authenticated/service_role (the latter
+BYPASSRLS), schema auth, and `auth.users(id uuid primary key)`. Permissive default
+table grants deliberately check that migration revocations still deny access.
+This is a SQL fixture, not the real Supabase Auth schema or service.
+
+Run the existing database-only suites with native psql and ON_ERROR_STOP=1:
+
+```powershell
+# Set $pgBin to the installed PostgreSQL 17 bin directory. Use only a fresh
+# synthetic database prepared as described above; repeat for the second database.
+& "$pgBin/psql.exe" -h 127.0.0.1 -p 55435 -U postgres -d csa032035_test -v ON_ERROR_STOP=1 -f supabase/tests/database/csa059_profile_role_schema.test.sql
+& "$pgBin/psql.exe" -h 127.0.0.1 -p 55435 -U postgres -d csa032035_test -v ON_ERROR_STOP=1 -f supabase/stage_checks/csa059_access_baseline.sql
+```
+
+All 34 schema and 75 stage access assertions passed in each database. Fixture
+rollback left zero Auth users/profiles/grants and four role definitions in each.
+A synthetic Auth record inserted in dev was absent from test, confirming native
+database separation. The temporary cluster was stopped after verification.
+The access snapshot applies only before CSA-060/061 introduce allowed policies.
+
+The 8 foundation pgTAP assertions require actual Supabase schemas/services and
+were not run against a fabricated Storage schema. Native results do not establish
+Auth signup/recovery, Storage, PostgREST/API access, CLI stack port/volume isolation,
+Supabase lint or real status export. These integration checks belong in a separate
+suitable test environment (coordinate with CSA-036/242 CI); they are not a laptop
+Docker prerequisite or a reason to block independent development work.
