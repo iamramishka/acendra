@@ -65,7 +65,7 @@ hash excludes raw form metadata and observation timestamps so replay is stable.
 
 ## Verification and remaining gates
 
-RED: handler test initially failed with missing handler module. GREEN: 33 handler
+RED: handler test initially failed with missing handler module. GREEN: 35 handler
 security/workflow tests plus 14 existing adapter tests passed using synthetic
 protocol signatures and mocked network responses. Tests cover forged checksum,
 exact-money/currency/scope mismatches, changed unsigned payment reference,
