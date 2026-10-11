@@ -79,13 +79,18 @@ async function main() {
     Origin: 'http://127.0.0.1:8080', 'Access-Control-Request-Method': 'POST',
     'Access-Control-Request-Headers': 'authorization,content-type,apikey,x-client-info',
   }, signal: AbortSignal.timeout(30000) });
-  assert.equal(preflight.status, 204);
-  assert.equal(preflight.headers.get('Access-Control-Allow-Origin'), 'http://127.0.0.1:8080');
-  const deniedOrigin = await fetch(base + endpoint, { method: 'OPTIONS', headers: {
-    Origin: 'https://unapproved.example', 'Access-Control-Request-Method': 'POST',
-  }, signal: AbortSignal.timeout(30000) });
+  // CLI Kong answers OPTIONS before the worker with permissive gateway CORS.
+  // Test browser compatibility there, and enforce the origin boundary on POST.
+  assert.ok([200,204].includes(preflight.status));
+  assert.ok(['*','http://127.0.0.1:8080'].includes(preflight.headers.get('Access-Control-Allow-Origin')));
+  const allowedHeaders = preflight.headers.get('Access-Control-Allow-Headers')?.toLowerCase().split(',').map(value => value.trim());
+  assert.ok(['authorization','content-type','apikey','x-client-info'].every(value => allowedHeaders?.includes(value)));
+  const deniedOrigin = await fetch(base + endpoint, { method: 'POST', headers: {
+    Origin: 'https://unapproved.example', Authorization: `Bearer ${admin.token}`,
+    apikey: key, 'Content-Type': 'application/json',
+  }, body: JSON.stringify(body), signal: AbortSignal.timeout(30000) });
   assert.equal(deniedOrigin.status, 403);
-  assert.equal(deniedOrigin.headers.get('Access-Control-Allow-Origin'), null);
+  assert.equal((await deniedOrigin.json()).error.code, 'ORIGIN_FORBIDDEN');
   stage = 'MFA and caller injection denial';
   assert.equal((await request(endpoint, admin.token, body)).status, 403);
   assert.equal((await request(endpoint, target.token, body)).status, 403);
