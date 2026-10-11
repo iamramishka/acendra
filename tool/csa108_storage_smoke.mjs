@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { createHash, randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
-export async function runReceiptStorageSmoke({ root, layout, env, sql, base, key, token, studentId, storageContainer }) {
+export async function runReceiptStorageSmoke({ root, layout, env, sql, base, key, token, studentId, containers }) {
   let stage = 'local credentials';
   try {
     assert.equal(base, `http://127.0.0.1:${layout.portBase}`);
@@ -19,8 +19,12 @@ export async function runReceiptStorageSmoke({ root, layout, env, sql, base, key
     stage='local service credential presence';
     // New CLI status exports opaque keys. Storage's task-owned container retains
     // the legacy internal service JWT used by the deployed handler transport.
-    const service = status.SECRET_KEY || status.SERVICE_ROLE_KEY || storageContainer?.Config?.Env
-      ?.find(value => value.startsWith('SERVICE_KEY='))?.slice('SERVICE_KEY='.length);
+    const values = containers.flatMap(item => item.Config?.Env ?? []);
+    const field = name => values.find(value => value.startsWith(name+'='))?.slice(name.length+1);
+    const secrets = field('SUPABASE_SECRET_KEYS');
+    const service = status.SECRET_KEY || status.SERVICE_ROLE_KEY || field('SERVICE_KEY') ||
+      field('SUPABASE_SERVICE_ROLE_KEY') || field('SUPABASE_SECRET_KEY') ||
+      (secrets ? Object.values(JSON.parse(secrets))[0] : undefined);
     assert.ok(typeof service === 'string' && service.length > 20);
     const bytes = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jfWQAAAAASUVORK5CYII=','base64');
     const digest = createHash('sha256').update(bytes).digest('hex');

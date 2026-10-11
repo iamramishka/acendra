@@ -135,7 +135,7 @@ async function main() {
   assert.equal(storage.status, 200, 'Real Storage API is reachable');
   assert.deepEqual(storage.body, [], 'Synthetic student has no visible buckets');
   await runReceiptStorageSmoke({ root, layout: dev, env: dockerEnv, sql: statement => sql(devDb,statement), base, key, token, studentId,
-    storageContainer: devItems.find(item => item.Name === `/supabase_storage_${dev.projectId}`) });
+    containers: devItems });
   console.log('PASS: real Auth/Storage/API smoke checks, public export, loopback ports and independent volumes/databases.');
   await runAuthSecuritySmoke();
 }
