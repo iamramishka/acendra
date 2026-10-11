@@ -186,3 +186,21 @@ Auth signup/recovery, Storage, PostgREST/API access, CLI stack port/volume isola
 Supabase lint or real status export. These integration checks belong in a separate
 suitable test environment (coordinate with CSA-036/242 CI); they are not a laptop
 Docker prerequisite or a reason to block independent development work.
+## Hosted Supabase foundation checks
+
+`.github/workflows/supabase-foundations.yml` runs the full foundation checks on
+GitHub-hosted Ubuntu for affected PRs to dev, and supports manual dispatch after
+integration. It installs the pinned CLI, runs tooling tests, starts/resets the test
+stack, runs database tests and lint, starts an independent dev stack, exports only
+public client configuration, and runs `tool/supabase_smoke.mjs`. Cleanup always
+attempts to stop both task-owned stacks. No hosted Supabase project or external
+credentials are used. Repository permissions are read-only; no private logs or
+response data are uploaded as artifacts.
+
+The real Supabase acceptance run on 2026-10-11 passed:
+https://github.com/iamramishka/acendra/actions/runs/38107682468 . This supersedes the
+historical unverified-service notes above. Native PostgreSQL checks remain useful
+without Docker on the laptop; real stack checks run on the hosted runner. The job
+checks foundational Auth/Storage/API reachability and denial, not future complete
+user journeys, profile access policies, privileged role operations or production
+readiness. General Flutter CI is separately tracked under CSA-036.
