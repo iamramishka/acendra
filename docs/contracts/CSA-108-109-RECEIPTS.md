@@ -82,3 +82,5 @@ Storage collision documentation checked by root2026-10-11:
 https://supabase.com/docs/guides/storage/uploads/standard-uploads
 https://supabase.com/docs/guides/storage/debugging/error-codes
 Real pinned storage API integration remains a separate verification gate.
+
+Historical idempotent upload replay acknowledges the original submitted receipt and omits current order_status; callers must retrieve current order/review state separately. Reserved objects cannot be deleted until approved retention operations exist.

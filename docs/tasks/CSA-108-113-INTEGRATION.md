@@ -39,3 +39,19 @@ named authorized/alternate reviewers and retention/dispute operations. New deplo
 endpoints hard disabled without environment bypass while these gates remain open.
 No production credentials/configuration, live bank/provider calls or deployment.
 Approval authority project owner/designated maintainer. IN_REVIEW until accepted.
+
+## Integration evidence and remaining gates
+
+Status IN_REVIEW. Receipt implementation9dacefe, bank reviewbe477e9,
+database d7afa87 integrated in this branch. Root follow-up018 denies all bank
+receipt deletion until approved retention operations, closing delete/finalize
+race without lock inversion. Historical upload replay omits current order_status.
+Local Node suite264 passing before follow-up, upload suite36 passing afterward;
+database owner reports52 real PostgreSQL assertions; root five concurrent scenarios
+pass. Native PostgreSQL uses synthetic Auth/Storage schemas, not real Storage API.
+Real pinned Storage upload/metadata lifecycle compatibility, full Supabase replay,
+strict lint, hosted CI and financial review remain required. In particular the
+strict storage.objects UPDATE guard must be tested against actual Storage upload.
+No approved inspection implementation/resource limits or operational banking setup
+exists; production handlers remain hard disabled. No merge/deployment performed.
+Parallel workers encountered account usage limit before real Storage smoke finished.

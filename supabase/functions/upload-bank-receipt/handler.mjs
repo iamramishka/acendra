@@ -116,7 +116,7 @@ export function createHandler({ env, fetch: request = globalThis.fetch, receiptU
       if (!result || result.order_id !== order || result.submission_id !== reserved.submission_id || result.status !== 'submitted' ||
           typeof result.replayed !== 'boolean') return respond(503, 'SERVICE_UNAVAILABLE');
       return respond(result.replayed ? 200 : 201, undefined, { order_id: result.order_id, submission_id: result.submission_id,
-        status: 'submitted', order_status: 'pending_verification' });
+        status: 'submitted', ...(result.replayed ? {} : { order_status: 'pending_verification' }) });
     } catch (error) {
       if (error instanceof ReceiptError) {
         const status = error.code === 'RECEIPT_TOO_LARGE' ? 413 : error.code === 'INSPECTION_FAILED' ? 422 : 400;

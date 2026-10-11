@@ -402,6 +402,14 @@ verify_jwt = true
 enabled = true
 verify_jwt = false
 
+# Bank entry points remain hard disabled pending inspection/operations approval.
+[functions.upload-bank-receipt]
+enabled = true
+verify_jwt = true
+[functions.admin-review-bank-transfer]
+enabled = true
+verify_jwt = true
+
 [analytics]
 enabled = false
 port = 54327
