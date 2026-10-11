@@ -19,7 +19,7 @@ export async function runReceiptStorageSmoke({ root, layout, env, sql, base, key
     stage='local service credential presence';
     // New CLI status exports opaque keys. Storage's task-owned container retains
     // the legacy internal service JWT used by the deployed handler transport.
-    const service = status.SERVICE_ROLE_KEY || storageContainer?.Config?.Env
+    const service = status.SECRET_KEY || status.SERVICE_ROLE_KEY || storageContainer?.Config?.Env
       ?.find(value => value.startsWith('SERVICE_KEY='))?.slice('SERVICE_KEY='.length);
     assert.ok(typeof service === 'string' && service.length > 20);
     const bytes = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jfWQAAAAASUVORK5CYII=','base64');
@@ -34,7 +34,8 @@ export async function runReceiptStorageSmoke({ root, layout, env, sql, base, key
     const upload=JSON.parse(sql(`select public.csa108_prepare_receipt('${studentId}','${session}','aal1','${randomUUID()}','${order}','${digest}',${bytes.length},'image/png','png')`));
     assert.match(upload.object_path,/^[0-9a-f/.-]+$/);
     const route='/storage/v1/object/bank-receipts/'+upload.object_path;
-    const call=(route,method,bearer,body,extra={})=>fetch(base+route,{method,headers:{apikey:key,...(bearer?{Authorization:'Bearer '+bearer}:{}),...extra},body,redirect:'error',signal:AbortSignal.timeout(30000)});
+    const call=(route,method,bearer,body,extra={})=>fetch(base+route,{method,headers:{apikey:bearer===service?service:key,
+      ...(bearer && !bearer.startsWith('sb_secret_')?{Authorization:'Bearer '+bearer}:{}),...extra},body,redirect:'error',signal:AbortSignal.timeout(30000)});
     stage='first upload and metadata lifecycle';
     const first=await call(route,'POST',service,bytes,{'Content-Type':'image/png','x-upsert':'false'});
     assert.ok(first.ok);
