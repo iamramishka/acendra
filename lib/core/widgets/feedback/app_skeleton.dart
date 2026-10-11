@@ -36,7 +36,7 @@ class _AppSkeletonState extends State<AppSkeleton>
     final base = Theme.of(context).colorScheme.onSurface.withAlpha(30);
     return AnimatedBuilder(
       animation: _anim,
-      builder: (_, __) => Container(
+      builder: (_, _) => Container(
         width: widget.width,
         height: widget.height,
         decoration: BoxDecoration(

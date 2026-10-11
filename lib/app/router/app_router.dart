@@ -65,44 +65,44 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: RouteNames.home,
-        redirect: (_, __) => RouteNames.marketplace,
+        redirect: (_, _) => RouteNames.marketplace,
       ),
-      GoRoute(path: RouteNames.login, builder: (_, __) => const LoginScreen()),
+      GoRoute(path: RouteNames.login, builder: (_, _) => const LoginScreen()),
       GoRoute(
         path: RouteNames.register,
-        builder: (_, __) => const RegisterScreen(),
+        builder: (_, _) => const RegisterScreen(),
       ),
       GoRoute(
         path: RouteNames.verifyEmail,
-        builder: (_, __) => const VerifyEmailScreen(),
+        builder: (_, _) => const VerifyEmailScreen(),
       ),
       GoRoute(
         path: RouteNames.forgotPassword,
-        builder: (_, __) => const ForgotPasswordScreen(),
+        builder: (_, _) => const ForgotPasswordScreen(),
       ),
       GoRoute(
         path: RouteNames.resetPassword,
-        builder: (_, __) => const ResetPasswordScreen(),
+        builder: (_, _) => const ResetPasswordScreen(),
       ),
       GoRoute(
         path: RouteNames.marketplace,
-        builder: (_, __) => const _PlaceholderScreen(title: 'Marketplace'),
+        builder: (_, _) => const _PlaceholderScreen(title: 'Marketplace'),
       ),
       GoRoute(
         path: RouteNames.dashboard,
-        builder: (_, __) => const _PlaceholderScreen(title: 'Dashboard'),
+        builder: (_, _) => const _PlaceholderScreen(title: 'Dashboard'),
       ),
       GoRoute(
         path: RouteNames.admin,
-        builder: (_, __) => const _PlaceholderScreen(title: 'Admin'),
+        builder: (_, _) => const _PlaceholderScreen(title: 'Admin'),
       ),
       GoRoute(
         path: RouteNames.profile,
-        builder: (_, __) => const ProfileScreen(),
+        builder: (_, _) => const ProfileScreen(),
       ),
       GoRoute(
         path: RouteNames.profileEdit,
-        builder: (_, __) => const ProfileEditScreen(),
+        builder: (_, _) => const ProfileEditScreen(),
       ),
     ],
   );

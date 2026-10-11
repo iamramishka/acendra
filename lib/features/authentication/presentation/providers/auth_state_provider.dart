@@ -1,5 +1,6 @@
 import 'package:acendra/core/config/env_config.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart' show StateProvider;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final authStreamProvider = StreamProvider<AuthState>((ref) {
@@ -8,13 +9,13 @@ final authStreamProvider = StreamProvider<AuthState>((ref) {
 });
 
 final isAuthenticatedProvider = Provider<bool>((ref) {
-  return ref.watch(authStreamProvider).valueOrNull?.session != null;
+  return ref.watch(authStreamProvider).value?.session != null;
 });
 
 /// CSA-069 — exposes the current Supabase session (null when signed out).
 /// Derived from the auth stream so it stays in sync with all auth events.
 final currentSessionProvider = Provider<Session?>((ref) {
-  return ref.watch(authStreamProvider).valueOrNull?.session;
+  return ref.watch(authStreamProvider).value?.session;
 });
 
 /// CSA-069 — true once the auth stream has emitted its first event,

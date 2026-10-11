@@ -83,7 +83,7 @@ Widget _app({required AuthRepository repo, bool isAuthenticated = false}) =>
         logoutProvider.overrideWith(LogoutNotifier.new),
       ],
       child: Consumer(
-        builder: (_, ref, __) =>
+        builder: (_, ref, _) =>
             MaterialApp.router(routerConfig: ref.watch(appRouterProvider)),
       ),
     );
@@ -223,7 +223,7 @@ void main() {
             ),
           ],
           child: Consumer(
-            builder: (_, ref, __) =>
+            builder: (_, ref, _) =>
                 MaterialApp.router(routerConfig: ref.watch(appRouterProvider)),
           ),
         ),
