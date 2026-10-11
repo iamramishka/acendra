@@ -122,6 +122,35 @@ async function main() {
   assert.equal((await request(endpoint, token, { ...body, action: 'revoke', request_id: randomUUID() })).status, 200);
   assert.equal((await request(endpoint, token, body)).data.data.status, 'revoked');
   stage = 'concurrent admin revocation preserves authority';
+  stage = 'real course creation and public draft isolation';
+  const courseEndpoint = '/functions/v1/create-course';
+  const courseBody = { title: 'Synthetic trusted draft', slug: `ci-draft-${randomBytes(8).toString('hex')}`, request_id: randomUUID() };
+  assert.equal((await request(courseEndpoint, admin.token, courseBody)).status, 403);
+  assert.equal((await request(courseEndpoint, target.token, courseBody)).status, 403);
+  assert.equal((await request(courseEndpoint, token, { ...courseBody, price_minor: 1 })).status, 400);
+  assert.ok([401,403].includes((await request(courseEndpoint, forged.join('.'), courseBody)).status));
+  const created = await request(courseEndpoint, token, courseBody);
+  assert.equal(created.status, 200);
+  const courseId = created.data.data.course_id;
+  assert.match(courseId, /^[0-9a-f-]{36}$/i);
+  assert.equal(created.data.data.status, 'draft');
+  assert.equal((await request(courseEndpoint, token, courseBody)).data.data.course_id, courseId);
+  assert.equal((await request(courseEndpoint, token, { ...courseBody, title: 'Changed replay' })).status, 409);
+  assert.equal(sql(`select count(*) from app_private.csa089_course_creation_audit where actor_id='${admin.id}' and request_id='${courseBody.request_id}';`), '1');
+  assert.equal(sql(`select count(*) from public.course_staff where course_id='${courseId}' and user_id='${admin.id}' and staff_role='owner' and revoked_at is null;`), '1');
+  for (const callerToken of [undefined, token]) {
+    const publicResult = await fetch(`${base}/rest/v1/courses?select=id,title&id=eq.${courseId}`, {
+      headers: { apikey: key, ...(callerToken ? { Authorization: `Bearer ${callerToken}` } : {}) }, signal: AbortSignal.timeout(30000),
+    });
+    assert.equal(publicResult.status, 200);
+    assert.deepEqual(await publicResult.json(), []);
+  }
+  assert.equal((await request(endpoint, token, { ...body, role_code: 'content_manager', request_id: randomUUID() })).status, 200);
+  const managerBody = { ...courseBody, slug: `ci-manager-${randomBytes(8).toString('hex')}`, request_id: randomUUID() };
+  assert.equal((await request(courseEndpoint, target.token, managerBody)).status, 200);
+  assert.equal((await request(endpoint, token, { ...body, role_code: 'content_manager', action: 'revoke', request_id: randomUUID() })).status, 200);
+  assert.equal((await request(courseEndpoint, target.token, managerBody)).status, 403);
+  stage = 'concurrent admin revocation preserves authority';
   assert.equal((await request(endpoint, token, { ...body, student_id: nextAdmin.id, role_code: 'super_admin', request_id: randomUUID() })).status, 200);
   const secondToken = await mfa(nextAdmin);
   const results = await Promise.all([
