@@ -42,19 +42,24 @@ const exactJson = (body) => {
 };
 
 export function createPayHereAdapter(config, { fetch: fetcher = globalThis.fetch } = {}) {
-  if (!config || !['sandbox', 'production'].includes(config.environment) || config.ready !== true) deny('PAYMENT_NOT_CONFIGURED');
+  config = Object.freeze({ ...config });
+  const environment = config.environment;
+  if (!['sandbox', 'production'].includes(environment) || config.ready !== true) deny('PAYMENT_NOT_CONFIGURED');
   const merchant = text(config.merchantId, 100);
   const secret = text(config.merchantSecret, 500);
   const appId = text(config.appId, 500);
   const appSecret = text(config.appSecret, 500);
   if (!/^[\x21-\x7e]+$/.test(appId + appSecret) || appId.includes(':')) deny('INVALID_CONFIGURATION');
   const urls = { return_url: httpsUrl(config.returnUrl), cancel_url: httpsUrl(config.cancelUrl), notify_url: httpsUrl(config.notifyUrl) };
-  const origin = config.environment === 'sandbox' ? 'https://sandbox.payhere.lk' : 'https://www.payhere.lk';
+  const origin = environment === 'sandbox' ? 'https://sandbox.payhere.lk' : 'https://www.payhere.lk';
   const verified = new WeakSet();
   const terms = (attempt) => {
-    if (!attempt || attempt.provider !== 'payhere' || attempt.method !== 'online' || attempt.environment !== config.environment || attempt.merchantId !== merchant || attempt.currency !== 'LKR') deny('PAYMENT_SCOPE_MISMATCH');
+    // Read each caller-owned property once before validating or awaiting I/O.
+    attempt = Object.freeze({ ...attempt });
+    if (attempt.provider !== 'payhere' || attempt.method !== 'online' || attempt.environment !== environment || attempt.merchantId !== merchant || attempt.currency !== 'LKR') deny('PAYMENT_SCOPE_MISMATCH');
     text(attempt.attemptId, 100); text(attempt.orderId, 100);
-    return formatLkr(attempt.amountMinor);
+    formatLkr(attempt.amountMinor);
+    return attempt;
   };
   const request = async (url, options) => {
     try {
@@ -83,7 +88,8 @@ export function createPayHereAdapter(config, { fetch: fetcher = globalThis.fetch
   };
   return Object.freeze({
     createCheckout(attempt, customer) {
-      const amount = terms(attempt);
+      attempt = terms(attempt);
+      const amount = formatLkr(attempt.amountMinor);
       const details = {};
       for (const key of ['first_name', 'last_name', 'email', 'phone', 'address', 'city', 'country']) details[key] = text(customer?.[key], 200);
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email) || !/^\+?[0-9 ()-]{7,30}$/.test(details.phone)) deny('INVALID_CUSTOMER');
@@ -94,7 +100,7 @@ export function createPayHereAdapter(config, { fetch: fetcher = globalThis.fetch
       } };
     },
     verifyNotification(form, attempt) {
-      terms(attempt);
+      attempt = terms(attempt);
       if (!(form instanceof URLSearchParams)) deny('INVALID_NOTIFICATION');
       const values = {};
       for (const key of ['merchant_id', 'order_id', 'payment_id', 'payhere_amount', 'payhere_currency', 'status_code', 'md5sig']) {
@@ -105,12 +111,12 @@ export function createPayHereAdapter(config, { fetch: fetcher = globalThis.fetch
       if (!['2', '0', '-1', '-2', '-3'].includes(values.status_code) || !/^[0-9]{1,100}$/.test(values.payment_id) || !/^[A-Fa-f0-9]{32}$/.test(values.md5sig)) deny('INVALID_NOTIFICATION');
       const expected = md5(merchant + values.order_id + values.payhere_amount + 'LKR' + values.status_code + md5(secret));
       if (!timingSafeEqual(new TextEncoder().encode(expected), new TextEncoder().encode(values.md5sig.toUpperCase()))) deny('INVALID_SIGNATURE');
-      const result = Object.freeze({ attemptId: attempt.attemptId, orderId: attempt.orderId, amountMinor: attempt.amountMinor, currency: 'LKR', merchantId: merchant, environment: config.environment, provider: 'payhere', paymentId: values.payment_id, statusCode: values.status_code, evidence: 'checksum_only' });
+      const result = Object.freeze({ attemptId: attempt.attemptId, orderId: attempt.orderId, amountMinor: attempt.amountMinor, currency: 'LKR', merchantId: merchant, environment, provider: 'payhere', paymentId: values.payment_id, statusCode: values.status_code, evidence: 'checksum_only' });
       verified.add(result);
       return result;
     },
     async retrieveSettlement(notification, attempt) {
-      terms(attempt);
+      attempt = terms(attempt);
       if (!verified.has(notification) || notification.statusCode !== '2' || notification.attemptId !== attempt.attemptId || notification.orderId !== attempt.orderId || notification.amountMinor !== attempt.amountMinor) deny('UNVERIFIED_NOTIFICATION');
       const token = await request(`${origin}/merchant/v1/oauth/token`, { method: 'POST', headers: { Authorization: `Basic ${btoa(appId + ':' + appSecret)}`, 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'grant_type=client_credentials' });
       if (!token || token.token_type?.toLowerCase() !== 'bearer') deny('INVALID_PROVIDER_RESPONSE');
@@ -124,7 +130,7 @@ export function createPayHereAdapter(config, { fetch: fetcher = globalThis.fetch
       const detail = row.amount_detail;
       if (!detail || detail.currency !== 'LKR' || detail.exchange_from !== 'LKR' || detail.exchange_to !== 'LKR' ||
           !['1', '1.0', '1.00'].includes(detail.exchange_rate) || decimalMinor(detail.gross) !== minor(attempt.amountMinor)) deny('SETTLEMENT_NOT_VERIFIED');
-      return Object.freeze({ provider: 'payhere', merchantId: merchant, environment: config.environment, attemptId: attempt.attemptId, orderId: attempt.orderId, paymentId: notification.paymentId, amountMinor: attempt.amountMinor, currency: 'LKR', evidence: 'authenticated_retrieval', retrievedAt: new Date().toISOString() });
+      return Object.freeze({ provider: 'payhere', merchantId: merchant, environment, attemptId: attempt.attemptId, orderId: attempt.orderId, paymentId: notification.paymentId, amountMinor: attempt.amountMinor, currency: 'LKR', evidence: 'authenticated_retrieval', retrievedAt: new Date().toISOString() });
     },
   });
 }
