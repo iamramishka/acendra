@@ -1986,14 +1986,16 @@ They establish safe parallel development.
 
 ## ISOLATION AND LOCKS
 
-- [ ] CSA-242 [P1] [X]
+- [x] CSA-242 [P1] [X]
   Configure isolated CI test environments.
+  DONE, CODEX: isolated hosted-runner workflow and disposable local backend checks are verified. See [CSA-242/244/248 handoff](docs/tasks/CSA-242-244-248.md) and issue #49.
 
 - [ ] CSA-243 [P0] [L]
   Establish shared-file ownership protocol.
 
-- [ ] CSA-244 [P1] [X]
+- [x] CSA-244 [P1] [X]
   Establish shared API contract registry.
+  DONE, CODEX: canonical registry and change/ownership procedures are documented; proposed API/business decisions remain unapproved. See [CSA-242/244/248 handoff](docs/tasks/CSA-242-244-248.md) and issue #49.
 
 - [ ] CSA-245 [P1] [L]
   Document agent worktree setup.
@@ -2006,8 +2008,9 @@ They establish safe parallel development.
 - [ ] CSA-247 [P1] [L]
   Define integration task workflow.
 
-- [ ] CSA-248 [P1] [X]
+- [x] CSA-248 [P1] [X]
   Configure isolated backend test data.
+  DONE, CODEX: separate worktree/test profiles and rollback-scoped synthetic fixtures are verified. See [CSA-242/244/248 handoff](docs/tasks/CSA-242-244-248.md) and issue #49.
 
 - [ ] CSA-249 [P1] [L]
   Establish task status reconciliation.
