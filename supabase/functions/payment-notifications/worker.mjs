@@ -11,10 +11,11 @@ const templates = Object.freeze({
 // Trusted server-only collaborators. deliver must support the stable event
 // idempotency key and confirm acceptance; unknown delivery outcomes are retries.
 // Production wiring requires an approved provider; no environment opt-in.
-export function createWorker({ store, resolveRecipient, deliver, enabled = false } = {}) {
+export function createWorker({ store, resolveRecipient, deliver, enabled = false, deliveryTimeoutMs = 30000 } = {}) {
  return async () => {
   if (enabled !== true) return { disabled: true };
   if (!store?.claim || !store?.complete || !resolveRecipient || !deliver) throw new Error('NOTIFICATION_CONFIGURATION_REQUIRED');
+  if (!Number.isInteger(deliveryTimeoutMs) || deliveryTimeoutMs < 1 || deliveryTimeoutMs > 30000) throw new Error('INVALID_DELIVERY_TIMEOUT');
   // One event per invocation keeps later events from waiting through another
   // delivery's timeout. The transport must respect the provided abort signal.
   const rows = await store.claim(1);
@@ -32,8 +33,16 @@ export function createWorker({ store, resolveRecipient, deliver, enabled = false
     if (row.notification_type === 'bank_transfer_rejected' && typeof reason === 'string' && reason.length <= 1000 && !/[\x00-\x1f\x7f]/.test(reason)) text += `\n\n${reason}`;
     // Explicit fixed templates, plain text and no object spread prevent private
     // reviewer notes, storage paths or arbitrary HTML entering email.
-    const response = await deliver({ to, subject: template[0], text,
-     idempotencyKey: createHash('sha256').update(`acendra-notice:${row.event_key}`).digest('hex'), signal: AbortSignal.timeout(30000) });
+    const controller = new AbortController();
+    let timer;
+    let response;
+    try {
+     response = await Promise.race([
+      Promise.resolve().then(() => deliver({ to, subject: template[0], text,
+       idempotencyKey: createHash('sha256').update(`acendra-notice:${row.event_key}`).digest('hex'), signal: controller.signal })),
+      new Promise((_, reject) => { timer = setTimeout(() => { controller.abort(); reject(new Error('DELIVERY_TIMEOUT')); }, deliveryTimeoutMs); }),
+     ]);
+    } finally { clearTimeout(timer); }
     sent = response?.accepted === true;
    } catch {
     // Provider details and recipient data never enter stored diagnostics.
