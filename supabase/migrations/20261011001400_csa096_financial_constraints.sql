@@ -57,7 +57,7 @@ begin
 end; $$;
 create trigger orders_preserve_fulfillment_time before update on public.orders for each row execute function app_private.csa096_preserve_fulfillment_time();
 create function app_private.csa096_require_paid_settlement() returns trigger language plpgsql set search_path='' as $$
-declare current_order public.orders;
+declare current_order public.orders%rowtype;
 begin
  select * into current_order from public.orders where id=new.id;
  if current_order.status in ('paid','refunded') and (current_order.paid_at is null or not exists(select 1 from app_private.verified_settlements where order_id=current_order.id)) then
@@ -80,6 +80,8 @@ create function app_private.csa096_immutable_record() returns trigger language p
 begin raise exception using errcode='23514',message='Financial evidence and idempotency records are immutable.'; end; $$;
 create trigger verified_settlements_immutable before update or delete on app_private.verified_settlements for each row execute function app_private.csa096_immutable_record();
 create trigger idempotency_records_immutable before update or delete on app_private.idempotency_records for each row execute function app_private.csa096_immutable_record();
+create trigger verified_settlements_deny_truncate before truncate on app_private.verified_settlements for each statement execute function app_private.csa096_immutable_record();
+create trigger idempotency_records_deny_truncate before truncate on app_private.idempotency_records for each statement execute function app_private.csa096_immutable_record();
 
 alter table public.enrollment_grants add column settlement_id uuid,
  add constraint enrollment_grants_settlement_order foreign key(settlement_id,source_order_id) references app_private.verified_settlements(id,order_id) on delete restrict on update restrict,
