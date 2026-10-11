@@ -39,6 +39,9 @@ Configuration: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, server-only
 allowlist, and server-only `ACENDRA_CHECKOUT_BANK_VERSION_ID`. A reviewed trusted
 bank version must exist before enabling bank checkout. Immutable destinations
 are not seeded and no production configuration is applied.
+Bank settlement `receiving_bank_account_scope` is the configured logical
+`bank_account_id` UUID rendered as text. The settlement must match the immutable
+destination bound to its order; account versions share that stable identity.
 
 Dependency order: CSA-092 → CSA-095/096 → CSA-098. CSA-101 initializes attempts;
 CSA-104/116 finalize verified payments and grant entitlements. This contract

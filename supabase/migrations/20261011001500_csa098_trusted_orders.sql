@@ -43,6 +43,17 @@ revoke all on function app_private.csa098_immutable() from public,anon,authentic
 create trigger csa098_version_immutable before update or delete on app_private.bank_account_versions for each row execute function app_private.csa098_immutable();
 create trigger csa098_version_no_truncate before truncate on app_private.bank_account_versions for each statement execute function app_private.csa098_immutable();
 create trigger csa098_instruction_no_truncate before truncate on app_private.order_bank_instructions for each statement execute function app_private.csa098_immutable();
+create function app_private.csa098_bank_settlement_instructions() returns trigger language plpgsql set search_path='' as $$
+begin
+ if new.method='bank_transfer' and not exists(
+ select 1 from app_private.order_bank_instructions i
+ join app_private.bank_account_versions b on b.id=i.bank_account_version_id
+ where i.order_id=new.order_id and b.bank_account_id::text=new.receiving_bank_account_scope
+ ) then raise exception using errcode='23514',message='Settlement must match the bound bank destination.'; end if;
+ return new;
+end; $$;
+revoke all on function app_private.csa098_bank_settlement_instructions() from public,anon,authenticated,service_role;
+create trigger csa098_settlement_destination before insert on app_private.verified_settlements for each row execute function app_private.csa098_bank_settlement_instructions();
 
 create function public.csa098_create_checkout_order(p_actor uuid,p_session_id uuid,p_aal text,p_key text,p_course uuid,p_method text,p_bank_version uuid default null)
 returns jsonb language plpgsql security definer set search_path='' as $$
