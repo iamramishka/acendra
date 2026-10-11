@@ -62,3 +62,15 @@ Full native pgTAP suites were unavailable because extension is not installed;
 full Supabase migration/lint/API/Auth and current-head CI are still required.
 No production/provider calls occurred. Draft PR #79 contains ordered disjoint
 worker commits. Tasks remain IN_REVIEW with external provider acceptance blocked.
+## Integration security review
+
+A separate worker performed read-only review of the combined handlers/migration.
+No blocking financial defect found: service-only RPC grants, unique stored lookup,
+exact stored amounts, global scoped settlement serialization, duplicate conflicts,
+late/extra reconciliation, conservative revoked projection and transactional
+settlement/grant/audit/outbox rollback are consistent. This AI cross-review does
+not replace authorized financial approval. A trusted-config snapshot timing issue
+in checkout initialization is being fixed with a regression; Auth/database requests
+also explicitly reject redirects. Final current-head CI is required after that fix.
+Root config sets provider webhook verify_jwt=false for callback transport only;
+its deployed entry point remains hard disabled before all parsing or external I/O.
