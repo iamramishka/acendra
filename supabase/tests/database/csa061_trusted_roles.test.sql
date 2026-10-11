@@ -15,7 +15,7 @@ begin
 end; $$;
 
 select pg_temp.assert_ok(not has_function_privilege('authenticated','public.csa061_change_role(uuid,text,uuid,text,text,text,uuid)','EXECUTE'), 'browser cannot invoke service role mutation RPC');
-select pg_temp.assert_ok(has_function_privilege('service_role','public.csa061_change_role(uuid,text,uuid,text,text,text,uuid)','EXECUTE'), 'trusted service can invoke guarded operation');
+select pg_temp.assert_ok(not has_function_privilege('service_role','public.csa061_change_role(uuid,text,uuid,text,text,text,uuid)','EXECUTE'), 'trusted service must use current-session wrapper');
 select pg_temp.assert_ok(not has_function_privilege('service_role','public.csa061_bootstrap_super_admin(uuid,text,uuid)','EXECUTE'), 'service cannot bootstrap first admin');
 select pg_temp.assert_ok(not has_function_privilege('anon','public.csa061_bootstrap_super_admin(uuid,text,uuid)','EXECUTE'), 'anonymous cannot bootstrap');
 select pg_temp.assert_ok(not has_table_privilege('service_role','public.csa061_role_audit','INSERT'), 'service cannot write audit directly');
@@ -48,9 +48,9 @@ select pg_temp.assert_ok((select count(*)=1 from public.user_roles ur join publi
 select pg_temp.expect_error($q$select public.csa061_change_role('06100000-0000-0000-0000-000000000001','aal2','06100000-0000-0000-0000-000000000002','finance_admin','grant',' ','06100000-0000-0000-0000-000000000015')$q$,'22023','blank reason denied');
 select pg_temp.expect_error($q$select public.csa061_change_role('06100000-0000-0000-0000-000000000001','aal2','06100000-0000-0000-0000-000000000002','owner','grant','Bad role','06100000-0000-0000-0000-000000000016')$q$,'22023','unknown role denied');
 
-set local role service_role;
+-- Legacy core transaction invariants remain operator-tested; the service-only
+-- current-session entry point is verified by the CSA-073 suite.
 select public.csa061_change_role('06100000-0000-0000-0000-000000000001','aal2','06100000-0000-0000-0000-000000000002','finance_admin','grant','Approved synthetic reviewer','06100000-0000-0000-0000-000000000020');
-reset role;
 select pg_temp.assert_ok((select count(*)=1 from public.user_roles ur join public.roles r on r.id=ur.role_id where ur.user_id='06100000-0000-0000-0000-000000000002' and r.code='finance_admin' and ur.granted_by='06100000-0000-0000-0000-000000000001' and ur.revoked_at is null),'grant actor derived from verified operation');
 select public.csa061_change_role('06100000-0000-0000-0000-000000000001','aal2','06100000-0000-0000-0000-000000000002','finance_admin','grant','Approved synthetic reviewer','06100000-0000-0000-0000-000000000020');
 select pg_temp.assert_ok((select count(*)=2 from public.csa061_role_audit),'role replay creates no duplicate audit');

@@ -63,9 +63,9 @@ export function createHandler({ env, fetch: request = globalThis.fetch }) {
         return respond(401, 'UNAUTHENTICATED', undefined, requestId);
       }
       if (claims.aal !== 'aal2') return respond(403, 'MFA_REQUIRED', undefined, requestId);
-      const mutation = await request(`${url}/rest/v1/rpc/csa061_change_role`, {
+      const mutation = await request(`${url}/rest/v1/rpc/csa073_change_role`, {
         method: 'POST', headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ p_actor: user.id, p_aal: claims.aal, p_target: body.student_id,
+        body: JSON.stringify({ p_actor: user.id, p_session_id: claims.session_id, p_aal: claims.aal, p_target: body.student_id,
           p_code: body.role_code, p_action: body.action, p_reason: body.reason, p_request_id: requestId }),
         signal: AbortSignal.timeout(15000),
       });
