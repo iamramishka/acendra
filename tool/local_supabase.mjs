@@ -148,8 +148,14 @@ function run(layout, args, { json = false } = {}) {
   if (result.status !== 0) {
     // CLI status/start can contain private local keys: avoid echoing output.
     const logPath = path.join(layout.workdir, 'last-command.log');
-    fs.writeFileSync(logPath, result.stdout + '\n' + result.stderr, { mode: 0o600 });
-    throw new Error(`Supabase ${args[0]} failed (exit ${result.status}). Private diagnostics: ${logPath}. Check Docker health and port availability.`);
+      const diagnostics = result.stdout + '\n' + result.stderr;
+      fs.writeFileSync(logPath, diagnostics, { mode: 0o600 });
+      // Report only bounded machine identifiers from the known local snapshot;
+      // never print arbitrary CLI messages, SQL values, keys or provider payloads.
+      const states = [...new Set([...diagnostics.matchAll(/SQLSTATE ([A-Z0-9]{5})\b/g)].map(match => match[1]))];
+      const migrations = [...diagnostics.matchAll(/Applying migration ([0-9]{14}_[a-z0-9_]+\.sql)\b/g)].map(match => match[1]);
+      const summary = `${states.length ? ` SQLSTATE: ${states.join(',')}.` : ''}${migrations.length ? ` Last migration: ${migrations.at(-1)}.` : ''}`;
+      throw new Error(`Supabase ${args[0]} failed (exit ${result.status}).${summary} Private diagnostics: ${logPath}. Check Docker health and port availability.`);
   }
   if (json) {
     try { return JSON.parse(result.stdout); }
