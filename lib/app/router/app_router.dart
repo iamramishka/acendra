@@ -1,4 +1,5 @@
 import 'package:acendra/app/router/route_names.dart';
+import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:acendra/features/authentication/presentation/screens/forgot_password_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/login_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/register_screen.dart';
@@ -7,6 +8,17 @@ import 'package:acendra/features/authentication/presentation/screens/verify_emai
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+// Routes that an unauthenticated user may visit.
+const _publicRoutes = {
+  RouteNames.login,
+  RouteNames.register,
+  RouteNames.verifyEmail,
+  RouteNames.forgotPassword,
+  RouteNames.resetPassword,
+  RouteNames.home,
+  RouteNames.marketplace,
+};
 
 class _PlaceholderScreen extends StatelessWidget {
   const _PlaceholderScreen({required this.title});
@@ -27,6 +39,27 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: RouteNames.login,
     debugLogDiagnostics: false,
+    redirect: (context, state) {
+      final sessionRestored = ref.read(sessionRestoredProvider);
+      final isAuthenticated = ref.read(isAuthenticatedProvider);
+      final location = state.uri.path;
+
+      // Wait for session restoration before redirecting.
+      if (!sessionRestored) return null;
+
+      final isPublic = _publicRoutes.contains(location);
+
+      // Unauthenticated user trying to reach a protected route → login.
+      if (!isAuthenticated && !isPublic) return RouteNames.login;
+
+      // Authenticated user on an auth-only route → dashboard.
+      if (isAuthenticated &&
+          (location == RouteNames.login || location == RouteNames.register)) {
+        return RouteNames.dashboard;
+      }
+
+      return null;
+    },
     routes: [
       GoRoute(
         path: RouteNames.home,
