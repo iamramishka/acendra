@@ -5,6 +5,8 @@ import 'package:acendra/features/authentication/presentation/screens/login_scree
 import 'package:acendra/features/authentication/presentation/screens/register_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/reset_password_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/verify_email_screen.dart';
+import 'package:acendra/features/profile/presentation/screens/profile_edit_screen.dart';
+import 'package:acendra/features/profile/presentation/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -96,6 +98,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.admin,
         builder: (_, __) => const _PlaceholderScreen(title: 'Admin'),
+      ),
+      GoRoute(
+        path: RouteNames.profile,
+        builder: (_, __) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.profileEdit,
+        builder: (_, __) => const ProfileEditScreen(),
       ),
     ],
   );
