@@ -81,6 +81,14 @@ select pg_temp.expect_error($q$select public.csa061_change_role('06100000-0000-0
 select pg_temp.assert_ok((select count(*)=0 from public.user_roles where user_id='06100000-0000-0000-0000-000000000003'),'no partial grant after audit failure');
 drop trigger csa061_test_audit_failure on public.csa061_role_audit;
 
+select public.csa061_change_role('06100000-0000-0000-0000-000000000001','aal2','06100000-0000-0000-0000-000000000002','finance_admin','grant','Reviewer regrant','06100000-0000-0000-0000-000000000028');
+select pg_temp.assert_ok((public.csa061_change_role('06100000-0000-0000-0000-000000000001','aal2','06100000-0000-0000-0000-000000000002','finance_admin','revoke','Reviewer handoff','06100000-0000-0000-0000-000000000022')->>'status')='active','old revoke replay reports currently regranted role without revoking it');
+select pg_temp.assert_ok((select count(*)=1 from public.user_roles where user_id='06100000-0000-0000-0000-000000000002' and revoked_at is null),'revoke replay preserves new grant');
+update auth.users set banned_until=now()+interval '1 day' where id='06100000-0000-0000-0000-000000000003';
+select pg_temp.expect_error($q$select public.csa061_change_role('06100000-0000-0000-0000-000000000001','aal2','06100000-0000-0000-0000-000000000003','content_manager','grant','Banned target','06100000-0000-0000-0000-000000000029')$q$,'42501','grant to currently banned target denied');
+update auth.users set banned_until=null,is_anonymous=true where id='06100000-0000-0000-0000-000000000003';
+select pg_temp.expect_error($q$select public.csa061_change_role('06100000-0000-0000-0000-000000000001','aal2','06100000-0000-0000-0000-000000000003','content_manager','grant','Anonymous target','06100000-0000-0000-0000-000000000030')$q$,'42501','anonymous target cannot receive trusted role');
+
 select public.csa061_change_role('06100000-0000-0000-0000-000000000001','aal2','06100000-0000-0000-0000-000000000004','super_admin','grant','Admin handoff','06100000-0000-0000-0000-000000000024');
 select public.csa061_change_role('06100000-0000-0000-0000-000000000004','aal2','06100000-0000-0000-0000-000000000001','super_admin','revoke','Revoke prior admin','06100000-0000-0000-0000-000000000025');
 select pg_temp.expect_error($q$select public.csa061_change_role('06100000-0000-0000-0000-000000000001','aal2','06100000-0000-0000-0000-000000000003','content_manager','grant','Old token attempt','06100000-0000-0000-0000-000000000026')$q$,'42501','revoked admin old session cannot mutate roles');
