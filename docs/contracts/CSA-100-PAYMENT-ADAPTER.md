@@ -39,7 +39,10 @@ the stored title in `title`.
 - `retrieveSettlement(notification, attempt)` accepts only a success notification
   produced by the same adapter. OAuth client credentials and fixed provider
   endpoints authenticate order search. Require exactly one matching payment ID
-  with identical order, currency, exact amount and `RECEIVED` status. It returns
+  with identical order, currency, exact amount and `RECEIVED` status. Both
+  top-level amount and amount_detail.gross must match the order exactly; detail
+  currency, exchange_from and exchange_to must be LKR with exchange_rate one.
+  Missing, inconsistent or converted amount details fail closed. It returns
   minimal `authenticated_retrieval` evidence and retrieval timestamp. Other
   successful payments returned for the order remain reconciliation work; this
   method does not grant access or deduplicate database transactions.
@@ -62,8 +65,9 @@ Official pages read 2026-10-11:
 These document hosted form checkout, callback checksum, OAuth token and
 order-ID search. The callback checksum excludes payment_id. Retrieval may return
 multiple payments for one order. The published retrieval example has differing
-top-level `amount` and `amount_detail.gross`; this adapter compares top-level
-`amount` and must have that meaning confirmed against sandbox before acceptance.
+top-level `amount` and `amount_detail.gross`; this adapter requires both to match
+and rejects that contradictory example. The provider's amount meanings must be
+confirmed against sandbox before acceptance.
 
 Required outstanding evidence: valid sandbox checkout/callback/retrieval,
 merchant credential association, exact amount/reference binding, invalid and
