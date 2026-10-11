@@ -95,5 +95,3 @@ select pg_temp.assert_ok((select count(*) from public.lessons where id::text lik
 reset role;
 select '1..' || last_value from pg_temp.csa091_assertion;
 rollback;
-
-
