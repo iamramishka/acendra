@@ -19,7 +19,7 @@ create table app_private.payment_events (
 create index payment_events_attempt_idx on app_private.payment_events(payment_attempt_id);
 create function app_private.csa093_preserve_event_evidence() returns trigger language plpgsql set search_path='' as $$
 begin
- if tg_op='DELETE' then raise exception using errcode='23514',message='Payment event evidence cannot be deleted.'; end if;
+ if tg_op in ('DELETE','TRUNCATE') then raise exception using errcode='23514',message='Payment event evidence cannot be deleted.'; end if;
  if row(new.id,new.payment_attempt_id,new.provider,new.provider_merchant_id,new.provider_environment,new.provider_event_id,new.event_type,new.payload_hash,new.received_at)
  is distinct from row(old.id,old.payment_attempt_id,old.provider,old.provider_merchant_id,old.provider_environment,old.provider_event_id,old.event_type,old.payload_hash,old.received_at) then
   raise exception using errcode='23514',message='Payment event evidence is immutable.';
@@ -30,6 +30,7 @@ begin
  return new;
 end; $$;
 create trigger payment_events_preserve_evidence before update or delete on app_private.payment_events for each row execute function app_private.csa093_preserve_event_evidence();
+create trigger payment_events_deny_truncate before truncate on app_private.payment_events for each statement execute function app_private.csa093_preserve_event_evidence();
 alter table app_private.payment_events enable row level security;
 revoke all on app_private.payment_events from public,anon,authenticated,service_role;
 revoke all on function app_private.csa093_preserve_event_evidence() from public,anon,authenticated,service_role;
