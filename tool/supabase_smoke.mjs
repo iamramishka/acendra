@@ -6,6 +6,7 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createLayout, pinLocalDockerEndpoint } from './local_supabase.mjs';
+import { runAuthSecuritySmoke } from './auth_security_smoke.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dev = createLayout(root, 'dev', process.env.ACENDRA_LOCAL_PORT_BASE);
@@ -76,20 +77,32 @@ async function main() {
   const anonymous = await request(base, key, '/rest/v1/profiles?select=id');
   assert.ok([401, 403].includes(anonymous.status), 'Anonymous profile access must be denied');
   assert.equal(anonymous.body.code, '42501');
+  const email = `foundation-${randomBytes(6).toString('hex')}@example.com`;
+  const password = randomBytes(24).toString('hex') + 'Aa!1';
   const signup = await request(base, key, '/auth/v1/signup', {
-    method: 'POST', body: { email: `foundation-${randomBytes(6).toString('hex')}@example.com`, password: randomBytes(24).toString('hex') + 'Aa!1' },
+    method: 'POST', body: { email, password },
   });
   assert.equal(signup.status, 200, 'Real synthetic Auth signup');
-  assert.ok(signup.body.user?.id && signup.body.access_token, 'Expected local signup session');
-  const token = signup.body.access_token;
+  assert.ok(signup.body.id && !signup.body.access_token, 'Signup must wait for email confirmation');
+  const studentId = signup.body.id;
+  assert.match(studentId, /^[0-9a-f-]{36}$/);
+  // This API/RLS fixture confirms only its own synthetic user via the operator.
+  // The separate Auth security smoke exercises the actual verification token.
+  sql(devDb, `update auth.users set email_confirmed_at=now() where id='${studentId}';`);
+  const login = await request(base, key, '/auth/v1/token?grant_type=password', {
+    method: 'POST', body: { email, password },
+  });
+  assert.equal(login.status, 200);
+  assert.ok(login.body.access_token);
+  const token = login.body.access_token;
   // Cross-user denial remains valid when CSA-060/061 later allow own-row reads.
   const foreignId = randomUUID();
   sql(devDb, `insert into auth.users(id) values ('${foreignId}'); insert into public.profiles(id,display_name) values ('${foreignId}','Synthetic foreign student') on conflict (id) do update set display_name=excluded.display_name; insert into public.user_roles(user_id,role_id) select '${foreignId}',id from public.roles where code='student';`);
   const ownProfile = await request(base, key, '/rest/v1/profiles?select=id,display_name,locale', { token });
   assert.equal(ownProfile.status, 200);
   assert.equal(ownProfile.body.length, 1, 'Student sees only their signup profile');
-  assert.equal(ownProfile.body[0].id, signup.body.user.id);
-  const ownUpdate = await request(base, key, `/rest/v1/profiles?id=eq.${signup.body.user.id}`, {
+  assert.equal(ownProfile.body[0].id, studentId);
+  const ownUpdate = await request(base, key, `/rest/v1/profiles?id=eq.${studentId}`, {
     token, method: 'PATCH', body: { display_name: 'Synthetic own student', locale: 'en' },
   });
   assert.equal(ownUpdate.status, 200);
@@ -100,7 +113,7 @@ async function main() {
   assert.equal(foreignUpdate.status, 200);
   assert.deepEqual(foreignUpdate.body, [], 'Cross-user update returns no foreign row');
   assert.equal(sql(devDb, `select display_name from public.profiles where id='${foreignId}';`), 'Synthetic foreign student');
-  const protectedUpdate = await request(base, key, `/rest/v1/profiles?id=eq.${signup.body.user.id}`, {
+  const protectedUpdate = await request(base, key, `/rest/v1/profiles?id=eq.${studentId}`, {
     token, method: 'PATCH', body: { avatar_path: 'forged/private/path' },
   });
   assert.equal(protectedUpdate.status, 403, 'Avatar storage references cannot be browser-controlled');
@@ -113,7 +126,7 @@ async function main() {
   }
   const elevatedRole = sql(devDb, "select id from public.roles where code='super_admin';");
   const assignment = await request(base, key, '/rest/v1/user_roles', {
-    token, method: 'POST', body: { user_id: signup.body.user.id, role_id: elevatedRole },
+    token, method: 'POST', body: { user_id: studentId, role_id: elevatedRole },
   });
   assert.equal(assignment.status, 403, 'Student cannot directly assign an elevated role');
   assert.equal(assignment.body.code, '42501');
@@ -121,6 +134,10 @@ async function main() {
   assert.equal(storage.status, 200, 'Real Storage API is reachable');
   assert.deepEqual(storage.body, [], 'Synthetic student has no visible buckets');
   console.log('PASS: real Auth/Storage/API smoke checks, public export, loopback ports and independent volumes/databases.');
+  await runAuthSecuritySmoke();
 }
 
-main().catch(() => { console.error('Supabase foundation smoke check failed; no private response data logged.'); process.exitCode = 1; });
+main().catch(error => {
+  console.error(error.message.startsWith('Auth security smoke failed at ') ? error.message : 'Supabase foundation smoke check failed; no private response data logged.');
+  process.exitCode = 1;
+});
