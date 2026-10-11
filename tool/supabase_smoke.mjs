@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { randomBytes } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createLayout, pinLocalDockerEndpoint } from './local_supabase.mjs';
@@ -82,9 +82,21 @@ async function main() {
   assert.equal(signup.status, 200, 'Real synthetic Auth signup');
   assert.ok(signup.body.user?.id && signup.body.access_token, 'Expected local signup session');
   const token = signup.body.access_token;
-  const authenticated = await request(base, key, '/rest/v1/user_roles?select=id', { token });
-  assert.equal(authenticated.status, 403, 'Authenticated role history access must be denied');
-  assert.equal(authenticated.body.code, '42501');
+  // Cross-user denial remains valid when CSA-060/061 later allow own-row reads.
+  const foreignId = randomUUID();
+  sql(devDb, `insert into auth.users(id) values ('${foreignId}'); insert into public.profiles(id,display_name) values ('${foreignId}','Synthetic foreign student'); insert into public.user_roles(user_id,role_id) select '${foreignId}',id from public.roles where code='student';`);
+  const authenticated = await request(base, key, `/rest/v1/user_roles?select=id&user_id=eq.${foreignId}`, { token });
+  if (authenticated.status === 403) assert.equal(authenticated.body.code, '42501');
+  else {
+    assert.equal(authenticated.status, 200, 'Expected RLS-filtered response or permission denial');
+    assert.deepEqual(authenticated.body, [], 'Student cannot read foreign role history');
+  }
+  const elevatedRole = sql(devDb, "select id from public.roles where code='super_admin';");
+  const assignment = await request(base, key, '/rest/v1/user_roles', {
+    token, method: 'POST', body: { user_id: signup.body.user.id, role_id: elevatedRole },
+  });
+  assert.equal(assignment.status, 403, 'Student cannot directly assign an elevated role');
+  assert.equal(assignment.body.code, '42501');
   const storage = await request(base, key, '/storage/v1/bucket', { token });
   assert.equal(storage.status, 200, 'Real Storage API is reachable');
   assert.deepEqual(storage.body, [], 'Synthetic student has no visible buckets');
