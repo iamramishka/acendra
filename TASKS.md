@@ -1399,18 +1399,23 @@ for actual scope and evidence (only requested task IDs have records).
 
 - [ ] CSA-101 [P0] [X]
   Implement checkout initialization.
+  IN_REVIEW, CODEX: implemented in coordinated issue #76; provider acceptance blocked; online endpoints disabled.
 
 - [ ] CSA-102 [P0] [X]
   Implement verified provider webhook.
+  IN_REVIEW, CODEX: implemented in coordinated issue #76; provider acceptance blocked; online endpoints disabled.
 
 - [ ] CSA-103 [P0] [X]
   Validate transaction amount and currency.
+  IN_REVIEW, CODEX: implemented in coordinated issue #76; provider acceptance blocked; online endpoints disabled.
 
 - [ ] CSA-104 [P0] [X]
   Implement atomic payment finalization.
+  IN_REVIEW, CODEX: implemented in coordinated issue #76; provider acceptance blocked; online endpoints disabled.
 
 - [ ] CSA-105 [P0] [X]
   Implement idempotent event processing.
+  IN_REVIEW, CODEX: implemented in coordinated issue #76; provider acceptance blocked; online endpoints disabled.
 
 ## CLAUDE - BANK TRANSFER UI
 
@@ -1430,15 +1435,19 @@ for actual scope and evidence (only requested task IDs have records).
 
 - [ ] CSA-108 [P0] [X]
   Implement private receipt upload.
+  IN_REVIEW, CODEX: implemented and locally tested; issue #81; Storage/CI and operational acceptance pending.
 
 - [ ] CSA-109 [P0] [X]
   Validate receipt type and ownership.
+  IN_REVIEW, CODEX: implemented and locally tested; issue #81; Storage/CI and operational acceptance pending.
 
 - [ ] CSA-112 [P0] [X]
   Implement authorized bank approval.
+  IN_REVIEW, CODEX: implemented and locally tested; issue #81; Storage/CI and operational acceptance pending.
 
 - [ ] CSA-113 [P0] [X]
   Implement bank rejection processing.
+  IN_REVIEW, CODEX: implemented and locally tested; issue #81; Storage/CI and operational acceptance pending.
 
 - [ ] CSA-114 [P0] [X]
   Implement concurrency-safe approvals.

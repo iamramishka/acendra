@@ -1,0 +1,69 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createHandler } from './handler.mjs';
+const actor='11111111-1111-4111-8111-111111111111', session='22222222-2222-4222-8222-222222222222', order='33333333-3333-4333-8333-333333333333', attempt='44444444-4444-4444-8444-444444444444';
+const customer={first_name:'Test',last_name:'Buyer',phone:'0771234567',address:'Synthetic address',city:'Colombo',country:'Sri Lanka'};
+const config={ready:true,environment:'sandbox',merchantId:'123456',merchantSecret:'synthetic',appId:'app',appSecret:'secret',returnUrl:'https://example.test/return',cancelUrl:'https://example.test/cancel',notifyUrl:'https://example.test/notify'};
+const token=(claims={sub:actor,role:'authenticated',session_id:session,aal:'aal1'})=>'a.'+Buffer.from(JSON.stringify(claims)).toString('base64url')+'.c';
+const request=(body={order_id:order,customer},overrides={})=>new Request('https://example.test/init',{method:'POST',headers:{Authorization:'Bearer '+token(),'Content-Type':'application/json','Idempotency-Key':'key'},body:JSON.stringify(body),...overrides});
+function fixture({enabled=true,claims,user={id:actor,email:'verified@example.test'},rpc,fail}={}) {
+ const calls=[]; const fetch=async(url,options)=>{calls.push({url,options});if(fail)throw Error('private');return Response.json(url.includes('/auth/')?user:(rpc??{replayed:false,order_id:order,attempt:{attemptId:attempt,orderId:attempt,method:'online',provider:'payhere',merchantId:'123456',environment:'sandbox',currency:'LKR',amountMinor:'10001',title:'Stored course'}}));};
+ const handler=createHandler({env:name=>({SUPABASE_URL:'https://db.test',SUPABASE_ANON_KEY:'public',SUPABASE_SERVICE_ROLE_KEY:'private'}[name]),fetch,onlineCheckoutEnabled:enabled,paymentConfig:config});
+ return {handler,calls,req:claims?request(undefined,{headers:{Authorization:'Bearer '+token(claims),'Content-Type':'application/json','Idempotency-Key':'key'}}):request()};
+}
+test('deployment default denies initialization without external calls',async()=>{const f=fixture({enabled:false});const r=await f.handler(f.req);assert.equal(r.status,503);assert.equal((await r.json()).error.code,'ONLINE_CHECKOUT_UNAVAILABLE');assert.equal(f.calls.length,0);});
+test('stored terms create exact form and verified account email; no secrets',async()=>{const f=fixture();const r=await f.handler(f.req);assert.equal(r.status,201);const body=await r.json();assert.equal(body.data.checkout.fields.amount,'100.01');assert.equal(body.data.checkout.fields.email,'verified@example.test');assert.equal(body.data.checkout.fields.order_id,attempt);assert.equal(body.data.order_id,order);assert.ok(!JSON.stringify(body).includes('synthetic'));const args=JSON.parse(f.calls[1].options.body);assert.deepEqual(args,{p_actor:actor,p_session_id:session,p_aal:'aal1',p_key:'key',p_order:order,p_merchant:'123456',p_environment:'sandbox'});});
+test('principal replay returns same attempt as 200',async()=>{const base=fixture({rpc:{replayed:true,order_id:order,attempt:{attemptId:attempt,orderId:attempt,method:'online',provider:'payhere',merchantId:'123456',environment:'sandbox',currency:'LKR',amountMinor:'10001',title:'Stored course'}}});assert.equal((await base.handler(base.req)).status,200);});
+for(const extra of [{amount_minor:1},{buyer_id:actor},{merchant_id:'evil'},{customer:{...customer,email:'spoof@example.test'}},{customer:{...customer,address:'x'.repeat(201)}}])test('rejects client authority or invalid contact '+JSON.stringify(extra).slice(0,50),async()=>{const f=fixture();const r=await f.handler(request({...{order_id:order,customer},...extra}));assert.equal(r.status,400);assert.equal(f.calls.length,0);});
+for(const claims of [null,[],{sub:actor,role:'service_role',session_id:session,aal:'aal1'},{sub:order,role:'authenticated',session_id:session,aal:'aal1'}])test('denies invalid verified token claims '+JSON.stringify(claims),async()=>{const f=fixture();const req=request(undefined,{headers:{Authorization:'Bearer '+token(claims),'Content-Type':'application/json','Idempotency-Key':'key'}});assert.equal((await f.handler(req)).status,401);assert.equal(f.calls.length,1);});
+test('bounded stream rejects large request before Auth',async()=>{const f=fixture();assert.equal((await f.handler(request({order_id:order,customer,padding:'x'.repeat(5000)}))).status,413);assert.equal(f.calls.length,0);});
+test('malformed RPC cannot emit checkout for a different order',async()=>{const f=fixture({rpc:{replayed:false,order_id:actor,attempt:{}}});assert.equal((await f.handler(f.req)).status,503);});
+test('network exception returns safe unavailable',async()=>{const f=fixture({fail:true});const r=await f.handler(f.req);assert.equal(r.status,503);assert.ok(!(await r.text()).includes('private'));});
+
+for(const [sql,status,code] of [['42501',403,'FORBIDDEN'],['22023',409,'CHECKOUT_CONFLICT'],['P0002',404,'ORDER_NOT_FOUND'],['55000',409,'ORDER_NOT_PAYABLE'],['XX000',503,'SERVICE_UNAVAILABLE']])test('maps SQL error safely '+sql,async()=>{let count=0;const f=fixture();const handler=createHandler({env:name=>({SUPABASE_URL:'https://db.test',SUPABASE_ANON_KEY:'public',SUPABASE_SERVICE_ROLE_KEY:'private'}[name]),onlineCheckoutEnabled:true,paymentConfig:config,fetch:async()=>++count===1?Response.json({id:actor,email:'verified@example.test'}):Response.json({code:sql,message:'private database detail'},{status:400})});const r=await handler(f.req);assert.equal(r.status,status);const b=await r.json();assert.equal(b.error.code,code);assert.ok(!JSON.stringify(b).includes('private'));});
+test('disabled gate cannot be bypassed by environment flags',async()=>{let calls=0;const h=createHandler({env:()=> 'true',fetch:async()=>{calls++;throw Error();},paymentConfig:config});assert.equal((await h(request())).status,503);assert.equal(calls,0);});
+test('verified user missing email cannot create attempt',async()=>{const f=fixture({user:{id:actor}});assert.equal((await f.handler(f.req)).status,401);assert.equal(f.calls.length,1);});
+test('invalid verified email cannot create attempt',async()=>{const f=fixture({user:{id:actor,email:'invalid'}});assert.equal((await f.handler(f.req)).status,400);assert.equal(f.calls.length,1);});
+test('unconfigured provider fails before Auth or RPC',async()=>{let calls=0;const h=createHandler({env:()=> 'configured',onlineCheckoutEnabled:true,fetch:async()=>{calls++;},paymentConfig:{...config,ready:false}});assert.equal((await h(request())).status,503);assert.equal(calls,0);});
+test('foreign origin rejected before collaborator calls',async()=>{const f=fixture();const req=request();req.headers.set('Origin','https://evil.test');assert.equal((await f.handler(req)).status,403);assert.equal(f.calls.length,0);});
+test('valid preflight admits only declared headers',async()=>{const f=fixture();const r=await f.handler(new Request('https://example.test/init',{method:'OPTIONS',headers:{Origin:'http://127.0.0.1:8080','Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'Authorization, Idempotency-Key, Content-Type'}}));assert.equal(r.status,204);assert.equal(f.calls.length,0);});
+test('stored merchant mismatch fails closed',async()=>{const f=fixture({rpc:{replayed:false,order_id:order,attempt:{attemptId:attempt,orderId:attempt,method:'online',provider:'payhere',merchantId:'wrong',environment:'sandbox',currency:'LKR',amountMinor:'10001',title:'Stored course'}}});assert.equal((await f.handler(f.req)).status,503);});
+
+test('snapshots trusted configuration at handler construction', async () => {
+  const trusted = { ...config };
+  const calls = [];
+  const handler = createHandler({
+    env: name => ({ SUPABASE_URL: 'https://db.test', SUPABASE_ANON_KEY: 'public', SUPABASE_SERVICE_ROLE_KEY: 'private' }[name]),
+    onlineCheckoutEnabled: true,
+    paymentConfig: trusted,
+    fetch: async (url, options) => {
+      calls.push({ url, options });
+      return Response.json(url.includes('/auth/') ? { id: actor, email: 'verified@example.test' } : {
+        replayed: false, order_id: order,
+        attempt: { attemptId: attempt, orderId: attempt, method: 'online', provider: 'payhere',
+          merchantId: config.merchantId, environment: config.environment, currency: 'LKR', amountMinor: '10001', title: 'Stored course' },
+      });
+    },
+  });
+  trusted.merchantId = 'mutated-merchant';
+  trusted.environment = 'production';
+  trusted.merchantSecret = 'mutated-secret';
+  const response = await handler(request());
+  assert.equal(response.status, 201);
+  const result = await response.json();
+  const expected = fixture();
+  const original = await (await expected.handler(expected.req)).json();
+  assert.equal(result.data.checkout.action, original.data.checkout.action);
+  assert.equal(result.data.checkout.fields.hash, original.data.checkout.fields.hash);
+  assert.equal(result.data.checkout.fields.merchant_id, config.merchantId);
+  const args = JSON.parse(calls[1].options.body);
+  assert.equal(args.p_merchant, config.merchantId);
+  assert.equal(args.p_environment, config.environment);
+});
+
+test('Auth and privileged RPC requests reject redirects', async () => {
+  const f = fixture();
+  assert.equal((await f.handler(f.req)).status, 201);
+  assert.equal(f.calls.length, 2);
+  for (const call of f.calls) assert.equal(call.options.redirect, 'error');
+});

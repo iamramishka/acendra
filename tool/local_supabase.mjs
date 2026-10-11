@@ -7,6 +7,26 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const commands = ['prepare', 'start', 'stop', 'status', 'reset', 'test', 'lint', 'client-env'];
 
+// Hosted diagnostics expose identifiers/categories, never raw SQL or messages.
+export function safeLintSummary(output, knownFunctions) {
+  let rows;
+  try { rows = JSON.parse(output); } catch { return ''; }
+  if (!Array.isArray(rows)) return '';
+  const summaries = [];
+  for (const row of rows) {
+    if (!knownFunctions.has(row?.function) || !Array.isArray(row.issues)) continue;
+    for (const issue of row.issues) {
+      if (!['warning', 'error'].includes(issue?.level)) continue;
+      const state = /^[A-Z0-9]{5}$/.test(issue.sqlState ?? '') ? issue.sqlState : 'unknown';
+      const description = `${issue.message ?? ''} ${issue.detail ?? ''}`;
+      const category = /unused|never read/i.test(description) ? 'unused_identifier'
+        : /ambiguous/i.test(description) ? 'ambiguous_identifier' : 'other';
+      summaries.push(`${row.function}:${issue.level}:${state}:${category}`);
+    }
+  }
+  return summaries.slice(0, 20).join(',');
+}
+
 export function allowedCommand(command) {
   if (!commands.includes(command)) throw new Error('Unsupported local command. No hosted operations are available.');
   return command;
@@ -154,7 +174,16 @@ function run(layout, args, { json = false } = {}) {
       // never print arbitrary CLI messages, SQL values, keys or provider payloads.
       const states = [...new Set([...diagnostics.matchAll(/SQLSTATE ([A-Z0-9]{5})\b/g)].map(match => match[1]))];
       const migrations = [...diagnostics.matchAll(/Applying migration ([0-9]{14}_[a-z0-9_]+\.sql)\b/g)].map(match => match[1]);
-      const summary = `${states.length ? ` SQLSTATE: ${states.join(',')}.` : ''}${migrations.length ? ` Last migration: ${migrations.at(-1)}.` : ''}`;
+      const knownFunctions = new Set();
+      if (args.includes('lint')) {
+        for (const file of fs.readdirSync(path.join(root, 'supabase', 'migrations'))) {
+          if (!file.endsWith('.sql')) continue;
+          const source = fs.readFileSync(path.join(root, 'supabase', 'migrations', file), 'utf8');
+          for (const match of source.matchAll(/create\s+(?:or\s+replace\s+)?function\s+([a-z_][a-z0-9_]*\.[a-z_][a-z0-9_]*)\s*\(/gi)) knownFunctions.add(match[1]);
+        }
+      }
+      const lint = args.includes('lint') ? safeLintSummary(result.stdout, knownFunctions) : '';
+      const summary = `${states.length ? ` SQLSTATE: ${states.join(',')}.` : ''}${migrations.length ? ` Last migration: ${migrations.at(-1)}.` : ''}${lint ? ` Lint: ${lint}.` : ''}`;
       throw new Error(`Supabase ${args[0]} failed (exit ${result.status}).${summary} Private diagnostics: ${logPath}. Check Docker health and port availability.`);
   }
   if (json) {
