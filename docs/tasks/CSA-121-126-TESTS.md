@@ -1,7 +1,7 @@
 # CSA-121–126 financial regression ownership and evidence
 
 Owner CODEX. Issue87; isolated branch codex/test/csa-121-126-financial-security
-and managed csa-121-126-financial-tests worktree. Base merged dev a19fd04.
+and managed csa-121-126-financial-tests worktree. Base merged dev a19fd04891ec196c6b08a90bb65e28a12839020d (includes PR84).
 Allowed scope new financial SQL regression file, this handoff, TASKS.md these six
 IDs only. One test owner; production RPCs/migrations/package/runner unchanged.
 Active issue85/PR86 entitlement and notification scope remains independent.
@@ -21,3 +21,4 @@ checks on the final PR commit. No production calls or acceptance fabrication.
 CSA124 proves current merged backend boundaries only; full protected lesson delivery
 integration with proposed PR86 verifier remains a downstream release check.
 Tasks remain IN_REVIEW until authorized review/merge. Approver project owner.
+Local npm run tool:test:266 passed,3 database concurrency suites intentionally skipped in local mode. Full real database suite/concurrency runs in CI. Draft PR88; status IN_REVIEW.

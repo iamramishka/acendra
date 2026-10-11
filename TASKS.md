@@ -1472,27 +1472,27 @@ for actual scope and evidence (only requested task IDs have records).
   Test forged provider callbacks.
 
 - [ ] CSA-121 [P0] [X]
-  IN_PROGRESS, CODEX: regression scope issue #87; evidence pending.
+  IN_REVIEW, CODEX: PR #88; financial regression tests implemented, CI/review acceptance pending.
   Test amount/currency mismatches.
 
 - [ ] CSA-122 [P0] [X]
-  IN_PROGRESS, CODEX: regression scope issue #87; evidence pending.
+  IN_REVIEW, CODEX: PR #88; financial regression tests implemented, CI/review acceptance pending.
   Test duplicate provider events.
 
 - [ ] CSA-123 [P0] [X]
-  IN_PROGRESS, CODEX: regression scope issue #87; evidence pending.
+  IN_REVIEW, CODEX: PR #88; financial regression tests implemented, CI/review acceptance pending.
   Test concurrent approval scenarios.
 
 - [ ] CSA-124 [P0] [X]
-  IN_PROGRESS, CODEX: regression scope issue #87; evidence pending.
+  IN_REVIEW, CODEX: PR #88; financial regression tests implemented, CI/review acceptance pending.
   Test rejected/pending access denial.
 
 - [ ] CSA-125 [P0] [X]
-  IN_PROGRESS, CODEX: regression scope issue #87; evidence pending.
+  IN_REVIEW, CODEX: PR #88; financial regression tests implemented, CI/review acceptance pending.
   Test unauthorized finance operations.
 
 - [ ] CSA-126 [P0] [X]
-  IN_PROGRESS, CODEX: regression scope issue #87; evidence pending.
+  IN_REVIEW, CODEX: PR #88; financial regression tests implemented, CI/review acceptance pending.
   Test financial transaction recovery.
 
 Integration Gate:
