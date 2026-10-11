@@ -4,7 +4,7 @@
   "description": "Pinned Supabase development tools; not Flutter application dependencies",
   "engines": { "node": ">=20" },
   "scripts": {
-    "tool:test": "node --test tool/local_supabase.test.mjs",
+    "tool:test": "node --test tool/*.test.mjs supabase/functions/admin-assign-user-role/*.test.mjs",
     "db:prepare": "node tool/local_supabase.mjs prepare dev",
     "db:start": "node tool/local_supabase.mjs start dev",
     "db:stop": "node tool/local_supabase.mjs stop dev",
