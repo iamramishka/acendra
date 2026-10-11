@@ -33,3 +33,19 @@ checks, forged/malformed/exact-money callback denial, independently retrieved
 settlement binding, event replay/concurrency/reconciliation and rollback of all
 payment/grant/audit/outbox effects. Full migration replay/lint/API and current-head
 CI remain required. Report any skipped or unavailable verification explicitly.
+
+## Integrated verification in progress
+
+Checkout initialization: 27 synthetic boundary tests passed; webhook: 35 handler
+and 14 existing adapter tests passed. Full Node tooling suite: 182 passed, zero
+failed, two deliberate real-database suites skipped in the ordinary tooling run.
+Those suites are run enabled separately and by db:test in CI.
+Native PostgreSQL16 synthetic Auth bootstrap replayed migrations001–016; worker
+SQL tests passed30 assertions before finite-time hardening. Root first race fixture
+used an invalid evidence_reference; corrected it to the agreed authenticated
+retrieval reference. Three actual independent-session scenarios then passed:
+competing initialization keys reuse one attempt, duplicate verified delivery
+creates one settlement/grant/event/outbox/audit, and distinct actual settlements
+preserve extra money for reconciliation with one grant. Final hardened migration,
+a fourth cross-order settlement reuse race and CI remain pending.
+No native bootstrap result is claimed as full Supabase Auth/PostgREST verification.
