@@ -9,10 +9,14 @@ export async function runReceiptStorageSmoke({ root, layout, env, sql, base, key
   try {
     assert.equal(base, `http://127.0.0.1:${layout.portBase}`);
     const result = spawnSync(process.execPath, [path.join(root,'node_modules/supabase/dist/supabase.js'),
-      'status','--output','json','--workdir',layout.workdir], {env,encoding:'utf8'});
+      'status','--output','json','--workdir',layout.workdir,'--network-id',`${layout.projectId}-loopback`], {env,encoding:'utf8'});
+    stage='local status command';
     assert.equal(result.status,0);
+    stage='local status JSON';
     const status = JSON.parse(result.stdout);
+    stage='local status URL';
     assert.equal(status.API_URL,base);
+    stage='local service credential presence';
     const service = status.SERVICE_ROLE_KEY;
     assert.ok(typeof service === 'string' && service.length > 20);
     const bytes = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jfWQAAAAASUVORK5CYII=','base64');
