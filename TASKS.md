@@ -1399,18 +1399,23 @@ for actual scope and evidence (only requested task IDs have records).
 
 - [ ] CSA-101 [P0] [X]
   Implement checkout initialization.
+  IN_PROGRESS, CODEX: coordinated issue #76; online deployment remains disabled.
 
 - [ ] CSA-102 [P0] [X]
   Implement verified provider webhook.
+  IN_PROGRESS, CODEX: coordinated issue #76; online deployment remains disabled.
 
 - [ ] CSA-103 [P0] [X]
   Validate transaction amount and currency.
+  IN_PROGRESS, CODEX: coordinated issue #76; online deployment remains disabled.
 
 - [ ] CSA-104 [P0] [X]
   Implement atomic payment finalization.
+  IN_PROGRESS, CODEX: coordinated issue #76; online deployment remains disabled.
 
 - [ ] CSA-105 [P0] [X]
   Implement idempotent event processing.
+  IN_PROGRESS, CODEX: coordinated issue #76; online deployment remains disabled.
 
 ## CLAUDE - BANK TRANSFER UI
 
