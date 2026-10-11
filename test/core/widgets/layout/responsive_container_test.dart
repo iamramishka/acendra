@@ -79,9 +79,7 @@ void main() {
   testWidgets('ResponsiveContainer renders child', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: Scaffold(
-          body: ResponsiveContainer(child: Text('hello')),
-        ),
+        home: Scaffold(body: ResponsiveContainer(child: Text('hello'))),
       ),
     );
     expect(find.text('hello'), findsOneWidget);

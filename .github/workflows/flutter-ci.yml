@@ -1,0 +1,57 @@
+name: Flutter baseline
+
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flutter-baseline-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Format, analyze, test and build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: '3.44.0'
+          channel: stable
+          cache: true
+      - name: Verify SDK and restore locked Flutter dependencies
+        run: |
+          flutter --version
+          flutter pub get --enforce-lockfile
+      - name: Check all application and test formatting
+        run: dart format --output=none --set-exit-if-changed lib test
+      - name: Analyze without suppressing diagnostics
+        run: flutter analyze --no-pub
+      - name: Run all Flutter tests with coverage
+        run: flutter test --no-pub --coverage
+      - name: Build release web application with no backend credentials
+        run: flutter build web --release --no-pub
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Restore locked tooling dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run isolated tooling regression tests
+        run: npm run tool:test
+      - name: Retain synthetic test coverage
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: flutter-coverage-${{ github.run_id }}-${{ github.run_attempt }}
+          path: coverage/lcov.info
+          if-no-files-found: error
+          retention-days: 7

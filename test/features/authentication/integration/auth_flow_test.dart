@@ -20,7 +20,10 @@ class _SuccessAuthRepository extends AuthRepository {
   _SuccessAuthRepository() : super.forTesting();
 
   @override
-  Future<void> signIn({required String email, required String password}) async {}
+  Future<void> signIn({
+    required String email,
+    required String password,
+  }) async {}
 
   @override
   Future<void> signUp({
@@ -70,10 +73,7 @@ class _FailAuthRepository extends AuthRepository {
 // Helpers
 // ---------------------------------------------------------------------------
 
-Widget _app({
-  required AuthRepository repo,
-  bool isAuthenticated = false,
-}) =>
+Widget _app({required AuthRepository repo, bool isAuthenticated = false}) =>
     ProviderScope(
       overrides: [
         authRepositoryProvider.overrideWithValue(repo),
@@ -83,9 +83,8 @@ Widget _app({
         logoutProvider.overrideWith(LogoutNotifier.new),
       ],
       child: Consumer(
-        builder: (_, ref, __) => MaterialApp.router(
-          routerConfig: ref.watch(appRouterProvider),
-        ),
+        builder: (_, ref, __) =>
+            MaterialApp.router(routerConfig: ref.watch(appRouterProvider)),
       ),
     );
 
@@ -95,15 +94,17 @@ Widget _app({
 
 void main() {
   group('Login flow', () {
-    testWidgets('unauthenticated user sees login screen on start',
-        (tester) async {
+    testWidgets('unauthenticated user sees login screen on start', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app(repo: _SuccessAuthRepository()));
       await tester.pumpAndSettle();
       expect(find.text('Sign in'), findsWidgets);
     });
 
-    testWidgets('login with empty fields shows validation errors',
-        (tester) async {
+    testWidgets('login with empty fields shows validation errors', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app(repo: _SuccessAuthRepository()));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Sign in'));
@@ -112,16 +113,14 @@ void main() {
       expect(find.text('Enter your password'), findsOneWidget);
     });
 
-    testWidgets('login with invalid credentials shows error snackbar',
-        (tester) async {
+    testWidgets('login with invalid credentials shows error snackbar', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _app(repo: _FailAuthRepository(const InvalidCredentials())),
       );
       await tester.pumpAndSettle();
-      await tester.enterText(
-        find.byType(TextField).first,
-        'bad@example.com',
-      );
+      await tester.enterText(find.byType(TextField).first, 'bad@example.com');
       final passwordFields = find.byType(TextField);
       await tester.enterText(passwordFields.last, 'wrongpass');
       await tester.tap(find.text('Sign in'));
@@ -139,8 +138,9 @@ void main() {
       expect(find.text('Create account'), findsOneWidget);
     });
 
-    testWidgets('register with empty fields shows validation errors',
-        (tester) async {
+    testWidgets('register with empty fields shows validation errors', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app(repo: _SuccessAuthRepository()));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Sign up'));
@@ -178,7 +178,9 @@ void main() {
       expect(find.text('Forgot password?'), findsWidgets);
     });
 
-    testWidgets('submitting empty email shows validation error', (tester) async {
+    testWidgets('submitting empty email shows validation error', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app(repo: _SuccessAuthRepository()));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Forgot password?'));
@@ -190,8 +192,9 @@ void main() {
   });
 
   group('Authenticated user routing', () {
-    testWidgets('authenticated user is redirected away from login',
-        (tester) async {
+    testWidgets('authenticated user is redirected away from login', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _app(repo: _SuccessAuthRepository(), isAuthenticated: true),
       );
@@ -202,7 +205,9 @@ void main() {
   });
 
   group('Logout', () {
-    testWidgets('sign out button on profile screen calls logout', (tester) async {
+    testWidgets('sign out button on profile screen calls logout', (
+      tester,
+    ) async {
       var signedOut = false;
       final repo = _SuccessAuthRepository();
 
@@ -213,14 +218,13 @@ void main() {
             authStreamProvider.overrideWith((ref) => const Stream.empty()),
             sessionRestoredProvider.overrideWithValue(true),
             isAuthenticatedProvider.overrideWithValue(true),
-            logoutProvider.overrideWith(() => _TrackingLogoutNotifier(
-                  onLogout: () => signedOut = true,
-                )),
+            logoutProvider.overrideWith(
+              () => _TrackingLogoutNotifier(onLogout: () => signedOut = true),
+            ),
           ],
           child: Consumer(
-            builder: (_, ref, __) => MaterialApp.router(
-              routerConfig: ref.watch(appRouterProvider),
-            ),
+            builder: (_, ref, __) =>
+                MaterialApp.router(routerConfig: ref.watch(appRouterProvider)),
           ),
         ),
       );

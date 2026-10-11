@@ -10,10 +10,10 @@ extension ScreenLayoutExtension on BuildContext {
   }
 
   double get pageMargin => switch (layout) {
-        ScreenLayout.compact => AppBreakpoints.marginCompact,
-        ScreenLayout.medium => AppBreakpoints.marginMedium,
-        ScreenLayout.expanded => AppBreakpoints.marginExpanded,
-      };
+    ScreenLayout.compact => AppBreakpoints.marginCompact,
+    ScreenLayout.medium => AppBreakpoints.marginMedium,
+    ScreenLayout.expanded => AppBreakpoints.marginExpanded,
+  };
 }
 
 class ResponsiveContainer extends StatelessWidget {

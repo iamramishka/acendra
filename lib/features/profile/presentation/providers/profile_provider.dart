@@ -30,8 +30,9 @@ class ProfileEditNotifier extends AsyncNotifier<void> {
   }
 }
 
-final profileEditProvider =
-    AsyncNotifierProvider<ProfileEditNotifier, void>(ProfileEditNotifier.new);
+final profileEditProvider = AsyncNotifierProvider<ProfileEditNotifier, void>(
+  ProfileEditNotifier.new,
+);
 
 /// Convenience: returns the current error if the edit failed.
 ProfileFailure? profileEditError(AsyncValue<void> state) {

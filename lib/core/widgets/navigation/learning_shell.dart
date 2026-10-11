@@ -17,13 +17,8 @@ class LearningShell extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
-        title: Text(
-          'Learning',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        actions: const [
-          ThemeToggleButton(),
-        ],
+        title: Text('Learning', style: Theme.of(context).textTheme.titleMedium),
+        actions: const [ThemeToggleButton()],
       ),
       body: child,
     );

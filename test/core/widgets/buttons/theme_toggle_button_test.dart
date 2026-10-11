@@ -13,11 +13,11 @@ class _FixedThemeModeNotifier extends ThemeModeNotifier {
 }
 
 Widget _scope(ThemeMode mode) => ProviderScope(
-      overrides: [
-        themeModeProvider.overrideWith(() => _FixedThemeModeNotifier(mode)),
-      ],
-      child: const MaterialApp(home: Scaffold(body: ThemeToggleButton())),
-    );
+  overrides: [
+    themeModeProvider.overrideWith(() => _FixedThemeModeNotifier(mode)),
+  ],
+  child: const MaterialApp(home: Scaffold(body: ThemeToggleButton())),
+);
 
 void main() {
   testWidgets('shows dark_mode icon when theme is light', (tester) async {

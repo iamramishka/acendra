@@ -3,16 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _app(VoidCallback onPressed) => MaterialApp(
-      theme: ThemeData(useMaterial3: true),
-      home: Scaffold(
-        body: Builder(
-          builder: (ctx) => ElevatedButton(
-            onPressed: onPressed,
-            child: const Text('Open'),
-          ),
-        ),
-      ),
-    );
+  theme: ThemeData(useMaterial3: true),
+  home: Scaffold(
+    body: Builder(
+      builder: (ctx) =>
+          ElevatedButton(onPressed: onPressed, child: const Text('Open')),
+    ),
+  ),
+);
 
 void main() {
   group('AppDialog', () {

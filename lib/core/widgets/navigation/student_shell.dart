@@ -35,9 +35,9 @@ class StudentShell extends ConsumerWidget {
         title: Text(
           'Acedra',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+            fontWeight: FontWeight.w700,
+            color: Theme.of(context).colorScheme.primary,
+          ),
         ),
         actions: [
           if (!isCompact) ...[
@@ -52,10 +52,7 @@ class StudentShell extends ConsumerWidget {
           ],
           const ThemeToggleButton(),
           const SizedBox(width: 8),
-          const CircleAvatar(
-            radius: 16,
-            child: Text('S'),
-          ),
+          const CircleAvatar(radius: 16, child: Text('S')),
           const SizedBox(width: 8),
         ],
       ),
@@ -81,9 +78,7 @@ class StudentShell extends ConsumerWidget {
               ],
             )
           : null,
-      body: SingleChildScrollView(
-        child: ResponsiveContainer(child: child),
-      ),
+      body: SingleChildScrollView(child: ResponsiveContainer(child: child)),
     );
   }
 }

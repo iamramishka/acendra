@@ -7,7 +7,8 @@ import 'app.dart';
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (EnvConfig.supabaseUrl.isNotEmpty && EnvConfig.supabaseAnonKey.isNotEmpty) {
+  if (EnvConfig.supabaseUrl.isNotEmpty &&
+      EnvConfig.supabaseAnonKey.isNotEmpty) {
     await Supabase.initialize(
       url: EnvConfig.supabaseUrl,
       anonKey: EnvConfig.supabaseAnonKey, // ignore: deprecated_member_use

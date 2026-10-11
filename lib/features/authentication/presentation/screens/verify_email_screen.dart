@@ -49,11 +49,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Icon(
-            Icons.mark_email_read_outlined,
-            size: 64,
-            color: cs.primary,
-          ),
+          Icon(Icons.mark_email_read_outlined, size: 64, color: cs.primary),
           const SizedBox(height: 24),
           Text(
             'Verify your email',

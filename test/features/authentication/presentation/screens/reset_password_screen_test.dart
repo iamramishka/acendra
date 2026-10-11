@@ -16,12 +16,13 @@ class _FakeAuthRepository extends AuthRepository {
 }
 
 Widget _wrap({AuthFailure? throws}) => ProviderScope(
-      overrides: [
-        authRepositoryProvider
-            .overrideWithValue(_FakeAuthRepository(shouldThrow: throws)),
-      ],
-      child: const MaterialApp(home: ResetPasswordScreen()),
-    );
+  overrides: [
+    authRepositoryProvider.overrideWithValue(
+      _FakeAuthRepository(shouldThrow: throws),
+    ),
+  ],
+  child: const MaterialApp(home: ResetPasswordScreen()),
+);
 
 void main() {
   testWidgets('renders password fields and update button', (tester) async {

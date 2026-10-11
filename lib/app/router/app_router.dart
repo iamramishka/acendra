@@ -67,10 +67,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: RouteNames.home,
         redirect: (_, __) => RouteNames.marketplace,
       ),
-      GoRoute(
-        path: RouteNames.login,
-        builder: (_, __) => const LoginScreen(),
-      ),
+      GoRoute(path: RouteNames.login, builder: (_, __) => const LoginScreen()),
       GoRoute(
         path: RouteNames.register,
         builder: (_, __) => const RegisterScreen(),
