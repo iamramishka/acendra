@@ -1199,7 +1199,7 @@ CLAUDE
 
 ## CODEX - BACKEND
 
-- [ ] CSA-059 [P0] [X]
+- [x] CSA-059 [P0] [X]
   Create profile and role schema.
 
 - [x] CSA-060 [P0] [X]
@@ -1208,7 +1208,7 @@ CLAUDE
 - [x] CSA-061 [P0] [X]
   Implement trusted role assignments.
 
-- [ ] CSA-062 [P0] [X]
+- [x] CSA-062 [P0] [X]
   Configure authentication security.
 
 ## CLAUDE - UI
@@ -1245,13 +1245,13 @@ CLAUDE
 
 ## CODEX - AUTHORIZATION
 
-- [ ] CSA-073 [P0] [X]
+- [x] CSA-073 [P0] [X]
   Enforce trusted admin permissions.
 
-- [ ] CSA-074 [P0] [X]
+- [x] CSA-074 [P0] [X]
   Test cross-user profile isolation.
 
-- [ ] CSA-075 [P0] [X]
+- [x] CSA-075 [P0] [X]
   Test unauthorized admin operations.
 
 ## SHARED INTEGRATION
