@@ -73,7 +73,7 @@ create function public.csa104_finalize_payment(p_attempt_id uuid,p_merchant text
  p_external_settlement_id text,p_amount_minor bigint,p_currency text,p_confirmed_at timestamptz,p_evidence_reference text)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare a public.payment_attempts%rowtype; o public.orders%rowtype; e app_private.payment_events%rowtype;
- settlement app_private.verified_settlements%rowtype; eid uuid; sid uuid; enrollment uuid; fulfilled timestamptz; outcome text;
+ eid uuid; sid uuid; enrollment uuid; fulfilled timestamptz; outcome text;
 begin
  if p_attempt_id is null or p_merchant is null or p_environment is null or p_event_id is null or p_payload_hash is null
  or p_payload_hash !~ '^[0-9a-f]{64}$' or p_external_settlement_id is null or char_length(p_external_settlement_id) not between 1 and 500
@@ -95,7 +95,7 @@ begin
  if found then
  if e.payment_attempt_id is distinct from a.id or e.payload_hash is distinct from p_payload_hash then raise exception using errcode='22023',message='Event identity conflict.'; end if;
  return jsonb_build_object('outcome','duplicate','order_id',o.id,'event_id',e.id); end if;
- select * into settlement from app_private.verified_settlements where provider='payhere' and provider_merchant_id=p_merchant and provider_environment=p_environment and external_settlement_id=p_external_settlement_id;
+ perform 1 from app_private.verified_settlements where provider='payhere' and provider_merchant_id=p_merchant and provider_environment=p_environment and external_settlement_id=p_external_settlement_id;
  if found then raise exception using errcode='23505',message='Settlement identity already bound.'; end if;
  fulfilled:=clock_timestamp(); sid:=gen_random_uuid(); eid:=gen_random_uuid();
  insert into app_private.verified_settlements(id,order_id,method,amount_minor,currency_code,provider,provider_merchant_id,provider_environment,external_settlement_id,verification_method,evidence_reference,confirmed_at,recorded_at)
