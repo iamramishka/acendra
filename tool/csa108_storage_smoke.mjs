@@ -40,7 +40,9 @@ export async function runReceiptStorageSmoke({ root, layout, env, sql, base, key
     const order=JSON.parse(sql(`select public.csa098_create_checkout_order('${studentId}','${session}','aal1','${randomUUID()}','${course}','bank_transfer','${version}')`)).data.order_id;
     stage='receipt reservation';
     const upload=JSON.parse(sql(`select public.csa108_prepare_receipt('${studentId}','${session}','aal1','${randomUUID()}','${order}','${digest}',${bytes.length},'image/png','png')`));
-    assert.match(upload.object_path,/^[0-9a-f/.-]+$/);
+    assert.match(upload.upload_id,/^[0-9a-f-]{36}$/);
+    assert.match(upload.submission_id,/^[0-9a-f-]{36}$/);
+    assert.equal(upload.object_path,`${studentId}/${order}/${upload.submission_id}/${upload.upload_id}.png`);
     const route='/storage/v1/object/bank-receipts/'+upload.object_path;
     const call=(route,method,bearer,body,extra={})=>fetch(base+route,{method,headers:{apikey:bearer===service?service:key,
       ...(bearer && !bearer.startsWith('sb_secret_')?{Authorization:'Bearer '+bearer}:{}),...extra},body,redirect:'error',signal:AbortSignal.timeout(30000)});
