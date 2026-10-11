@@ -1081,13 +1081,13 @@ Phase 0 approved baseline.
 
 ## INTEGRATION / CI
 
-- [ ] CSA-036 [P1] [X]
+- [x] CSA-036 [P1] [X]
   Configure GitHub Actions CI.
 
-- [ ] CSA-037 [P1] [X]
+- [x] CSA-037 [P1] [X]
   Configure dependency monitoring.
 
-- [ ] CSA-038 [P1] [X]
+- [x] CSA-038 [P1] [X]
   Configure baseline automated tests.
 
 Phase 1 Exit:
@@ -1202,10 +1202,10 @@ CLAUDE
 - [ ] CSA-059 [P0] [X]
   Create profile and role schema.
 
-- [ ] CSA-060 [P0] [X]
+- [x] CSA-060 [P0] [X]
   Implement profile RLS policies.
 
-- [ ] CSA-061 [P0] [X]
+- [x] CSA-061 [P0] [X]
   Implement trusted role assignments.
 
 - [ ] CSA-062 [P0] [X]
