@@ -1,0 +1,48 @@
+name: Supabase foundations
+
+on:
+  pull_request:
+    branches: [dev]
+    paths:
+      - '.github/workflows/supabase-foundations.yml'
+      - 'supabase/**'
+      - 'tool/**'
+      - 'package*.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-foundations-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      ACENDRA_LOCAL_PORT_BASE: '58000'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run tool:test
+      - name: Replay migrations and run real Supabase database tests
+        run: npm run db:test
+      - name: Lint the disposable Supabase database
+        run: npm run db:lint
+      - name: Start independent development stack and export public config
+        run: |
+          npm run db:start
+          npm run client:env
+      - name: Verify live APIs, loopback ports, volumes and database isolation
+        run: node tool/supabase_smoke.mjs
+      - name: Stop only task-owned stacks
+        if: always()
+        run: |
+          npm run db:stop
+          npm run db:test:stop
