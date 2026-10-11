@@ -102,6 +102,19 @@ begin
  return new;
 end; $$;
 create trigger enrollment_grants_check_settlement before insert or update on public.enrollment_grants for each row execute function app_private.csa096_check_grant_settlement();
+create function app_private.csa096_require_grant_fulfillment() returns trigger language plpgsql set search_path='' as $$
+declare current_grant public.enrollment_grants%rowtype;
+begin
+ select * into current_grant from public.enrollment_grants where id=new.id;
+ if current_grant.source_order_id is not null and not exists(
+  select 1 from public.orders where id=current_grant.source_order_id
+   and status in ('paid','refunded') and paid_at=current_grant.valid_from
+ ) then
+  raise exception using errcode='23514',message='Purchased grant must match original committed order fulfillment.';
+ end if;
+ return null;
+end; $$;
+create constraint trigger enrollment_grants_require_fulfillment after insert or update on public.enrollment_grants deferrable initially deferred for each row execute function app_private.csa096_require_grant_fulfillment();
 
 alter table public.bank_transfer_submissions add column settlement_id uuid,
  add constraint bank_submissions_settlement_order foreign key(settlement_id,order_id) references app_private.verified_settlements(id,order_id) on delete restrict on update restrict,
@@ -123,6 +136,7 @@ alter table app_private.idempotency_records enable row level security;
 revoke all on app_private.verified_settlements,app_private.idempotency_records from public,anon,authenticated,service_role;
 revoke all on function app_private.csa096_immutable_record(),app_private.csa096_check_grant_settlement(),app_private.csa096_preserve_attempt_scope() from public,anon,authenticated,service_role;
 revoke all on function app_private.csa096_preserve_fulfillment_time(),app_private.csa096_require_paid_settlement(),app_private.csa096_check_bank_settlement() from public,anon,authenticated,service_role;
+revoke all on function app_private.csa096_require_grant_fulfillment() from public,anon,authenticated,service_role;
 comment on table app_private.verified_settlements is 'Independently verified exact LKR settlements; multiple real payments per order preserved for reconciliation, each external identity belongs to one order. Caller must verify retrieval/bank reconciliation before insertion.';
 comment on table app_private.idempotency_records is 'Private non-null principal/operation/key response cache. Trusted operations compare request_hash and commit safe_result atomically with their writes.';
 comment on column public.enrollment_grants.settlement_id is 'Purchased sources require independently verified settlement, exactly once. Status/receipt/callback alone cannot fund a grant.';
