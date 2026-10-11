@@ -37,15 +37,31 @@ the destination bound to its order. AI review is not human approval.
 
 ## Remaining acceptance and next action
 
-No new focused tests were added or executed locally under the current developer
-instruction limiting tests to an explicit user verification request. Existing
-CI verifies integration; it does not prove new financial behavior. Before marking
-the six new tasks DONE or merging the financial batch, obtain focused security,
-idempotency/concurrency, rollback and new schema/API behavior evidence and the
-required authorized review. CSA100 also requires real sandbox retrieval binding
+The owner's request to fix PR #71 findings authorized focused tests. Issue #72
+records isolated test ownership and integration scope. Added 68 checkout-handler
+tests, 14 payment-adapter tests, 55 financial database assertions and 41 trusted
+order assertions. All passed locally. A regression test exposed malformed JWT
+claims returning 503; the handler now rejects these claims with 401.
+
+Five races passed on independent PostgreSQL 16 sessions: identical idempotent
+retries, conflicting retries, independent principals, duplicate settlement
+references and duplicate active bank submissions. CI explicitly runs these
+against its disposable Supabase database. Local PostgreSQL used a synthetic
+Auth schema; full Supabase Auth behavior remains a CI check. The complete Node
+suite passed with only the deliberately gated database-race suite skipped;
+the separate enabled race run passed all five scenarios.
+
+CSA100 still requires real sandbox retrieval binding
 and merchant readiness evidence per approved CSA004; official response amount
 ambiguity fails closed until verified. Bank checkout needs a reviewed destination
 version and server configuration. No credentials or real bank accounts are seeded.
+
+The merchant secret supplied by the owner is insufficient for Retrieval API
+OAuth. Separate sandbox App ID/App Secret and an existing successful sandbox
+payment are required. The read-only `npm run payment:sandbox:verify` probe
+documents these inputs in the adapter contract. Synthetic fixtures do not
+resolve this acceptance gate. Keep PR #71 IN_REVIEW until actual sandbox evidence
+and required review are complete.
 
 Downstream CSA101/102/104/105/112/114/116/117 implement checkout initialization,
 webhook processing, atomic audited fulfillment, bank review and live entitlement

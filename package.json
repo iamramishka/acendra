@@ -4,13 +4,14 @@
   "description": "Pinned Supabase development tools; not Flutter application dependencies",
   "engines": { "node": ">=20" },
   "scripts": {
-    "tool:test": "node --test tool/*.test.mjs supabase/functions/admin-assign-user-role/*.test.mjs supabase/functions/create-course/*.test.mjs",
+    "tool:test": "node --test tool/*.test.mjs supabase/functions/admin-assign-user-role/*.test.mjs supabase/functions/create-course/*.test.mjs supabase/functions/create-checkout-order/*.test.mjs supabase/functions/_shared/payments/*.test.mjs",
+    "payment:sandbox:verify": "node tool/payhere_sandbox_verify.mjs",
     "db:prepare": "node tool/local_supabase.mjs prepare dev",
     "db:start": "node tool/local_supabase.mjs start dev",
     "db:stop": "node tool/local_supabase.mjs stop dev",
     "db:status": "node tool/local_supabase.mjs status dev",
     "db:reset": "node tool/local_supabase.mjs reset dev",
-    "db:test": "node tool/local_supabase.mjs test test",
+    "db:test": "node tool/financial_db_verify.mjs",
     "db:lint": "node tool/local_supabase.mjs lint test",
     "db:test:stop": "node tool/local_supabase.mjs stop test",
     "client:env": "node tool/local_supabase.mjs client-env dev"

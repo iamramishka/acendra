@@ -51,6 +51,7 @@ export function createHandler({ env, fetch: request = globalThis.fetch }) {
         const payload = parts[1].replaceAll('-', '+').replaceAll('_', '/');
         claims = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(payload.padEnd(Math.ceil(payload.length / 4) * 4, '=')), value => value.charCodeAt(0))));
       } catch { return respond(401, 'AUTH_REQUIRED'); }
+      if (!claims || typeof claims !== 'object' || Array.isArray(claims)) return respond(401, 'AUTH_REQUIRED');
       if (!uuid(user.id) || user.is_anonymous === true || claims.sub !== user.id || claims.role !== 'authenticated' || !uuid(claims.session_id) || !['aal1','aal2'].includes(claims.aal)) return respond(401, 'AUTH_REQUIRED');
       const bankVersion = body.payment_method === 'bank_transfer' ? env('ACENDRA_CHECKOUT_BANK_VERSION_ID') : null;
       if (body.payment_method === 'bank_transfer' && !uuid(bankVersion)) return respond(503, 'BANK_CHECKOUT_UNAVAILABLE');

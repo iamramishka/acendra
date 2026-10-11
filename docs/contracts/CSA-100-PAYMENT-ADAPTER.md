@@ -75,3 +75,21 @@ changed unsigned callback rejection, duplicate/reversal responses, timeout and
 rate-limit handling. Live merchant onboarding, domain/IP allowlisting and
 credentials remain external configuration. No sandbox or production calls were
 made. No new dependencies were introduced; node:crypto is supported by Deno.
+
+## Read-only sandbox acceptance probe
+
+Run `npm run payment:sandbox:verify` in the integration checkout after securely
+configuring these environment variables (never commit or log their values):
+
+- `PAYHERE_SANDBOX_MERCHANT_ID` and `PAYHERE_SANDBOX_MERCHANT_SECRET`
+- `PAYHERE_SANDBOX_APP_ID` and `PAYHERE_SANDBOX_APP_SECRET` with Retrieval API access
+- `PAYHERE_SANDBOX_ORDER_ID` and `PAYHERE_SANDBOX_PAYMENT_ID` for an existing successful sandbox payment
+- `PAYHERE_SANDBOX_AMOUNT_MINOR` for its authoritative expected LKR amount in cents
+- `PAYHERE_SANDBOX_NOTIFICATION_FILE` pointing to its original URL-encoded successful callback, stored privately outside tracked files
+
+The probe verifies the callback and performs sandbox OAuth/order retrieval,
+including rejection of a changed unsigned payment ID. It never creates payments
+or grants access. Success writes minimal private evidence under ignored
+`build/payhere-sandbox/evidence.json`, including the adapter hash. A failed run
+does not constitute acceptance; inspect its exit status and the evidence date
+and hash before review. Merchant secrets cannot substitute for OAuth App secrets.
