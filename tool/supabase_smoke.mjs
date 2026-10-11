@@ -38,7 +38,7 @@ function sql(id, statement) {
 async function request(base, key, route, { token, method = 'GET', body } = {}) {
   const response = await fetch(base + route, {
     method,
-    headers: { apikey: key, ...(token ? { Authorization: `Bearer ${token}` } : {}), 'Content-Type': 'application/json' },
+    headers: { apikey: key, ...(token ? { Authorization: `Bearer ${token}` } : {}), 'Content-Type': 'application/json', Prefer: 'return=representation' },
     ...(body ? { body: JSON.stringify(body) } : {}),
     signal: AbortSignal.timeout(30000),
   });
@@ -84,7 +84,27 @@ async function main() {
   const token = signup.body.access_token;
   // Cross-user denial remains valid when CSA-060/061 later allow own-row reads.
   const foreignId = randomUUID();
-  sql(devDb, `insert into auth.users(id) values ('${foreignId}'); insert into public.profiles(id,display_name) values ('${foreignId}','Synthetic foreign student'); insert into public.user_roles(user_id,role_id) select '${foreignId}',id from public.roles where code='student';`);
+  sql(devDb, `insert into auth.users(id) values ('${foreignId}'); insert into public.profiles(id,display_name) values ('${foreignId}','Synthetic foreign student') on conflict (id) do update set display_name=excluded.display_name; insert into public.user_roles(user_id,role_id) select '${foreignId}',id from public.roles where code='student';`);
+  const ownProfile = await request(base, key, '/rest/v1/profiles?select=id,display_name,locale', { token });
+  assert.equal(ownProfile.status, 200);
+  assert.equal(ownProfile.body.length, 1, 'Student sees only their signup profile');
+  assert.equal(ownProfile.body[0].id, signup.body.user.id);
+  const ownUpdate = await request(base, key, `/rest/v1/profiles?id=eq.${signup.body.user.id}`, {
+    token, method: 'PATCH', body: { display_name: 'Synthetic own student', locale: 'en' },
+  });
+  assert.equal(ownUpdate.status, 200);
+  assert.equal(ownUpdate.body[0].display_name, 'Synthetic own student');
+  const foreignUpdate = await request(base, key, `/rest/v1/profiles?id=eq.${foreignId}`, {
+    token, method: 'PATCH', body: { display_name: 'Foreign intrusion' },
+  });
+  assert.equal(foreignUpdate.status, 200);
+  assert.deepEqual(foreignUpdate.body, [], 'Cross-user update returns no foreign row');
+  assert.equal(sql(devDb, `select display_name from public.profiles where id='${foreignId}';`), 'Synthetic foreign student');
+  const protectedUpdate = await request(base, key, `/rest/v1/profiles?id=eq.${signup.body.user.id}`, {
+    token, method: 'PATCH', body: { avatar_path: 'forged/private/path' },
+  });
+  assert.equal(protectedUpdate.status, 403, 'Avatar storage references cannot be browser-controlled');
+  assert.equal(protectedUpdate.body.code, '42501');
   const authenticated = await request(base, key, `/rest/v1/user_roles?select=id&user_id=eq.${foreignId}`, { token });
   if (authenticated.status === 403) assert.equal(authenticated.body.code, '42501');
   else {

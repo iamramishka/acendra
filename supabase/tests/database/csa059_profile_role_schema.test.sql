@@ -46,7 +46,9 @@ insert into auth.users (id) values
   ('05900000-0000-0000-0000-000000000002');
 insert into public.profiles (id, display_name, created_at, updated_at) values
   ('05900000-0000-0000-0000-000000000001', 'Student A', now() - interval '1 day', now() - interval '1 day'),
-  ('05900000-0000-0000-0000-000000000002', 'Student B', now() - interval '1 day', now() - interval '1 day');
+  ('05900000-0000-0000-0000-000000000002', 'Student B', now() - interval '1 day', now() - interval '1 day')
+on conflict (id) do update set display_name=excluded.display_name,
+  created_at=excluded.created_at, updated_at=excluded.updated_at;
 select pg_temp.assert_ok((select count(*) = 0 from public.user_roles), 'profiles do not auto-grant elevated roles');
 select pg_temp.expect_error($q$insert into public.profiles (id,display_name) values
   ('05900000-0000-0000-0000-000000000099','Missing')$q$, '23503', 'profile requires Auth user');
