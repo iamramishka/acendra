@@ -131,7 +131,8 @@ export function createHandler({ env, fetch: request = globalThis.fetch, bankRevi
       }
       // Only safe allowlisted status fields leave the privileged boundary.
       return respond(200, undefined, {
-        submission_id: result.submission_id, submission_status: result.status, order_status: result.order_status,
+        submission_id: result.submission_id, submission_status: result.status,
+        ...(result.replayed ? {} : { order_status: result.order_status }),
       }, result.replayed);
     } catch { return respond(503, 'SERVICE_UNAVAILABLE'); }
   };

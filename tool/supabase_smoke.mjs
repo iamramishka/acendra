@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createLayout, pinLocalDockerEndpoint } from './local_supabase.mjs';
 import { runAuthSecuritySmoke } from './auth_security_smoke.mjs';
+import { runReceiptStorageSmoke } from './csa108_storage_smoke.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dev = createLayout(root, 'dev', process.env.ACENDRA_LOCAL_PORT_BASE);
@@ -133,11 +134,13 @@ async function main() {
   const storage = await request(base, key, '/storage/v1/bucket', { token });
   assert.equal(storage.status, 200, 'Real Storage API is reachable');
   assert.deepEqual(storage.body, [], 'Synthetic student has no visible buckets');
+  await runReceiptStorageSmoke({ root, layout: dev, env: dockerEnv, sql: statement => sql(devDb,statement), base, key, token, studentId,
+    containers: devItems });
   console.log('PASS: real Auth/Storage/API smoke checks, public export, loopback ports and independent volumes/databases.');
   await runAuthSecuritySmoke();
 }
 
 main().catch(error => {
-  console.error(error.message.startsWith('Auth security smoke failed at ') ? error.message : 'Supabase foundation smoke check failed; no private response data logged.');
+  console.error(/^(Auth security|Receipt Storage) smoke failed at /.test(error.message) ? error.message : 'Supabase foundation smoke check failed; no private response data logged.');
   process.exitCode = 1;
 });
