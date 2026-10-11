@@ -63,10 +63,7 @@ void main() {
     testWidgets('meets androidTapTargetGuideline', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          child: AppButton(
-            label: 'Continue',
-            onPressed: () {},
-          ),
+          child: AppButton(label: 'Continue', onPressed: () {}),
         ),
       );
       await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
@@ -75,10 +72,7 @@ void main() {
     testWidgets('meets labeledTapTargetGuideline', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          child: AppButton(
-            label: 'Continue',
-            onPressed: () {},
-          ),
+          child: AppButton(label: 'Continue', onPressed: () {}),
         ),
       );
       await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
@@ -88,9 +82,7 @@ void main() {
   group('AppEmptyState accessibility', () {
     testWidgets('meets androidTapTargetGuideline', (tester) async {
       await tester.pumpWidget(
-        _wrap(
-          child: const AppEmptyState(message: 'No courses found'),
-        ),
+        _wrap(child: const AppEmptyState(message: 'No courses found')),
       );
       await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
     });

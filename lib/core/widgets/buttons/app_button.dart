@@ -46,15 +46,24 @@ class AppButton extends StatelessWidget {
       ButtonSize.large => AppSpacing.md - 2,
     };
 
-    final (Color bgColor, Color fgColor, Color? borderColor) = switch (variant) {
+    final (
+      Color bgColor,
+      Color fgColor,
+      Color? borderColor,
+    ) = switch (variant) {
       ButtonVariant.primary => (cs.primary, cs.onPrimary, null),
-      ButtonVariant.secondary => (cs.primaryContainer, cs.onPrimaryContainer, null),
+      ButtonVariant.secondary => (
+        cs.primaryContainer,
+        cs.onPrimaryContainer,
+        null,
+      ),
       ButtonVariant.outlined => (Colors.transparent, cs.primary, cs.primary),
       ButtonVariant.destructive => (cs.error, cs.onError, null),
     };
 
-    final effectiveOnPressed =
-        (isLoading || onPressed == null) ? null : onPressed;
+    final effectiveOnPressed = (isLoading || onPressed == null)
+        ? null
+        : onPressed;
 
     final content = isLoading
         ? SizedBox(
@@ -63,15 +72,15 @@ class AppButton extends StatelessWidget {
             child: CircularProgressIndicator(strokeWidth: 2, color: fgColor),
           )
         : icon != null
-            ? Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  icon!,
-                  const SizedBox(width: AppSpacing.sm),
-                  Text(label),
-                ],
-              )
-            : Text(label);
+        ? Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              icon!,
+              const SizedBox(width: AppSpacing.sm),
+              Text(label),
+            ],
+          )
+        : Text(label);
 
     return Semantics(
       label: isLoading ? '$label, loading' : null,

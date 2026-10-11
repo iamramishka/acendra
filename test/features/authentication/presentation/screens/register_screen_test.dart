@@ -22,8 +22,9 @@ class _FakeAuthRepository extends AuthRepository {
 Widget _wrap({AuthFailure? throws}) {
   return ProviderScope(
     overrides: [
-      authRepositoryProvider
-          .overrideWithValue(_FakeAuthRepository(shouldThrow: throws)),
+      authRepositoryProvider.overrideWithValue(
+        _FakeAuthRepository(shouldThrow: throws),
+      ),
     ],
     child: const MaterialApp(home: RegisterScreen()),
   );
@@ -49,7 +50,9 @@ void main() {
 
   testWidgets('shows password mismatch error', (tester) async {
     await tester.pumpWidget(_wrap());
-    final fields = tester.widgetList<TextField>(find.byType(TextField)).toList();
+    final fields = tester
+        .widgetList<TextField>(find.byType(TextField))
+        .toList();
     await tester.enterText(find.byType(TextField).at(0), 'Jane Doe');
     await tester.enterText(find.byType(TextField).at(1), 'jane@example.com');
     await tester.enterText(find.byType(TextField).at(2), 'password123');

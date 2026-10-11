@@ -68,25 +68,30 @@ class CourseCard extends StatelessWidget {
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       instructorName,
-                      style: tt.bodySmall
-                          ?.copyWith(color: cs.onSurfaceVariant),
+                      style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                     ),
                     if (rating != null) ...[
                       const SizedBox(height: AppSpacing.xs),
                       Row(
                         children: [
                           const ExcludeSemantics(
-                            child: Icon(Icons.star,
-                                size: 14, color: Color(0xFFF4BF70)),
+                            child: Icon(
+                              Icons.star,
+                              size: 14,
+                              color: Color(0xFFF4BF70),
+                            ),
                           ),
                           const SizedBox(width: 2),
-                          Text(rating!.toStringAsFixed(1),
-                              style: tt.labelSmall),
+                          Text(
+                            rating!.toStringAsFixed(1),
+                            style: tt.labelSmall,
+                          ),
                           if (reviewCount != null)
                             Text(
                               ' ($reviewCount)',
-                              style: tt.labelSmall
-                                  ?.copyWith(color: cs.onSurfaceVariant),
+                              style: tt.labelSmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
                             ),
                         ],
                       ),

@@ -25,12 +25,8 @@ class _FakeAuthRepository extends AuthRepository {
 Widget _wrap({AuthFailure? throws}) {
   final fake = _FakeAuthRepository(shouldThrow: throws);
   return ProviderScope(
-    overrides: [
-      authRepositoryProvider.overrideWithValue(fake),
-    ],
-    child: const MaterialApp(
-      home: LoginScreen(),
-    ),
+    overrides: [authRepositoryProvider.overrideWithValue(fake)],
+    child: const MaterialApp(home: LoginScreen()),
   );
 }
 
@@ -42,7 +38,9 @@ void main() {
     expect(find.text('Sign in'), findsOneWidget);
   });
 
-  testWidgets('shows validation errors when submitting empty form', (tester) async {
+  testWidgets('shows validation errors when submitting empty form', (
+    tester,
+  ) async {
     await tester.pumpWidget(_wrap());
     await tester.tap(find.text('Sign in'));
     await tester.pump();
