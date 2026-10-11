@@ -1435,15 +1435,19 @@ for actual scope and evidence (only requested task IDs have records).
 
 - [ ] CSA-108 [P0] [X]
   Implement private receipt upload.
+  IN_PROGRESS, CODEX: coordinated issue #81; operational release gates retained.
 
 - [ ] CSA-109 [P0] [X]
   Validate receipt type and ownership.
+  IN_PROGRESS, CODEX: coordinated issue #81; operational release gates retained.
 
 - [ ] CSA-112 [P0] [X]
   Implement authorized bank approval.
+  IN_PROGRESS, CODEX: coordinated issue #81; operational release gates retained.
 
 - [ ] CSA-113 [P0] [X]
   Implement bank rejection processing.
+  IN_PROGRESS, CODEX: coordinated issue #81; operational release gates retained.
 
 - [ ] CSA-114 [P0] [X]
   Implement concurrency-safe approvals.
