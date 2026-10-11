@@ -1354,7 +1354,7 @@ CLAUDE
 
 ## CODEX - FINANCIAL DATABASE
 
-- [ ] CSA-092 [P0] [X]
+- [x] CSA-092 [P0] [X]
   Create orders and payment attempts.
 
 - [ ] CSA-093 [P0] [X]
@@ -1371,6 +1371,14 @@ CLAUDE
   and transaction constraints.
 
 ## CLAUDE - CHECKOUT UI
+
+Phase 5 CODEX coordination (2026-10-11): CSA-092 merged in PR #61 with passing
+Flutter/Supabase CI. CSA-093/094/095/096/098/100 are implemented in isolated
+parallel worktrees and integrated in draft PR #71, IN_REVIEW. Claims #62–67
+record exclusive ownership. New financial flows require focused runtime and
+concurrency verification; CSA-100 also requires sandbox retrieval acceptance.
+Unchecked tasks remain unaccepted. See docs/tasks/CSA-092.md through CSA-100.md
+for actual scope and evidence (only requested task IDs have records).
 
 - [ ] CSA-097 [P1] [C]
   Implement checkout interface.
