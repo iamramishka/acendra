@@ -93,7 +93,7 @@ test('Auth rejection does not reach RPC', async () => {
   await error(await handler(request()), 401, 'AUTH_REQUIRED');
   assert.equal(calls.length, 1);
 });
-for (const jwt of ['broken', 'x.%%%.x', 'x.bnVsbA.x', token({ sub: course }), token({ role: 'service_role' }), token({ session_id: 'invalid' }), token({ aal: 'aal3' })]) {
+for (const jwt of ['broken', 'x.%%%.x', 'x.bnVsbA.x', 'x.W10.x', 'x.ZmFsc2U.x', token({ sub: course }), token({ role: 'service_role' }), token({ session_id: 'invalid' }), token({ aal: 'aal3' })]) {
   test(`invalid verified-token claims ${jwt.slice(0, 20)}`, async () => {
     const { handler, calls } = fixture();
     await error(await handler(request(payload, { Authorization: `Bearer ${jwt}` })), 401, 'AUTH_REQUIRED');
