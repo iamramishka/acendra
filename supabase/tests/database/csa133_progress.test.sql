@@ -47,6 +47,12 @@ begin
  update auth.sessions set not_after=now()-interval '1 second' where id=us;
  begin perform public.csa133_save_progress(l,true,null,null,null); raise exception 'expired session'; exception when insufficient_privilege then null; end;
  update auth.sessions set not_after=now()+interval '1 day' where id=us;
+ delete from auth.sessions where id=us;
+ begin perform public.csa133_read_progress(c); raise exception 'revoked session'; exception when insufficient_privilege then null; end;
+ insert into auth.sessions(id,user_id,aal,not_after) values(us,u,'aal1',now()+interval '1 day');
+ update auth.users set banned_until=now()+interval '1 hour' where id=u;
+ begin perform public.csa133_save_progress(l,true,null,null,null); raise exception 'banned account'; exception when insufficient_privilege then null; end;
+ update auth.users set banned_until=null where id=u;
  perform public.csa118_revoke_access(a,ads,'aal2','progress-revoke',u,c,gid,'grant','Synthetic revoked');
  begin perform public.csa133_save_progress(l,true,null,null,null); raise exception 'revoked save'; exception when insufficient_privilege then null; end;
  begin perform public.csa133_read_progress(c); raise exception 'revoked read'; exception when insufficient_privilege then null; end;
