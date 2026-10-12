@@ -54,9 +54,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       if (!sessionRestored) return null;
 
-      final isPublic = _publicRoutes.any((r) => location.startsWith(
-            r.contains(':') ? r.substring(0, r.indexOf(':')) : r,
-          ));
+      final isPublic = _publicRoutes.any(
+        (r) => location.startsWith(
+          r.contains(':') ? r.substring(0, r.indexOf(':')) : r,
+        ),
+      );
 
       if (!isAuthenticated && !isPublic) return RouteNames.login;
 
@@ -110,8 +112,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: RouteNames.courseDetail,
-            builder: (_, _) =>
-                const _PlaceholderScreen(title: 'Course Detail'),
+            builder: (_, _) => const _PlaceholderScreen(title: 'Course Detail'),
           ),
         ],
       ),
