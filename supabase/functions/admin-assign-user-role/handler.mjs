@@ -1,5 +1,23 @@
 const roles = new Set(['student', 'content_manager', 'finance_admin', 'super_admin']);
 const uuid = value => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+async function readJson(stream, limit) {
+  const reader = stream?.getReader();
+  if (!reader) throw new Error('Missing JSON body');
+  const chunks = []; let length = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      length += value.length;
+      if (length > limit) { await reader.cancel(); throw new Error('JSON body exceeds limit'); }
+      chunks.push(value);
+    }
+  } finally { reader.releaseLock(); }
+  const bytes = new Uint8Array(length); let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
+  return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
+}
 const fields = new Set(['student_id', 'role_code', 'action', 'reason', 'request_id']);
 
 export function createHandler({ env, fetch: request = globalThis.fetch }) {
@@ -33,7 +51,7 @@ export function createHandler({ env, fetch: request = globalThis.fetch }) {
     const authorization = incoming.headers.get('Authorization');
     if (!authorization?.startsWith('Bearer ') || authorization.length > 16384) return respond(401, 'UNAUTHENTICATED');
     let body;
-    try { body = await incoming.json(); } catch { return respond(400, 'INVALID_REQUEST'); }
+    try { body = await readJson(incoming.body, 8192); } catch { return respond(400, 'INVALID_REQUEST'); }
     if (!body || typeof body !== 'object' || Array.isArray(body) || Object.keys(body).some(key => !fields.has(key))
       || !uuid(body.student_id) || !uuid(body.request_id) || !roles.has(body.role_code)
       || !['grant','revoke'].includes(body.action) || typeof body.reason !== 'string'
@@ -47,10 +65,10 @@ export function createHandler({ env, fetch: request = globalThis.fetch }) {
       // Auth validates this exact token's signature/session; never trust decoded
       // claims before this call succeeds. Actor is the returned verified user.
       const userResult = await request(`${url}/auth/v1/user`, {
-        headers: { Authorization: authorization, apikey: publicKey }, signal: AbortSignal.timeout(15000),
+        headers: { Authorization: authorization, apikey: publicKey }, redirect: 'error', signal: AbortSignal.timeout(15000),
       });
       if (!userResult.ok) return respond(401, 'UNAUTHENTICATED', undefined, requestId);
-      const user = await userResult.json();
+      const user = await readJson(userResult.body, 32768);
       const token = authorization.slice(7);
       const parts = token.split('.');
       if (parts.length !== 3) return respond(401, 'UNAUTHENTICATED', undefined, requestId);
@@ -59,7 +77,7 @@ export function createHandler({ env, fetch: request = globalThis.fetch }) {
         const payload = parts[1].replaceAll('-', '+').replaceAll('_', '/');
         claims = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(payload.padEnd(Math.ceil(payload.length / 4) * 4, '=')), c => c.charCodeAt(0))));
       } catch { return respond(401, 'UNAUTHENTICATED', undefined, requestId); }
-      if (!uuid(user.id) || !uuid(claims.session_id) || claims.sub !== user.id || claims.role !== 'authenticated' || user.is_anonymous === true) {
+      if (!object(user) || !object(claims) || !uuid(user.id) || !uuid(claims.session_id) || claims.sub !== user.id || claims.role !== 'authenticated' || user.is_anonymous === true) {
         return respond(401, 'UNAUTHENTICATED', undefined, requestId);
       }
       if (claims.aal !== 'aal2') return respond(403, 'MFA_REQUIRED', undefined, requestId);
@@ -67,15 +85,24 @@ export function createHandler({ env, fetch: request = globalThis.fetch }) {
         method: 'POST', headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey, 'Content-Type': 'application/json' },
         body: JSON.stringify({ p_actor: user.id, p_session_id: claims.session_id, p_aal: claims.aal, p_target: body.student_id,
           p_code: body.role_code, p_action: body.action, p_reason: body.reason, p_request_id: requestId }),
-        signal: AbortSignal.timeout(15000),
+        redirect: 'error', signal: AbortSignal.timeout(15000),
       });
-      const result = await mutation.json();
+      const result = await readJson(mutation.body, 8192);
       if (!mutation.ok) {
         const errors = { '42501': [403,'FORBIDDEN'], '22023': [409,'INVALID_OPERATION'], '23503': [404,'TARGET_NOT_FOUND'] };
-        const [status, code] = errors[result.code] || [500, 'OPERATION_FAILED'];
+        const [status, code] = errors[result?.code] || [500, 'OPERATION_FAILED'];
         return respond(status, code, undefined, requestId);
       }
-      return respond(200, undefined, result, requestId);
+      if (!object(result) || !uuid(result.user_id) || result.user_id.toLowerCase() !== body.student_id.toLowerCase() || result.role_code !== body.role_code
+        || result.action !== body.action || !['active', 'revoked'].includes(result.status)
+        || result.operation_status !== (body.action === 'grant' ? 'active' : 'revoked')
+        || typeof result.replayed !== 'boolean' || !uuid(result.grant_id) || !uuid(result.audit_id)) {
+        return respond(503, 'SERVICE_UNAVAILABLE', undefined, requestId);
+      }
+      // Expose only the declared role-operation projection, never extra RPC data.
+      const data = Object.fromEntries(['user_id', 'role_code', 'action', 'status', 'operation_status', 'replayed', 'grant_id', 'audit_id']
+        .filter(key => Object.hasOwn(result, key)).map(key => [key, result[key]]));
+      return respond(200, undefined, data, requestId);
     } catch { return respond(503, 'SERVICE_UNAVAILABLE', undefined, requestId); }
   };
 }

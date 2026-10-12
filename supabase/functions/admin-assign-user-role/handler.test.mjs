@@ -10,6 +10,7 @@ const env = name => ({ SUPABASE_URL: 'http://local', SUPABASE_ANON_KEY: 'public-
 const incoming = (body = payload, bearer = token()) => new Request('http://local/function', {
   method: 'POST', headers: { Authorization: `Bearer ${bearer}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body),
 });
+const roleResult = { user_id: target, role_code: payload.role_code, action: payload.action, status: 'active', operation_status: 'active', replayed: false, grant_id: '06100000-0000-0000-0000-000000000022', audit_id: '06100000-0000-0000-0000-000000000023' };
 const json = (body, status = 200) => new Response(JSON.stringify(body), { status });
 
 test('rejects malformed inputs and actor injection before privileged requests', async () => {
@@ -40,7 +41,7 @@ test('only verified actor and verified assurance reach the restricted RPC', asyn
   const calls = [];
   const handler = createHandler({ env, fetch: async (url, options) => {
     calls.push({ url, options });
-    return url.endsWith('/user') ? json({ id: actor }) : json({ user_id: target, status: 'active' });
+    return url.endsWith('/user') ? json({ id: actor }) : json(roleResult);
   } });
   const result = await handler(incoming());
   assert.equal(result.status, 200);
@@ -104,7 +105,7 @@ test('approved browser receives CORS on success and failures while server calls 
     request.headers.set('Origin', 'http://127.0.0.1:8080');
     return request;
   };
-  const success = createHandler({ env, fetch: async url => url.endsWith('/user') ? json({ id: actor }) : json({ status: 'active' }) });
+  const success = createHandler({ env, fetch: async url => url.endsWith('/user') ? json({ id: actor }) : json(roleResult) });
   const denied = createHandler({ env, fetch: async () => json({}, 401) });
   const offline = createHandler({ env, fetch: async () => { throw new Error('private-fixture'); } });
   for (const [handler, request, status] of [
