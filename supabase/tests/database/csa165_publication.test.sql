@@ -2,7 +2,7 @@ begin;
 do $$
 declare actor uuid:=gen_random_uuid(); manager uuid:=gen_random_uuid(); buyer uuid:=gen_random_uuid();
  ads uuid:=gen_random_uuid(); ms uuid:=gen_random_uuid(); course uuid:=gen_random_uuid(); section uuid:=gen_random_uuid(); lesson uuid:=gen_random_uuid(); asset uuid:=gen_random_uuid();
- stamp timestamptz; result jsonb; before_count bigint; grant_id uuid;
+ stamp timestamptz; result jsonb; before_count bigint; grant_id uuid; invalid_asset uuid; variant text;
 begin
  insert into auth.users(id) values(actor),(manager),(buyer);
  insert into public.profiles(id,display_name) values(actor,'Publisher'),(manager,'Manager'),(buyer,'Buyer') on conflict(id) do nothing;
@@ -30,6 +30,23 @@ begin
  result:=public.csa165_publish_course(actor,ads,'aal2',course,stamp,'unpublish','unpublish');
  if result->>'status'<>'draft' or not app_private.csa117_has_access(buyer,course) then raise exception 'unpublish revoked access';end if;
  select updated_at into stamp from public.courses where id=course;
+ foreach variant in array array['path','provider','size','duplicate'] loop
+  invalid_asset:=gen_random_uuid();
+  insert into app_private.media_assets(id,asset_type,storage_provider,bucket_name,object_path,mime_type,size_bytes,checksum_sha256,validation_status,validated_at)
+  values(invalid_asset,'course_pdf',case when variant='provider' then 'other' else 'supabase' end,'course-pdfs',case when variant='path' then 'wrong.pdf' else 'originals/'||invalid_asset||'/v1.pdf' end,'application/pdf',case when variant='size' then 52428801 else 1000 end,repeat('b',64),'validated',clock_timestamp());
+  if variant='duplicate' then insert into app_private.lesson_assets(lesson_id,media_asset_id,usage,position) values(lesson,invalid_asset,'extra',1);
+  else update app_private.lesson_assets set media_asset_id=invalid_asset where lesson_id=lesson;end if;
+  begin perform public.csa165_publish_course(actor,ads,'aal2',course,stamp,'publish','bad-'||variant);raise exception 'unsafe PDF % published',variant;exception when check_violation then null;end;
+  if variant='duplicate' then delete from app_private.lesson_assets where media_asset_id=invalid_asset;else update app_private.lesson_assets set media_asset_id=asset where lesson_id=lesson;end if;
+ end loop;
+ invalid_asset:=gen_random_uuid();
+ insert into app_private.media_assets(id,asset_type,storage_provider,external_asset_id,mime_type,size_bytes,checksum_sha256,validation_status,validated_at)
+ values(invalid_asset,'course_video','mux','SyntheticAsset','video/mp4',1000,repeat('c',64),'validated',clock_timestamp());
+ update public.lessons set lesson_type='video' where id=lesson;
+ update app_private.lesson_assets set media_asset_id=invalid_asset,usage='video' where lesson_id=lesson;
+ begin perform public.csa165_publish_course(actor,ads,'aal2',course,stamp,'publish','no-mux-binding');raise exception 'unverified Mux published';exception when check_violation then null;end;
+ update public.lessons set lesson_type='pdf' where id=lesson;
+ update app_private.lesson_assets set media_asset_id=asset,usage='primary' where lesson_id=lesson;
  update app_private.media_assets set validation_status='rejected' where id=asset;
  begin perform public.csa165_publish_course(actor,ads,'aal2',course,stamp,'publish','rejected');raise exception 'rejected media';exception when check_violation then null;end;
  update app_private.media_assets set validation_status='validated' where id=asset;
