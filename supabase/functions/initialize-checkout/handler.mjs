@@ -83,6 +83,9 @@ export function createHandler({ env, fetch: request = globalThis.fetch, onlineCh
         Object.keys(body).some(key => !['order_id', 'customer'].includes(key)) || !uuid(body.order_id) || !contact(body.customer)) {
       return respond(400, 'INVALID_REQUEST');
     }
+    // PostgreSQL returns UUID text in lowercase; use that canonical identity
+    // for both initialization and checking the authoritative stored order.
+    const orderId = body.order_id.toLowerCase();
     // Only synthetic collaborators opt in. Deployment has no environment bypass.
     if (onlineCheckoutEnabled !== true) return respond(503, 'ONLINE_CHECKOUT_UNAVAILABLE');
     const url = env('SUPABASE_URL');
@@ -128,7 +131,7 @@ export function createHandler({ env, fetch: request = globalThis.fetch, onlineCh
         headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           p_actor: user.id, p_session_id: claims.session_id, p_aal: claims.aal, p_key: key,
-          p_order: body.order_id, p_merchant: config.merchantId, p_environment: config.environment,
+          p_order: orderId, p_merchant: config.merchantId, p_environment: config.environment,
         }),
         redirect: 'error',
         signal: AbortSignal.timeout(15000),
@@ -142,7 +145,7 @@ export function createHandler({ env, fetch: request = globalThis.fetch, onlineCh
         const [status, code] = errors[stored?.code] ?? [503, 'SERVICE_UNAVAILABLE'];
         return respond(status, code);
       }
-      if (!stored || typeof stored.replayed !== 'boolean' || stored.order_id !== body.order_id ||
+      if (!stored || typeof stored.replayed !== 'boolean' || stored.order_id !== orderId ||
           !uuid(stored.attempt?.attemptId) || stored.attempt.orderId !== stored.attempt.attemptId) {
         return respond(503, 'SERVICE_UNAVAILABLE');
       }
