@@ -1,4 +1,4 @@
-﻿
+
 # TASKS.md
 # Acedra - Parallel Multi-Agent Development Tracker
 
@@ -1646,15 +1646,19 @@ CLAUDE
 ## SECURITY AND INTEGRATION TESTS
 
 - [ ] CSA-152 [P0] [X]
+  IN_REVIEW, CODEX: issue #101; tests prepared/verified against committed dependency snapshots; merged integration pending.
   Test unauthorized PDF requests.
 
 - [ ] CSA-153 [P0] [X]
+  IN_REVIEW, CODEX: issue #101; tests prepared/verified against committed dependency snapshots; merged integration pending.
   Test revoked entitlement behavior.
 
 - [ ] CSA-154 [P0] [X]
+  IN_REVIEW, CODEX: issue #101; tests prepared/verified against committed dependency snapshots; merged integration pending.
   Test unauthorized video playback.
 
 - [ ] CSA-155 [P1] [X]
+  IN_REVIEW, CODEX: issue #101; tests prepared/verified against committed dependency snapshots; merged integration pending.
   Test learning progress persistence.
 
 - [ ] CSA-156 [P1] [C]
