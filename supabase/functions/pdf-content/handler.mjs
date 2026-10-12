@@ -24,7 +24,7 @@ export function createHandler({authorize,storage,env=()=>'',enabled=false}={}) {
     if(!enabled)return reply('SERVICE_UNAVAILABLE',503);
     if(request.method==='OPTIONS'){const method=request.headers.get('Access-Control-Request-Method');const requested=request.headers.get('Access-Control-Request-Headers');if(!origin||!['GET','HEAD'].includes(method)||(requested!==null&&requested.split(',').some(h=>!['authorization','range'].includes(h.trim().toLowerCase()))))return reply('ACCESS_DENIED',403);headers.set('Vary','Origin, Access-Control-Request-Method, Access-Control-Request-Headers');headers.set('Access-Control-Allow-Methods','GET, HEAD');headers.set('Access-Control-Allow-Headers','Authorization, Range');return new Response(null,{status:204,headers});}
     if(!['GET','HEAD'].includes(request.method))return reply('METHOD_NOT_ALLOWED',405);
-    const url=new URL(request.url),lessonId=url.searchParams.get('lesson_id'),resourceId=url.searchParams.get('resource_id');
+    const url=new URL(request.url),lessonId=url.searchParams.get('lesson_id')?.toLowerCase()??null,resourceId=url.searchParams.get('resource_id')?.toLowerCase()??null;
     if(!UUID.test(lessonId??'')||(resourceId!==null&&!UUID.test(resourceId))||[...url.searchParams.keys()].some(k=>!['lesson_id','resource_id'].includes(k))||url.searchParams.getAll('lesson_id').length!==1||url.searchParams.getAll('resource_id').length>1)return reply('INVALID_REQUEST',400);
     try {
       const result=await authorize({authorization:request.headers.get('Authorization'),lessonId,resourceId});
