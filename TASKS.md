@@ -1575,16 +1575,18 @@ CLAUDE
 
 ## CODEX - LEARNING DATA INTEGRATION
 
-- [ ] CSA-133 [P1] [X]
+- [ ] CSA-133 [P1] [X] [IN_REVIEW]
   Implement learning progress persistence.
+  CODEX implementation in stacked PR #102; current-session/entitlement RPCs added. Combined Flutter/Supabase verification passed; depends on unmerged PR #92.
 
 ## VIDEO
 
 - [ ] CSA-135 [P1] [C]
   Implement video player interface.
 
-- [ ] CSA-136 [P0] [X]
+- [ ] CSA-136 [P0] [X] [IN_REVIEW]
   Implement playback authorization.
+  CODEX implementation in stacked PR #102; signed Mux authorization added. Combined Flutter/Supabase verification passed; real provider readiness retained.
 
 - [ ] CSA-137 [P1] [C]
   Implement video error/loading states.
@@ -1594,8 +1596,9 @@ CLAUDE
 
 ## CODEX - PROTECTED PDF BACKEND
 
-- [ ] CSA-139 [P0] [X]
+- [ ] CSA-139 [P0] [X] [IN_REVIEW]
   Configure private PDF storage.
+  CODEX implementation in stacked PR #102; private bucket and client-denial tests added. Pinned real Storage lifecycle and combined CI passed.
 
 - [ ] CSA-140 [P0] [X]
   Implement PDF entitlement checks.
