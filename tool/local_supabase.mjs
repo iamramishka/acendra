@@ -21,7 +21,9 @@ export function safeLintSummary(output, knownFunctions) {
       const description = `${issue.message ?? ''} ${issue.detail ?? ''}`;
       const category = /unused|never read/i.test(description) ? 'unused_identifier'
         : /ambiguous/i.test(description) ? 'ambiguous_identifier' : 'other';
-      summaries.push(`${row.function}:${issue.level}:${state}:${category}`);
+      const line = Number.isInteger(issue.lineNumber) && issue.lineNumber > 0 ? `:line${issue.lineNumber}` : '';
+      const type = /type|cast|convert|assign/i.test(description) ? ':type_assignment' : '';
+      summaries.push(`${row.function}:${issue.level}:${state}:${category}${line}${type}`);
     }
   }
   return summaries.slice(0, 20).join(',');
