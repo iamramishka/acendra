@@ -2,7 +2,7 @@
 begin;
 create temporary sequence csa121_assertion;
 create function pg_temp.assert_ok(condition boolean,description text) returns text language plpgsql as $$begin if condition is distinct from true then raise exception 'Assertion failed: %',description; end if; return 'ok '||nextval('pg_temp.csa121_assertion')||' - '||description; end;$$;
-create function pg_temp.expect_error(command text,expected text,description text) returns text language plpgsql as $$declare actual text; begin begin execute command; exception when others then actual:=sqlstate; end; return pg_temp.assert_ok(actual=expected,description); end;$$;
+create function pg_temp.expect_error(command text,expected text,description text,expected_message text default null) returns text language plpgsql as $$declare actual text; actual_message text; begin begin execute command; exception when others then actual:=sqlstate; actual_message:=sqlerrm; end; return pg_temp.assert_ok(actual=expected and (expected_message is null or actual_message=expected_message),description); end;$$;
 insert into auth.users(id) values('12100000-0000-0000-0000-000000000001'),('12100000-0000-0000-0000-000000000002'),('12100000-0000-0000-0000-000000000003');
 insert into auth.sessions(id,user_id,aal,not_after) values
 ('12100000-0000-0000-0000-000000000011','12100000-0000-0000-0000-000000000001','aal2',now()+interval '1 day'),
@@ -47,15 +47,32 @@ select pg_temp.expect_error('select * from app_private.media_assets','42501','CS
 select pg_temp.expect_error($q$select public.csa112_review_bank_transfer('12100000-0000-0000-0000-000000000001','12100000-0000-0000-0000-000000000011','aal2','forged','12100000-0000-0000-0000-000000000099','reject',null,'Forged',null)$q$,'42501','CSA125 browser cannot call trusted finance RPC');
 reset role;
 create function pg_temp.recovery_failure() returns trigger language plpgsql as $$begin raise exception 'Synthetic transaction recovery fault'; end;$$;
+create function pg_temp.assert_recovery_clean(boundary text) returns text language sql as $$
+select pg_temp.assert_ok(
+ (select status='pending_verification' from public.orders where id=(select (data->>'order_id')::uuid from csa121_orders where key='rollback'))
+ and (select status='submitted' and reviewed_by is null and reviewed_at is null and settlement_id is null from public.bank_transfer_submissions where id=(select (data->>'submission_id')::uuid from csa121_uploads where key='rollback'))
+ and not exists(select 1 from app_private.verified_settlements where order_id=(select (data->>'order_id')::uuid from csa121_orders where key='rollback'))
+ and not exists(select 1 from public.payment_attempts where order_id=(select (data->>'order_id')::uuid from csa121_orders where key='rollback'))
+ and not exists(select 1 from public.enrollment_grants where user_id='12100000-0000-0000-0000-000000000001')
+ and not exists(select 1 from public.enrollments where user_id='12100000-0000-0000-0000-000000000001')
+ and not exists(select 1 from app_private.bank_transfer_reviews where submission_id=(select (data->>'submission_id')::uuid from csa121_uploads where key='rollback'))
+ and not exists(select 1 from app_private.audit_logs where action='bank_transfer_approved' and resource_id=(select (data->>'order_id')::uuid from csa121_orders where key='rollback'))
+ and not exists(select 1 from app_private.notification_outbox where event_key='bank_review:'||(select data->>'submission_id' from csa121_uploads where key='rollback'))
+ and not exists(select 1 from app_private.idempotency_records where principal_scope='user:12100000-0000-0000-0000-000000000002' and operation='review-bank-transfer' and idempotency_key='review-rollback'),
+ 'CSA126 '||boundary||' fault leaves no partial financial, review, audit or notification state');
+$$;
 -- Fail after settlement/order/grant writes at each downstream persistence boundary.
 create trigger csa126_fault before insert on app_private.bank_transfer_reviews for each row execute function pg_temp.recovery_failure();
-select pg_temp.expect_error($q$select pg_temp.review('rollback')$q$,'P0001','CSA126 review evidence failure aborts transaction');
+select pg_temp.expect_error($q$select pg_temp.review('rollback')$q$,'P0001','CSA126 review evidence failure aborts transaction','Synthetic transaction recovery fault');
+select pg_temp.assert_recovery_clean('review evidence');
 drop trigger csa126_fault on app_private.bank_transfer_reviews;
 create trigger csa126_fault before insert on app_private.audit_logs for each row when(new.action='bank_transfer_approved') execute function pg_temp.recovery_failure();
-select pg_temp.expect_error($q$select pg_temp.review('rollback')$q$,'P0001','CSA126 final audit failure aborts transaction');
+select pg_temp.expect_error($q$select pg_temp.review('rollback')$q$,'P0001','CSA126 final audit failure aborts transaction','Synthetic transaction recovery fault');
+select pg_temp.assert_recovery_clean('final audit');
 drop trigger csa126_fault on app_private.audit_logs;
 create trigger csa126_fault before insert on app_private.notification_outbox for each row execute function pg_temp.recovery_failure();
-select pg_temp.expect_error($q$select pg_temp.review('rollback')$q$,'P0001','CSA126 post-grant outbox failure aborts transaction');
+select pg_temp.expect_error($q$select pg_temp.review('rollback')$q$,'P0001','CSA126 post-grant outbox failure aborts transaction','Synthetic transaction recovery fault');
+select pg_temp.assert_recovery_clean('outbox');
 drop trigger csa126_fault on app_private.notification_outbox;
 select pg_temp.assert_ok((select status='pending_verification' from public.orders where id=(select (data->>'order_id')::uuid from csa121_orders where key='rollback')),'CSA126 aborted attempts restore pending order');
 select pg_temp.assert_ok((select status='submitted' and reviewed_by is null from public.bank_transfer_submissions where id=(select (data->>'submission_id')::uuid from csa121_uploads where key='rollback')),'CSA126 aborted attempts restore reviewable receipt');

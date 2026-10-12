@@ -23,3 +23,20 @@ integration with proposed PR86 verifier remains a downstream release check.
 Tasks remain IN_REVIEW until authorized review/merge. Approver project owner.
 Local npm run tool:test:266 passed,3 database concurrency suites intentionally skipped in local mode. Full real database suite/concurrency runs in CI. Draft PR88; status IN_REVIEW.
 New SQL regression file:26 assertions pass on fresh native PostgreSQL16 after ordered001–018 migrations using synthetic Auth/Storage schema shims. Initial CI exposed a fixture-only renamed RPC reference; corrected to unchanged csa108_prepare_receipt. Real Supabase CI remains required.
+
+## Authorized PR88 review follow-up — 2026-10-12
+
+Owner CODEX root, assigned by project owner to review, resolve findings and merge
+PR88 into dev. Reuse clean isolated csa-121-126-financial-tests worktree and existing
+branch; issue87 remains coordination source. Writable scope unchanged: regression
+SQL, this record and TASKS.md CSA121–126. No production writes or migration changes.
+Merged current dev1729117 before verification; no conflicts. Related PR86 dependency
+is merged. Existing PR75/new status branch is separate; only these six status IDs
+are temporarily owned here. Review found fault identity and per-fault rollback
+coverage too weak: SQLSTATE alone can accept a different P0001 failure; final-only
+checks do not independently assert audit/review/outbox cleanup after each fault.
+Fix in scope: exact injected error message and full rollback assertion after each
+fault, retaining existing successful same-key recovery/duplicate assertions.
+Fresh baseline Node run:304 pass,0 fail,4 explicitly gated DB suites. Full hosted
+Supabase and Flutter exact-head checks required before authorized merge. Production
+activation and live provider/bank/email acceptance remain outside this review.
