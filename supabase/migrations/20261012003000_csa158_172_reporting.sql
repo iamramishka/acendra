@@ -39,7 +39,7 @@ begin
  if 'super_admin'=any(roles) then
   select count(*) into n from public.profiles p join auth.users u on u.id=p.id where u.deleted_at is null and not coalesce(u.is_anonymous,false) and (exists(select 1 from public.user_roles ur join public.roles r on r.id=ur.role_id where ur.user_id=p.id and ur.revoked_at is null and r.code='student') or not exists(select 1 from public.user_roles ur join public.roles r on r.id=ur.role_id where ur.user_id=p.id and ur.revoked_at is null and r.code in ('content_manager','finance_admin','super_admin')));
   result:=result||jsonb_build_object('registered_students',n::text);
-  select count(*) into n from public.enrollments e where app_private.csa117_has_access(e.user_id,e.course_id);
+  select count(*) into n from public.enrollments e join auth.users u on u.id=e.user_id where u.deleted_at is null and not coalesce(u.is_anonymous,false) and (u.banned_until is null or u.banned_until<=clock_timestamp()) and app_private.csa117_has_access(e.user_id,e.course_id);
   result:=result||jsonb_build_object('active_enrollments',n::text);
  end if;
  if roles&&array['finance_admin','super_admin'] then

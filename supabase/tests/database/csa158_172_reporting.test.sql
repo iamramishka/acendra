@@ -23,6 +23,9 @@ begin
  r:=public.csa158_dashboard_stats(admin,ads,'aal2','last_30_days');before_count:=(r->>'active_enrollments')::bigint;
  perform public.csa116_grant_admin(admin,ads,'aal2','report-grant',student,c,'Synthetic',null);
  r:=public.csa158_dashboard_stats(admin,ads,'aal2','last_30_days');if (r->>'active_enrollments')::bigint<>before_count+1 then raise exception 'effective grant missing';end if;
+ update auth.users set banned_until=clock_timestamp()+interval '1 day' where id=student;
+ r:=public.csa158_dashboard_stats(admin,ads,'aal2','last_30_days');if (r->>'active_enrollments')::bigint<>before_count then raise exception 'banned account counted active';end if;
+ update auth.users set banned_until=null where id=student;
  perform public.csa118_revoke_access(admin,ads,'aal2','report-revoke',student,c,null,'course','Synthetic');
  r:=public.csa158_dashboard_stats(admin,ads,'aal2','last_30_days');if (r->>'active_enrollments')::bigint<>before_count then raise exception 'restriction ignored';end if;
  -- Receipt facts include additional verified receipts exactly once; they do

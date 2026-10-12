@@ -7,7 +7,7 @@ export function createHandler({env,fetch:request=globalThis.fetch,enabled=false,
  return async incoming=>{
   const origin=incoming.headers.get('Origin');const respond=(status,code,data)=>Response.json(code?{error:{code}}:{data},{status,headers:{'Cache-Control':'no-store',Vary:'Origin',...(origin&&origins.has(origin)?{'Access-Control-Allow-Origin':origin}:{})}});
   if(enabled!==true)return respond(503,'REPORTING_UNAVAILABLE');
-  if(origin&&!origins.has(origin))return respond(403,'ORIGIN_FORBIDDEN');
+  if(origin!==null&&!origins.has(origin))return respond(403,'ORIGIN_FORBIDDEN');
   if(incoming.method==='OPTIONS'){const headers=(incoming.headers.get('Access-Control-Request-Headers')??'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);if(!origin||incoming.headers.get('Access-Control-Request-Method')!=='POST'||headers.some(x=>!['authorization','content-type','apikey','x-client-info'].includes(x)))return respond(403,'PREFLIGHT_FORBIDDEN');return new Response(null,{status:204,headers:{'Cache-Control':'no-store',Vary:'Origin','Access-Control-Allow-Origin':origin,'Access-Control-Allow-Methods':'POST','Access-Control-Allow-Headers':'Authorization, Content-Type, apikey, x-client-info'}});}
   if(incoming.method!=='POST')return respond(405,'METHOD_NOT_ALLOWED');
   const authorization=incoming.headers.get('Authorization');if(!authorization?.startsWith('Bearer ')||authorization.length>16384)return respond(401,'AUTH_REQUIRED');

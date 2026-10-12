@@ -23,7 +23,8 @@ are decimal strings to preserve PostgreSQL bigint/numeric precision in browsers.
 Registered students means undeleted non-anonymous accounts with an explicit
 student role or no elevated role; ordinary signup has no explicit student grant.
 Active enrollments evaluates surviving grant sources and restrictions through
-`csa117_has_access`, rather than trusting stale projection status.
+`csa117_has_access`, rather than trusting stale projection status. Deleted,
+anonymous or currently banned accounts are excluded from the active count.
 Pending bank reviews requires submitted/under-review evidence and a currently
 pending-verification order; awaiting uploads and finalized orders are excluded.
 
