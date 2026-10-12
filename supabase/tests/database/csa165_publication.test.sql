@@ -1,4 +1,5 @@
 begin;
+select '1..1';
 do $$
 declare actor uuid:=gen_random_uuid(); manager uuid:=gen_random_uuid(); buyer uuid:=gen_random_uuid();
  ads uuid:=gen_random_uuid(); ms uuid:=gen_random_uuid(); course uuid:=gen_random_uuid(); section uuid:=gen_random_uuid(); lesson uuid:=gen_random_uuid(); asset uuid:=gen_random_uuid();
@@ -61,5 +62,5 @@ begin
  begin perform public.csa165_publish_course(actor,ads,'aal2',course,stamp,'publish','publish');raise exception 'revoked replay';exception when insufficient_privilege then null;end;
  if has_function_privilege('authenticated','public.csa165_publish_course(uuid,uuid,text,uuid,timestamptz,text,text)','EXECUTE') or has_table_privilege('service_role','app_private.csa165_publication_audit','DELETE') then raise exception 'privilege leakage';end if;
 end;$$;
-select 'CSA165 publication/permissions/readiness/replay/audit/entitlement scenarios passed';
+select 'ok 1 - CSA165 publication permissions readiness replay audit entitlement';
 rollback;
