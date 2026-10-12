@@ -3,7 +3,7 @@ select '1..1';
 do $$
 declare buyer uuid:=gen_random_uuid(); other_user uuid:=gen_random_uuid(); admin uuid:=gen_random_uuid();
  bs uuid:=gen_random_uuid(); os uuid:=gen_random_uuid(); ads uuid:=gen_random_uuid(); course uuid:=gen_random_uuid(); section uuid:=gen_random_uuid(); lesson uuid:=gen_random_uuid(); asset uuid:=gen_random_uuid();
- rid uuid:=gen_random_uuid(); license uuid:=gen_random_uuid(); policy uuid:='14000000-0000-4000-8000-000000000001'; response jsonb; path text;
+ rid uuid:=gen_random_uuid(); license uuid:=gen_random_uuid(); policy uuid:='14000000-0000-4000-8000-000000000001'; response jsonb; path text; catalog_status text;
 begin
  insert into auth.users(id) values(buyer),(other_user),(admin);
  insert into auth.sessions(id,user_id,aal,not_after) values(bs,buyer,'aal1',now()+interval '1 day'),(os,other_user,'aal1',now()+interval '1 day'),(ads,admin,'aal2',now()+interval '1 day');
@@ -16,6 +16,17 @@ begin
  insert into app_private.lesson_assets(lesson_id,media_asset_id,usage,position) values(lesson,asset,'primary',0);
  begin perform public.csa140_resolve_pdf(buyer,bs,'aal1',lesson); raise exception 'Unpaid access'; exception when insufficient_privilege then null; end;
  perform public.csa116_grant_admin(admin,ads,'aal2','pdf-grant',buyer,course,'Synthetic',null);
+ foreach catalog_status in array array['archived','draft'] loop
+  update public.courses set status=catalog_status,published_at=null where id=course;
+  response:=public.csa140_resolve_pdf(buyer,bs,'aal1',lesson);
+  if response->>'state'<>'preparing' then raise exception 'Catalog change blocked preparing PDF'; end if;
+  response:=public.csa148_claim_pdf_job();
+  if response is null then raise exception 'Catalog change blocked PDF generation'; end if;
+  -- Return this synthetic lease so the remaining lifecycle tests can claim it.
+  update app_private.pdf_derivatives set lease_token=null,lease_until=null,attempts=0
+   where id=(response->>'resource_id')::uuid;
+ end loop;
+ update public.courses set status='published',published_at=now() where id=course;
  response:=public.csa140_resolve_pdf(buyer,bs,'aal1',lesson);
  if response<>jsonb_build_object('state','preparing','lesson_id',lesson,'resource_id',null) then raise exception 'Original fallback'; end if;
  select id into rid from app_private.pdf_derivatives where actor_id=buyer and asset_id=asset;
@@ -33,6 +44,12 @@ begin
  perform public.csa148_complete_pdf_job(rid,(response->>'lease_token')::uuid,repeat('b',64),120);
  response:=public.csa140_resolve_pdf(buyer,bs,'aal1',lesson,rid);
  if response->>'resource_id'<>rid::text or response->>'object_path'<>path or response->>'bucket'<>'course-pdfs' then raise exception 'Wrong derivative'; end if;
+ foreach catalog_status in array array['archived','draft'] loop
+  update public.courses set status=catalog_status,published_at=null where id=course;
+  response:=public.csa140_resolve_pdf(buyer,bs,'aal1',lesson,rid);
+  if response->>'state'<>'ready' or response->>'resource_id'<>rid::text then raise exception 'Catalog change blocked ready PDF'; end if;
+ end loop;
+ update public.courses set status='published',published_at=now() where id=course;
  update app_private.media_assets set validation_status='rejected' where id=asset;
  begin perform public.csa140_resolve_pdf(buyer,bs,'aal1',lesson,rid); raise exception 'Rejected source served'; exception when no_data_found then null; end;
  update app_private.media_assets set validation_status='validated' where id=asset;
