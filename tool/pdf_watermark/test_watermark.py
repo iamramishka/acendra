@@ -106,5 +106,42 @@ class UnicodeAndSupervisorTests(unittest.TestCase):
         with patch('supervisor.os.name','nt'):
             with self.assertRaises(WatermarkError): supervised_generate(fixture())
 
-if __name__=='__main__': unittest.main()
 
+
+
+class DeterminismTests(unittest.TestCase):
+    def test_repeated_generation_is_byte_identical(self):
+        from unittest.mock import patch
+        data=fixture()
+        kwargs=dict(display_name='Trusted Student',license_id='44444444-4444-4444-8444-444444444444',source_sha256=hashlib.sha256(data).hexdigest())
+        with patch('time.time',return_value=1000000000): first=generate(data,**kwargs)
+        with patch('time.time',return_value=2000000000): second=generate(data,**kwargs)
+        self.assertEqual(first,second)
+
+    def test_profile_name_limit(self):
+        data=fixture()
+        kwargs=dict(license_id='44444444-4444-4444-8444-444444444444',source_sha256=hashlib.sha256(data).hexdigest())
+        self.assertTrue(generate(data,display_name='i'*100,**kwargs))
+        with self.assertRaises(WatermarkError): generate(data,display_name='A'*101,**kwargs)
+
+class LinuxSupervisorTests(unittest.TestCase):
+    @unittest.skipUnless(__import__('sys').platform=='linux' and hasattr(os,'getuid') and os.getuid()!=0,'Requires non-root Linux runtime')
+    def test_real_confined_generation_and_rejection(self):
+        from supervisor import generate_isolated
+        data=fixture(); kwargs=dict(display_name='Student',license_id='44444444-4444-4444-8444-444444444444',source_sha256=hashlib.sha256(data).hexdigest())
+        result=generate_isolated(data,kwargs)
+        self.assertIn(kwargs['license_id'],PdfReader(io.BytesIO(result)).pages[0].extract_text())
+        with self.assertRaises(WatermarkError): generate_isolated(data,{**kwargs,'limits':Limits(max_output_bytes=1)})
+
+    def test_wall_timeout_kills_child_and_cleans_up(self):
+        from unittest.mock import MagicMock,patch
+        from supervisor import supervised_generate
+        fake=MagicMock(); fake.is_alive.side_effect=[True,False]
+        context=MagicMock(); context.Process.return_value=fake
+        path_type=type(__import__('pathlib').Path('.'))
+        with patch('supervisor.Path',path_type),patch('supervisor.sys.platform','linux'),patch('supervisor.os.name','posix'),patch('supervisor.os.getuid',return_value=1000,create=True),patch('supervisor.multiprocessing.get_context',return_value=context):
+            with self.assertRaises(WatermarkError): supervised_generate(fixture(),wall_seconds=1)
+        fake.kill.assert_called_once()
+        fake.close.assert_called_once()
+
+if __name__=='__main__': unittest.main()

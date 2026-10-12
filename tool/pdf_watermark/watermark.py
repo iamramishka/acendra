@@ -96,7 +96,7 @@ def generate(source: bytes, *, display_name: str, license_id: str,
             raise WatermarkError('Input bound exceeded')
         if not isinstance(source_sha256,str) or not re.fullmatch('[0-9a-f]{64}',source_sha256) or hashlib.sha256(source).hexdigest()!=source_sha256:
             raise WatermarkError('Source integrity mismatch')
-        if not isinstance(display_name,str) or not 1<=len(display_name.strip())<=80 or any(unicodedata.category(c).startswith("C") for c in display_name):
+        if not isinstance(display_name,str) or not 1<=len(display_name.strip())<=100 or any(unicodedata.category(c).startswith("C") for c in display_name):
             raise WatermarkError('Unsupported display name')
         if not isinstance(license_id,str) or str(UUID(license_id))!=license_id:
             raise WatermarkError('Invalid license identifier')
@@ -127,7 +127,7 @@ def generate(source: bytes, *, display_name: str, license_id: str,
                 raise WatermarkError('Unsupported page geometry')
             # Paint inside the crop box without normalizing rotation or changing
             # original boxes. This is permanent page content, not an annotation.
-            overlay=io.BytesIO(); canvas=Canvas(overlay,pagesize=(w,h))
+            overlay=io.BytesIO(); canvas=Canvas(overlay,pagesize=(w,h),invariant=1)
             font_size=min(10,(w-24)/unit_width)
             if font_size<4: raise WatermarkError('Watermark would be unreadable')
             canvas.setFillColorRGB(.35,.35,.35)
