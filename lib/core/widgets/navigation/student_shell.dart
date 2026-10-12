@@ -78,7 +78,8 @@ class StudentShell extends ConsumerWidget {
               ],
             )
           : null,
-      // Routed pages own their scrolling and need finite viewport constraints.
+      // Routed pages own their scrolling and may contain a Scaffold. Keep
+      // their viewport bounded instead of nesting it in a scroll view.
       body: ResponsiveContainer(child: child),
     );
   }

@@ -36,6 +36,22 @@ void main() {
     expect(find.text('lesson'), findsOneWidget);
   });
 
+  testWidgets('StudentShell bounds a routed Scaffold', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        const StudentShell(
+          child: Scaffold(body: Center(child: Text('routed student page'))),
+        ),
+      ),
+    );
+    expect(find.text('routed student page'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    expect(
+      tester.getSize(find.text('routed student page')).height.isFinite,
+      isTrue,
+    );
+  });
+
   testWidgets('AdminShell renders child', (tester) async {
     await tester.pumpWidget(
       _wrap(const AdminShell(child: Text('admin panel'))),
