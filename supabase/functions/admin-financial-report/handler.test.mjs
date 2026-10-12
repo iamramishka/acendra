@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {createHandler} from './handler.mjs';
+const actor='17200000-0000-0000-0000-000000000001',session='17200000-0000-0000-0000-000000000002';
+const token='x.'+Buffer.from(JSON.stringify({sub:actor,session_id:session,role:'authenticated',aal:'aal2'})).toString('base64url')+'.x';
+const env=k=>({SUPABASE_URL:'https://synthetic.invalid',SUPABASE_ANON_KEY:'public',SUPABASE_SERVICE_ROLE_KEY:'private'})[k];
+const req=body=>new Request('https://function.invalid',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(body)});
+const body={from:'2026-10-01',to:'2026-10-10',currency_code:'LKR'};
+test('report disabled by default',async()=>assert.equal((await createHandler({env})(req(body))).status,503));
+for(const b of [{...body,from:'2026-02-30'},{...body,to:'2026-09-01'},{...body,currency_code:'USD'},{...body,from:'2025-01-01'},{...body,actor}])test('reject invalid report '+JSON.stringify(b),async()=>{let calls=0;assert.equal((await createHandler({env,enabled:true,fetch:async()=>{calls++;}})(req(b))).status,400);assert.equal(calls,0);});
+test('financial facts preserve exact minor-unit strings',async()=>{let n=0;const r=await createHandler({env,enabled:true,fetch:async(url,o)=>{if(n++===0)return Response.json({id:actor});assert.ok(url.endsWith('/rpc/csa172_financial_report'));assert.equal(JSON.parse(o.body).p_currency,'LKR');return Response.json({confirmed_amount_minor:'900719925474099300'});}})(req(body));assert.equal(r.status,200);assert.equal((await r.json()).data.confirmed_amount_minor,'900719925474099300');});
+test('unsupported historical adjustments fail closed',async()=>{let n=0;const r=await createHandler({env,enabled:true,fetch:async()=>n++===0?Response.json({id:actor}):Response.json({code:'55000',message:'private'},{status:400})})(req(body));assert.equal(r.status,503);assert.ok(!(await r.text()).includes('private'));});
