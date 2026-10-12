@@ -33,9 +33,9 @@ class _PlaceholderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 320,
-      child: Center(
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(
         child: Text(title, style: Theme.of(context).textTheme.headlineMedium),
       ),
     );
@@ -74,7 +74,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         redirect: (_, _) => RouteNames.marketplace,
       ),
 
-      // Authentication screens own their layout; avoid nested scroll shells.
+      // Authentication screens own AuthShell; nesting another scrollable
+      // shell here would give their Scaffold unbounded height.
       ShellRoute(
         builder: (context, state, child) => child,
         routes: [
