@@ -1,0 +1,5 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createStorage } from './storage.mjs';
+test('private storage request never signs or follows redirects',async()=>{let captured;const storage=createStorage({env:n=>({SUPABASE_URL:'https://storage.test',SUPABASE_SERVICE_ROLE_KEY:'server-only'}[n]),fetchImpl:async(...args)=>{captured=args;return new Response();}});await storage.open({bucket:'course_pdf',object_path:'user/file name.pdf',start:3,end:5,size_bytes:10});assert.equal(String(captured[0]),'https://storage.test/storage/v1/object/authenticated/course_pdf/user/file%20name.pdf');assert.equal(captured[1].redirect,'error');assert.equal(captured[1].headers.Range,'bytes=3-5');assert.equal(captured[1].headers.Authorization,'Bearer server-only');});
+test('missing configuration and path traversal fail before fetching',async()=>{let calls=0;const storage=createStorage({env:()=>'',fetchImpl:async()=>calls++});await assert.rejects(storage.open({bucket:'x',object_path:'../x',start:0,end:1,size_bytes:2}));assert.equal(calls,0);});
