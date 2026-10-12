@@ -1,6 +1,5 @@
 import 'package:acendra/app/router/route_names.dart';
 import 'package:acendra/core/widgets/navigation/admin_shell.dart';
-import 'package:acendra/core/widgets/navigation/auth_shell.dart';
 import 'package:acendra/core/widgets/navigation/learning_shell.dart';
 import 'package:acendra/core/widgets/navigation/public_shell.dart';
 import 'package:acendra/core/widgets/navigation/student_shell.dart';
@@ -34,9 +33,9 @@ class _PlaceholderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(
+    return SizedBox(
+      height: 320,
+      child: Center(
         child: Text(title, style: Theme.of(context).textTheme.headlineMedium),
       ),
     );
@@ -55,9 +54,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (!sessionRestored) return null;
 
       final isPublic = _publicRoutes.any(
-        (r) => location.startsWith(
-          r.contains(':') ? r.substring(0, r.indexOf(':')) : r,
-        ),
+        (r) => r.contains(':')
+            ? location.startsWith(r.substring(0, r.indexOf(':')))
+            : location == r,
       );
 
       if (!isAuthenticated && !isPublic) return RouteNames.login;
@@ -75,9 +74,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         redirect: (_, _) => RouteNames.marketplace,
       ),
 
-      // Auth shell — centred card layout for all authentication flows.
+      // Authentication screens own their layout; avoid nested scroll shells.
       ShellRoute(
-        builder: (context, state, child) => AuthShell(child: child),
+        builder: (context, state, child) => child,
         routes: [
           GoRoute(
             path: RouteNames.login,
