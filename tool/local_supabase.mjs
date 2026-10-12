@@ -183,7 +183,19 @@ function run(layout, args, { json = false } = {}) {
         }
       }
       const lint = args.includes('lint') ? safeLintSummary(result.stdout, knownFunctions) : '';
-      const summary = `${states.length ? ` SQLSTATE: ${states.join(',')}.` : ''}${migrations.length ? ` Last migration: ${migrations.at(-1)}.` : ''}${lint ? ` Lint: ${lint}.` : ''}`;
+      // Only surface literal synthetic assertion labels from repository tests.
+      // Arbitrary database diagnostics can include credentials or row values.
+      const testFailures = [];
+      if (args.includes('test')) {
+        for (const file of fs.readdirSync(path.join(root, 'supabase', 'tests', 'database'))) {
+          if (!/^csa(?:127|133|136|139)_[a-z_]+\.test\.sql$/.test(file)) continue;
+          const source = fs.readFileSync(path.join(root, 'supabase', 'tests', 'database', file), 'utf8');
+          for (const match of source.matchAll(/raise exception '([A-Za-z0-9 _-]{1,100})'/g)) {
+            if (diagnostics.includes(`ERROR:  ${match[1]}`)) testFailures.push(`${file}: ${match[1]}`);
+          }
+        }
+      }
+      const summary = `${states.length ? ` SQLSTATE: ${states.join(',')}.` : ''}${migrations.length ? ` Last migration: ${migrations.at(-1)}.` : ''}${lint ? ` Lint: ${lint}.` : ''}${testFailures.length ? ` Test assertions: ${testFailures.join('; ')}.` : ''}`;
       throw new Error(`Supabase ${args[0]} failed (exit ${result.status}).${summary} Private diagnostics: ${logPath}. Check Docker health and port availability.`);
   }
   if (json) {

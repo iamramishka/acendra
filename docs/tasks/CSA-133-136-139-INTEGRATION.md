@@ -24,3 +24,19 @@ verification. No production configuration, provider purchase or enablement.
 
 Protected PDF entitlement/proxy/watermark delivery remain CSA-140/141/148;
 video provider provisioning and playback PoC remain retained release gates.
+
+## Integrated candidate
+
+Progress commits4a23315/2b4e7bf/ef317a9; PDF storage a17107b; video fcb171f/
+6b691fd/cecda45; shared smoke4e3f805; discovery57b0342; archived access correction
+b31eda0. Worker source commits preserved in their isolated branches.
+
+Fresh full Node suite:324 passed, zero failed, four locally gated DB suites.
+Root review corrected video's catalog-publication requirement to preserve existing
+entitled archived/draft course access; lesson/section publication still required.
+Full ordered migration021–024, new SQL tests and real pinned Storage lifecycle
+are running on hosted disposable Supabase. Runtime passes will be recorded only
+when checks finish. Intermediate runs cancelled when superseded by final head.
+
+PR #102 is stacked on CSA-127 PR #92. Tasks remain IN_REVIEW pending combined
+runtime verification and acceptance. No dev merge or production enablement.
