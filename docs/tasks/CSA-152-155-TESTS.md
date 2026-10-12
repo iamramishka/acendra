@@ -20,4 +20,4 @@ silently merged into test branch. On merged dev absent PDF/video targets generat
 explicit named skips, not passing assertions; progress native runner opt-in.
 Production delivery remains disabled and no deployed provider/queue readiness
 is claimed. Status IN_REVIEW pending dependency integration/CI/authorized review.
-No merge/deployment authorized. Project owner controls acceptance.
+No merge/deployment authorized. Project owner controls acceptance.CSA155 final commit0eaacb2 integrated: actual native RPC persistence runner passes1 test containing14 named SQL assertion groups,0 skips. Text/image/PDF/video save-read, retry/clearing/bounds, peer/session isolation, revocation denial and unchanged history verified. Dev absence remains explicit opt-in/dependency skip. New production code not copied.
