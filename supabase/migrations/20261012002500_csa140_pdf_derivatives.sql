@@ -45,7 +45,7 @@ begin
  perform app_private.csa108_require_session(p_actor,p_session_id,p_aal,false);
  select s.course_id into course from public.lessons l join public.course_sections s on s.id=l.section_id
  join public.courses c on c.id=s.course_id
- where l.id=p_lesson and l.lesson_type='pdf' and l.is_published and s.is_published and c.status='published' and c.published_at is not null;
+ where l.id=p_lesson and l.lesson_type='pdf' and l.is_published and s.is_published;
  if course is null then raise exception 'PDF_NOT_FOUND' using errcode='P0002'; end if;
  if not app_private.csa117_has_access(p_actor,course) then raise exception 'ACCESS_DENIED' using errcode='42501'; end if;
  -- Ambiguous associations cannot silently select a different source.
@@ -99,7 +99,7 @@ begin
  and u.deleted_at is null and not coalesce(u.is_anonymous,false) and (u.banned_until is null or u.banned_until<=clock_timestamp())
  and exists(select 1 from app_private.lesson_assets la join public.lessons l on l.id=la.lesson_id
  join public.course_sections s on s.id=l.section_id join public.courses c on c.id=s.course_id
- where la.media_asset_id=x.asset_id and l.is_published and s.is_published and c.status='published' and app_private.csa117_has_access(x.actor_id,c.id))
+ where la.media_asset_id=x.asset_id and l.is_published and s.is_published and app_private.csa117_has_access(x.actor_id,c.id))
  order by x.created_at for update of x skip locked limit 1;
  if d.id is null then return null; end if;
  select * into asset from app_private.media_assets where id=d.asset_id and content_version=d.asset_version and checksum_sha256=d.source_digest

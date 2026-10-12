@@ -156,4 +156,3 @@ def generate(source: bytes, *, display_name: str, license_id: str,
         raise
     except Exception:
         raise WatermarkError('PDF generation rejected') from None
-
