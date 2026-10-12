@@ -28,8 +28,26 @@ test('pinned watermark worker runs under the real non-root Linux supervisor', {
   const python = path.join(directory, 'bin', 'python');
   run(python, ['-m', 'pip', 'install', '--disable-pip-version-check',
     '-r', 'tool/pdf_watermark/requirements.txt'], 120000);
-  const report = run(python, ['-m', 'unittest', 'discover', '-s', 'tool/pdf_watermark', '-v']);
-  assert.match(report, /test_real_confined_generation_and_rejection[^\n]*\.\.\. ok/,
-    'The actual Linux confinement test must execute, not skip');
-  assert.match(report, /test_wall_timeout_kills_child_and_cleans_up[^\n]*\.\.\. ok/);
+  // Expected rejected child processes can print diagnostics between the test
+  // name and its 'ok'. Inspect unittest outcomes instead of parsing that layout.
+  const verification = `
+import unittest
+class VerifiedResult(unittest.TextTestResult):
+    succeeded = set()
+    def addSuccess(self, case):
+        self.succeeded.add(case.id())
+        super().addSuccess(case)
+suite = unittest.defaultTestLoader.discover('tool/pdf_watermark')
+result = unittest.TextTestRunner(verbosity=2, resultclass=VerifiedResult).run(suite)
+required = {
+    'test_watermark.LinuxSupervisorTests.test_real_confined_generation_and_rejection',
+    'test_watermark.LinuxSupervisorTests.test_wall_timeout_kills_child_and_cleans_up',
+}
+if not result.wasSuccessful() or not required.issubset(result.succeeded):
+    raise SystemExit(1)
+print('PDF_LINUX_CONFINEMENT_VERIFIED')
+`;
+  const report = run(python, ['-c', verification]);
+  assert.match(report, /PDF_LINUX_CONFINEMENT_VERIFIED/,
+    'The actual Linux confinement and timeout tests must execute, not skip');
 });
