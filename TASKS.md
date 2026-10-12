@@ -1352,21 +1352,33 @@ CODEX
 UI Owner:
 CLAUDE
 
+Phase 5 CODEX status reconciled on 2026-10-12 against live GitHub evidence:
+15 DONE, 12 IN_REVIEW, 1 BLOCKED. Completed foundation tasks are CSA-092–096
+and CSA-098 (PRs #61/#68–71); completed bank implementation tasks are
+CSA-108/109/112/113 (PR #84); accepted entitlement/security tasks are
+CSA-114/116/117/118/120 (PR #86). These are bounded development completions.
+CSA-100 is BLOCKED on real PayHere sandbox acceptance. CSA-101–105 are merged
+in PR #79 with passing CI but retain provider/financial acceptance gates.
+CSA-119 has an accepted outbox/worker but live email delivery remains IN_REVIEW.
+CSA-121–126 are IN_REVIEW in open PR #88 with passing Flutter/Supabase CI.
+Online, receipt, administrative and email activation/release gates remain;
+Phase 5 overall is incomplete. See [reconciliation evidence and remaining gates](docs/tasks/CSA-PHASE5-STATUS-RECONCILIATION.md).
+
 ## CODEX - FINANCIAL DATABASE
 
-- [ ] CSA-092 [P0] [X]
+- [x] CSA-092 [P0] [X] [DONE]
   Create orders and payment attempts.
 
-- [ ] CSA-093 [P0] [X]
+- [x] CSA-093 [P0] [X] [DONE]
   Create payment event records.
 
-- [ ] CSA-094 [P0] [X]
+- [x] CSA-094 [P0] [X] [DONE]
   Create bank transfer submission schema.
 
-- [ ] CSA-095 [P0] [X]
+- [x] CSA-095 [P0] [X] [DONE]
   Create enrollment records.
 
-- [ ] CSA-096 [P0] [X]
+- [x] CSA-096 [P0] [X] [DONE]
   Implement financial uniqueness
   and transaction constraints.
 
@@ -1383,26 +1395,31 @@ CLAUDE
 
 ## CODEX - ONLINE PAYMENT BACKEND
 
-- [ ] CSA-098 [P0] [X]
+- [x] CSA-098 [P0] [X] [DONE]
   Implement trusted order creation.
 
-- [ ] CSA-100 [P0] [X]
+- [ ] CSA-100 [P0] [X] [BLOCKED]
   Implement payment adapter.
 
-- [ ] CSA-101 [P0] [X]
+- [ ] CSA-101 [P0] [X] [IN_REVIEW]
   Implement checkout initialization.
+  PR: [#79](https://github.com/iamramishka/acendra/pull/79) MERGED into dev; Flutter/Supabase CI passed. Remaining: real PayHere sandbox verification and financial acceptance.
 
-- [ ] CSA-102 [P0] [X]
+- [ ] CSA-102 [P0] [X] [IN_REVIEW]
   Implement verified provider webhook.
+  PR: [#79](https://github.com/iamramishka/acendra/pull/79) MERGED into dev; Flutter/Supabase CI passed. Remaining: real PayHere sandbox verification and financial acceptance.
 
-- [ ] CSA-103 [P0] [X]
+- [ ] CSA-103 [P0] [X] [IN_REVIEW]
   Validate transaction amount and currency.
+  PR: [#79](https://github.com/iamramishka/acendra/pull/79) MERGED into dev; Flutter/Supabase CI passed. Remaining: real PayHere sandbox verification and financial acceptance.
 
-- [ ] CSA-104 [P0] [X]
+- [ ] CSA-104 [P0] [X] [IN_REVIEW]
   Implement atomic payment finalization.
+  PR: [#79](https://github.com/iamramishka/acendra/pull/79) MERGED into dev; Flutter/Supabase CI passed. Remaining: real PayHere sandbox verification and financial acceptance.
 
-- [ ] CSA-105 [P0] [X]
+- [ ] CSA-105 [P0] [X] [IN_REVIEW]
   Implement idempotent event processing.
+  PR: [#79](https://github.com/iamramishka/acendra/pull/79) MERGED into dev; Flutter/Supabase CI passed. Remaining: real PayHere sandbox verification and financial acceptance.
 
 ## CLAUDE - BANK TRANSFER UI
 
@@ -1420,57 +1437,64 @@ CLAUDE
 
 ## CODEX - BANK TRANSFER BACKEND
 
-- [ ] CSA-108 [P0] [X]
+- [x] CSA-108 [P0] [X] [DONE]
   Implement private receipt upload.
 
-- [ ] CSA-109 [P0] [X]
+- [x] CSA-109 [P0] [X] [DONE]
   Validate receipt type and ownership.
 
-- [ ] CSA-112 [P0] [X]
+- [x] CSA-112 [P0] [X] [DONE]
   Implement authorized bank approval.
 
-- [ ] CSA-113 [P0] [X]
+- [x] CSA-113 [P0] [X] [DONE]
   Implement bank rejection processing.
 
-- [ ] CSA-114 [P0] [X]
+- [x] CSA-114 [P0] [X] [DONE]
   Implement concurrency-safe approvals.
 
 ## CODEX - ENROLLMENTS
 
-- [ ] CSA-116 [P0] [X]
+- [x] CSA-116 [P0] [X] [DONE]
   Implement entitlement grant logic.
 
-- [ ] CSA-117 [P0] [X]
+- [x] CSA-117 [P0] [X] [DONE]
   Implement entitlement verification.
 
-- [ ] CSA-118 [P0] [X]
+- [x] CSA-118 [P0] [X] [DONE]
   Implement access revocation.
 
-- [ ] CSA-119 [P1] [X]
+- [ ] CSA-119 [P1] [X] [IN_REVIEW]
   Implement payment status notifications.
+  PR: [#86](https://github.com/iamramishka/acendra/pull/86) MERGED into dev; exact-head Flutter/Supabase CI passed. Remaining: approved email provider/sender, stable-key deduplication, authenticated scheduler and live delivery verification.
 
 ## CODEX - CRITICAL SECURITY TESTS
 
-- [ ] CSA-120 [P0] [X]
+- [x] CSA-120 [P0] [X] [DONE]
   Test forged provider callbacks.
 
-- [ ] CSA-121 [P0] [X]
+- [ ] CSA-121 [P0] [X] [IN_REVIEW]
   Test amount/currency mismatches.
+  PR: [#88](https://github.com/iamramishka/acendra/pull/88) OPEN; Flutter/Supabase CI passed. Remaining: authorized review, acceptance and merge.
 
-- [ ] CSA-122 [P0] [X]
+- [ ] CSA-122 [P0] [X] [IN_REVIEW]
   Test duplicate provider events.
+  PR: [#88](https://github.com/iamramishka/acendra/pull/88) OPEN; Flutter/Supabase CI passed. Remaining: authorized review, acceptance and merge.
 
-- [ ] CSA-123 [P0] [X]
+- [ ] CSA-123 [P0] [X] [IN_REVIEW]
   Test concurrent approval scenarios.
+  PR: [#88](https://github.com/iamramishka/acendra/pull/88) OPEN; Flutter/Supabase CI passed. Remaining: authorized review, acceptance and merge.
 
-- [ ] CSA-124 [P0] [X]
+- [ ] CSA-124 [P0] [X] [IN_REVIEW]
   Test rejected/pending access denial.
+  PR: [#88](https://github.com/iamramishka/acendra/pull/88) OPEN; Flutter/Supabase CI passed. Remaining: authorized review, acceptance and merge.
 
-- [ ] CSA-125 [P0] [X]
+- [ ] CSA-125 [P0] [X] [IN_REVIEW]
   Test unauthorized finance operations.
+  PR: [#88](https://github.com/iamramishka/acendra/pull/88) OPEN; Flutter/Supabase CI passed. Remaining: authorized review, acceptance and merge.
 
-- [ ] CSA-126 [P0] [X]
+- [ ] CSA-126 [P0] [X] [IN_REVIEW]
   Test financial transaction recovery.
+  PR: [#88](https://github.com/iamramishka/acendra/pull/88) OPEN; Flutter/Supabase CI passed. Remaining: authorized review, acceptance and merge.
 
 Integration Gate:
 
