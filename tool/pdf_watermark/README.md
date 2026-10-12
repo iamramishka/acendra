@@ -17,17 +17,26 @@ personalized watermarking to students before delivery.
 
 Reject encrypted/unparseable documents, integrity mismatch, embedded files,
 actions, JavaScript, forms/signatures, tagged structures, non-default UserUnit,
-unsupported geometry, and names outside printable ASCII. These explicit
+unsupported geometry, controls, and font glyphs missing from the configured font. These explicit
 limitations prevent silent loss of accessibility structures or font glyphs.
-Unicode fonts, tagged accessibility preservation, and pedagogical visual QA of
+Tagged accessibility preservation and pedagogical visual QA of
 actual course documents require a separately approved extension. Rejecting
 existing interactive links is intentional until a safe URI policy is approved.
 
-Positive configurable input/page/output/object limits fail closed. PDF parsing
-and decompression can allocate before these logical limits are reached; run in
-an OS-isolated process with enforced memory, CPU and wall-clock limits before
-production. These deployment limits, trusted queue orchestration, artifact
-registration and CSA139 private-storage integration remain release gates.
+Selected worker runtime: existing trusted Python backend tooling on non-root
+Linux. `generate_isolated(source, kwargs)` supervises each job with 60-second
+wall/CPU timeout, 512MiB address-space ceiling, 50MiB file ceiling, no core
+dumps, descriptor/process limits, and private temporary output cleanup. It
+refuses Windows, non-Linux POSIX and root execution before document parsing.
+Input/output ceilings are 50MiB and page ceiling is 500; all remain positive
+and can be lowered. A network-denied/container filesystem sandbox remains a
+deployment requirement; process limits do not restrict filesystem authority.
+Linux enforcement must be verified in that deployment; Windows synthetic tests
+verify direct generation and fail-closed supervisor platform behavior only.
+Derivatives expire after 30 days under the root-owned cleanup/registration
+policy; temporary supervisor output is deleted immediately after job return.
+Trusted queue orchestration, artifact registration, sandbox deployment and
+CSA139 private-storage integration remain release gates.
 
 Dependency justification: pypdf (BSD-3-Clause) merges existing page content
 without rasterization; reportlab (BSD) creates the textual overlay. Versions
@@ -39,3 +48,21 @@ integration responsibilities.
 Run tests: `python -m unittest discover -s tool/pdf_watermark -v`.
 Fixtures are generated in memory using synthetic identities; no binary PDFs
 or real student information are committed.
+
+Unicode locale support uses a server-configured absolute TTF/TTC font path
+and ReportLab shaping through pinned uharfbuzz 0.53.3 (MIT). HarfBuzz supplies
+contextual Sinhala/Tamil glyph positioning that cmap coverage alone cannot
+provide. Every name glyph must exist in the font cmap; missing glyphs and
+missing shaping runtime fail closed. Windows Nirmala TTC was used only for
+local synthetic verification and is not redistributed. Linux deployment must
+supply a licensed font covering Latin/Sinhala/Tamil and set the trusted path;
+no request parameter or queue client may select the font. Shaped watermark
+Unicode extraction can differ from the source Unicode sequence because of
+ligatures; the opaque license ID and original selectable lesson text persist.
+
+Official implementation references:
+https://hg.reportlab.com/hg-public/reportlab/annotate/7635eaecb27d/src/reportlab/pdfbase/ttfonts.py
+https://uharfbuzz.readthedocs.io/reference.html
+For locale tests set CSA148_TEST_FONT to the trusted locale font. Install
+requirements into the isolated worker environment first; tests skip only the
+locale fixture when no configured font exists. Production must fail closed.

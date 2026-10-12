@@ -3,21 +3,24 @@ import hashlib
 import io
 import math
 import re
+import unicodedata
+from pathlib import Path
 from dataclasses import dataclass
 from uuid import UUID
 from pypdf import PdfReader, PdfWriter
 from pypdf.generic import DictionaryObject, ArrayObject, IndirectObject
 from reportlab.pdfgen.canvas import Canvas
-from reportlab.pdfbase.pdfmetrics import stringWidth
+from reportlab.pdfbase.pdfmetrics import stringWidth, registerFont
+from reportlab.pdfbase.ttfonts import TTFont, shapeStr
 
 class WatermarkError(ValueError):
     """Fail-closed input or generation failure; contains no document data."""
 
 @dataclass(frozen=True)
 class Limits:
-    max_input_bytes: int = 20 * 1024 * 1024
-    max_pages: int = 200
-    max_output_bytes: int = 40 * 1024 * 1024
+    max_input_bytes: int = 50 * 1024 * 1024
+    max_pages: int = 500
+    max_output_bytes: int = 50 * 1024 * 1024
     max_objects: int = 100000
 
 class _BoundedOutput(io.BytesIO):
@@ -58,11 +61,12 @@ def _inspect(root, limit):
         else: pending.extend(item)
 
 def generate(source: bytes, *, display_name: str, license_id: str,
-             source_sha256: str, limits: Limits = Limits()) -> bytes:
+             source_sha256: str, limits: Limits = Limits(), trusted_font_path: str | None = None) -> bytes:
     """Use ONLY backend-trusted identity and the immutable asset digest.
 
     Preserves page boxes/rotation and text for supported untagged PDFs.
-    Unicode names fail closed until an approved embedded font is supplied.
+    Unicode names require a server-configured font with complete glyph coverage.
+    Unicode is shaped using the pinned HarfBuzz runtime and embedded font.
     """
     try:
         if not isinstance(limits, Limits) or any(type(v) is not int or v<=0 for v in vars(limits).values()):
@@ -71,16 +75,29 @@ def generate(source: bytes, *, display_name: str, license_id: str,
             raise WatermarkError('Input bound exceeded')
         if not isinstance(source_sha256,str) or not re.fullmatch('[0-9a-f]{64}',source_sha256) or hashlib.sha256(source).hexdigest()!=source_sha256:
             raise WatermarkError('Source integrity mismatch')
-        if not isinstance(display_name,str) or not 1<=len(display_name.strip())<=80 or any(ord(c)<32 or ord(c)>126 for c in display_name):
+        if not isinstance(display_name,str) or not 1<=len(display_name.strip())<=80 or any(unicodedata.category(c).startswith("C") for c in display_name):
             raise WatermarkError('Unsupported display name')
         if not isinstance(license_id,str) or str(UUID(license_id))!=license_id:
             raise WatermarkError('Invalid license identifier')
+        font_name='Helvetica'
+        if any(ord(c)>126 for c in display_name):
+            if trusted_font_path is None: raise WatermarkError('Unicode font required')
+            path=Path(trusted_font_path)
+            if not path.is_absolute() or not path.is_file() or path.stat().st_size>20*1024*1024:
+                raise WatermarkError('Invalid trusted font')
+            font_name='Acedra'+hashlib.sha256(path.read_bytes()).hexdigest()[:16]
+            font=TTFont(font_name,str(path),subfontIndex=0)
+            if any(ord(c) not in font.face.charToGlyph for c in display_name):
+                raise WatermarkError('Missing Unicode glyph')
+            if not font.shapable: raise WatermarkError('Unicode shaping runtime required')
+            registerFont(font)
         reader=PdfReader(io.BytesIO(source),strict=True)
         if reader.is_encrypted: raise WatermarkError('Encrypted PDF unsupported')
         _inspect(reader.trailer,limits.max_objects)
         if not 1<=len(reader.pages)<=limits.max_pages: raise WatermarkError('Page bound exceeded')
         writer=PdfWriter()
         label=f'Licensed to {display_name.strip()} - {license_id}'
+        shaped_label=shapeStr(label,font_name,1,force=True) if font_name!='Helvetica' else label
         for original_page in reader.pages:
             page = writer.add_page(original_page)
             box=page.cropbox
@@ -90,12 +107,12 @@ def generate(source: bytes, *, display_name: str, license_id: str,
             # Paint inside the crop box without normalizing rotation or changing
             # original boxes. This is permanent page content, not an annotation.
             overlay=io.BytesIO(); canvas=Canvas(overlay,pagesize=(w,h))
-            font_size=min(10,(w-24)/stringWidth(label,'Helvetica',1))
+            font_size=min(10,(w-24)/stringWidth(shaped_label,font_name,1))
             if font_size<4: raise WatermarkError('Watermark would be unreadable')
             canvas.setFillColorRGB(.35,.35,.35)
             canvas.setFillAlpha(.6)
-            canvas.setFont('Helvetica',font_size)
-            canvas.drawCentredString(w/2,12,label)
+            canvas.setFont(font_name,font_size)
+            canvas.drawCentredString(w/2,12,shapeStr(label,font_name,font_size,force=True) if font_name!='Helvetica' else label)
             canvas.save()
             stamp=PdfReader(overlay,strict=True).pages[0]
             page.merge_translated_page(stamp,x,y,expand=False)
@@ -104,7 +121,7 @@ def generate(source: bytes, *, display_name: str, license_id: str,
         data=output.getvalue()
         # Reparse all pages and verify identity content prior to returning bytes.
         check=PdfReader(io.BytesIO(data),strict=True)
-        if len(check.pages)!=len(reader.pages) or any(label not in p.extract_text() for p in check.pages):
+        if len(check.pages)!=len(reader.pages) or any(license_id not in p.extract_text() for p in check.pages):
             raise WatermarkError('Derivative verification failed')
         return data
     except WatermarkError:

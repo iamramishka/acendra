@@ -79,5 +79,32 @@ class AdditionalTests(unittest.TestCase):
         self.assertEqual([page.rotation for page in PdfReader(io.BytesIO(output)).pages],[0,90,180,270])
         with self.assertRaises(WatermarkError): generate(data,display_name='Student',license_id='22222222-2222-4222-8222-222222222222',source_sha256=digest,limits=Limits(max_objects=1))
 
+
+
+import os
+from unittest.mock import patch
+from reportlab.pdfbase.ttfonts import shapeStr
+
+class UnicodeAndSupervisorTests(unittest.TestCase):
+    def test_unicode_shaping_and_missing_glyph(self):
+        font=os.environ.get('CSA148_TEST_FONT','C:/Windows/Fonts/Nirmala.ttc')
+        if not os.path.isfile(font): self.skipTest('Configured locale font unavailable')
+        data=fixture(); digest=hashlib.sha256(data).hexdigest()
+        kwargs=dict(license_id='33333333-3333-4333-8333-333333333333',source_sha256=digest,trusted_font_path=font)
+        output=generate(data,display_name='රමිෂ්ක தமிழ்',**kwargs)
+        reader=PdfReader(io.BytesIO(output))
+        for page in reader.pages:
+            self.assertIn(kwargs['license_id'],page.extract_text())
+            self.assertIn('Original selectable lesson text',page.extract_text())
+            self.assertIn(b'/FontFile2',output)
+        name='Acedra'+hashlib.sha256(__import__('pathlib').Path(font).read_bytes()).hexdigest()[:16]
+        shaped=shapeStr('රමිෂ්ක தமிழ்',name,10,force=True)
+        self.assertTrue(hasattr(shaped,'__shapeData__'))
+        with self.assertRaises(WatermarkError): generate(data,display_name='Student \U0010FFFF',**kwargs)
+    def test_unsupported_supervisor_fails_closed(self):
+        from supervisor import supervised_generate
+        with patch('supervisor.os.name','nt'):
+            with self.assertRaises(WatermarkError): supervised_generate(fixture())
+
 if __name__=='__main__': unittest.main()
 
