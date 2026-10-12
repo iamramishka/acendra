@@ -27,7 +27,7 @@ begin
 end; $$;
 create function public.csa158_dashboard_stats(p_actor uuid,p_session_id uuid,p_aal text,p_period text)
 returns jsonb language plpgsql security definer set search_path='' as $$
-declare roles text[]; result jsonb:='{}'; n bigint; boundary timestamptz:=statement_timestamp();
+declare roles text[]; result jsonb:='{}'::jsonb; n bigint; boundary timestamptz:=statement_timestamp();
 begin
  roles:=app_private.csa158_reporting_roles(p_actor,p_session_id,p_aal);
  if p_period is distinct from 'last_30_days' then raise exception using errcode='22023',message='Unsupported reporting period.'; end if;
