@@ -1449,27 +1449,29 @@ for actual scope and evidence (only requested task IDs have records).
   Implement bank rejection processing.
   IN_REVIEW, CODEX: implemented and locally tested; issue #81; Storage/CI and operational acceptance pending.
 
-- [ ] CSA-114 [P0] [X]
+- [ ] CSA-114 [P0] [X] [IN_REVIEW]
   Implement concurrency-safe approvals.
 
 ## CODEX - ENROLLMENTS
 
-- [ ] CSA-116 [P0] [X]
+- [ ] CSA-116 [P0] [X] [IN_REVIEW]
   Implement entitlement grant logic.
 
-- [ ] CSA-117 [P0] [X]
+- [ ] CSA-117 [P0] [X] [IN_REVIEW]
   Implement entitlement verification.
 
-- [ ] CSA-118 [P0] [X]
+- [ ] CSA-118 [P0] [X] [IN_REVIEW]
   Implement access revocation.
 
-- [ ] CSA-119 [P1] [X]
+- [ ] CSA-119 [P1] [X] [IN_REVIEW]
   Implement payment status notifications.
 
 ## CODEX - CRITICAL SECURITY TESTS
 
-- [ ] CSA-120 [P0] [X]
+- [ ] CSA-120 [P0] [X] [IN_REVIEW]
   Test forged provider callbacks.
+  CSA-114/116–120 evidence: [implementation handoff](docs/tasks/CSA-114-120.md), issue #85.
+  CI, authorized review and activation gates remain; no production enablement.
 
 - [ ] CSA-121 [P0] [X]
   IN_REVIEW, CODEX: PR #88; financial regression tests implemented, CI/review acceptance pending.

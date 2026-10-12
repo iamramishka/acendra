@@ -5,7 +5,9 @@ import path from 'node:path';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 for (const [args, env] of [
   [['tool/local_supabase.mjs', 'test', 'test'], process.env],
-  [['--test', 'tool/financial_concurrency.test.mjs', 'tool/csa101_105_concurrency.test.mjs', 'tool/csa108_113_concurrency.test.mjs'], {
+  // These suites share the disposable database. Serialize suites; each suite
+  // still opens independent sessions to prove its own required interleavings.
+  [['--test', '--test-concurrency=1', 'tool/financial_concurrency.test.mjs', 'tool/csa101_105_concurrency.test.mjs', 'tool/csa108_113_concurrency.test.mjs', 'tool/csa114_119_concurrency.test.mjs'], {
     ...process.env, ACENDRA_FINANCIAL_CONCURRENCY: '1', ACENDRA_FINANCIAL_PROFILE: 'test',
     // The verification command always selects its task-owned Docker database.
     ACENDRA_FINANCIAL_PG_PORT: '',
