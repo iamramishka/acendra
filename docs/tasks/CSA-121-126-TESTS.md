@@ -40,3 +40,41 @@ fault, retaining existing successful same-key recovery/duplicate assertions.
 Fresh baseline Node run:304 pass,0 fail,4 explicitly gated DB suites. Full hosted
 Supabase and Flutter exact-head checks required before authorized merge. Production
 activation and live provider/bank/email acceptance remain outside this review.
+
+## Review verdict and acceptance evidence — 2026-10-12
+
+Specification and engineering review: PASS after resolving the rollback-test
+coverage finding. No remaining actionable finding in PR88's scoped test diff.
+No production code, migrations, runner or dependencies changed. New helper checks
+exact injected error message and financial/order/submission/grant/projection,
+review evidence, both review-start/final audit, outbox and idempotency rollback
+independently at all three fault boundaries. Same-key retry and one-effect replay
+remain verified. Existing amount/currency, callback duplicate, current finance
+permission, private Storage and real lock-contention suites cover CSA121–125.
+
+Fresh verification at code commit82afb30d772b02d55ebaa958880b57b675dc272e:
+- npm run tool:test:304 passed,0 failed,4 DB suites explicitly gated locally.
+- Task-owned fresh PostgreSQL17 loopback55488, synthetic Auth/Storage bootstrap;
+  ordered migrations001–020 replayed. New SQL29 assertions passed.
+- Mutation replaced only injected fault message with unrelated P0001; test failed
+  at the intended error-identity assertion. No source test was weakened afterward.
+- Enabled four independent-session suites:22 tests passed,0 failed,0 skipped.
+- Existing online, bank and entitlement SQL suites plus new recovery suite passed.
+  Initial broad bank test failed because synthetic Storage shim omitted authenticated
+  SELECT privilege; corrected only the disposable fixture grant, then reran green.
+  Synthetic bootstrap is not equivalent to actual Supabase; hosted checks below
+  independently verify the pinned full stack. Local instance stopped.
+- [Exact-code Supabase](https://github.com/iamramishka/acendra/actions/runs/38199230937):
+  SUCCESS, including SQL migration replay/tests/races, strict lint, actual private
+  Storage transport/API/Auth/MFA checks and cleanup.22 real-session tests passed.
+- [Exact-code Flutter](https://github.com/iamramishka/acendra/actions/runs/38199230942):
+  SUCCESS, formatting, analysis, tests and release web build.
+- git diff --check passed. Review includes the full current-dev integrated diff.
+
+Project owner explicitly requested review, resolution and merge of PR88. With
+findings resolved and required evidence green, CSA121–126 are accepted for their
+bounded test scopes. Registry records DONE; final documentation check/approved
+merge follows. Development integration does not enable production operations.
+Protected delivery integration, PayHere sandbox, banking operations and live email
+acceptance remain separate release dependencies. No independent human review
+is claimed for this AI review; the owner's explicit merge authorization controls.

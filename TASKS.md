@@ -1473,28 +1473,28 @@ for actual scope and evidence (only requested task IDs have records).
   CSA-114/116–120 evidence: [implementation handoff](docs/tasks/CSA-114-120.md), issue #85.
   CI, authorized review and activation gates remain; no production enablement.
 
-- [ ] CSA-121 [P0] [X]
-  IN_REVIEW, CODEX: PR #88; financial regression tests implemented, CI/review acceptance pending.
+- [x] CSA-121 [P0] [X]
+  DONE, CODEX: PR #88; owner-authorized review completed, rollback coverage findings resolved; verified SQL/races and Flutter/Supabase CI. See [review evidence](docs/tasks/CSA-121-126-TESTS.md).
   Test amount/currency mismatches.
 
-- [ ] CSA-122 [P0] [X]
-  IN_REVIEW, CODEX: PR #88; financial regression tests implemented, CI/review acceptance pending.
+- [x] CSA-122 [P0] [X]
+  DONE, CODEX: PR #88; owner-authorized review completed, rollback coverage findings resolved; verified SQL/races and Flutter/Supabase CI. See [review evidence](docs/tasks/CSA-121-126-TESTS.md).
   Test duplicate provider events.
 
-- [ ] CSA-123 [P0] [X]
-  IN_REVIEW, CODEX: PR #88; financial regression tests implemented, CI/review acceptance pending.
+- [x] CSA-123 [P0] [X]
+  DONE, CODEX: PR #88; owner-authorized review completed, rollback coverage findings resolved; verified SQL/races and Flutter/Supabase CI. See [review evidence](docs/tasks/CSA-121-126-TESTS.md).
   Test concurrent approval scenarios.
 
-- [ ] CSA-124 [P0] [X]
-  IN_REVIEW, CODEX: PR #88; financial regression tests implemented, CI/review acceptance pending.
+- [x] CSA-124 [P0] [X]
+  DONE, CODEX: PR #88; owner-authorized review completed, rollback coverage findings resolved; verified SQL/races and Flutter/Supabase CI. See [review evidence](docs/tasks/CSA-121-126-TESTS.md).
   Test rejected/pending access denial.
 
-- [ ] CSA-125 [P0] [X]
-  IN_REVIEW, CODEX: PR #88; financial regression tests implemented, CI/review acceptance pending.
+- [x] CSA-125 [P0] [X]
+  DONE, CODEX: PR #88; owner-authorized review completed, rollback coverage findings resolved; verified SQL/races and Flutter/Supabase CI. See [review evidence](docs/tasks/CSA-121-126-TESTS.md).
   Test unauthorized finance operations.
 
-- [ ] CSA-126 [P0] [X]
-  IN_REVIEW, CODEX: PR #88; financial regression tests implemented, CI/review acceptance pending.
+- [x] CSA-126 [P0] [X]
+  DONE, CODEX: PR #88; owner-authorized review completed, rollback coverage findings resolved; verified SQL/races and Flutter/Supabase CI. See [review evidence](docs/tasks/CSA-121-126-TESTS.md).
   Test financial transaction recovery.
 
 Integration Gate:
