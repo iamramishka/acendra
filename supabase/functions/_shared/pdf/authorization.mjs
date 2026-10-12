@@ -43,7 +43,8 @@ function configuration(env) {
   const url = env('SUPABASE_URL'), publicKey = env('SUPABASE_ANON_KEY'), serviceKey = env('SUPABASE_SERVICE_ROLE_KEY');
   let parsed;
   try { parsed = new URL(url); } catch { deny('SERVICE_UNAVAILABLE'); }
-  if (parsed.protocol !== 'https:' || parsed.username || parsed.password || parsed.search || parsed.hash || !['', '/'].includes(parsed.pathname) ||
+  const loopback = parsed.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(parsed.hostname);
+  if ((!loopback && parsed.protocol !== 'https:') || parsed.username || parsed.password || parsed.search || parsed.hash || !['', '/'].includes(parsed.pathname) ||
       ![publicKey, serviceKey].every(key => typeof key === 'string' && key.length > 0 && key.length <= 16384 && !/[\x00-\x20\x7f]/.test(key))) deny('SERVICE_UNAVAILABLE');
   return { url: parsed.origin, publicKey, serviceKey };
 }
@@ -58,7 +59,7 @@ function validateResult(result, lessonId, resourceId) {
   if (result.state === 'preparing' && resourceId === null && result.resource_id === null) return { state: 'preparing', lesson_id: lessonId, resource_id: null };
   if (result.state !== 'ready' || !uuid(result.resource_id) || (resourceId !== null && result.resource_id !== resourceId) ||
       result.bucket !== 'course-pdfs' || !derivativePath(result.object_path) ||
-      !Number.isSafeInteger(result.size_bytes) || result.size_bytes <= 0 ||
+      !Number.isSafeInteger(result.size_bytes) || result.size_bytes <= 0 || result.size_bytes > 50 * 1024 * 1024 ||
       typeof result.checksum_sha256 !== 'string' || !/^[0-9a-f]{64}$/.test(result.checksum_sha256)) deny('SERVICE_UNAVAILABLE');
   return { state: 'ready', lesson_id: lessonId, resource_id: result.resource_id, bucket: result.bucket,
     object_path: result.object_path, size_bytes: result.size_bytes, checksum_sha256: result.checksum_sha256 };
@@ -67,6 +68,8 @@ export function createAuthorizer({ env = defaultEnv, fetch: request = globalThis
   return async function authorize({ authorization, lessonId, resourceId = null } = {}) {
     try {
       if (!uuid(lessonId) || (resourceId !== null && !uuid(resourceId))) deny('PDF_NOT_FOUND');
+      lessonId = lessonId.toLowerCase();
+      resourceId = resourceId === null ? null : resourceId.toLowerCase();
       const claims = claimsOf(authorization);
       const { url, publicKey, serviceKey } = configuration(env);
       const authResponse = await request(`${url}/auth/v1/user`, { headers: { Authorization: authorization, apikey: publicKey }, redirect: 'error', signal: AbortSignal.timeout(15000) });
@@ -83,6 +86,8 @@ export function createAuthorizer({ env = defaultEnv, fetch: request = globalThis
         if (response.status >= 400 && response.status < 500) {
           const code = safeCodes.has(result.message) ? result.message : result.code;
           if (safeCodes.has(code)) deny(code);
+          if (result.code === '42501') deny('ACCESS_DENIED');
+          if (result.code === 'P0002') deny('PDF_NOT_FOUND');
         }
         deny('SERVICE_UNAVAILABLE');
       }
