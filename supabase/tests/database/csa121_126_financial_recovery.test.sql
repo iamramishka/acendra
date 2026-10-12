@@ -56,7 +56,7 @@ select pg_temp.assert_ok(
  and not exists(select 1 from public.enrollment_grants where user_id='12100000-0000-0000-0000-000000000001')
  and not exists(select 1 from public.enrollments where user_id='12100000-0000-0000-0000-000000000001')
  and not exists(select 1 from app_private.bank_transfer_reviews where submission_id=(select (data->>'submission_id')::uuid from csa121_uploads where key='rollback'))
- and not exists(select 1 from app_private.audit_logs where action='bank_transfer_approved' and resource_id=(select (data->>'order_id')::uuid from csa121_orders where key='rollback'))
+ and not exists(select 1 from app_private.audit_logs where action in ('bank_review_started','bank_transfer_approved') and resource_id=(select (data->>'order_id')::uuid from csa121_orders where key='rollback'))
  and not exists(select 1 from app_private.notification_outbox where event_key='bank_review:'||(select data->>'submission_id' from csa121_uploads where key='rollback'))
  and not exists(select 1 from app_private.idempotency_records where principal_scope='user:12100000-0000-0000-0000-000000000002' and operation='review-bank-transfer' and idempotency_key='review-rollback'),
  'CSA126 '||boundary||' fault leaves no partial financial, review, audit or notification state');
