@@ -1,0 +1,46 @@
+begin;
+select '1..1';
+do $$
+declare buyer uuid:=gen_random_uuid(); admin uuid:=gen_random_uuid(); other_user uuid:=gen_random_uuid(); bs uuid:=gen_random_uuid(); ads uuid:=gen_random_uuid(); os uuid:=gen_random_uuid();
+ course uuid:=gen_random_uuid(); section uuid:=gen_random_uuid(); lesson uuid:=gen_random_uuid(); asset uuid:=gen_random_uuid(); grant_id uuid; result jsonb; role_name text; token_exp bigint;
+begin
+ insert into auth.users(id) values(buyer),(admin),(other_user);
+ insert into auth.sessions(id,user_id,aal,not_after) values(bs,buyer,'aal1',now()+interval '1 day'),(ads,admin,'aal2',now()+interval '1 day'),(os,other_user,'aal1',now()+interval '1 day');
+ insert into public.user_roles(user_id,role_id) select admin,id from public.roles where code='super_admin';
+ insert into public.courses(id,slug,title,price_minor,status,published_at) values(course,'video-'||course,'Synthetic',100,'published',now());
+ insert into public.course_sections(id,course_id,title,position,is_published) values(section,course,'Synthetic',0,true);
+ insert into public.lessons(id,section_id,title,lesson_type,position,is_published) values(lesson,section,'Synthetic','video',0,true);
+ insert into app_private.media_assets(id,asset_type,storage_provider,external_asset_id,mime_type,size_bytes,checksum_sha256,validation_status,validated_at) values(asset,'course_video','mux','asset123','video/mp4',100,repeat('a',64),'validated',now());
+ insert into app_private.lesson_assets(lesson_id,media_asset_id,usage,position) values(lesson,asset,'video',0);
+ begin perform public.csa136_authorize_video(buyer,bs,'aal1',lesson,extract(epoch from now())::bigint+500); raise exception 'unpaid permitted'; exception when insufficient_privilege then null; end;
+ result:=public.csa116_grant_admin(admin,ads,'aal2','video-grant',buyer,course,'Synthetic',now()+interval '2 minutes');grant_id:=(result->>'grant_id')::uuid;
+ begin perform public.csa136_authorize_video(buyer,bs,'aal1',lesson,extract(epoch from now())::bigint+500); raise exception 'unattested permitted'; exception when insufficient_privilege then null; end;
+ insert into app_private.video_playback_bindings values(asset,'asset123','playback123','signed',now(),repeat('b',64),null);
+ result:=public.csa136_authorize_video(buyer,bs,'aal1',lesson,extract(epoch from now())::bigint+500);
+ if result->>'playback_id'<>'playback123' or (result->>'expires_at')::bigint>extract(epoch from now())+120 then raise exception 'wrong playback or grant expiry'; end if;
+ update public.courses set status='archived' where id=course;
+ result:=public.csa136_authorize_video(buyer,bs,'aal1',lesson,extract(epoch from now())::bigint+500);
+ if result->>'playback_id'<>'playback123' then raise exception 'existing entitlement lost on archived course'; end if;
+ update public.courses set status='draft' where id=course;
+ result:=public.csa136_authorize_video(buyer,bs,'aal1',lesson,extract(epoch from now())::bigint+500);
+ if result->>'playback_id'<>'playback123' then raise exception 'existing entitlement lost on draft course'; end if;
+ token_exp:=floor(extract(epoch from now()))::bigint+30;
+ result:=public.csa136_authorize_video(buyer,bs,'aal1',lesson,token_exp);
+ if (result->>'expires_at')::bigint<>token_exp then raise exception 'token expiry clamp mismatch'; end if;
+ begin perform public.csa136_authorize_video(other_user,os,'aal1',lesson,extract(epoch from now())::bigint+500); raise exception 'other user permitted'; exception when insufficient_privilege then null; end;
+ begin perform public.csa136_authorize_video(buyer,os,'aal1',lesson,extract(epoch from now())::bigint+500); raise exception 'other session permitted'; exception when insufficient_privilege then null; end;
+ update public.lessons set is_published=false where id=lesson;
+ begin perform public.csa136_authorize_video(buyer,bs,'aal1',lesson,extract(epoch from now())::bigint+500); raise exception 'draft lesson permitted'; exception when insufficient_privilege then null; end;
+ update public.lessons set is_published=true where id=lesson;
+ update app_private.video_playback_bindings set revoked_at=now() where media_asset_id=asset;
+ begin perform public.csa136_authorize_video(buyer,bs,'aal1',lesson,extract(epoch from now())::bigint+500); raise exception 'revoked binding permitted'; exception when insufficient_privilege then null; end;
+ update app_private.video_playback_bindings set revoked_at=null where media_asset_id=asset;
+ perform public.csa118_revoke_access(admin,ads,'aal2','video-revoke',buyer,course,grant_id,'grant','Synthetic');
+ begin perform public.csa136_authorize_video(buyer,bs,'aal1',lesson,extract(epoch from now())::bigint+500); raise exception 'revoked entitlement permitted'; exception when insufficient_privilege then null; end;
+ foreach role_name in array array['anon','authenticated','service_role'] loop
+ if has_table_privilege(role_name,'app_private.video_playback_bindings','SELECT') or has_table_privilege(role_name,'app_private.video_playback_bindings','INSERT') then raise exception 'private binding exposed'; end if;
+ end loop;
+ if has_function_privilege('authenticated','public.csa136_authorize_video(uuid,uuid,text,uuid,bigint)','EXECUTE') then raise exception 'client actor spoof seam'; end if;
+end; $$;
+select 'ok 1 - video binding, scopes, publication, expiry and revocation';
+rollback;

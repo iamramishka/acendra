@@ -21,7 +21,11 @@ export function safeLintSummary(output, knownFunctions) {
       const description = `${issue.message ?? ''} ${issue.detail ?? ''}`;
       const category = /unused|never read/i.test(description) ? 'unused_identifier'
         : /ambiguous/i.test(description) ? 'ambiguous_identifier' : 'other';
-      summaries.push(`${row.function}:${issue.level}:${state}:${category}`);
+      const location = issue.lineNumber ?? issue.line ?? issue.lineno;
+      const line = Number.isInteger(location) && location > 0 ? `:line${location}` : '';
+      const type = /type|cast|convert|assign/i.test(description) ? ':type_assignment' : '';
+      const staticWords = description.match(/\b(?:text|uuid|jsonb|record|row|composite|varchar|character|varying|numeric|integer|boolean|bigint|null|unknown|cast|assignment|target|source|type)\b/gi)?.join('_') ?? '';
+      summaries.push(`${row.function}:${issue.level}:${state}:${category}${line}${type}${staticWords ? `:${staticWords}` : ''}`);
     }
   }
   return summaries.slice(0, 20).join(',');
@@ -183,7 +187,30 @@ function run(layout, args, { json = false } = {}) {
         }
       }
       const lint = args.includes('lint') ? safeLintSummary(result.stdout, knownFunctions) : '';
-      const summary = `${states.length ? ` SQLSTATE: ${states.join(',')}.` : ''}${migrations.length ? ` Last migration: ${migrations.at(-1)}.` : ''}${lint ? ` Lint: ${lint}.` : ''}`;
+      // Only surface literal synthetic assertion labels from repository tests.
+      // Arbitrary database diagnostics can include credentials or row values.
+      const testFailures = [];
+      if (args.includes('test')) {
+        const knownIdentifiers = new Set();
+        for (const file of fs.readdirSync(path.join(root, 'supabase', 'migrations'))) {
+          const source = fs.readFileSync(path.join(root, 'supabase', 'migrations', file), 'utf8');
+          for (const word of source.matchAll(/\b[a-z_][a-z0-9_]*\b/g)) knownIdentifiers.add(word[0]);
+        }
+        for (const error of diagnostics.matchAll(/ERROR:\s+(permission denied for (?:table|schema)|relation|column|record|new row for relation|insert or update on table|update or delete on table|violates check constraint) ["']?([a-z_][a-z0-9_]*)/g)) {
+          if (knownIdentifiers.has(error[2])) testFailures.push(`${error[1]} ${error[2]}`);
+        }
+        for (const location of diagnostics.matchAll(/(csa(?:127|133|136|139)_[a-z_]+\.test\.sql):(\d+):/g)) {
+          testFailures.push(`SQL location ${location[1]}:${location[2]}`);
+        }
+        for (const file of fs.readdirSync(path.join(root, 'supabase', 'tests', 'database'))) {
+          if (!/^csa(?:127|133|136|139)_[a-z_]+\.test\.sql$/.test(file)) continue;
+          const source = fs.readFileSync(path.join(root, 'supabase', 'tests', 'database', file), 'utf8');
+          for (const match of source.matchAll(/raise exception '([A-Za-z0-9 _-]{1,100})'/g)) {
+            if (diagnostics.includes(`ERROR:  ${match[1]}`)) testFailures.push(`${file}: ${match[1]}`);
+          }
+        }
+      }
+      const summary = `${states.length ? ` SQLSTATE: ${states.join(',')}.` : ''}${migrations.length ? ` Last migration: ${migrations.at(-1)}.` : ''}${lint ? ` Lint: ${lint}.` : ''}${testFailures.length ? ` Test assertions: ${testFailures.join('; ')}.` : ''}`;
       throw new Error(`Supabase ${args[0]} failed (exit ${result.status}).${summary} Private diagnostics: ${logPath}. Check Docker health and port availability.`);
   }
   if (json) {
