@@ -11,7 +11,7 @@ insert into public.course_staff(course_id,user_id,staff_role) values('16400000-0
 insert into public.course_sections(id,course_id,title,position) values('16400000-0000-0000-0000-000000000004','16400000-0000-0000-0000-000000000003','Synthetic',0);
 insert into public.lessons(id,section_id,title,lesson_type,position) values('16400000-0000-0000-0000-000000000005','16400000-0000-0000-0000-000000000004','Synthetic','pdf',0);
 create temporary table reservation as select public.csa164_prepare_media_upload('16400000-0000-0000-0000-000000000001','16400000-0000-0000-0000-000000000011','aal1','16400000-0000-0000-0000-000000000006','16400000-0000-0000-0000-000000000003','16400000-0000-0000-0000-000000000005','course_pdf','application/pdf',9,'synthetic-policy') as data;
-select pg_temp.assert_ok((select data->>'bucket'='course-media' and (data->>'validated')::boolean=false from reservation),'private pending reservation');
+select pg_temp.assert_ok((select data->>'bucket'='course-pdfs' and data->>'path'='originals/'||(data->>'asset_id')||'/v1.pdf' and (data->>'validated')::boolean=false from reservation),'private pending reservation');
 select pg_temp.assert_ok((select validation_status='pending' and checksum_sha256 is null from app_private.media_assets where id=(select (data->>'asset_id')::uuid from reservation)),'reservation never grants readiness');
 select pg_temp.assert_ok((public.csa164_prepare_media_upload('16400000-0000-0000-0000-000000000001','16400000-0000-0000-0000-000000000011','aal1','16400000-0000-0000-0000-000000000006','16400000-0000-0000-0000-000000000003','16400000-0000-0000-0000-000000000005','course_pdf','application/pdf',9,'synthetic-policy')->>'asset_id')=(select data->>'asset_id' from reservation),'identical replay preserves path');
 select pg_temp.expect_error($q$select public.csa164_prepare_media_upload('16400000-0000-0000-0000-000000000001','16400000-0000-0000-0000-000000000011','aal1','16400000-0000-0000-0000-000000000006','16400000-0000-0000-0000-000000000003','16400000-0000-0000-0000-000000000005','course_pdf','application/pdf',10,'synthetic-policy')$q$,'22023','conflicting replay denied');
@@ -37,8 +37,9 @@ update auth.sessions set not_after=now()+interval '1 day' where id='16400000-000
 update public.user_roles set revoked_at=clock_timestamp() where user_id='16400000-0000-0000-0000-000000000001';
 select pg_temp.expect_error(format($q$select public.csa164_get_media_upload('16400000-0000-0000-0000-000000000001','16400000-0000-0000-0000-000000000011','aal1',%L)$q$,(select data->>'asset_id' from reservation)),'42501','revoked role cannot replay ready asset');
 update public.user_roles set revoked_at=null where user_id='16400000-0000-0000-0000-000000000001';
+select pg_temp.expect_error($q$select public.csa164_prepare_media_upload('16400000-0000-0000-0000-000000000001','16400000-0000-0000-0000-000000000011','aal1','16400000-0000-0000-0000-000000000099','16400000-0000-0000-0000-000000000003','16400000-0000-0000-0000-000000000005','course_pdf','application/pdf',52428801,'synthetic-policy')$q$,'22023','SQL rejects PDF above accepted 50MiB hard cap');
+select pg_temp.assert_ok((select app_private.csa139_pdf_path_valid(object_path) and bucket_name='course-pdfs' and object_path='originals/'||id::text||'/v'||content_version::text||'.pdf' and size_bytes between 1 and 52428800 from app_private.media_assets where id=(select (data->>'asset_id')::uuid from reservation)),'validated PDF identity matches accepted delivery resolver');
 update storage.buckets set public=true where id='course-media';
 select pg_temp.expect_error(format($q$select public.csa164_get_media_upload('16400000-0000-0000-0000-000000000001','16400000-0000-0000-0000-000000000011','aal1',%L)$q$,(select data->>'asset_id' from reservation)),'42501','public bucket configuration fails closed');
 select '1..'||last_value from pg_temp.csa164_assertion;
 rollback;
-

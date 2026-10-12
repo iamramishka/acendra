@@ -10,5 +10,8 @@ Trusted deployment code must inject an approved immutable policy reference, PDF/
 
 Approved course-media limits and operational parser/scanner/resource limits were unavailable during this implementation; no receipt limits are reused. The private bucket has no browser read/list/overwrite policies. Signed upload tokens may survive assignment revocation until expiry, but every finalization rechecks current authority; immutable paths and non-upsert prevent replacements.
 
-Verification: 16 Node handler tests passed; 21 SQL assertions passed on isolated PostgreSQL 17 modeled auth/storage harness (127.0.0.1:58465), including actual migrations. Actual Supabase storage/token behavior and CI remain acceptance gates. Existing shared configuration, master API contracts and TASKS are owned by parent integration. No production deployment or merge is authorized by this handoff.
+Verification: 22 Node handler tests passed; 23 SQL assertions passed on isolated PostgreSQL 17 modeled auth/storage harness (127.0.0.1:58465), including actual migrations. Actual Supabase storage/token behavior and CI remain acceptance gates. Existing shared configuration, master API contracts and TASKS are owned by parent integration. No production deployment or merge is authorized by this handoff.
+
+
+PDF uploads use the existing private course-pdfs bucket with originals/<asset-id>/v1.pdf, matching accepted CSA-139/140 delivery identity and immutable object guards. Images use private course-media with course/lesson/asset paths. PDF SQL and handler enforce the accepted 50 MiB delivery hard cap; an approved upload policy may lower it. Requests stream at most 8192 bytes before JSON parsing; Auth/RPC/token JSON responses are bounded to 65536 bytes. Request UUIDs are normalized to canonical lowercase. Mode must be prepare or finalize.
 
