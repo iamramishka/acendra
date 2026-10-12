@@ -213,6 +213,18 @@ function run(layout, args, { json = false } = {}) {
           }
         }
       }
+      if (args.includes('test')) {
+        // Surface only literal source-controlled labels, not interpolated values or arbitrary server messages.
+        for (const directory of ['migrations', 'tests/database']) {
+          for (const file of fs.readdirSync(path.join(root, 'supabase', directory))) {
+            if (!file.endsWith('.sql')) continue;
+            const source = fs.readFileSync(path.join(root, 'supabase', directory, file), 'utf8');
+            for (const label of source.matchAll(/(?:raise exception|message\s*=)\s*'([A-Za-z0-9 _-]{5,100})'/gi)) {
+              if (diagnostics.includes(`ERROR:  ${label[1]}`)) testFailures.push(`Declared SQL error: ${label[1]}`);
+            }
+          }
+        }
+      }
       const summary = `${states.length ? ` SQLSTATE: ${states.join(',')}.` : ''}${migrations.length ? ` Last migration: ${migrations.at(-1)}.` : ''}${lint ? ` Lint: ${lint}.` : ''}${testFailures.length ? ` Test assertions: ${testFailures.join('; ')}.` : ''}`;
       throw new Error(`Supabase ${args[0]} failed (exit ${result.status}).${summary} Private diagnostics: ${logPath}. Check Docker health and port availability.`);
   }

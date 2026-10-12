@@ -25,7 +25,10 @@ select pg_temp.check_ok(not has_function_privilege('service_role','public.csa061
 create temporary table csa173_actors(label text primary key,actor uuid,session uuid,aal text);
 insert into csa173_actors values('super',gen_random_uuid(),gen_random_uuid(),'aal2'),('finance',gen_random_uuid(),gen_random_uuid(),'aal2'),('content',gen_random_uuid(),gen_random_uuid(),'aal1'),('student',gen_random_uuid(),gen_random_uuid(),'aal1');
 insert into auth.users(id,raw_user_meta_data) select actor,'{"role":"super_admin"}'::jsonb from csa173_actors;
-insert into auth.sessions(id,user_id,aal,not_after) select session,actor,aal,clock_timestamp()+interval '1 day' from csa173_actors;
+-- Populate the real composite type so Supabase's AAL enum and the native model both use the column's actual type.
+insert into auth.sessions(id,user_id,aal,not_after)
+ select s.id,s.user_id,s.aal,s.not_after from csa173_actors a
+ cross join lateral jsonb_populate_record(null::auth.sessions,jsonb_build_object('id',a.session,'user_id',a.actor,'aal',a.aal,'not_after',clock_timestamp()+interval '1 day')) s;
 insert into public.user_roles(user_id,role_id) select a.actor,r.id from csa173_actors a join public.roles r on r.code=case a.label when 'super' then 'super_admin' when 'finance' then 'finance_admin' when 'content' then 'content_manager' else 'student' end;
 create temporary table csa173_courses as select gen_random_uuid() id, 'assigned' label union all select gen_random_uuid(),'foreign';
 insert into public.courses(id,slug,title,price_minor,status) select id,'csa173-'||id,'Synthetic',100,'draft' from csa173_courses;
