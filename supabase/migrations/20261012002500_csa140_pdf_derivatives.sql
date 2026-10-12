@@ -40,7 +40,7 @@ revoke all on function app_private.csa140_preserve_derivative() from public,anon
 create function public.csa140_resolve_pdf(p_actor uuid,p_session_id uuid,p_aal text,p_lesson uuid,p_resource uuid default null)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare course uuid; asset app_private.media_assets; derivative app_private.pdf_derivatives; actor_name text;
- policy constant uuid:='14000000-0000-4000-8000-000000000001';
+ policy constant uuid:='14000000-0000-4000-8000-000000000001'::uuid;
 begin
  perform app_private.csa108_require_session(p_actor,p_session_id,p_aal,false);
  select s.course_id into course from public.lessons l join public.course_sections s on s.id=l.section_id
