@@ -60,6 +60,10 @@ begin
  if not exists(select 1 from storage.buckets where id='course-pdfs' and public=false and file_size_limit between 1 and 52428800 and allowed_mime_types=array['application/pdf']::text[]) then
  raise exception 'SERVICE_UNAVAILABLE' using errcode='55000'; end if;
  select display_name into actor_name from public.profiles where id=p_actor;
+ if exists(select 1 from app_private.pdf_derivatives d where d.actor_id=p_actor and d.asset_id=asset.id
+ and d.asset_version=asset.content_version and d.source_digest=asset.checksum_sha256 and d.policy_id=policy and d.display_name=actor_name
+ and (d.state='failed' or (d.state='preparing' and d.attempts>=3 and (d.lease_until is null or d.lease_until<=clock_timestamp())))) then
+ raise exception 'SERVICE_UNAVAILABLE' using errcode='55000'; end if;
  if p_resource is null then
  select d.* into derivative from app_private.pdf_derivatives d where d.actor_id=p_actor and d.asset_id=asset.id and d.asset_version=asset.content_version
  and d.source_digest=asset.checksum_sha256 and d.policy_id=policy and d.display_name=actor_name and d.state='ready';
@@ -88,6 +92,8 @@ create function public.csa148_claim_pdf_job() returns jsonb
 language plpgsql security definer set search_path='' as $$
 declare d app_private.pdf_derivatives; asset app_private.media_assets; token uuid:=gen_random_uuid();
 begin
+ update app_private.pdf_derivatives set state='failed',lease_token=null,lease_until=null
+ where state='preparing' and attempts>=3 and (lease_until is null or lease_until<=clock_timestamp());
  select x.* into d from app_private.pdf_derivatives x join auth.users u on u.id=x.actor_id
  where x.state='preparing' and x.attempts<3 and (x.lease_until is null or x.lease_until<clock_timestamp())
  and u.deleted_at is null and not coalesce(u.is_anonymous,false) and (u.banned_until is null or u.banned_until<=clock_timestamp())
@@ -108,7 +114,7 @@ language plpgsql security definer set search_path='' as $$
 declare d app_private.pdf_derivatives;
 begin
  select * into d from app_private.pdf_derivatives where id=p_resource for update;
- if d.id is null or d.state<>'preparing' or d.lease_token is distinct from p_lease or d.lease_until<=clock_timestamp()
+ if d.id is null or d.state<>'preparing' or p_lease is null or d.lease_token is null or d.lease_until is null or d.lease_token is distinct from p_lease or d.lease_until<=clock_timestamp()
  or p_digest is null or p_digest !~ '^[0-9a-f]{64}$' or p_size is null or p_size not between 1 and 52428800 then
  raise exception 'Invalid PDF job completion.' using errcode='22023'; end if;
  if not exists(select 1 from storage.objects where bucket_id='course-pdfs' and name=d.object_path) then

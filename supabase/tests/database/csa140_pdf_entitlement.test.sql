@@ -18,6 +18,11 @@ begin
  perform public.csa116_grant_admin(admin,ads,'aal2','pdf-grant',buyer,course,'Synthetic',null);
  response:=public.csa140_resolve_pdf(buyer,bs,'aal1',lesson);
  if response<>jsonb_build_object('state','preparing','lesson_id',lesson,'resource_id',null) then raise exception 'Original fallback'; end if;
+ select id into rid from app_private.pdf_derivatives where actor_id=buyer and asset_id=asset;
+ begin perform public.csa148_complete_pdf_job(rid,null,repeat('b',64),120); raise exception 'Null unclaimed lease accepted'; exception when invalid_parameter_value then null; end;
+ update app_private.pdf_derivatives set attempts=3 where id=rid;
+ begin perform public.csa140_resolve_pdf(buyer,bs,'aal1',lesson); raise exception 'Exhausted infinite preparing'; exception when object_not_in_prerequisite_state then null; end;
+ update app_private.pdf_derivatives set attempts=0 where id=rid;
  response:=public.csa148_claim_pdf_job();
  if response->>'source_digest'<>repeat('a',64) or response->>'source_path'<>'originals/'||asset||'/v1.pdf' then raise exception 'Wrong work reservation'; end if;
  rid:=(response->>'resource_id')::uuid; path:=response->>'object_path';
