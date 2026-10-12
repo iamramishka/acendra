@@ -80,6 +80,7 @@ begin
  perform app_private.csa164_authorize(p_actor,p_session_id,p_aal,r.course_id,r.lesson_id);
  -- Same global order as publication: role, course, associations, assets.
  lock table app_private.lesson_assets in share row exclusive mode;
+ if r.asset_type='course_pdf' and exists(select 1 from app_private.lesson_assets la join app_private.media_assets m on m.id=la.media_asset_id where la.lesson_id=r.lesson_id and m.asset_type='course_pdf' and m.id<>p_asset) then raise exception using errcode='22023',message='PDF replacement requires a dedicated workflow.';end if;
  select * into a from app_private.media_assets where id=p_asset for update;
  if p_digest is null or p_digest !~ '^[0-9a-f]{64}$' or row(p_size,p_mime,p_policy) is distinct from row(r.size_bytes,r.mime_type,r.policy_reference) or a.deleted_at is not null or a.validation_status='rejected' then raise exception using errcode='22023',message='Inspection identity conflict.';end if;
  if a.validation_status='validated' then
