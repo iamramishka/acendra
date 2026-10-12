@@ -32,7 +32,7 @@ begin
  if p_action='publish' then
   -- Table SHARE locks stop inserts, updates and deletes through readiness/commit.
   -- Order: role authority -> course -> curriculum -> associations -> media.
-  lock table public.course_sections,public.lessons,app_private.lesson_assets,app_private.media_assets in share mode;
+  lock table public.course_sections,public.lessons,app_private.lesson_assets,app_private.media_assets,app_private.video_playback_bindings,storage.buckets in share mode;
   if c.currency_code<>'LKR' or c.price_minor<0 or nullif(btrim(c.description),'') is null
    or nullif(btrim(c.short_description),'') is null
    or (c.category_id is not null and not exists(select 1 from public.categories where id=c.category_id and is_active))
@@ -42,9 +42,12 @@ begin
   if exists(select 1 from public.lessons l join public.course_sections cs on cs.id=l.section_id where cs.course_id=p_course and cs.is_published and l.is_published and
    (l.lesson_type='text' or not exists(select 1 from app_private.lesson_assets la join app_private.media_assets ma on ma.id=la.media_asset_id where la.lesson_id=l.id
     and ma.validation_status='validated' and ma.validated_at is not null and ma.deleted_at is null and ma.checksum_sha256 is not null and ma.size_bytes>0
-    and ((l.lesson_type='pdf' and ma.asset_type='course_pdf' and ma.mime_type='application/pdf' and ma.bucket_name='course-pdfs' and ma.object_path is not null)
+    and ((l.lesson_type='pdf' and ma.asset_type='course_pdf' and ma.storage_provider='supabase' and ma.mime_type='application/pdf' and ma.bucket_name='course-pdfs' and ma.object_path='originals/'||ma.id::text||'/v'||ma.content_version::text||'.pdf' and ma.size_bytes<=52428800
+      and (select count(*) from app_private.lesson_assets pdf_la join app_private.media_assets pdf_ma on pdf_ma.id=pdf_la.media_asset_id where pdf_la.lesson_id=l.id and pdf_ma.asset_type='course_pdf')=1
+      and exists(select 1 from storage.buckets b where b.id='course-pdfs' and b.public=false and b.file_size_limit between 1 and 52428800 and b.allowed_mime_types=array['application/pdf']::text[]))
      or (l.lesson_type='image' and ma.asset_type='lesson_image' and ma.mime_type in ('image/jpeg','image/png') and ma.bucket_name is not null and ma.object_path is not null)
-     or (l.lesson_type='video' and ma.asset_type='course_video' and ma.storage_provider='mux' and ma.external_asset_id is not null)))
+     or (l.lesson_type='video' and la.usage='video' and ma.asset_type='course_video' and ma.storage_provider='mux'
+      and exists(select 1 from app_private.video_playback_bindings b where b.media_asset_id=ma.id and b.mux_asset_id=ma.external_asset_id and b.playback_policy='signed' and b.revoked_at is null and b.provider_verified_at<=clock_timestamp()))))
    or exists(select 1 from app_private.lesson_assets la join app_private.media_assets ma on ma.id=la.media_asset_id where la.lesson_id=l.id and (ma.validation_status<>'validated' or ma.validated_at is null or ma.deleted_at is not null or ma.asset_type not in ('course_pdf','lesson_image','course_video'))))) then raise exception using errcode='23514',message='Lesson content not ready.';end if;
  end if;
  target:=case when p_action='publish' then 'published' else 'draft' end;

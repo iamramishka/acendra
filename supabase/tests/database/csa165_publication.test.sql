@@ -17,7 +17,7 @@ begin
  insert into public.lessons(id,section_id,title,lesson_type,position,is_published) values(lesson,section,'PDF','pdf',0,true);
  begin perform public.csa165_publish_course(actor,ads,'aal2',course,stamp,'publish','missing');raise exception 'missing assets';exception when check_violation then null;end;
  insert into app_private.media_assets(id,asset_type,storage_provider,bucket_name,object_path,mime_type,size_bytes,checksum_sha256,validation_status,validated_at)
- values(asset,'course_pdf','supabase','course-pdfs','publication/'||asset||'.pdf','application/pdf',1000,repeat('a',64),'validated',clock_timestamp());
+ values(asset,'course_pdf','supabase','course-pdfs','originals/'||asset||'/v1.pdf','application/pdf',1000,repeat('a',64),'validated',clock_timestamp());
  insert into app_private.lesson_assets(lesson_id,media_asset_id,usage,position) values(lesson,asset,'primary',0);
  begin perform public.csa165_publish_course(actor,ads,'aal2',course,stamp-interval '1 second','publish','stale');raise exception 'stale overwrite';exception when serialization_failure then null;end;
  result:=public.csa165_publish_course(actor,ads,'aal2',course,stamp,'publish','publish');

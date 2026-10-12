@@ -14,6 +14,7 @@ export function createHandler({env,fetch:request=globalThis.fetch,enabled=false}
   if(!/^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(incoming.headers.get('Content-Type')??''))return reply(415,'UNSUPPORTED_MEDIA_TYPE');
   let body;try{body=await readJson(incoming.body,8192);}catch(e){return reply(e.message==='LARGE'?413:400,'INVALID_REQUEST');}
   if(!body||Array.isArray(body)||typeof body!=='object'||Object.keys(body).some(k=>!['course_id','expected_updated_at','action'].includes(k))||!uuid(body.course_id)||typeof body.expected_updated_at!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.test(body.expected_updated_at)||!Number.isFinite(Date.parse(body.expected_updated_at))||(Object.hasOwn(body,'action')&&!['publish','unpublish'].includes(body.action)))return reply(400,'INVALID_REQUEST');
+  body.course_id=body.course_id.toLowerCase();
   const url=env('SUPABASE_URL'),publicKey=env('SUPABASE_ANON_KEY'),serviceKey=env('SUPABASE_SERVICE_ROLE_KEY');if(!url||!publicKey||!serviceKey)return reply(503,'SERVICE_UNAVAILABLE');
   try{
    const userResponse=await request(`${url}/auth/v1/user`,{headers:{Authorization:authorization,apikey:publicKey},redirect:'error',signal:AbortSignal.timeout(15000)});if(!userResponse.ok)return reply(401,'AUTH_REQUIRED');const user=await readJson(userResponse.body,32768);
