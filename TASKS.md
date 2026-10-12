@@ -1743,15 +1743,19 @@ CODEX
 
 - [ ] CSA-173 [P0] [X]
   Verify all admin operation permissions.
+  IN_REVIEW: parallel implementation and verification; see docs/tasks/CSA-173.md and docs/tasks/CSA-173-176-INTEGRATION.md (issue #108).
 
 - [ ] CSA-174 [P0] [X]
   Implement/review audit logging.
+  IN_REVIEW: parallel implementation and verification; see docs/tasks/CSA-174.md and docs/tasks/CSA-173-176-INTEGRATION.md (issue #108).
 
 - [ ] CSA-175 [P0] [X]
   Implement trusted role management.
+  IN_REVIEW: parallel implementation and verification; see docs/tasks/CSA-175.md and docs/tasks/CSA-173-176-INTEGRATION.md (issue #108).
 
 - [ ] CSA-176 [P0] [X]
   Test unauthorized admin API access.
+  IN_REVIEW: parallel implementation and verification; see docs/tasks/CSA-176.md and docs/tasks/CSA-173-176-INTEGRATION.md (issue #108).
 
 Integration Gate:
 
