@@ -1,12 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { createHandler } from '../supabase/functions/authorize-video/handler.mjs';
 
-const target = new URL('../supabase/functions/authorize-video/handler.mjs', import.meta.url);
-const dependency = existsSync(target)
-  ? false
-  : 'CSA-136 dependency pending: committed authorize-video handler absent; denial coverage not executed';
-const createHandler = dependency ? undefined : (await import(target.href)).createHandler;
 const actor = '11111111-1111-1111-1111-111111111111';
 const lesson = '22222222-2222-2222-2222-222222222222';
 const session = '33333333-3333-3333-3333-333333333333';
@@ -48,7 +43,7 @@ async function denied(h, request, status, code) {
   assert.ok(!body.includes('synthetic-backend-key'));
   assert.equal(h.signatures(), 0, 'denial must never mint a playback token');
 }
-const check = (name, fn) => test('CSA-154 ' + name, { skip: dependency }, fn);
+const check = (name, fn) => test('CSA-154 ' + name, fn);
 
 check('disabled provider denies before network and signing', async () => {
   const h = harness({ enabled: false });

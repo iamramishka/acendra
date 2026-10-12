@@ -20,7 +20,7 @@ test('CSA-155 dependency-pending: real PostgreSQL learning progress persistence'
     t.skip('Committed CSA-133 save/read RPC dependency is absent in target database; persistence unverified');
     return;
   }
-  const result = run(readFileSync(new URL('./csa155_progress.sql', import.meta.url), 'utf8'));
+  const result = run(readFileSync(new URL('../supabase/tests/database/csa155_progress.test.sql', import.meta.url), 'utf8'));
   assert.equal(result.status, 0, result.stderr);
   assert.doesNotMatch(result.stdout, /^not ok/m);
   const checks = result.stdout.split(/\r?\n/).filter(line => /^ok \d+ - /.test(line));

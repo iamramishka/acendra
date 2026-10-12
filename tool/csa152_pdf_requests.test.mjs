@@ -1,20 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { access } from 'node:fs/promises';
+import * as handler from '../supabase/functions/pdf-content/handler.mjs';
+import * as authorization from '../supabase/functions/_shared/pdf/authorization.mjs';
 
-// Missing source is a visible dependency, never a passing replacement authorizer.
-const targets = [new URL('../supabase/functions/pdf-content/handler.mjs', import.meta.url),
-  new URL('../supabase/functions/_shared/pdf/authorization.mjs', import.meta.url)];
-const present = await Promise.all(targets.map(async target => {
-  try { await access(target); return true; } catch (error) {
-    if (error.code === 'ENOENT') return false;
-    throw error;
-  }
-}));
-const missing = present.every(Boolean) ? false :
-  'DEPENDENCY_PENDING: committed CSA-140 authorizer and CSA-141 PDF handler are absent from this checkout';
-const modules = missing ? [] : await Promise.all(targets.map(target => import(target.href)));
-const check = (name, body) => test(`CSA-152: ${name}`, { skip: missing }, body);
+const modules = [handler, authorization];
+const check = (name, body) => test(`CSA-152: ${name}`, body);
 const actor = '11111111-1111-4111-8111-111111111111';
 const session = '22222222-2222-4222-8222-222222222222';
 const lesson = '33333333-3333-4333-8333-333333333333';
