@@ -63,12 +63,29 @@ do $$
 declare r record; state text; scenario text; before_state jsonb; target uuid;
 begin
  foreach scenario in array array['forged-metadata','MFA-downgrade','expired-session','deleted-session','revoked-role'] loop
-  if scenario='MFA-downgrade' then update auth.sessions set aal='aal1' where id='17600000-0000-0000-0000-000000000003';end if;
+  if scenario='MFA-downgrade' then
+   -- Isolate session failure from role failure: hold current authority through all session faults.
+   insert into public.user_roles(user_id,role_id) select '17600000-0000-0000-0000-000000000001',id from public.roles where code='super_admin';
+   -- Positive authorization controls distinguish session rejection from unrelated resource denial.
+   -- Roll back successful probes as well as failed probes, preserving the synthetic baseline.
+   before_state:=pg_temp.csa176_state();
+   set local role service_role;
+   for r in select * from pg_temp.csa176_calls loop
+    state:=null;
+    target:=case when r.name in ('media-get','media-finalize') then (select id from pg_temp.csa176_asset) else '17600000-0000-0000-0000-000000000002'::uuid end;
+    begin
+     execute r.command using '17600000-0000-0000-0000-000000000001'::uuid,'17600000-0000-0000-0000-000000000003'::uuid,'aal2'::text,target;
+     raise exception using errcode='Z1760',message='Rollback positive authorization probe';
+    exception when others then state:=sqlstate;end;
+    if state is null or state not in ('Z1760','P0002','22023','23503','40001','55000') then raise exception 'Positive authorization control % unexpected outcome %',r.name,state;end if;
+   end loop;
+   reset role;
+   if before_state is distinct from pg_temp.csa176_state() then raise exception 'Positive probes changed baseline';end if;
+   update auth.sessions set aal='aal1' where id='17600000-0000-0000-0000-000000000003';end if;
   if scenario='expired-session' then update auth.sessions set aal='aal2',not_after=clock_timestamp()-interval '1 second' where id='17600000-0000-0000-0000-000000000003';end if;
   if scenario='deleted-session' then delete from auth.sessions where id='17600000-0000-0000-0000-000000000003';end if;
   if scenario='revoked-role' then
    insert into auth.sessions(id,user_id,aal) values ('17600000-0000-0000-0000-000000000003','17600000-0000-0000-0000-000000000001','aal2');
-   insert into public.user_roles(user_id,role_id) select '17600000-0000-0000-0000-000000000001',id from public.roles where code='super_admin';
    update public.user_roles set revoked_at=clock_timestamp() where user_id='17600000-0000-0000-0000-000000000001';
   end if;
   before_state:=pg_temp.csa176_state();
