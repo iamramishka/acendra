@@ -4,7 +4,7 @@
   "description": "Pinned Supabase development tools; not Flutter application dependencies",
   "engines": { "node": ">=20" },
   "scripts": {
-    "tool:test": "node --test tool/*.test.mjs supabase/functions/admin-assign-user-role/*.test.mjs supabase/functions/create-course/*.test.mjs supabase/functions/create-checkout-order/*.test.mjs supabase/functions/_shared/payments/*.test.mjs supabase/functions/initialize-checkout/*.test.mjs supabase/functions/payment-provider-webhook/*.test.mjs supabase/functions/upload-bank-receipt/*.test.mjs supabase/functions/admin-review-bank-transfer/*.test.mjs supabase/functions/admin-entitlements/*.test.mjs supabase/functions/payment-notifications/*.test.mjs",
+    "tool:test": "node --test tool/*.test.mjs supabase/functions/admin-assign-user-role/*.test.mjs supabase/functions/create-course/*.test.mjs supabase/functions/create-checkout-order/*.test.mjs supabase/functions/_shared/payments/*.test.mjs supabase/functions/initialize-checkout/*.test.mjs supabase/functions/payment-provider-webhook/*.test.mjs supabase/functions/upload-bank-receipt/*.test.mjs supabase/functions/admin-review-bank-transfer/*.test.mjs supabase/functions/admin-entitlements/*.test.mjs supabase/functions/payment-notifications/*.test.mjs supabase/functions/authorize-video/*.test.mjs",
     "payment:sandbox:verify": "node tool/payhere_sandbox_verify.mjs",
     "db:prepare": "node tool/local_supabase.mjs prepare dev",
     "db:start": "node tool/local_supabase.mjs start dev",
