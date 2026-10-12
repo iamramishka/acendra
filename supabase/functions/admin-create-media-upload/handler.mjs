@@ -21,9 +21,9 @@ export function createHandler({env,fetch:request=globalThis.fetch,policy,inspect
  const approved=policy&&typeof policy.reference==='string'&&/^[A-Za-z0-9._:-]{1,128}$/.test(policy.reference)&&Number.isInteger(policy.timeoutMs)&&policy.timeoutMs>0&&policy.timeoutMs<=30000&&Object.keys(types).filter(t=>t!=='public_thumbnail').every(t=>Number.isSafeInteger(policy.maxBytes?.[t])&&policy.maxBytes[t]>0)&&typeof inspector==='function';
  const config=approved?{reference:policy.reference,timeoutMs:policy.timeoutMs,maxBytes:{...policy.maxBytes,public_thumbnail:Math.min(policy.maxBytes.public_thumbnail??MAX_THUMBNAIL_BYTES,MAX_THUMBNAIL_BYTES)}}:null;
  return async incoming=>{
- const origin=incoming.headers.get('Origin');const allowed=new Set((env('ACENDRA_ADMIN_ALLOWED_ORIGINS')??'http://127.0.0.1:8080').split(',').map(x=>x.trim()));
+ const origin=incoming.headers.get('Origin');const allowed=new Set((env('ACENDRA_ADMIN_ALLOWED_ORIGINS')??'http://127.0.0.1:8080').split(',').map(x=>x.trim()).filter(Boolean));
  const respond=(status,code,data)=>Response.json(code?{error:{code}}:{data},{status,headers:{'Cache-Control':'no-store','Vary':'Origin',...(origin&&allowed.has(origin)?{'Access-Control-Allow-Origin':origin}:{})}});
- if(origin&&!allowed.has(origin))return respond(403,'ORIGIN_FORBIDDEN');
+ if(origin!==null&&!allowed.has(origin))return respond(403,'ORIGIN_FORBIDDEN');
  if(incoming.method==='OPTIONS'){if(!origin||incoming.headers.get('Access-Control-Request-Method')!=='POST'||(incoming.headers.get('Access-Control-Request-Headers')??'').split(',').some(x=>x.trim()&&!['authorization','content-type','apikey','x-client-info'].includes(x.trim().toLowerCase())))return respond(403,'PREFLIGHT_FORBIDDEN');return new Response(null,{status:204,headers:{'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Methods':'POST','Access-Control-Allow-Headers':'Authorization, Content-Type, apikey, x-client-info','Vary':'Origin'}});}
  if(incoming.method!=='POST')return respond(405,'METHOD_NOT_ALLOWED');
  const authorization=incoming.headers.get('Authorization');if(!authorization?.startsWith('Bearer ')||authorization.length>16384)return respond(401,'AUTH_REQUIRED');

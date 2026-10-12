@@ -8,12 +8,12 @@ async function json(body,limit) {
 }
 export function createHandler({env,fetch:request=globalThis.fetch,enabled=false}) {
  const url=env('SUPABASE_URL'), publicKey=env('SUPABASE_ANON_KEY'), serviceKey=env('SUPABASE_SERVICE_ROLE_KEY');
- const origins=new Set((env('ACENDRA_ADMIN_ALLOWED_ORIGINS')??'http://127.0.0.1:8080').split(',').map(x=>x.trim()));
+ const origins=new Set((env('ACENDRA_ADMIN_ALLOWED_ORIGINS')??'http://127.0.0.1:8080').split(',').map(x=>x.trim()).filter(Boolean));
  return async incoming=>{
   const origin=incoming.headers.get('Origin');
   const respond=(status,code,data)=>Response.json(code?{error:{code}}:{data},{status,headers:{'Cache-Control':'no-store',Vary:'Origin',...(origin&&origins.has(origin)?{'Access-Control-Allow-Origin':origin}:{})}});
   if(enabled!==true) return respond(503,'ENROLLMENT_ADMIN_UNAVAILABLE');
-  if(origin&&!origins.has(origin)) return respond(403,'ORIGIN_FORBIDDEN');
+  if(origin!==null&&!origins.has(origin)) return respond(403,'ORIGIN_FORBIDDEN');
   if(incoming.method==='OPTIONS') {
    const headers=(incoming.headers.get('Access-Control-Request-Headers')??'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
    if(!origin||incoming.headers.get('Access-Control-Request-Method')!=='POST'||headers.some(x=>!['authorization','content-type','apikey','x-client-info'].includes(x))) return respond(403,'PREFLIGHT_FORBIDDEN');
