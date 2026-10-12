@@ -36,8 +36,14 @@ Verification 2026-10-12:
   fail closure and public RPC execution denial.
 - Diff whitespace check passed.
 
+Owner approved settlement-confirmation recognition, Colombo dates and net as
+confirmed receipts minus confirmed refunds excluding fees/taxes on 2026-10-12.
+New approval record documents this. Gross facts use the approved definition;
+refund/net numeric totals remain unavailable until a confirmed adjustment ledger
+exists. Explicit reporting statuses and limitations describe that missing ledger.
+
 Remaining: root shared config/test-runner/API alignment; hosted Supabase CI;
-security and financial review; owner-approved recognition definition and reviewed
-activation. Definition changes should be reviewed as a contract, not implied from
+security and financial review; reviewed activation and future adjustment ledger
+integration. Definition changes should be reviewed as a contract, not implied from
 this facts-only implementation. No refund/financial state writes or external
 messages occur. No production credentials/configuration or data were used.

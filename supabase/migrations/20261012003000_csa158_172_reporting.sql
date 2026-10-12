@@ -19,8 +19,9 @@ begin
  -- zero refunds/net income if imported history contains unsupported outcomes.
  if exists(select 1 from public.orders where status='refunded') then raise exception using errcode='55000',message='Confirmed adjustment reporting unavailable.'; end if;
  select jsonb_build_object('basis','verified_settlement_receipts','currency_code','LKR',
- 'confirmed_settlements',count(*)::text,'confirmed_amount_minor',coalesce(sum(s.amount_minor),0)::text,'environment_basis','production_online_and_verified_bank',
- 'revenue_status','definition_pending','refunds_status','adjustment_reporting_unavailable','net_status','definition_pending') into result
+ 'confirmed_settlements',count(*)::text,'confirmed_amount_minor',coalesce(sum(s.amount_minor),0)::text,'gross_receipts_minor',coalesce(sum(s.amount_minor),0)::text,'environment_basis','production_online_and_verified_bank',
+ 'recognition_status','approved','recognized_at_basis','settlement_confirmed_at','refunds_status','confirmed_adjustment_ledger_unavailable','net_status','confirmed_adjustment_ledger_unavailable',
+ 'reporting_limitations',jsonb_build_array('Confirmed refund and reversal ledger is not implemented; refunds and net totals are unavailable. Fees and taxes are excluded from the approved net definition.')) into result
  from app_private.verified_settlements s where s.confirmed_at>=p_from and s.confirmed_at<p_to and (s.method='bank_transfer' or s.provider_environment='production');
  return result;
 end; $$;

@@ -38,6 +38,7 @@ begin
  (oid,'online',9007199254740993,'LKR','payhere','synthetic','production','next-day','provider_retrieval','synthetic','2026-01-02T18:30:00Z');
  r:=public.csa172_financial_report(finance,fs,'aal2','2026-01-02','2026-01-02','LKR');
  if r->>'confirmed_amount_minor'<>'18014398509481986' or r->>'confirmed_settlements'<>'2' or r ? 'net_amount_minor' or r ? 'refunded_amount_minor' then raise exception 'settlement precision/date/sandbox/definition';end if;
+ if r->>'gross_receipts_minor'<>r->>'confirmed_amount_minor' or r->>'recognition_status'<>'approved' or r->>'net_status'<>'confirmed_adjustment_ledger_unavailable' then raise exception 'approved recognition or unavailable net';end if;
  update public.orders set status='refunded',paid_at=clock_timestamp() where id=oid;
  begin perform public.csa172_financial_report(finance,fs,'aal2','2026-01-02','2026-01-02','LKR');raise exception 'invented refund zero';exception when object_not_in_prerequisite_state then null;end;
  update public.user_roles set revoked_at=clock_timestamp() where user_id=finance;

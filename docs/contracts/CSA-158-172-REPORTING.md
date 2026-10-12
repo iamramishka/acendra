@@ -1,8 +1,9 @@
 # CSA-158 / CSA-172 reporting
 
 Status: IN_REVIEW. Owner: CODEX. Coordination: GitHub issue #106.
-Production entries remain hard-disabled until financial definitions and release
-activation receive review. The injectable `enabled:true` seam is for verification.
+Production entries remain hard-disabled until release activation receives review.
+The owner approved recognition on 2026-10-12; see
+CSA-158-172-REPORTING-APPROVAL.md. The injectable `enabled:true` seam is for verification.
 
 `admin-dashboard-stats` accepts exactly `{period:"last_30_days"}`.
 `admin-financial-report` accepts exactly `{from:"YYYY-MM-DD",to:"YYYY-MM-DD",currency_code:"LKR"}`.
@@ -33,10 +34,14 @@ contract. They count immutable verified settlements once each, excluding online
 sandbox records and including independently verified bank settlements. Additional
 verified receipts remain receipt facts rather than fictitious extra course sales.
 They expose neither settlement references nor payer/bank/provider details.
-No approved accounting revenue recognition is inferred. Refund/net figures are
-unavailable. Any refunded order makes financial totals fail closed until trusted
+Recognition uses settlement confirmation time. `gross_receipts_minor` is an
+explicit alias for exact `confirmed_amount_minor`; neither counts course sales.
+Net is approved as confirmed receipts minus confirmed refunds, excluding fees
+and taxes. Refund/net numeric figures are unavailable because the baseline lacks
+a confirmed adjustment ledger. Statuses explicitly name that limitation; absence
+does not mean zero. Any refunded order makes financial totals fail closed until trusted
 adjustment reporting is integrated; refund requests/approvals never mean payout.
-This is a concrete additive contract proposal pending owner recognition approval.
+Recognition is approved; implementation and future ledger integration require review.
 
 Errors are bounded public codes; backend details are discarded. Requests/responses
 are size-limited, uncached, origin-restricted and validated. No public table/view
