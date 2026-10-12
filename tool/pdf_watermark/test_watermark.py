@@ -66,7 +66,7 @@ class Tests(unittest.TestCase):
         for name in ['', 'bad\nname', '名前']:
             with self.assertRaises(WatermarkError): generate(self.source,display_name=name,license_id=self.identity,source_sha256=self.digest)
 
-if __name__=='__main__': unittest.main()
+
 
 class AdditionalTests(unittest.TestCase):
     def test_all_right_angle_rotations_and_object_bound(self):
@@ -78,3 +78,6 @@ class AdditionalTests(unittest.TestCase):
         output=generate(data,display_name='Student',license_id='22222222-2222-4222-8222-222222222222',source_sha256=digest)
         self.assertEqual([page.rotation for page in PdfReader(io.BytesIO(output)).pages],[0,90,180,270])
         with self.assertRaises(WatermarkError): generate(data,display_name='Student',license_id='22222222-2222-4222-8222-222222222222',source_sha256=digest,limits=Limits(max_objects=1))
+
+if __name__=='__main__': unittest.main()
+
