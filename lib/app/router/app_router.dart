@@ -54,9 +54,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (!sessionRestored) return null;
 
       final isPublic = _publicRoutes.any(
-        (r) => location.startsWith(
-          r.contains(':') ? r.substring(0, r.indexOf(':')) : r,
-        ),
+        (r) => r.contains(':')
+            ? location.startsWith(r.substring(0, r.indexOf(':')))
+            : location == r,
       );
 
       if (!isAuthenticated && !isPublic) return RouteNames.login;
