@@ -1,6 +1,7 @@
 import 'package:acendra/app/router/route_names.dart';
 import 'package:acendra/app/theme/app_breakpoints.dart';
 import 'package:acendra/app/theme/app_theme_extension.dart';
+import 'package:acendra/core/accessibility/semantics_labels.dart';
 import 'package:acendra/core/widgets/buttons/theme_toggle_button.dart';
 import 'package:acendra/core/widgets/layout/responsive_container.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +42,7 @@ class PublicShell extends ConsumerWidget {
                 const ThemeToggleButton(),
                 Builder(
                   builder: (ctx) => IconButton(
+                    tooltip: SemanticsLabels.openMenu,
                     icon: const Icon(Icons.menu),
                     onPressed: () => Scaffold.of(ctx).openEndDrawer(),
                   ),

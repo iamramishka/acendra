@@ -12,6 +12,7 @@ class CourseSummaryDto {
       priceMinor: json['price_minor'] as int,
       currencyCode: json['currency_code'] as String,
       publishedAt: json['published_at'] as String,
+      categoryId: json['category_id'] as String?,
     );
   }
 }

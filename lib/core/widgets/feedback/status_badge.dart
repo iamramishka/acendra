@@ -26,17 +26,29 @@ class StatusBadge extends StatelessWidget {
       BadgeVariant.info => (cs.primaryContainer, cs.onPrimaryContainer),
     };
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(100),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: fg,
-          fontWeight: FontWeight.w600,
+    final variantLabel = switch (variant) {
+      BadgeVariant.success => 'Success',
+      BadgeVariant.warning => 'Warning',
+      BadgeVariant.error => 'Error',
+      BadgeVariant.info => 'Info',
+    };
+
+    return Semantics(
+      label: '$variantLabel: $label',
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(100),
+        ),
+        child: ExcludeSemantics(
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: fg,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       ),
     );

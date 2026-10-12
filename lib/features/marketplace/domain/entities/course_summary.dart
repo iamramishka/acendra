@@ -10,6 +10,7 @@ class CourseSummary {
     required this.priceMinor,
     required this.currencyCode,
     required this.publishedAt,
+    this.categoryId,
   });
 
   final String id;
@@ -19,6 +20,7 @@ class CourseSummary {
   final int priceMinor;
   final String currencyCode;
   final String publishedAt;
+  final String? categoryId;
 
   String get formattedPrice {
     final major = priceMinor ~/ 100;
