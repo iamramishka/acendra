@@ -1,5 +1,6 @@
 -- Cross-ledger security regression; all fixtures and fault triggers roll back.
 begin;
+select '1..1';
 create function pg_temp.csa174_fail_audit() returns trigger language plpgsql as $$
 begin raise exception using errcode='P0001',message='CSA174 injected audit failure'; end; $$;
 do $$
@@ -66,4 +67,5 @@ begin
  if (select count(*) from app_private.csa164_media_validation_audit where asset_id=media and actor_id=actor and checksum_sha256=repeat('b',64) and policy_reference='synthetic-policy')<>1 then raise exception 'Media replay/attribution';end if;
  raise notice 'CSA174 cross-ledger immutability, least privilege, attribution, replay and atomic audit checks passed';
 end; $$;
+select 'ok 1 - cross-ledger immutability privileges attribution replay and audit rollback';
 rollback;

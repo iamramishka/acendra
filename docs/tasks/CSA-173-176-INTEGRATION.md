@@ -23,3 +23,11 @@ Shared integration adjustments: GitHub OAuth refuses workflow-file updates witho
 Worker evidence:173 22 SQL assertions and29 existing SQL suites;174 new suite plus7 existing audit suites, identified timing fixture failure fixed by root;175 17 HTTP tests plus10 new and55 existing SQL assertions;176 130 HTTP tests and91 actual denied RPC calls plus unchanged public/app_private row snapshots. Actual root combined counts and CI evidence appended below.
 
 Remaining acceptance: hosted Supabase replay/lint/gateway/real Auth and Flutter CI, authorized security review, dependency PR107 acceptance, and separate production activation. Native PostgreSQL uses modeled Auth/Storage rather than live gateway. Native pgTAP foundation extension unavailable. Do not mark checklist DONE until review/CI/acceptance requirements are met. Task-specific records provide exact scope and known limitations.
+
+## Integrated evidence
+
+Root combined suite:646 Node tests discovered,640 passed/6 intentional opt-in database concurrency skips;32 non-foundation SQL files passed on PostgreSQL17 root55475 after replay. Existing CSA116 timed test passes with all assertions retained. Native foundation pgTAP unavailable; real Supabase CI provides this check. Supabase's modeled default storage grants/RLS were applied only to the disposable bootstrap, not repo policies. Individual task records retain original worker evidence.
+
+Dependency advanced to ddd82f9 while verification ran (publication TAP output and safe diagnostics). Root integrated that completed committed fix; the sole tool/local_supabase conflict was reviewed and resolved using a generalized allowlist of actual repository filenames, preserving both scopes' diagnostic goals. New CSA174 DO assertions now emit a TAP plan/success result for real Supabase pg_prove; SQL recheck passed and9 tooling tests passed after reconciliation.
+
+Draft PR110: https://github.com/iamramishka/acendra/pull/110. Existing workflows dispatched on task branch because OAuth cannot push workflow-file changes. No workflow files modified. Original dispatched runs precede the final TAP/dependency fix; fresh final revision runs required. Hosted results will be recorded against exact verified revision.
