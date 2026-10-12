@@ -24,7 +24,10 @@ begin
   if exists(select 1 from storage.objects where bucket_id='course-pdfs') then raise exception 'private object list/read leaked'; end if;
   begin insert into storage.objects(bucket_id,name) values('course-pdfs','originals/'||gen_random_uuid()||'/v1.pdf'); raise exception 'client upload accepted'; exception when insufficient_privilege then null; end;
   update storage.objects set name='changed.pdf' where id=object_id;
-  delete from storage.objects where id=object_id;
+  -- Pinned Storage rejects direct SQL DELETE at statement level (42501),
+  -- even when restrictive RLS exposes zero rows. Do not disable that guard.
+  begin delete from storage.objects where id=object_id;
+  exception when insufficient_privilege then null; end;
   reset role;
   if not exists(select 1 from storage.objects where id=object_id) then raise exception 'client deletion succeeded'; end if;
  end loop;

@@ -1,4 +1,4 @@
-
+﻿
 # TASKS.md
 # Acedra - Parallel Multi-Agent Development Tracker
 
@@ -1109,65 +1109,65 @@ Flutter foundation.
 Suggested Owner:
 CLAUDE
 
-- [ ] CSA-039 [P1] [C]
+- [x] CSA-039 [P1] [C] [DONE]
   Implement color tokens.
 
-- [ ] CSA-040 [P1] [C]
+- [x] CSA-040 [P1] [C] [DONE]
   Implement typography tokens.
 
-- [ ] CSA-041 [P1] [C]
-  Implement spacing and radius tokens.
+- [x] CSA-041 [P1] [C] [DONE]
+  Implement spacing and radius tokens. AppRadius.button=12, card=18.
 
-- [ ] CSA-042 [P1] [C]
-  Implement responsive breakpoints.
+- [x] CSA-042 [P1] [C] [DONE]
+  Implement responsive breakpoints. AppBreakpoints + ScreenLayout + ResponsiveContainer.
 
-- [ ] CSA-043 [P1] [C]
-  Configure Material 3 themes.
+- [x] CSA-043 [P1] [C] [DONE]
+  Configure Material 3 themes. AppThemeExtension semantic colours.
 
-- [ ] CSA-044 [P1] [C]
-  Implement light/dark switching.
+- [x] CSA-044 [P1] [C] [DONE]
+  Implement light/dark switching. ThemeModeNotifier + ThemeToggleButton.
 
-- [ ] CSA-045 [P1] [C]
-  Build reusable buttons.
+- [x] CSA-045 [P1] [C] [DONE]
+  Build reusable buttons. AppButton (primary/secondary/outlined/destructive, 3 sizes).
 
-- [ ] CSA-046 [P1] [C]
-  Build reusable input components.
+- [x] CSA-046 [P1] [C] [DONE]
+  Build reusable input components. AppTextField + AppPasswordField.
 
-- [ ] CSA-047 [P1] [C]
-  Build course and information cards.
+- [x] CSA-047 [P1] [C] [DONE]
+  Build course and information cards. CourseCard with thumbnail/title/instructor/rating/price.
 
-- [ ] CSA-048 [P1] [C]
-  Build skeleton loading components.
+- [x] CSA-048 [P1] [C] [DONE]
+  Build skeleton loading components. AppSkeleton shimmer animation.
 
-- [ ] CSA-049 [P1] [C]
-  Build empty and error states.
+- [x] CSA-049 [P1] [C] [DONE]
+  Build empty and error states. AppEmptyState + AppErrorState.
 
-- [ ] CSA-050 [P1] [C]
-  Build dialogs, badges, and feedback.
+- [x] CSA-050 [P1] [C] [DONE]
+  Build dialogs, badges, and feedback. AppDialog + StatusBadge + AppSnackbar.
 
-- [ ] CSA-051 [P1] [C]
-  Build public navigation shell.
+- [x] CSA-051 [P1] [C] [DONE]
+  Build public navigation shell. PublicShell responsive AppBar + drawer.
 
-- [ ] CSA-052 [P1] [C]
-  Build authentication shell.
+- [x] CSA-052 [P1] [C] [DONE]
+  Build authentication shell. AuthShell centred card layout.
 
-- [ ] CSA-053 [P1] [C]
-  Build student navigation shell.
+- [x] CSA-053 [P1] [C] [DONE]
+  Build student navigation shell. StudentShell AppBar + bottom-nav.
 
-- [ ] CSA-054 [P1] [C]
-  Build learning navigation shell.
+- [x] CSA-054 [P1] [C] [DONE]
+  Build learning navigation shell. LearningShell immersive with back button.
 
-- [ ] CSA-055 [P1] [C]
-  Build admin navigation shell.
+- [x] CSA-055 [P1] [C] [DONE]
+  Build admin navigation shell. AdminShell 248px sidebar on desktop / drawer on mobile.
 
 - [ ] CSA-056 [P1] [C]
   Implement accessibility foundations.
 
-- [ ] CSA-057 [P1] [C]
-  Test responsive layouts.
+- [x] CSA-057 [P1] [C] [DONE]
+  Test responsive layouts. ResponsiveContainer widget tests at breakpoint boundaries.
 
-- [ ] CSA-058 [P1] [C]
-  Add shared widget tests.
+- [x] CSA-058 [P1] [C] [DONE]
+  Add shared widget tests. 159 total tests all passing; flutter analyze clean.
 
 Parallel Opportunity:
 
@@ -1180,12 +1180,14 @@ to lib/app/theme or pubspec files.
 
 Phase 2 Exit:
 
-- [ ] Theme engine works.
-- [ ] Reusable components exist.
-- [ ] Navigation shells function.
-- [ ] Mobile/tablet/desktop checked.
-- [ ] Accessibility reviewed.
-- [ ] Relevant tests pass.
+- [x] Theme engine works. AppTheme + AppThemeExtension + ThemeModeNotifier.
+- [x] Reusable components exist. AppButton, AppTextField, CourseCard, AppSkeleton, feedback widgets.
+- [x] Navigation shells function. All 5 shells wired into ShellRoute; 159 tests pass.
+- [x] Mobile/tablet/desktop checked. Breakpoint tests at 599/600/1023/1024px.
+- [ ] Accessibility reviewed. CSA-056 pending.
+- [x] Relevant tests pass. 159/159 pass, flutter analyze clean, web build ✓.
+
+Phase 2 Status: DONE (CSA-056 accessibility foundations deferred to Phase 3 sprint).
 
 ---
 
@@ -1352,21 +1354,33 @@ CODEX
 UI Owner:
 CLAUDE
 
+Phase 5 CODEX status reconciled on 2026-10-12 against live GitHub evidence:
+21 DONE, 6 IN_REVIEW, 1 BLOCKED. Completed foundation tasks are CSA-092–096
+and CSA-098 (PRs #61/#68–71); completed bank implementation tasks are
+CSA-108/109/112/113 (PR #84); accepted entitlement/security tasks are
+CSA-114/116/117/118/120 (PR #86). These are bounded development completions.
+CSA-100 is BLOCKED on real PayHere sandbox acceptance. CSA-101–105 are merged
+in PR #79 with passing CI but retain provider/financial acceptance gates.
+CSA-119 has an accepted outbox/worker but live email delivery remains IN_REVIEW.
+CSA-121–126 are DONE: PR #88 merged into dev at 7f5f131; parallel review found no actionable findings and final Flutter/Supabase CI passed.
+Online, receipt, administrative and email activation/release gates remain;
+Phase 5 overall is incomplete. See [reconciliation evidence and remaining gates](docs/tasks/CSA-PHASE5-STATUS-RECONCILIATION.md).
+
 ## CODEX - FINANCIAL DATABASE
 
-- [x] CSA-092 [P0] [X]
+- [x] CSA-092 [P0] [X] [DONE]
   Create orders and payment attempts.
 
-- [x] CSA-093 [P0] [X]
+- [x] CSA-093 [P0] [X] [DONE]
   Create payment event records.
 
-- [x] CSA-094 [P0] [X]
+- [x] CSA-094 [P0] [X] [DONE]
   Create bank transfer submission schema.
 
-- [x] CSA-095 [P0] [X]
+- [x] CSA-095 [P0] [X] [DONE]
   Create enrollment records.
 
-- [x] CSA-096 [P0] [X]
+- [x] CSA-096 [P0] [X] [DONE]
   Implement financial uniqueness
   and transaction constraints.
 
@@ -1394,32 +1408,41 @@ Phase 5 integration/release gates remain unchecked.
   Implement payment status screens.
 
 ## CODEX - ONLINE PAYMENT BACKEND
+Parallel review follow-up (2026-10-12): CSA-101–105 and CSA-119 reviewed at
+7f5f131 in three isolated reviewer worktrees. CSA-101 has a P2 finding: accepted
+uppercase order UUIDs cause a false 503 after initialization commits. No actionable
+findings identified for CSA-102–105 or the gated CSA-119 implementation.
+Fresh full Node suite: 304 passed, zero failed, four database suites skipped;
+PostgreSQL/Docker runtime unavailable locally. PRs #79/#86 already merged into dev.
+No new merge/push occurred; no-findings condition was not met. All six remain
+IN_REVIEW, retaining provider/financial and live email acceptance gates.
+See the dated parallel review in the reconciliation record for evidence and limits.
 
-- [x] CSA-098 [P0] [X]
+- [x] CSA-098 [P0] [X] [DONE]
   Implement trusted order creation.
 
-- [ ] CSA-100 [P0] [X]
+- [ ] CSA-100 [P0] [X] [BLOCKED]
   Implement payment adapter.
 
-- [ ] CSA-101 [P0] [X]
+- [ ] CSA-101 [P0] [X] [IN_REVIEW]
   Implement checkout initialization.
-  IN_REVIEW, CODEX: implemented in coordinated issue #76; provider acceptance blocked; online endpoints disabled.
+  PR: [#79](https://github.com/iamramishka/acendra/pull/79) MERGED into dev; Flutter/Supabase CI passed. Remaining: fix P2 uppercase UUID comparison at initialize-checkout/handler.mjs:145 with regression verification, real PayHere sandbox verification and financial acceptance.
 
-- [ ] CSA-102 [P0] [X]
+- [ ] CSA-102 [P0] [X] [IN_REVIEW]
   Implement verified provider webhook.
-  IN_REVIEW, CODEX: implemented in coordinated issue #76; provider acceptance blocked; online endpoints disabled.
+  PR: [#79](https://github.com/iamramishka/acendra/pull/79) MERGED into dev; Flutter/Supabase CI passed. Remaining: real PayHere sandbox verification and financial acceptance.
 
-- [ ] CSA-103 [P0] [X]
+- [ ] CSA-103 [P0] [X] [IN_REVIEW]
   Validate transaction amount and currency.
-  IN_REVIEW, CODEX: implemented in coordinated issue #76; provider acceptance blocked; online endpoints disabled.
+  PR: [#79](https://github.com/iamramishka/acendra/pull/79) MERGED into dev; Flutter/Supabase CI passed. Remaining: real PayHere sandbox verification and financial acceptance.
 
-- [ ] CSA-104 [P0] [X]
+- [ ] CSA-104 [P0] [X] [IN_REVIEW]
   Implement atomic payment finalization.
-  IN_REVIEW, CODEX: implemented in coordinated issue #76; provider acceptance blocked; online endpoints disabled.
+  PR: [#79](https://github.com/iamramishka/acendra/pull/79) MERGED into dev; Flutter/Supabase CI passed. Remaining: real PayHere sandbox verification and financial acceptance.
 
-- [ ] CSA-105 [P0] [X]
+- [ ] CSA-105 [P0] [X] [IN_REVIEW]
   Implement idempotent event processing.
-  IN_REVIEW, CODEX: implemented in coordinated issue #76; provider acceptance blocked; online endpoints disabled.
+  PR: [#79](https://github.com/iamramishka/acendra/pull/79) MERGED into dev; Flutter/Supabase CI passed. Remaining: real PayHere sandbox verification and financial acceptance.
 
 ## CLAUDE - BANK TRANSFER UI
 
@@ -1437,69 +1460,70 @@ Phase 5 integration/release gates remain unchecked.
 
 ## CODEX - BANK TRANSFER BACKEND
 
-- [ ] CSA-108 [P0] [X]
+- [x] CSA-108 [P0] [X] [DONE]
   Implement private receipt upload.
   IN_REVIEW, CODEX: implemented and locally tested; issue #81; Storage/CI and operational acceptance pending.
 
-- [ ] CSA-109 [P0] [X]
+- [x] CSA-109 [P0] [X] [DONE]
   Validate receipt type and ownership.
   IN_REVIEW, CODEX: implemented and locally tested; issue #81; Storage/CI and operational acceptance pending.
 
-- [ ] CSA-112 [P0] [X]
+- [x] CSA-112 [P0] [X] [DONE]
   Implement authorized bank approval.
   IN_REVIEW, CODEX: implemented and locally tested; issue #81; Storage/CI and operational acceptance pending.
 
-- [ ] CSA-113 [P0] [X]
+- [x] CSA-113 [P0] [X] [DONE]
   Implement bank rejection processing.
   IN_REVIEW, CODEX: implemented and locally tested; issue #81; Storage/CI and operational acceptance pending.
 
-- [ ] CSA-114 [P0] [X] [IN_REVIEW]
+- [x] CSA-114 [P0] [X] [DONE]
   Implement concurrency-safe approvals.
 
 ## CODEX - ENROLLMENTS
 
-- [ ] CSA-116 [P0] [X] [IN_REVIEW]
+- [x] CSA-116 [P0] [X] [DONE]
   Implement entitlement grant logic.
 
-- [ ] CSA-117 [P0] [X] [IN_REVIEW]
+- [x] CSA-117 [P0] [X] [DONE]
   Implement entitlement verification.
 
-- [ ] CSA-118 [P0] [X] [IN_REVIEW]
+- [x] CSA-118 [P0] [X] [DONE]
   Implement access revocation.
 
 - [ ] CSA-119 [P1] [X] [IN_REVIEW]
   Implement payment status notifications.
+  PR: [#86](https://github.com/iamramishka/acendra/pull/86) MERGED into dev; exact-head Flutter/Supabase CI passed. Remaining: approved email provider/sender, stable-key deduplication, authenticated scheduler and live delivery verification.
 
 ## CODEX - CRITICAL SECURITY TESTS
 
-- [ ] CSA-120 [P0] [X] [IN_REVIEW]
+- [x] CSA-120 [P0] [X] [DONE]
   Test forged provider callbacks.
   CSA-114/116–120 evidence: [implementation handoff](docs/tasks/CSA-114-120.md), issue #85.
   CI, authorized review and activation gates remain; no production enablement.
 
-- [x] CSA-121 [P0] [X]
-  DONE, CODEX: PR #88; owner-authorized review completed, rollback coverage findings resolved; verified SQL/races and Flutter/Supabase CI. See [review evidence](docs/tasks/CSA-121-126-TESTS.md).
+- [x] CSA-121 [P0] [X] [DONE]
   Test amount/currency mismatches.
+  PR: [#88](https://github.com/iamramishka/acendra/pull/88) MERGED into dev at 7f5f131; authorized parallel review found no actionable findings. Final Flutter/Supabase CI passed; fresh local tests: 304 passed, 0 failed, 4 database suites gated locally. See [review evidence](docs/tasks/CSA-PHASE5-STATUS-RECONCILIATION.md).
 
-- [x] CSA-122 [P0] [X]
-  DONE, CODEX: PR #88; owner-authorized review completed, rollback coverage findings resolved; verified SQL/races and Flutter/Supabase CI. See [review evidence](docs/tasks/CSA-121-126-TESTS.md).
+- [x] CSA-122 [P0] [X] [DONE]
   Test duplicate provider events.
+  PR: [#88](https://github.com/iamramishka/acendra/pull/88) MERGED into dev at 7f5f131; authorized parallel review found no actionable findings. Final Flutter/Supabase CI passed; fresh local tests: 304 passed, 0 failed, 4 database suites gated locally. See [review evidence](docs/tasks/CSA-PHASE5-STATUS-RECONCILIATION.md).
 
-- [x] CSA-123 [P0] [X]
-  DONE, CODEX: PR #88; owner-authorized review completed, rollback coverage findings resolved; verified SQL/races and Flutter/Supabase CI. See [review evidence](docs/tasks/CSA-121-126-TESTS.md).
+- [x] CSA-123 [P0] [X] [DONE]
   Test concurrent approval scenarios.
+  PR: [#88](https://github.com/iamramishka/acendra/pull/88) MERGED into dev at 7f5f131; authorized parallel review found no actionable findings. Final Flutter/Supabase CI passed; fresh local tests: 304 passed, 0 failed, 4 database suites gated locally. See [review evidence](docs/tasks/CSA-PHASE5-STATUS-RECONCILIATION.md).
 
-- [x] CSA-124 [P0] [X]
-  DONE, CODEX: PR #88; owner-authorized review completed, rollback coverage findings resolved; verified SQL/races and Flutter/Supabase CI. See [review evidence](docs/tasks/CSA-121-126-TESTS.md).
+- [x] CSA-124 [P0] [X] [DONE]
   Test rejected/pending access denial.
+  PR: [#88](https://github.com/iamramishka/acendra/pull/88) MERGED into dev at 7f5f131; authorized parallel review found no actionable findings. Final Flutter/Supabase CI passed; fresh local tests: 304 passed, 0 failed, 4 database suites gated locally. See [review evidence](docs/tasks/CSA-PHASE5-STATUS-RECONCILIATION.md).
 
-- [x] CSA-125 [P0] [X]
-  DONE, CODEX: PR #88; owner-authorized review completed, rollback coverage findings resolved; verified SQL/races and Flutter/Supabase CI. See [review evidence](docs/tasks/CSA-121-126-TESTS.md).
+- [x] CSA-125 [P0] [X] [DONE]
   Test unauthorized finance operations.
+  PR: [#88](https://github.com/iamramishka/acendra/pull/88) MERGED into dev at 7f5f131; authorized parallel review found no actionable findings. Final Flutter/Supabase CI passed; fresh local tests: 304 passed, 0 failed, 4 database suites gated locally. See [review evidence](docs/tasks/CSA-PHASE5-STATUS-RECONCILIATION.md).
 
-- [x] CSA-126 [P0] [X]
-  DONE, CODEX: PR #88; owner-authorized review completed, rollback coverage findings resolved; verified SQL/races and Flutter/Supabase CI. See [review evidence](docs/tasks/CSA-121-126-TESTS.md).
+- [x] CSA-126 [P0] [X] [DONE]
   Test financial transaction recovery.
+  PR: [#88](https://github.com/iamramishka/acendra/pull/88) MERGED into dev at 7f5f131; authorized parallel review found no actionable findings. Final Flutter/Supabase CI passed; fresh local tests: 304 passed, 0 failed, 4 database suites gated locally. See [review evidence](docs/tasks/CSA-PHASE5-STATUS-RECONCILIATION.md).
 
 Integration Gate:
 
@@ -1551,16 +1575,18 @@ CLAUDE
 
 ## CODEX - LEARNING DATA INTEGRATION
 
-- [ ] CSA-133 [P1] [X]
+- [ ] CSA-133 [P1] [X] [IN_REVIEW]
   Implement learning progress persistence.
+  CODEX implementation in stacked PR #102; current-session/entitlement RPCs added. Combined Flutter/Supabase verification passed; depends on unmerged PR #92.
 
 ## VIDEO
 
 - [ ] CSA-135 [P1] [C]
   Implement video player interface.
 
-- [ ] CSA-136 [P0] [X]
+- [ ] CSA-136 [P0] [X] [IN_REVIEW]
   Implement playback authorization.
+  CODEX implementation in stacked PR #102; signed Mux authorization added. Combined Flutter/Supabase verification passed; real provider readiness retained.
 
 - [ ] CSA-137 [P1] [C]
   Implement video error/loading states.
@@ -1570,8 +1596,9 @@ CLAUDE
 
 ## CODEX - PROTECTED PDF BACKEND
 
-- [ ] CSA-139 [P0] [X]
+- [ ] CSA-139 [P0] [X] [IN_REVIEW]
   Configure private PDF storage.
+  CODEX implementation in stacked PR #102; private bucket and client-denial tests added. Pinned real Storage lifecycle and combined CI passed.
 
 - [ ] CSA-140 [P0] [X] [IN_REVIEW]
   Implement PDF entitlement checks.

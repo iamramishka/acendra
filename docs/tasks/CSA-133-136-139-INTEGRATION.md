@@ -1,7 +1,7 @@
 # CSA-133 / CSA-136 / CSA-139 parallel integration
 
 Owner CODEX root; issue #93; user authorized these three tasks in parallel.
-Status IN_PROGRESS. Branch codex/feat/csa-133-136-139-integration.
+Status IN_REVIEW. Branch codex/feat/csa-133-136-139-integration.
 Worktree C:/Users/ramis/.codex/worktrees/csa-133-136-139-integration/acendra.
 Base e4d627b, unmerged CSA-127 PR #92. Dependency remains explicit; no approval
 or merge of that prerequisite is inferred from implementation authorization.
@@ -24,3 +24,39 @@ verification. No production configuration, provider purchase or enablement.
 
 Protected PDF entitlement/proxy/watermark delivery remain CSA-140/141/148;
 video provider provisioning and playback PoC remain retained release gates.
+
+## Integrated candidate
+
+Progress commits4a23315/2b4e7bf/ef317a9; PDF storage a17107b; video fcb171f/
+6b691fd/cecda45; shared smoke4e3f805; discovery57b0342; archived access correction
+b31eda0. Worker source commits preserved in their isolated branches.
+
+Fresh full Node suite:324 passed, zero failed, four locally gated DB suites.
+Root review corrected video's catalog-publication requirement to preserve existing
+entitled archived/draft course access; lesson/section publication still required.
+Full ordered migration021–024, new SQL tests and real pinned Storage lifecycle
+are running on hosted disposable Supabase. Runtime passes will be recorded only
+when checks finish. Intermediate runs cancelled when superseded by final head.
+
+PR #102 is stacked on CSA-127 PR #92. Tasks remain IN_REVIEW pending combined
+runtime verification and acceptance. No dev merge or production enablement.
+## Fresh combined verification — 2026-10-12
+
+Verified implementation head cbb62c0b1fc7b94f00efbf7d26c255a135c09914:
+- Supabase SUCCESS: https://github.com/iamramishka/acendra/actions/runs/38259317122
+- Flutter SUCCESS: https://github.com/iamramishka/acendra/actions/runs/38259324094
+
+Full ordered migrations, new progress/video/PDF SQL tests, existing financial
+concurrency regressions, strict lint, real Storage/API/MFA and Flutter formatting,
+analysis, tests and release web build passed. Local full Node suite324 passed,
+zero failed, four locally gated DB suites; hosted DB execution verified separately.
+
+Review corrected the catalog-publication access mismatch and two test assumptions:
+PostgreSQL timestamp cast rounding and pinned Storage's statement-level direct
+SQL DELETE guard (42501). The guard was preserved; the test asserts denial/object
+survival and actual Storage API operations are verified by the live smoke.
+Source: https://github.com/supabase/storage/blob/master/migrations/tenant/0055-prevent-direct-deletes.sql
+
+PR102 contains only this batch above PR92. CSA133/136/139 IN_REVIEW with passing
+combined verification; no dev merge or production deployment/enablement. Real Mux
+provisioning/player renewal and future PDF proxy/watermark remain separate gates.

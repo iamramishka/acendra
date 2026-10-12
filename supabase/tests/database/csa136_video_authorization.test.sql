@@ -2,7 +2,7 @@ begin;
 select '1..1';
 do $$
 declare buyer uuid:=gen_random_uuid(); admin uuid:=gen_random_uuid(); other_user uuid:=gen_random_uuid(); bs uuid:=gen_random_uuid(); ads uuid:=gen_random_uuid(); os uuid:=gen_random_uuid();
- course uuid:=gen_random_uuid(); section uuid:=gen_random_uuid(); lesson uuid:=gen_random_uuid(); asset uuid:=gen_random_uuid(); grant_id uuid; result jsonb; role_name text;
+ course uuid:=gen_random_uuid(); section uuid:=gen_random_uuid(); lesson uuid:=gen_random_uuid(); asset uuid:=gen_random_uuid(); grant_id uuid; result jsonb; role_name text; token_exp bigint;
 begin
  insert into auth.users(id) values(buyer),(admin),(other_user);
  insert into auth.sessions(id,user_id,aal,not_after) values(bs,buyer,'aal1',now()+interval '1 day'),(ads,admin,'aal2',now()+interval '1 day'),(os,other_user,'aal1',now()+interval '1 day');
@@ -18,8 +18,15 @@ begin
  insert into app_private.video_playback_bindings values(asset,'asset123','playback123','signed',now(),repeat('b',64),null);
  result:=public.csa136_authorize_video(buyer,bs,'aal1',lesson,extract(epoch from now())::bigint+500);
  if result->>'playback_id'<>'playback123' or (result->>'expires_at')::bigint>extract(epoch from now())+120 then raise exception 'wrong playback or grant expiry'; end if;
- result:=public.csa136_authorize_video(buyer,bs,'aal1',lesson,extract(epoch from now())::bigint+30);
- if (result->>'expires_at')::bigint>extract(epoch from now())+30 then raise exception 'token expiry bypass'; end if;
+ update public.courses set status='archived' where id=course;
+ result:=public.csa136_authorize_video(buyer,bs,'aal1',lesson,extract(epoch from now())::bigint+500);
+ if result->>'playback_id'<>'playback123' then raise exception 'existing entitlement lost on archived course'; end if;
+ update public.courses set status='draft' where id=course;
+ result:=public.csa136_authorize_video(buyer,bs,'aal1',lesson,extract(epoch from now())::bigint+500);
+ if result->>'playback_id'<>'playback123' then raise exception 'existing entitlement lost on draft course'; end if;
+ token_exp:=floor(extract(epoch from now()))::bigint+30;
+ result:=public.csa136_authorize_video(buyer,bs,'aal1',lesson,token_exp);
+ if (result->>'expires_at')::bigint<>token_exp then raise exception 'token expiry clamp mismatch'; end if;
  begin perform public.csa136_authorize_video(other_user,os,'aal1',lesson,extract(epoch from now())::bigint+500); raise exception 'other user permitted'; exception when insufficient_privilege then null; end;
  begin perform public.csa136_authorize_video(buyer,os,'aal1',lesson,extract(epoch from now())::bigint+500); raise exception 'other session permitted'; exception when insufficient_privilege then null; end;
  update public.lessons set is_published=false where id=lesson;
