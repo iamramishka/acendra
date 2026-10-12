@@ -1600,10 +1600,10 @@ CLAUDE
   Configure private PDF storage.
   CODEX implementation in stacked PR #102; private bucket and client-denial tests added. Pinned real Storage lifecycle and combined CI passed.
 
-- [ ] CSA-140 [P0] [X]
+- [ ] CSA-140 [P0] [X] [IN_REVIEW]
   Implement PDF entitlement checks.
 
-- [ ] CSA-141 [P0] [X]
+- [ ] CSA-141 [P0] [X] [IN_REVIEW]
   Implement controlled PDF delivery.
 
 ## CLAUDE - PDF READER
@@ -1628,7 +1628,7 @@ CLAUDE
 
 ## WATERMARK STRATEGY
 
-- [ ] CSA-148 [P0] [X]
+- [ ] CSA-148 [P0] [X] [IN_REVIEW]
   Implement approved watermark delivery
   or generation strategy.
 

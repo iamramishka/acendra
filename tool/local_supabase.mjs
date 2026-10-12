@@ -21,7 +21,11 @@ export function safeLintSummary(output, knownFunctions) {
       const description = `${issue.message ?? ''} ${issue.detail ?? ''}`;
       const category = /unused|never read/i.test(description) ? 'unused_identifier'
         : /ambiguous/i.test(description) ? 'ambiguous_identifier' : 'other';
-      summaries.push(`${row.function}:${issue.level}:${state}:${category}`);
+      const location = issue.lineNumber ?? issue.line ?? issue.lineno;
+      const line = Number.isInteger(location) && location > 0 ? `:line${location}` : '';
+      const type = /type|cast|convert|assign/i.test(description) ? ':type_assignment' : '';
+      const staticWords = description.match(/\b(?:text|uuid|jsonb|record|row|composite|varchar|character|varying|numeric|integer|boolean|bigint|null|unknown|cast|assignment|target|source|type)\b/gi)?.join('_') ?? '';
+      summaries.push(`${row.function}:${issue.level}:${state}:${category}${line}${type}${staticWords ? `:${staticWords}` : ''}`);
     }
   }
   return summaries.slice(0, 20).join(',');
