@@ -105,7 +105,7 @@ begin
  select * into asset from app_private.media_assets where id=d.asset_id and content_version=d.asset_version and checksum_sha256=d.source_digest
  and validation_status='validated' and deleted_at is null and bucket_name='course-pdfs' and mime_type='application/pdf';
  if asset.id is null then update app_private.pdf_derivatives set state='failed' where id=d.id; return null; end if;
- update app_private.pdf_derivatives set lease_token=token,lease_until=clock_timestamp()+interval '90 seconds',attempts=attempts+1 where id=d.id;
+ update app_private.pdf_derivatives set lease_token=token,lease_until=clock_timestamp()+interval '180 seconds',attempts=attempts+1 where id=d.id;
  return jsonb_build_object('resource_id',d.id,'lease_token',token,'bucket','course-pdfs','source_path',asset.object_path,'source_digest',d.source_digest,
  'size_bytes',asset.size_bytes,'display_name',d.display_name,'license_id',d.license_id,'object_path',d.object_path);
 end; $$;

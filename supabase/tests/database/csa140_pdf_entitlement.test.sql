@@ -33,6 +33,9 @@ begin
  perform public.csa148_complete_pdf_job(rid,(response->>'lease_token')::uuid,repeat('b',64),120);
  response:=public.csa140_resolve_pdf(buyer,bs,'aal1',lesson,rid);
  if response->>'resource_id'<>rid::text or response->>'object_path'<>path or response->>'bucket'<>'course-pdfs' then raise exception 'Wrong derivative'; end if;
+ update app_private.media_assets set validation_status='rejected' where id=asset;
+ begin perform public.csa140_resolve_pdf(buyer,bs,'aal1',lesson,rid); raise exception 'Rejected source served'; exception when no_data_found then null; end;
+ update app_private.media_assets set validation_status='validated' where id=asset;
  begin update app_private.pdf_derivatives set size_bytes=121 where id=rid; raise exception 'Ready mutated'; exception when check_violation then null; end;
  perform public.csa116_grant_admin(admin,ads,'aal2','other-pdf-grant',other_user,course,'Synthetic',null);
  begin perform public.csa140_resolve_pdf(other_user,os,'aal1',lesson,rid); raise exception 'Cross user reuse'; exception when no_data_found then null; end;

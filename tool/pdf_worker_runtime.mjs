@@ -25,9 +25,10 @@ export function createWorkerRuntime({env=name=>process.env[name],fetch:request=g
   if(process.platform!=='linux'||process.getuid?.()===0)throw Error('PDF_WORKER_RUNTIME_REQUIRED');
   return new Promise((resolve,reject)=>{
    // No shell, credentials, inherited secrets or font selection from a client.
-   const child=spawn(python,[fileURLToPath(new URL('./pdf_watermark/process_job.py',import.meta.url))],{env:{PATH:process.env.PATH??'',LANG:'C.UTF-8'},stdio:['pipe','pipe','ignore'],windowsHide:true});
-   const chunks=[];let size=0;const timer=setTimeout(()=>{child.kill('SIGKILL');reject(Error('PDF_GENERATION_FAILED'));},65000);
-   child.stdout.on('data',chunk=>{size+=chunk.length;if(size>limit){child.kill('SIGKILL');reject(Error('PDF_GENERATION_FAILED'));}else chunks.push(chunk);});
+   const child=spawn(python,[fileURLToPath(new URL('./pdf_watermark/process_job.py',import.meta.url))],{env:{PATH:process.env.PATH??'',LANG:'C.UTF-8'},stdio:['pipe','pipe','ignore'],windowsHide:true,detached:true});
+   const terminate=()=>{try{process.kill(-child.pid,'SIGKILL');}catch{child.kill('SIGKILL');}};
+   const chunks=[];let size=0;const timer=setTimeout(()=>{terminate();reject(Error('PDF_GENERATION_FAILED'));},65000);
+   child.stdout.on('data',chunk=>{size+=chunk.length;if(size>limit){terminate();reject(Error('PDF_GENERATION_FAILED'));}else chunks.push(chunk);});
    child.on('error',()=>{clearTimeout(timer);reject(Error('PDF_GENERATION_FAILED'));});
    child.stdin.on('error',()=>{});
    child.on('close',code=>{clearTimeout(timer);if(code!==0||size===0||size>limit)reject(Error('PDF_GENERATION_FAILED'));else resolve(new Uint8Array(Buffer.concat(chunks)));});
