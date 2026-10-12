@@ -32,7 +32,7 @@ begin
  if p_action='publish' then
   -- Table SHARE locks stop inserts, updates and deletes through readiness/commit.
   -- Order: role authority -> course -> curriculum -> associations -> media.
-  lock table public.course_sections,public.lessons,app_private.lesson_assets,app_private.media_assets,app_private.video_playback_bindings,storage.buckets in share mode;
+  lock table public.course_sections,public.lessons,app_private.lesson_assets,app_private.media_assets,app_private.video_playback_bindings,storage.buckets,public.categories in share mode;
   if c.currency_code<>'LKR' or c.price_minor<0 or nullif(btrim(c.description),'') is null
    or nullif(btrim(c.short_description),'') is null
    or (c.category_id is not null and not exists(select 1 from public.categories where id=c.category_id and is_active))

@@ -3,7 +3,7 @@ const exact=(x,keys)=>x&&typeof x==='object'&&!Array.isArray(x)&&Object.keys(x).
 export async function readJson(body,max=8192){const r=body?.getReader();if(!r)throw Error();const chunks=[];let n=0;try{while(true){const{done,value}=await r.read();if(done)break;n+=value.length;if(n>max){await r.cancel();throw Error();}chunks.push(value);}}finally{r.releaseLock();}const b=new Uint8Array(n);let p=0;for(const c of chunks){b.set(c,p);p+=c.length;}return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(b));}
 export function createHandler({env,fetch:request=globalThis.fetch,enabled=false,report=false}){
  const url=env('SUPABASE_URL'),pk=env('SUPABASE_ANON_KEY'),sk=env('SUPABASE_SERVICE_ROLE_KEY');
- const origins=new Set((env('ACENDRA_ADMIN_ALLOWED_ORIGINS')??'http://127.0.0.1:8080').split(',').map(x=>x.trim()));
+ const origins=new Set((env('ACENDRA_ADMIN_ALLOWED_ORIGINS')??'http://127.0.0.1:8080').split(',').map(x=>x.trim()).filter(Boolean));
  return async incoming=>{
   const origin=incoming.headers.get('Origin');const respond=(status,code,data)=>Response.json(code?{error:{code}}:{data},{status,headers:{'Cache-Control':'no-store',Vary:'Origin',...(origin&&origins.has(origin)?{'Access-Control-Allow-Origin':origin}:{})}});
   if(enabled!==true)return respond(503,'REPORTING_UNAVAILABLE');
