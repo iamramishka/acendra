@@ -19,7 +19,7 @@ begin
  perform app_private.csa108_require_session(p_actor,p_session_id,p_aal,false);
  if p_token_exp is null or p_token_exp<=extract(epoch from t) then raise exception using errcode='42501',message='Current token required.'; end if;
  select c.id into course from public.lessons l join public.course_sections s on s.id=l.section_id join public.courses c on c.id=s.course_id
- where l.id=p_lesson and l.lesson_type='video' and l.is_published and s.is_published and c.status='published';
+ where l.id=p_lesson and l.lesson_type='video' and l.is_published and s.is_published;
  if course is null then raise exception using errcode='42501',message='Access denied.'; end if;
  perform pg_advisory_xact_lock(hashtext(p_actor::text),hashtext(course::text));
  if not app_private.csa117_has_access(p_actor,course) then raise exception using errcode='42501',message='Access denied.'; end if;

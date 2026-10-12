@@ -18,6 +18,12 @@ begin
  insert into app_private.video_playback_bindings values(asset,'asset123','playback123','signed',now(),repeat('b',64),null);
  result:=public.csa136_authorize_video(buyer,bs,'aal1',lesson,extract(epoch from now())::bigint+500);
  if result->>'playback_id'<>'playback123' or (result->>'expires_at')::bigint>extract(epoch from now())+120 then raise exception 'wrong playback or grant expiry'; end if;
+ update public.courses set status='archived' where id=course;
+ result:=public.csa136_authorize_video(buyer,bs,'aal1',lesson,extract(epoch from now())::bigint+500);
+ if result->>'playback_id'<>'playback123' then raise exception 'existing entitlement lost on archived course'; end if;
+ update public.courses set status='draft' where id=course;
+ result:=public.csa136_authorize_video(buyer,bs,'aal1',lesson,extract(epoch from now())::bigint+500);
+ if result->>'playback_id'<>'playback123' then raise exception 'existing entitlement lost on draft course'; end if;
  result:=public.csa136_authorize_video(buyer,bs,'aal1',lesson,extract(epoch from now())::bigint+30);
  if (result->>'expires_at')::bigint>extract(epoch from now())+30 then raise exception 'token expiry bypass'; end if;
  begin perform public.csa136_authorize_video(other_user,os,'aal1',lesson,extract(epoch from now())::bigint+500); raise exception 'other user permitted'; exception when insufficient_privilege then null; end;
