@@ -1,0 +1,40 @@
+begin;
+select '1..1';
+do $$
+declare buyer uuid:=gen_random_uuid(); other_buyer uuid:=gen_random_uuid();
+ course uuid:=gen_random_uuid(); section uuid:=gen_random_uuid(); lesson uuid:=gen_random_uuid();
+ progress uuid; previous_created timestamptz; previous_updated timestamptz; role_name text;
+begin
+ insert into auth.users(id) values(buyer),(other_buyer);
+ insert into public.courses(id,slug,title,price_minor) values(course,'progress-'||course,'Synthetic',0);
+ insert into public.course_sections(id,course_id,title,position) values(section,course,'Synthetic',0);
+ insert into public.lessons(id,section_id,title,lesson_type,position) values(lesson,section,'Synthetic','pdf',0);
+ insert into public.lesson_progress(user_id,lesson_id) values(buyer,lesson) returning id,created_at,updated_at into progress,previous_created,previous_updated;
+ if not exists(select 1 from public.lesson_progress where id=progress and not is_completed and progress_seconds is null and pdf_page is null and pdf_position is null and last_opened_at is null and created_at=updated_at) then raise exception 'incorrect defaults'; end if;
+ begin insert into public.lesson_progress(user_id,lesson_id) values(buyer,lesson); raise exception 'duplicate accepted'; exception when unique_violation then null; end;
+ insert into public.lesson_progress(user_id,lesson_id) values(other_buyer,lesson);
+ begin update public.lesson_progress set progress_seconds=-1 where id=progress; raise exception 'negative video position'; exception when check_violation then null; end;
+ begin update public.lesson_progress set pdf_page=0 where id=progress; raise exception 'zero PDF page'; exception when check_violation then null; end;
+ begin update public.lesson_progress set pdf_position=-0.1 where id=progress; raise exception 'negative offset'; exception when check_violation then null; end;
+ begin update public.lesson_progress set pdf_position=1.1 where id=progress; raise exception 'offset above one'; exception when check_violation then null; end;
+ begin update public.lesson_progress set pdf_position='NaN'::numeric where id=progress; raise exception 'nonfinite offset'; exception when check_violation then null; end;
+ begin update public.lesson_progress set pdf_position=0.5 where id=progress; raise exception 'offset without page'; exception when check_violation then null; end;
+ begin insert into public.lesson_progress(user_id,lesson_id) values(gen_random_uuid(),lesson); raise exception 'missing user'; exception when foreign_key_violation then null; end;
+ begin insert into public.lesson_progress(user_id,lesson_id) values(buyer,gen_random_uuid()); raise exception 'missing lesson'; exception when foreign_key_violation then null; end;
+ update public.lesson_progress set is_completed=true,progress_seconds=0,pdf_page=1,pdf_position=1,last_opened_at=clock_timestamp(),created_at=now()-interval '1 year',updated_at=now()-interval '1 year' where id=progress;
+ if not exists(select 1 from public.lesson_progress where id=progress and is_completed and pdf_page=1 and pdf_position=1 and created_at=previous_created and updated_at>=previous_updated) then raise exception 'valid resume or database timestamps failed'; end if;
+ begin update public.lesson_progress set user_id=gen_random_uuid() where id=progress; raise exception 'owner changed'; exception when check_violation then null; end;
+ begin update public.lesson_progress set lesson_id=gen_random_uuid() where id=progress; raise exception 'lesson changed'; exception when check_violation then null; end;
+ begin update public.lesson_progress set id=gen_random_uuid() where id=progress; raise exception 'identity changed'; exception when check_violation then null; end;
+ if not (select relrowsecurity from pg_class where oid='public.lesson_progress'::regclass) then raise exception 'RLS absent'; end if;
+ foreach role_name in array array['anon','authenticated','service_role'] loop
+  if has_table_privilege(role_name,'public.lesson_progress','SELECT') or has_table_privilege(role_name,'public.lesson_progress','INSERT') or has_table_privilege(role_name,'public.lesson_progress','UPDATE') or has_table_privilege(role_name,'public.lesson_progress','DELETE') then raise exception 'unexpected application grants'; end if;
+ end loop;
+ if exists(select 1 from public.enrollments where user_id=buyer and course_id=course) then raise exception 'progress created entitlement'; end if;
+ delete from public.profiles where id=other_buyer;
+ if exists(select 1 from public.lesson_progress where user_id=other_buyer) then raise exception 'personal progress retained after profile deletion'; end if;
+ delete from public.lessons where id=lesson;
+ if exists(select 1 from public.lesson_progress where lesson_id=lesson) then raise exception 'orphan progress'; end if;
+end; $$;
+select 'ok 1 - progress constraints, isolation defaults, immutable identity, timestamps and privacy deletion';
+rollback;
