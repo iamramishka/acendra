@@ -1,6 +1,5 @@
 import 'package:acendra/app/router/route_names.dart';
 import 'package:acendra/core/widgets/navigation/admin_shell.dart';
-import 'package:acendra/core/widgets/navigation/auth_shell.dart';
 import 'package:acendra/core/widgets/navigation/learning_shell.dart';
 import 'package:acendra/core/widgets/navigation/public_shell.dart';
 import 'package:acendra/core/widgets/navigation/student_shell.dart';
@@ -54,9 +53,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       if (!sessionRestored) return null;
 
-      final isPublic = _publicRoutes.any((r) => location.startsWith(
-            r.contains(':') ? r.substring(0, r.indexOf(':')) : r,
-          ));
+      final isPublic = _publicRoutes.any(
+        (r) => r.contains(':')
+            ? location.startsWith(r.substring(0, r.indexOf(':')))
+            : location == r,
+      );
 
       if (!isAuthenticated && !isPublic) return RouteNames.login;
 
@@ -73,9 +74,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         redirect: (_, _) => RouteNames.marketplace,
       ),
 
-      // Auth shell — centred card layout for all authentication flows.
+      // Authentication screens own AuthShell; nesting another scrollable
+      // shell here would give their Scaffold unbounded height.
       ShellRoute(
-        builder: (context, state, child) => AuthShell(child: child),
+        builder: (context, state, child) => child,
         routes: [
           GoRoute(
             path: RouteNames.login,
@@ -110,8 +112,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: RouteNames.courseDetail,
-            builder: (_, _) =>
-                const _PlaceholderScreen(title: 'Course Detail'),
+            builder: (_, _) => const _PlaceholderScreen(title: 'Course Detail'),
           ),
         ],
       ),

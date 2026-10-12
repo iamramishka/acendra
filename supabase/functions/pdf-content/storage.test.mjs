@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createStorage } from './storage.mjs';
+const id='11111111-1111-4111-8111-111111111111';
+const path=`derivatives/${id}/v1/${id}/${id}.pdf`;
+const args={bucket:'course-pdfs',object_path:path,start:3,end:5,size_bytes:10};
+const env=n=>({SUPABASE_URL:'https://storage.test',SUPABASE_SERVICE_ROLE_KEY:'server-only'}[n]);
+test('private storage request never signs or follows redirects and is time bounded',async()=>{let captured;const storage=createStorage({env,fetchImpl:async(...args)=>{captured=args;return new Response();}});await storage.open(args);assert.equal(String(captured[0]),`https://storage.test/storage/v1/object/authenticated/course-pdfs/${path}`);assert.equal(captured[1].redirect,'error');assert.equal(captured[1].headers.Range,'bytes=3-5');assert.equal(captured[1].headers.Authorization,'Bearer server-only');assert.ok(captured[1].signal instanceof AbortSignal);assert.equal(captured[1].signal.aborted,false);});
+for(const patch of [{bucket:'public'},{object_path:'original.pdf'},{object_path:'../x'},{object_path:path.replace('/v1/','/v0/')}])test(`reject storage ${JSON.stringify(patch)}`,async()=>{let calls=0;const storage=createStorage({env,fetchImpl:async()=>calls++});await assert.rejects(storage.open({...args,...patch}));assert.equal(calls,0);});
+test('missing configuration fails before fetching',async()=>{const storage=createStorage({env:()=>'',fetchImpl:async()=>assert.fail()});await assert.rejects(storage.open(args));});
+for(const base of ['https://user:password@storage.test','http://remote.test'])test(`reject unsafe configured URL ${base}`,async()=>{const storage=createStorage({env:n=>n==='SUPABASE_URL'?base:'key',fetchImpl:async()=>assert.fail()});await assert.rejects(storage.open(args));});
