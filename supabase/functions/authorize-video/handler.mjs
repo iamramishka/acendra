@@ -27,6 +27,7 @@ export function createHandler({env,fetch:request=globalThis.fetch,enabled=false,
  if(!u.ok)return reply(401,'AUTH_REQUIRED');
  const user=await readJson(u.body,32768);
  const payload=authorization.split('.')[1];let claims;try{claims=JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(payload.replaceAll('-','+').replaceAll('_','/').padEnd(Math.ceil(payload.length/4)*4,'=')),c=>c.charCodeAt(0))));}catch{return reply(401,'AUTH_REQUIRED');}
+ if(!claims||typeof claims!=='object'||Array.isArray(claims))return reply(401,'AUTH_REQUIRED');
  const now=clock();
  if(!uuid(user.id)||user.is_anonymous===true||claims.sub!==user.id||claims.role!=='authenticated'||!uuid(claims.session_id)||!['aal1','aal2'].includes(claims.aal)||!Number.isSafeInteger(claims.exp)||claims.exp<=now)return reply(401,'AUTH_REQUIRED');
  const response=await request(`${url}/rest/v1/rpc/csa136_authorize_video`,{method:'POST',headers:{Authorization:`Bearer ${sk}`,apikey:sk,'Content-Type':'application/json'},body:JSON.stringify({p_actor:user.id,p_session_id:claims.session_id,p_aal:claims.aal,p_lesson:body.lesson_id.toLowerCase(),p_token_exp:claims.exp}),redirect:'error',signal:AbortSignal.timeout(15000)});
@@ -39,4 +40,3 @@ export function createHandler({env,fetch:request=globalThis.fetch,enabled=false,
  }catch{return reply(503,'VIDEO_UNAVAILABLE');}
  };
 }
-
