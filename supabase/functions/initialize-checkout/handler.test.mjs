@@ -14,6 +14,21 @@ function fixture({enabled=true,claims,user={id:actor,email:'verified@example.tes
 test('deployment default denies initialization without external calls',async()=>{const f=fixture({enabled:false});const r=await f.handler(f.req);assert.equal(r.status,503);assert.equal((await r.json()).error.code,'ONLINE_CHECKOUT_UNAVAILABLE');assert.equal(f.calls.length,0);});
 test('stored terms create exact form and verified account email; no secrets',async()=>{const f=fixture();const r=await f.handler(f.req);assert.equal(r.status,201);const body=await r.json();assert.equal(body.data.checkout.fields.amount,'100.01');assert.equal(body.data.checkout.fields.email,'verified@example.test');assert.equal(body.data.checkout.fields.order_id,attempt);assert.equal(body.data.order_id,order);assert.ok(!JSON.stringify(body).includes('synthetic'));const args=JSON.parse(f.calls[1].options.body);assert.deepEqual(args,{p_actor:actor,p_session_id:session,p_aal:'aal1',p_key:'key',p_order:order,p_merchant:'123456',p_environment:'sandbox'});});
 test('principal replay returns same attempt as 200',async()=>{const base=fixture({rpc:{replayed:true,order_id:order,attempt:{attemptId:attempt,orderId:attempt,method:'online',provider:'payhere',merchantId:'123456',environment:'sandbox',currency:'LKR',amountMinor:'10001',title:'Stored course'}}});assert.equal((await base.handler(base.req)).status,200);});
+for (const input of ['ABCDEFAB-1234-4234-8234-ABCDEFABCDEF', 'AbCdEfAb-1234-4234-8234-aBcDeFaBcDeF']) {
+  for (const replayed of [false, true]) {
+    test(`canonicalizes order UUID ${input} on ${replayed ? 'replay' : 'initialization'}`, async () => {
+      const canonical = input.toLowerCase();
+      const f = fixture({ rpc: { replayed, order_id: canonical, attempt: {
+        attemptId: attempt, orderId: attempt, method: 'online', provider: 'payhere',
+        merchantId: '123456', environment: 'sandbox', currency: 'LKR', amountMinor: '10001', title: 'Stored course',
+      } } });
+      const response = await f.handler(request({ order_id: input, customer }));
+      assert.equal(response.status, replayed ? 200 : 201);
+      assert.equal((await response.json()).data.order_id, canonical);
+      assert.equal(JSON.parse(f.calls[1].options.body).p_order, canonical);
+    });
+  }
+}
 for(const extra of [{amount_minor:1},{buyer_id:actor},{merchant_id:'evil'},{customer:{...customer,email:'spoof@example.test'}},{customer:{...customer,address:'x'.repeat(201)}}])test('rejects client authority or invalid contact '+JSON.stringify(extra).slice(0,50),async()=>{const f=fixture();const r=await f.handler(request({...{order_id:order,customer},...extra}));assert.equal(r.status,400);assert.equal(f.calls.length,0);});
 for(const claims of [null,[],{sub:actor,role:'service_role',session_id:session,aal:'aal1'},{sub:order,role:'authenticated',session_id:session,aal:'aal1'}])test('denies invalid verified token claims '+JSON.stringify(claims),async()=>{const f=fixture();const req=request(undefined,{headers:{Authorization:'Bearer '+token(claims),'Content-Type':'application/json','Idempotency-Key':'key'}});assert.equal((await f.handler(req)).status,401);assert.equal(f.calls.length,1);});
 test('bounded stream rejects large request before Auth',async()=>{const f=fixture();assert.equal((await f.handler(request({order_id:order,customer,padding:'x'.repeat(5000)}))).status,413);assert.equal(f.calls.length,0);});
