@@ -9,6 +9,7 @@ import 'package:acendra/features/authentication/presentation/screens/login_scree
 import 'package:acendra/features/authentication/presentation/screens/register_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/reset_password_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/verify_email_screen.dart';
+import 'package:acendra/features/marketplace/presentation/screens/course_detail_screen.dart';
 import 'package:acendra/features/marketplace/presentation/screens/marketplace_screen.dart';
 import 'package:acendra/features/profile/presentation/screens/profile_edit_screen.dart';
 import 'package:acendra/features/profile/presentation/screens/profile_screen.dart';
@@ -112,7 +113,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: RouteNames.courseDetail,
-            builder: (_, _) => const _PlaceholderScreen(title: 'Course Detail'),
+            builder: (_, state) => CourseDetailScreen(
+              courseId: state.pathParameters['courseId']!,
+            ),
           ),
         ],
       ),

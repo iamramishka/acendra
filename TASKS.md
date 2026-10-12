@@ -1577,7 +1577,7 @@ CLAUDE
 
 - [ ] CSA-133 [P1] [X] [IN_REVIEW]
   Implement learning progress persistence.
-  CODEX implementation in stacked PR #102; current-session/entitlement RPCs added. Combined Flutter/Supabase verification passed; depends on unmerged PR #92.
+  CODEX implementation in stacked PR #102; current-session/entitlement RPCs added. Combined verification in progress; depends on PR #92.
 
 ## VIDEO
 
@@ -1586,7 +1586,7 @@ CLAUDE
 
 - [ ] CSA-136 [P0] [X] [IN_REVIEW]
   Implement playback authorization.
-  CODEX implementation in stacked PR #102; signed Mux authorization added. Combined Flutter/Supabase verification passed; real provider readiness retained.
+  CODEX implementation in stacked PR #102; signed Mux authorization added. Combined verification in progress; real provider readiness retained.
 
 - [ ] CSA-137 [P1] [C]
   Implement video error/loading states.
@@ -1598,7 +1598,7 @@ CLAUDE
 
 - [ ] CSA-139 [P0] [X] [IN_REVIEW]
   Configure private PDF storage.
-  CODEX implementation in stacked PR #102; private bucket and client-denial tests added. Pinned real Storage lifecycle and combined CI passed.
+  CODEX implementation in stacked PR #102; private bucket and client-denial tests added. Pinned Storage lifecycle verification in progress.
 
 - [ ] CSA-140 [P0] [X] [IN_REVIEW]
   Implement PDF entitlement checks.
