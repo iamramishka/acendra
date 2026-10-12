@@ -60,6 +60,27 @@ def _inspect(root, limit):
             pending.extend(item.values())
         else: pending.extend(item)
 
+def _runs(text):
+    # HarfBuzz guesses one script per buffer: isolate locale script runs so
+    # the Latin license prefix cannot suppress Sinhala/Tamil shaping.
+    runs=[]; current=''; previous=None
+    for char in text:
+        code=ord(char)
+        script='sinhala' if 0xD80<=code<=0xDFF else 'tamil' if 0xB80<=code<=0xBFF else 'latin'
+        if char.isspace(): script=previous or script
+        if previous is not None and script!=previous:
+            runs.append(current); current=''
+        current+=char; previous=script
+    if current: runs.append(current)
+    return runs
+
+def _shaped_parts(label,font_name,size):
+    parts=[shapeStr(run,font_name,size,force=True) for run in _runs(label)]
+    widths=[sum(sd.x_advance for sd in part.__shapeData__)*size/1000
+            if hasattr(part,'__shapeData__') else stringWidth(part,font_name,size)
+            for part in parts]
+    return parts,widths
+
 def generate(source: bytes, *, display_name: str, license_id: str,
              source_sha256: str, limits: Limits = Limits(), trusted_font_path: str | None = None) -> bytes:
     """Use ONLY backend-trusted identity and the immutable asset digest.
@@ -97,7 +118,7 @@ def generate(source: bytes, *, display_name: str, license_id: str,
         if not 1<=len(reader.pages)<=limits.max_pages: raise WatermarkError('Page bound exceeded')
         writer=PdfWriter()
         label=f'Licensed to {display_name.strip()} - {license_id}'
-        shaped_label=shapeStr(label,font_name,1,force=True) if font_name!='Helvetica' else label
+        unit_width=sum(_shaped_parts(label,font_name,1)[1]) if font_name!='Helvetica' else stringWidth(label,font_name,1)
         for original_page in reader.pages:
             page = writer.add_page(original_page)
             box=page.cropbox
@@ -107,12 +128,19 @@ def generate(source: bytes, *, display_name: str, license_id: str,
             # Paint inside the crop box without normalizing rotation or changing
             # original boxes. This is permanent page content, not an annotation.
             overlay=io.BytesIO(); canvas=Canvas(overlay,pagesize=(w,h))
-            font_size=min(10,(w-24)/stringWidth(shaped_label,font_name,1))
+            font_size=min(10,(w-24)/unit_width)
             if font_size<4: raise WatermarkError('Watermark would be unreadable')
             canvas.setFillColorRGB(.35,.35,.35)
             canvas.setFillAlpha(.6)
             canvas.setFont(font_name,font_size)
-            canvas.drawCentredString(w/2,12,shapeStr(label,font_name,font_size,force=True) if font_name!='Helvetica' else label)
+            if font_name=='Helvetica':
+                canvas.drawCentredString(w/2,12,label)
+            else:
+                parts,widths=_shaped_parts(label,font_name,font_size)
+                cursor=(w-sum(widths))/2
+                for part,width in zip(parts,widths):
+                    canvas.drawString(cursor,12,part)
+                    cursor+=width
             canvas.save()
             stamp=PdfReader(overlay,strict=True).pages[0]
             page.merge_translated_page(stamp,x,y,expand=False)
