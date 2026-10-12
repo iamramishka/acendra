@@ -11,4 +11,5 @@ Expiry is the minimum of 300 seconds, verified Auth token expiration, live sessi
 Deployed index.ts is hard disabled and returns 503 VIDEO_UNAVAILABLE regardless of environment flags. The injected enabled=true seam is for tests only. Release requires provisioned signing keys, private Mux assets without public IDs, real privacy/expiry/revocation evidence and player renewal PoC. Mux documents expiry longer than video duration for uninterrupted playback: the tighter project cap needs tested renewal before enablement.
 
 Source: [Mux secure video playback](https://www.mux.com/docs/guides/secure-video-playback), [Mux signing keys](https://www.mux.com/docs/api-reference/video/url-signing-keys).
-`nWeb origins use ACENDRA_VIDEO_ALLOWED_ORIGINS (comma separated exact origins, default http://127.0.0.1:8080). Enabled test seam provides POST-only bounded preflight; foreign origins are denied before Auth.
+
+Web origins use ACENDRA_VIDEO_ALLOWED_ORIGINS (comma separated exact origins, default http://127.0.0.1:8080). Enabled test seam provides POST-only bounded preflight; foreign origins are denied before Auth.
