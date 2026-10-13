@@ -3,6 +3,10 @@ import { randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 
+export function assertStorageDenied(response) {
+  assert.ok([400, 401, 403, 404].includes(response.status), 'Expected explicit Storage denial, not transport/server failure');
+}
+
 // Transport/policy acceptance only. No claim of approved image inspection.
 export async function runAdminStorageSmoke({ root, layout, env, sql, base, key, token, containers }) {
   let stage = 'task-owned local credentials';
@@ -30,6 +34,7 @@ export async function runAdminStorageSmoke({ root, layout, env, sql, base, key, 
     });
     stage = 'private bucket configuration';
     assert.equal(sql("select public::text from storage.buckets where id='course-media'"), 'false');
+    let transportComplete = false;
     try {
       for (const name of names) {
         const route = 'object/course-media/' + name;
@@ -41,25 +46,28 @@ export async function runAdminStorageSmoke({ root, layout, env, sql, base, key, 
         assert.deepEqual(Buffer.from(await read.arrayBuffer()), bytes);
         stage = 'anonymous/student read public signed list write and deletion denial';
         for (const bearer of [undefined, token]) {
-          assert.equal((await call(route, 'GET', bearer)).ok, false);
-          assert.equal((await call('object/public/course-media/' + name, 'GET', bearer)).ok, false);
-          assert.equal((await call('object/sign/course-media/' + name, 'POST', bearer, JSON.stringify({ expiresIn: 60 }), { 'Content-Type': 'application/json' })).ok, false);
-          assert.equal((await call(route, 'POST', bearer, bytes, { 'Content-Type': 'image/png', 'x-upsert': 'true' })).ok, false);
-          assert.equal((await call('object/course-media/' + `${course}/${randomUUID()}.png`, 'POST', bearer, bytes, { 'Content-Type': 'image/png' })).ok, false);
+          assertStorageDenied(await call(route, 'GET', bearer));
+          assertStorageDenied(await call('object/public/course-media/' + name, 'GET', bearer));
+          assertStorageDenied(await call('object/sign/course-media/' + name, 'POST', bearer, JSON.stringify({ expiresIn: 60 }), { 'Content-Type': 'application/json' }));
+          assertStorageDenied(await call(route, 'POST', bearer, bytes, { 'Content-Type': 'image/png', 'x-upsert': 'true' }));
+          assertStorageDenied(await call('object/course-media/' + `${course}/${randomUUID()}.png`, 'POST', bearer, bytes, { 'Content-Type': 'image/png' }));
           const list = await call('object/list/course-media', 'POST', bearer, JSON.stringify({ prefix: course }), { 'Content-Type': 'application/json' });
           if (list.ok) assert.deepEqual(await list.json(), []);
+          else assertStorageDenied(list);
           const deletion = await call('object/course-media', 'DELETE', bearer, JSON.stringify({ prefixes: [name] }), { 'Content-Type': 'application/json' });
           if (deletion.ok) assert.deepEqual(await deletion.json(), []);
+          else assertStorageDenied(deletion);
           const preserved = await call(route, 'GET', service);
           assert.equal(preserved.status, 200);
           assert.deepEqual(Buffer.from(await preserved.arrayBuffer()), bytes);
         }
       }
+      transportComplete = true;
     } finally {
-      stage = 'exact synthetic object cleanup';
+      if (transportComplete) stage = 'exact synthetic object cleanup';
       const cleanup = await call('object/course-media', 'DELETE', service, JSON.stringify({ prefixes: names }), { 'Content-Type': 'application/json' });
       assert.ok(cleanup.ok);
-      for (const name of names) assert.equal((await call('object/course-media/' + name, 'GET', service)).ok, false);
+      for (const name of names) assertStorageDenied(await call('object/course-media/' + name, 'GET', service));
     }
     console.log('PASS: real private thumbnail/lesson-image readback, anonymous/student direct/public/signed/list/write/delete denial and exact synthetic cleanup.');
   } catch { throw new Error('Admin Storage smoke failed at ' + stage + '; private diagnostics suppressed.'); }
