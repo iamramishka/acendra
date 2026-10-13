@@ -133,6 +133,9 @@ export async function runJourneySmoke({ root, layout, env, sql, base, key, conta
     const sessionAal = sql(`select coalesce(aal::text,'null') from auth.sessions where id='${claims.session_id}' and user_id='${buyer.id}'`);
     stage = 'real buyer session assurance=' + (['aal1','aal2','null',''].includes(sessionAal) ? sessionAal || 'missing' : 'unexpected');
     assert.equal(sessionAal, claims.aal);
+    const permissions = JSON.parse(sql(`select json_build_object('definer',p.prosecdef,'owner_insert',has_table_privilege(p.proowner,'public.orders','INSERT'),'owner_select',has_table_privilege(p.proowner,'public.orders','SELECT'),'service_execute',has_function_privilege('service_role',p.oid,'EXECUTE')) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname='csa098_create_checkout_order'`));
+    stage = 'trusted order permission invariants';
+    assert.deepEqual(permissions, { definer: true, owner_insert: true, owner_select: true, service_execute: true });
     const entitlement = async (user, value) => { const r = await api('/rest/v1/rpc/csa117_verify_entitlement', user.token, { p_course: course }); assert.equal(r.status, 200); assert.equal(r.body, value); };
     stage = 'bank order and real receipt Storage without premature access';
     stage = 'bank order HTTP creation';
