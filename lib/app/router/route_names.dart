@@ -21,4 +21,12 @@ abstract final class RouteNames {
   static const String financeReview = '/admin/finance';
   static const String profile = '/profile';
   static const String profileEdit = '/profile/edit';
+
+  // Bank transfer flow (CSA-107, 110, 115)
+  static const String bankTransfer = '/bank-transfer/:orderId';
+  static const String receiptStatus = '/bank-transfer/:orderId/status';
+  static const String receiptResubmit = '/bank-transfer/:orderId/resubmit';
+
+  // Finance admin (CSA-111)
+  static const String financeReview = '/admin/finance-review';
 }

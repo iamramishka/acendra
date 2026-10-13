@@ -1,4 +1,5 @@
 import 'package:acendra/app/router/route_names.dart';
+import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:acendra/core/widgets/navigation/admin_shell.dart';
 import 'package:acendra/core/widgets/navigation/learning_shell.dart';
 import 'package:acendra/core/widgets/navigation/public_shell.dart';
@@ -9,12 +10,15 @@ import 'package:acendra/features/authentication/presentation/screens/login_scree
 import 'package:acendra/features/authentication/presentation/screens/register_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/reset_password_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/verify_email_screen.dart';
+import 'package:acendra/features/bank_transfer/presentation/screens/bank_transfer_screen.dart';
+import 'package:acendra/features/bank_transfer/presentation/screens/finance_review_screen.dart';
+import 'package:acendra/features/bank_transfer/presentation/screens/receipt_resubmission_screen.dart';
+import 'package:acendra/features/bank_transfer/presentation/screens/receipt_status_screen.dart';
+import 'package:acendra/features/checkout/domain/entities/checkout_order.dart';
 import 'package:acendra/features/checkout/presentation/screens/checkout_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_failure_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_pending_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_success_screen.dart';
-import 'package:acendra/features/learning/presentation/screens/learning_workspace_screen.dart';
-import 'package:acendra/features/my_courses/presentation/screens/my_courses_screen.dart';
 import 'package:acendra/features/marketplace/presentation/screens/course_detail_screen.dart';
 import 'package:acendra/features/marketplace/presentation/screens/marketplace_screen.dart';
 import 'package:acendra/features/profile/presentation/screens/profile_edit_screen.dart';
@@ -135,13 +139,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: RouteNames.myCourses,
-            builder: (_, _) => const MyCoursesScreen(),
+            // Register the actual screen only with its reviewed feature dependency.
+            builder: (_, _) => const AppErrorState(
+              message:
+                  'My Courses is currently unavailable. Please try again later.',
+            ),
           ),
           GoRoute(
             path: RouteNames.checkout,
-            builder: (_, state) => CheckoutScreen(
-              courseId: state.pathParameters['courseId']!,
-            ),
+            builder: (_, state) =>
+                CheckoutScreen(courseId: state.pathParameters['courseId']!),
             routes: [
               GoRoute(
                 path: 'success',
@@ -188,6 +195,39 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: RouteNames.profileEdit,
             builder: (_, _) => const ProfileEditScreen(),
           ),
+          // Bank transfer flow (CSA-107, 110, 115)
+          GoRoute(
+            path: RouteNames.bankTransfer,
+            builder: (_, state) {
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return BankTransferScreen(
+                orderId: state.pathParameters['orderId']!,
+                orderNumber: extra['orderNumber'] as String? ?? '',
+                courseTitle: extra['courseTitle'] as String? ?? '',
+                formattedAmount: extra['formattedAmount'] as String? ?? '',
+                bankInstructions:
+                    extra['bankInstructions'] as BankInstructions?,
+              );
+            },
+            routes: [
+              GoRoute(
+                path: 'status',
+                builder: (_, state) => ReceiptStatusScreen(
+                  orderId: state.pathParameters['orderId']!,
+                ),
+              ),
+              GoRoute(
+                path: 'resubmit',
+                builder: (_, state) {
+                  final extra = state.extra as Map<String, dynamic>? ?? {};
+                  return ReceiptResubmissionScreen(
+                    orderId: state.pathParameters['orderId']!,
+                    rejectionReason: extra['rejectionReason'] as String?,
+                  );
+                },
+              ),
+            ],
+          ),
         ],
       ),
 
@@ -197,8 +237,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: RouteNames.learn,
-            builder: (_, state) => LearningWorkspaceScreen(
-              courseId: state.pathParameters['courseId']!,
+            builder: (_, _) => const AppErrorState(
+              message:
+                  'Course learning is currently unavailable. Please try again later.',
             ),
           ),
         ],
@@ -211,6 +252,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: RouteNames.admin,
             builder: (_, _) => const _PlaceholderScreen(title: 'Admin'),
+          ),
+          // Finance review — CSA-111 (finance_admin / super_admin only)
+          GoRoute(
+            path: RouteNames.financeReview,
+            builder: (_, _) => const FinanceReviewScreen(),
           ),
         ],
       ),
