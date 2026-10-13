@@ -1801,23 +1801,23 @@ Integration Gate:
 
 - [ ] CSA-184 [P0] [X] [IN_REVIEW]
   Test finance role restrictions.
-  IN_REVIEW: review artifacts merged in PR #120; effective-role/runtime acceptance remains unverified. See [security evidence](docs/reviews/CSA-184-188-VERIFICATION.md).
+  IN_REVIEW: fresh effective-role SQL and current component checks passed; operational finance workflow remains gated. See [continuation evidence](docs/reviews/CSA-184-186-ACCEPTANCE-EVIDENCE.md).
 
 - [ ] CSA-185 [P0] [X] [IN_REVIEW]
   Test private file policies.
-  IN_REVIEW: PR #120 evidence merged; direct Storage/API and complete asset-policy acceptance remain unverified. See [security evidence](docs/reviews/CSA-184-188-VERIFICATION.md).
+  IN_REVIEW: fresh receipt/PDF Storage REST checks passed; new thumbnail/lesson-image transport checks extend the current private-file matrix. See [continuation evidence](docs/reviews/CSA-184-186-ACCEPTANCE-EVIDENCE.md).
 
 - [ ] CSA-186 [P0] [X] [IN_REVIEW]
   Test upload security.
-  IN_REVIEW: PR #120 evidence merged; real inspection and complete media-ingestion acceptance remain unverified. See [security evidence](docs/reviews/CSA-184-188-VERIFICATION.md).
+  IN_REVIEW: current receipt/admin-media boundary tests and effective database checks passed; approved real inspection and enabled ingestion remain gated. See [continuation evidence](docs/reviews/CSA-184-186-ACCEPTANCE-EVIDENCE.md).
 
 - [ ] CSA-187 [P0] [X] [IN_REVIEW]
   Review XSS and security headers.
-  IN_REVIEW: PR #120 static review merged; deployed headers and browser payload checks remain unverified. See [security evidence](docs/reviews/CSA-184-188-VERIFICATION.md).
+  IN_REVIEW: release-build reflected-route payload and header-checker regressions verified locally; deployed headers and backend-configured stored payloads remain unverified. See [web continuation](docs/reviews/CSA-187-188-ACCEPTANCE.md).
 
 - [ ] CSA-188 [P0] [X] [IN_REVIEW]
   Review secrets and logging.
-  IN_REVIEW: PR #120 bounded scan merged; history/build scans and operational log controls remain unverified. See [security evidence](docs/reviews/CSA-184-188-VERIFICATION.md).
+  IN_REVIEW: dedicated history and default release-asset scans passed; configured release bundles and enforced operational log controls remain unverified. Retention baseline selected by owner delegation. See [web continuation](docs/reviews/CSA-187-188-ACCEPTANCE.md).
 
 - [ ] CSA-189 [P0] [X]
   Review dependency vulnerabilities.
@@ -1860,10 +1860,11 @@ Integration Gate:
 
 - [ ] CSA-200 [P0] [X]
   Test backup and recovery.
-  IN_REVIEW; release acceptance BLOCKED: isolated recovery tooling merged in PR #124; managed-service/object restoration, operational controls and approved RPO/RTO remain unverified. See [recovery evidence](docs/tasks/CSA-200.md), issue #119.
+  IN_REVIEW; release acceptance BLOCKED: fresh isolated database/object/tombstone recovery passed; RPO/RTO and retention baseline selected by owner delegation. Managed-service/object restoration and implemented operational controls remain unverified. See [continuation evidence](docs/tasks/CSA-200-201-ACCEPTANCE.md), issue #119.
 
 - [ ] CSA-201 [P0] [X]
   Test financial failure recovery.
+  IN_REVIEW: merged Supabase/Flutter CI success reconciled; fresh 25 SQL fault/retry assertions and notification-loss tests passed. Live provider/client acceptance remains separate. See [continuation evidence](docs/tasks/CSA-200-201-ACCEPTANCE.md), issue #117.
 
 - [ ] CSA-202 [P0] [L]
   Coordinate critical security fixes.

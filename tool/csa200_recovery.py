@@ -42,8 +42,8 @@ def object_restore(backup, destination, ledger):
             raise ValueError('Object digest mismatch')
 
 def run(bin_dir, port):
-    if not 61000 <= port <= 61009:
-        raise ValueError('CSA-200 only uses reserved loopback ports 61000..61009')
+    if not (61000 <= port <= 61009 or 61310 <= port <= 61319):
+        raise ValueError('CSA-200 only uses reserved loopback ports 61000..61009 or 61310..61319')
     env = safe_env()
     started = False
     with tempfile.TemporaryDirectory(prefix='acendra-csa200-') as scratch:
@@ -82,6 +82,10 @@ def run(bin_dir, port):
             migrations = sorted((ROOT / 'supabase/migrations').glob('*.sql'))
             for migration in migrations:
                 query('csa200_source', migration.read_text(encoding='utf-8-sig'))
+            # Verify the merged fault/retry suite before retained backup fixtures
+            # populate the notification queue. Its transaction rolls back.
+            recovery = ROOT / 'supabase/tests/database/csa201_financial_failure_recovery.test.sql'
+            recovery_result = query('csa200_source', recovery.read_text())
             # Existing financial suite supplies meaningful constrained fixtures and
             # verifies them. Commit this disposable fixture transaction for backup.
             fixture = (ROOT / 'supabase/tests/database/csa096_financial_integrity.test.sql').read_text()
@@ -149,6 +153,7 @@ select pg_temp.csa200_snapshot();
                     'dump_seconds': round(dump_seconds, 3), 'restore_seconds': round(restore_seconds, 3),
                     'schema_acl_rls_equal': True, 'profile_isolation_restored': True,
                     'financial_fixture_assertions': fixture_result.count('ok '),
+                    'financial_failure_recovery_assertions': recovery_result.count('ok '),
                     'synthetic_objects_restored': 3, 'deletion_tombstones_replayed': 1,
                     'scope': 'native PostgreSQL17 with synthetic Auth/Storage shims; not Supabase/provider recovery'}
         finally:
