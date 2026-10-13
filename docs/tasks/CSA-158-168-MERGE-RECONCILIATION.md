@@ -12,6 +12,12 @@ records for CSA-158/164/165/168/172. Other active tasks and worktrees are exclud
 Shared TASKS.md ownership is limited to these five status notes. Existing Issue
 #106 integration ownership belongs to CODEX; this is a documentation follow-up.
 
+PR #113 review assignment: project owner authorized review and merge on
+2026-10-13. CODEX owns the existing documentation scope for this integration
+follow-up in `C:/Users/ramis/.codex/worktrees/pr113-review/acendra`.
+Open PRs #125/#126 concern separate CSA-184–188/200 documentation and task
+entries; their scopes are preserved. No implementation file ownership is taken.
+
 Verification: compare status statements with PR #107, its exact tested head,
 merge SHA and hosted workflow results; inspect documentation diff and whitespace.
 Keep incomplete release criteria visible and task checkboxes unchecked.
@@ -59,3 +65,21 @@ Next actions: resolve dev formatting under its owning task; complete operational
 acceptance and any required authorized security/financial review; approve and
 verify activation separately. Previous integration shared-file reservations end
 at the merged stage; this follow-up reserves only the documentation scope above.
+
+## PR #113 refreshed integration baseline — 2026-10-13
+
+The preceding post-merge formatting failure describes the historical
+`4e1639b` baseline. PR #113 initially reproduced that failure in
+[CI run 38337206348](https://github.com/iamramishka/acendra/actions/runs/38337206348).
+For the owner-authorized review, remote `dev` at
+`a063a3990813b2c049118452ded557e301882e20` was merged into the PR branch
+without conflicts. Existing dev implementation changes are retained; the
+effective PR diff remains documentation only, with the five task checkboxes
+unchecked. Fresh CI must pass before integration; the earlier failure is
+retained as historical evidence rather than waived.
+
+This newer baseline includes the private-image publication hardening described
+in [the CSA-165 fix record](CSA-165-PRIVATE-IMAGE-FIX.md), plus newer admin
+security tests. It does not establish operational content readiness, trusted
+inspection, confirmed adjustment reporting or approved production activation.
+The remaining acceptance gates above still apply.

@@ -27,8 +27,7 @@ class CourseDetail {
   final String? categoryId;
   final List<CurriculumSection> sections;
 
-  int get totalLessons =>
-      sections.fold(0, (sum, s) => sum + s.lessons.length);
+  int get totalLessons => sections.fold(0, (sum, s) => sum + s.lessons.length);
 
   String get formattedPrice {
     final major = priceMinor ~/ 100;

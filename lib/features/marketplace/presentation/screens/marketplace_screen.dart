@@ -59,9 +59,7 @@ class MarketplaceScreen extends ConsumerWidget {
             else
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                sliver: SliverToBoxAdapter(
-                  child: CourseGrid(courses: courses),
-                ),
+                sliver: SliverToBoxAdapter(child: CourseGrid(courses: courses)),
               ),
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
           ],

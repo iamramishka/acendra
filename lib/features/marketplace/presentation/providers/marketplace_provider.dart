@@ -35,7 +35,9 @@ final marketplaceProvider =
 
 // ── Filtered course list (CSA-084 + CSA-085) ──────────────────────────────────
 
-final filteredCoursesProvider = Provider<AsyncValue<List<CourseSummary>>>((ref) {
+final filteredCoursesProvider = Provider<AsyncValue<List<CourseSummary>>>((
+  ref,
+) {
   final all = ref.watch(marketplaceProvider);
   final query = ref.watch(searchQueryProvider).trim().toLowerCase();
   final categoryId = ref.watch(selectedCategoryProvider);
@@ -60,17 +62,19 @@ final filteredCoursesProvider = Provider<AsyncValue<List<CourseSummary>>>((ref) 
 
 // ── Categories (CSA-085) ──────────────────────────────────────────────────────
 
-final categoriesProvider = FutureProvider<List<Category>>((ref) =>
-    ref.read(courseRepositoryProvider).listCategories());
+final categoriesProvider = FutureProvider<List<Category>>(
+  (ref) => ref.read(courseRepositoryProvider).listCategories(),
+);
 
 // ── Course detail (CSA-086 + CSA-087) ─────────────────────────────────────────
 
-final courseDetailProvider =
-    FutureProvider.family<CourseDetail, String>((ref, courseId) =>
-        ref.read(courseRepositoryProvider).getCourseDetail(courseId));
+final courseDetailProvider = FutureProvider.family<CourseDetail, String>(
+  (ref, courseId) =>
+      ref.read(courseRepositoryProvider).getCourseDetail(courseId),
+);
 
 // ── Enrollment status (CSA-088) ───────────────────────────────────────────────
 
-final isEnrolledProvider =
-    FutureProvider.family<bool, String>((ref, courseId) =>
-        ref.read(courseRepositoryProvider).isEnrolled(courseId));
+final isEnrolledProvider = FutureProvider.family<bool, String>(
+  (ref, courseId) => ref.read(courseRepositoryProvider).isEnrolled(courseId),
+);
