@@ -10,20 +10,18 @@ class MarketplaceScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final rawState = ref.watch(marketplaceProvider);
     final filtered = ref.watch(filteredCoursesProvider);
     final categories = ref.watch(categoriesProvider);
     final selectedCategory = ref.watch(selectedCategoryProvider);
 
-    return rawState.when(
+    return filtered.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, _) => AppErrorState(
         message: 'Failed to load courses. Please try again.',
         actionLabel: 'Retry',
         onRetry: () => ref.read(marketplaceProvider.notifier).refresh(),
       ),
-      data: (_) {
-        final courses = filtered.asData?.value ?? [];
+      data: (courses) {
         return CustomScrollView(
           slivers: [
             SliverToBoxAdapter(

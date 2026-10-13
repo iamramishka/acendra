@@ -1,9 +1,11 @@
+import 'package:acendra/app/router/route_names.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:acendra/features/marketplace/presentation/providers/marketplace_provider.dart';
 import 'package:acendra/features/marketplace/presentation/widgets/curriculum_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class CourseDetailScreen extends ConsumerWidget {
   const CourseDetailScreen({super.key, required this.courseId});
@@ -98,7 +100,19 @@ class CourseDetailScreen extends ConsumerWidget {
                   width: double.infinity,
                   child: AppButton(
                     label: isEnrolled ? 'Continue Learning' : 'Enroll Now',
-                    onPressed: isEnrolled ? () {} : () {},
+                    onPressed: isEnrolled
+                        ? () => context.go(
+                              RouteNames.learn.replaceFirst(
+                                ':courseId',
+                                courseId,
+                              ),
+                            )
+                        : () => context.go(
+                              RouteNames.checkout.replaceFirst(
+                                ':courseId',
+                                courseId,
+                              ),
+                            ),
                   ),
                 ),
 

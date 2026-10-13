@@ -1,8 +1,9 @@
 import 'package:acendra/features/marketplace/domain/entities/curriculum_section.dart';
+import 'package:acendra/features/marketplace/domain/entities/price_format_mixin.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
-class CourseDetail {
+class CourseDetail with PriceFormatMixin {
   const CourseDetail({
     required this.id,
     required this.slug,
@@ -21,7 +22,9 @@ class CourseDetail {
   final String title;
   final String shortDescription;
   final String? description;
+  @override
   final int priceMinor;
+  @override
   final String currencyCode;
   final String publishedAt;
   final String? categoryId;
@@ -29,14 +32,4 @@ class CourseDetail {
 
   int get totalLessons =>
       sections.fold(0, (sum, s) => sum + s.lessons.length);
-
-  String get formattedPrice {
-    final major = priceMinor ~/ 100;
-    final cents = priceMinor % 100;
-    final majorStr = major.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (m) => '${m[1]},',
-    );
-    return '$currencyCode $majorStr.${cents.toString().padLeft(2, '0')}';
-  }
 }
