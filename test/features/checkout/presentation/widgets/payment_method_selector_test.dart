@@ -54,8 +54,6 @@ void main() {
     testWidgets('${method.label} exposes its selected accessibility state', (
       tester,
     ) async {
-      final handle = tester.ensureSemantics();
-      addTearDown(handle.dispose);
       await tester.pumpWidget(
         _buildTestWidget(selected: PaymentMethod.online, onChanged: (_) {}),
       );
@@ -66,8 +64,6 @@ void main() {
   testWidgets('switching selection updates both accessible states', (
     tester,
   ) async {
-    final handle = tester.ensureSemantics();
-    addTearDown(handle.dispose);
     var selected = PaymentMethod.online;
     await tester.pumpWidget(
       StatefulBuilder(
