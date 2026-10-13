@@ -9,6 +9,17 @@ import 'package:acendra/features/authentication/presentation/screens/login_scree
 import 'package:acendra/features/authentication/presentation/screens/register_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/reset_password_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/verify_email_screen.dart';
+import 'package:acendra/features/bank_transfer/presentation/screens/bank_transfer_screen.dart';
+import 'package:acendra/features/bank_transfer/presentation/screens/finance_review_screen.dart';
+import 'package:acendra/features/bank_transfer/presentation/screens/receipt_resubmission_screen.dart';
+import 'package:acendra/features/bank_transfer/presentation/screens/receipt_status_screen.dart';
+import 'package:acendra/features/checkout/domain/entities/checkout_order.dart';
+import 'package:acendra/features/checkout/presentation/screens/checkout_screen.dart';
+import 'package:acendra/features/checkout/presentation/screens/payment_failure_screen.dart';
+import 'package:acendra/features/checkout/presentation/screens/payment_pending_screen.dart';
+import 'package:acendra/features/checkout/presentation/screens/payment_success_screen.dart';
+import 'package:acendra/features/learning/presentation/screens/learning_workspace_screen.dart';
+import 'package:acendra/features/my_courses/presentation/screens/my_courses_screen.dart';
 import 'package:acendra/features/marketplace/presentation/screens/course_detail_screen.dart';
 import 'package:acendra/features/marketplace/presentation/screens/marketplace_screen.dart';
 import 'package:acendra/features/profile/presentation/screens/profile_edit_screen.dart';
@@ -129,11 +140,49 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: RouteNames.myCourses,
-            builder: (_, _) => const _PlaceholderScreen(title: 'My Courses'),
+            builder: (_, _) => const MyCoursesScreen(),
           ),
           GoRoute(
             path: RouteNames.checkout,
-            builder: (_, _) => const _PlaceholderScreen(title: 'Checkout'),
+            builder: (_, state) =>
+                CheckoutScreen(courseId: state.pathParameters['courseId']!),
+            routes: [
+              GoRoute(
+                path: 'success',
+                builder: (_, state) {
+                  final extra = state.extra as Map<String, dynamic>? ?? {};
+                  return PaymentSuccessScreen(
+                    courseId: state.pathParameters['courseId']!,
+                    courseTitle: extra['courseTitle'] as String? ?? '',
+                    orderNumber: extra['orderNumber'] as String? ?? '',
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'pending',
+                builder: (_, state) {
+                  final extra = state.extra as Map<String, dynamic>? ?? {};
+                  return PaymentPendingScreen(
+                    courseId: state.pathParameters['courseId']!,
+                    courseTitle: extra['courseTitle'] as String? ?? '',
+                    orderNumber: extra['orderNumber'] as String? ?? '',
+                    bankName: extra['bankName'] as String?,
+                    accountNumber: extra['accountNumber'] as String?,
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'failure',
+                builder: (_, state) {
+                  final extra = state.extra as Map<String, dynamic>? ?? {};
+                  return PaymentFailureScreen(
+                    courseId: state.pathParameters['courseId']!,
+                    courseTitle: extra['courseTitle'] as String?,
+                    reason: extra['reason'] as String?,
+                  );
+                },
+              ),
+            ],
           ),
           GoRoute(
             path: RouteNames.profile,
@@ -142,6 +191,39 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: RouteNames.profileEdit,
             builder: (_, _) => const ProfileEditScreen(),
+          ),
+          // Bank transfer flow (CSA-107, 110, 115)
+          GoRoute(
+            path: RouteNames.bankTransfer,
+            builder: (_, state) {
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return BankTransferScreen(
+                orderId: state.pathParameters['orderId']!,
+                orderNumber: extra['orderNumber'] as String? ?? '',
+                courseTitle: extra['courseTitle'] as String? ?? '',
+                formattedAmount: extra['formattedAmount'] as String? ?? '',
+                bankInstructions:
+                    extra['bankInstructions'] as BankInstructions?,
+              );
+            },
+            routes: [
+              GoRoute(
+                path: 'status',
+                builder: (_, state) => ReceiptStatusScreen(
+                  orderId: state.pathParameters['orderId']!,
+                ),
+              ),
+              GoRoute(
+                path: 'resubmit',
+                builder: (_, state) {
+                  final extra = state.extra as Map<String, dynamic>? ?? {};
+                  return ReceiptResubmissionScreen(
+                    orderId: state.pathParameters['orderId']!,
+                    rejectionReason: extra['rejectionReason'] as String?,
+                  );
+                },
+              ),
+            ],
           ),
         ],
       ),
@@ -152,8 +234,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: RouteNames.learn,
-            builder: (_, _) =>
-                const _PlaceholderScreen(title: 'Learning Workspace'),
+            builder: (_, state) => LearningWorkspaceScreen(
+              courseId: state.pathParameters['courseId']!,
+            ),
           ),
         ],
       ),
@@ -165,6 +248,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: RouteNames.admin,
             builder: (_, _) => const _PlaceholderScreen(title: 'Admin'),
+          ),
+          // Finance review — CSA-111 (finance_admin / super_admin only)
+          GoRoute(
+            path: RouteNames.financeReview,
+            builder: (_, _) => const FinanceReviewScreen(),
           ),
         ],
       ),

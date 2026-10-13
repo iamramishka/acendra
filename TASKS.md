@@ -1398,14 +1398,21 @@ stays disabled. Issues #62–64/#66–67 are completion reconciliation; #65 reta
 the provider gate. See docs/tasks/CSA-PHASE5-PROGRESS.md. Downstream tasks and
 Phase 5 integration/release gates remain unchecked.
 
-- [ ] CSA-097 [P1] [C]
+- [x] CSA-097 [P1] [C]
   Implement checkout interface.
+  Branch: dev. Agent: CLAUDE. Status: IN_REVIEW.
+  Files: lib/features/checkout/{domain,data,presentation}/**. Router wired.
 
-- [ ] CSA-099 [P1] [C]
+- [x] CSA-099 [P1] [C]
   Implement payment method selector.
+  Branch: dev. Agent: CLAUDE. Status: IN_REVIEW.
+  Files: lib/features/checkout/domain/entities/payment_method.dart,
+         lib/features/checkout/presentation/widgets/payment_method_selector.dart.
 
-- [ ] CSA-106 [P1] [C]
+- [x] CSA-106 [P1] [C]
   Implement payment status screens.
+  Branch: dev. Agent: CLAUDE. Status: IN_REVIEW.
+  Files: lib/features/checkout/presentation/screens/payment_{success,pending,failure}_screen.dart.
 
 ## CODEX - ONLINE PAYMENT BACKEND
 Parallel review follow-up (2026-10-12): CSA-101–105 and CSA-119 reviewed at
@@ -1555,23 +1562,47 @@ CLAUDE
 
 ## CLAUDE - LEARNING UI
 
-- [ ] CSA-128 [P1] [C]
+- [x] CSA-128 [P1] [C] IN_REVIEW
   Implement My Courses.
+  Agent: CLAUDE | Branch: feat/csa-107-110-111-115-route-registration
+  Commit: 571c92e
+  Files: lib/features/my_courses/** | test/features/my_courses/**
+  Tests: 4/4 pass | flutter analyze: clean
 
-- [ ] CSA-129 [P1] [C]
+- [x] CSA-129 [P1] [C] IN_REVIEW
   Implement learning workspace.
+  Agent: CLAUDE | Branch: feat/csa-107-110-111-115-route-registration
+  Commit: 571c92e
+  Files: lib/features/learning/** | lib/app/router/app_router.dart
+  Tests: 4/4 pass | flutter analyze: clean
 
-- [ ] CSA-130 [P1] [C]
+- [x] CSA-130 [P1] [C] IN_REVIEW
   Implement curriculum navigation.
+  Agent: CLAUDE | Branch: feat/csa-107-110-111-115-route-registration
+  Commit: 571c92e
+  Files: lib/features/learning/presentation/widgets/curriculum_nav.dart
+  Tests: 7/7 pass | flutter analyze: clean
 
-- [ ] CSA-131 [P1] [C]
+- [x] CSA-131 [P1] [C] IN_REVIEW
   Implement text lesson viewer.
+  Agent: CLAUDE | Branch: feat/csa-107-110-111-115-route-registration
+  Commit: 571c92e
+  Files: lib/features/learning/presentation/widgets/text_lesson_viewer.dart
+  Tests: 6/6 pass | flutter analyze: clean
 
-- [ ] CSA-132 [P1] [C]
+- [x] CSA-132 [P1] [C] IN_REVIEW
   Implement image lesson viewer.
+  Agent: CLAUDE | Branch: feat/csa-107-110-111-115-route-registration
+  Commit: 571c92e
+  Files: lib/features/learning/presentation/widgets/image_lesson_viewer.dart
+  Tests: 6/6 pass | flutter analyze: clean
 
-- [ ] CSA-134 [P1] [C]
+- [x] CSA-134 [P1] [C] IN_REVIEW
   Implement continue-learning UI.
+  Agent: CLAUDE | Branch: feat/csa-107-110-111-115-route-registration
+  Commit: 571c92e
+  Files: lib/features/my_courses/presentation/widgets/continue_learning_card.dart
+  Tests: covered by my_courses suite | flutter analyze: clean
 
 ## CODEX - LEARNING DATA INTEGRATION
 
@@ -1793,11 +1824,13 @@ Integration Gate:
 
 ## CODEX - SECURITY TESTING
 
-- [ ] CSA-182 [P0] [X]
+- [x] CSA-182 [P0] [X] [DONE]
   Audit RLS and grants.
+  DONE for current repository database audit: catalog-wide RLS, private table/column grants, backend RPC execution, public mutation grants and definer search paths verified in real disposable Supabase CI. See docs/reviews/CSA-178-201-FINAL-EVIDENCE.md; hosted production configuration remains a separate release gate.
 
-- [ ] CSA-183 [P0] [X]
+- [x] CSA-183 [P0] [X] [DONE]
   Test cross-student data isolation.
+  DONE for current repository isolation tests: symmetric entitled-student progress and effective authenticated-role profile/order/enrollment/content denials passed in real Supabase SQL/API checks. See docs/reviews/CSA-178-201-FINAL-EVIDENCE.md. Full purchase/browser/provider journey acceptance remains separately tracked.
 
 - [ ] CSA-184 [P0] [X] [IN_REVIEW]
   Test finance role restrictions.
@@ -1819,8 +1852,9 @@ Integration Gate:
   Review secrets and logging.
   IN_REVIEW: dedicated history and default release-asset scans passed; configured release bundles and enforced operational log controls remain unverified. Retention baseline selected by owner delegation. See [web continuation](docs/reviews/CSA-187-188-ACCEPTANCE.md).
 
-- [ ] CSA-189 [P0] [X]
+- [x] CSA-189 [P0] [X] [DONE]
   Review dependency vulnerabilities.
+  DONE: PR #121 merged with passing Flutter/Supabase CI and Issue #116 closed as completed. Fresh integrated audit on 2026-10-13 covered 126 Pub, 3 PyPI and 15 npm locked entries with no returned advisories after merged pypdf remediation; bounded review acceptance does not certify every platform/runtime dependency. See docs/tasks/CSA-189.md.
 
 ## CLAUDE - UI/UX TESTING
 
@@ -1847,8 +1881,9 @@ Integration Gate:
 - [ ] CSA-196 [P1] [C]
   Measure Flutter startup performance.
 
-- [ ] CSA-197 [P1] [X]
+- [x] CSA-197 [P1] [X] [DONE]
   Measure database query performance.
+  DONE: repeatable authenticated/RLS local benchmark accepted through merged PR #122 and Issue #118 closed as completed; Flutter/Supabase CI passed. Production capacity and hosted workload measurements remain separate. See docs/tasks/CSA-197.md.
 
 - [ ] CSA-198 [P1] [C]
   Test large PDF rendering.
