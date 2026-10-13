@@ -1819,8 +1819,9 @@ Integration Gate:
   Review secrets and logging.
   IN_REVIEW: dedicated history and default release-asset scans passed; configured release bundles and enforced operational log controls remain unverified. Retention baseline selected by owner delegation. See [web continuation](docs/reviews/CSA-187-188-ACCEPTANCE.md).
 
-- [ ] CSA-189 [P0] [X]
+- [x] CSA-189 [P0] [X] [DONE]
   Review dependency vulnerabilities.
+  DONE: PR #121 merged with passing Flutter/Supabase CI and Issue #116 closed as completed. Fresh integrated audit on 2026-10-13 covered 126 Pub, 3 PyPI and 15 npm locked entries with no returned advisories after merged pypdf remediation; bounded review acceptance does not certify every platform/runtime dependency. See docs/tasks/CSA-189.md.
 
 ## CLAUDE - UI/UX TESTING
 
@@ -1847,8 +1848,9 @@ Integration Gate:
 - [ ] CSA-196 [P1] [C]
   Measure Flutter startup performance.
 
-- [ ] CSA-197 [P1] [X]
+- [x] CSA-197 [P1] [X] [DONE]
   Measure database query performance.
+  DONE: repeatable authenticated/RLS local benchmark accepted through merged PR #122 and Issue #118 closed as completed; Flutter/Supabase CI passed. Production capacity and hosted workload measurements remain separate. See docs/tasks/CSA-197.md.
 
 - [ ] CSA-198 [P1] [C]
   Test large PDF rendering.
