@@ -15,6 +15,10 @@ abstract final class RouteNames {
   static const String checkoutSuccess = '/checkout/:courseId/success';
   static const String checkoutPending = '/checkout/:courseId/pending';
   static const String checkoutFailure = '/checkout/:courseId/failure';
+  static const String bankTransfer = '/checkout/:courseId/bank-transfer/:orderId';
+  static const String receiptStatus = '/checkout/:courseId/receipt-status/:orderId';
+  static const String receiptResubmit = '/checkout/:courseId/resubmit/:orderId';
+  static const String financeReview = '/admin/finance';
   static const String profile = '/profile';
   static const String profileEdit = '/profile/edit';
 }

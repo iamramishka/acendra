@@ -9,10 +9,14 @@ import 'package:acendra/features/authentication/presentation/screens/login_scree
 import 'package:acendra/features/authentication/presentation/screens/register_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/reset_password_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/verify_email_screen.dart';
+import 'package:acendra/features/admin/presentation/screens/finance_review_screen.dart';
+import 'package:acendra/features/checkout/presentation/screens/bank_transfer_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/checkout_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_failure_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_pending_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_success_screen.dart';
+import 'package:acendra/features/checkout/presentation/screens/receipt_resubmission_screen.dart';
+import 'package:acendra/features/checkout/presentation/screens/receipt_status_screen.dart';
 import 'package:acendra/features/learning/presentation/screens/learning_workspace_screen.dart';
 import 'package:acendra/features/my_courses/presentation/screens/my_courses_screen.dart';
 import 'package:acendra/features/marketplace/presentation/screens/course_detail_screen.dart';
@@ -178,6 +182,25 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   );
                 },
               ),
+              GoRoute(
+                path: 'bank-transfer/:orderId',
+                builder: (_, state) => BankTransferScreen(
+                  courseId: state.pathParameters['courseId']!,
+                  orderId: state.pathParameters['orderId']!,
+                ),
+              ),
+              GoRoute(
+                path: 'receipt-status/:orderId',
+                builder: (_, state) => ReceiptStatusScreen(
+                  orderId: state.pathParameters['orderId']!,
+                ),
+              ),
+              GoRoute(
+                path: 'resubmit/:orderId',
+                builder: (_, state) => ReceiptResubmissionScreen(
+                  orderId: state.pathParameters['orderId']!,
+                ),
+              ),
             ],
           ),
           GoRoute(
@@ -211,6 +234,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: RouteNames.admin,
             builder: (_, _) => const _PlaceholderScreen(title: 'Admin'),
+          ),
+          GoRoute(
+            path: RouteNames.financeReview,
+            builder: (_, _) => const FinanceReviewScreen(),
           ),
         ],
       ),
