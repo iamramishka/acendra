@@ -1,6 +1,14 @@
 import 'package:flutter/foundation.dart';
 
-enum VideoPlayerStatus { idle, loading, buffering, playing, paused, ended, error }
+enum VideoPlayerStatus {
+  idle,
+  loading,
+  buffering,
+  playing,
+  paused,
+  ended,
+  error,
+}
 
 @immutable
 class VideoProgress {

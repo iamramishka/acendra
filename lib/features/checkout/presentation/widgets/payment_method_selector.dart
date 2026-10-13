@@ -50,14 +50,16 @@ class _PaymentMethodCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    final borderColor =
-        isSelected ? colorScheme.primary : colorScheme.outline;
-    final backgroundColor =
-        isSelected ? colorScheme.primaryContainer : colorScheme.surface;
-    final iconColor =
-        isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface;
-    final labelColor =
-        isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface;
+    final borderColor = isSelected ? colorScheme.primary : colorScheme.outline;
+    final backgroundColor = isSelected
+        ? colorScheme.primaryContainer
+        : colorScheme.surface;
+    final iconColor = isSelected
+        ? colorScheme.onPrimaryContainer
+        : colorScheme.onSurface;
+    final labelColor = isSelected
+        ? colorScheme.onPrimaryContainer
+        : colorScheme.onSurface;
 
     return Semantics(
       selected: isSelected,
@@ -102,11 +104,7 @@ class _PaymentMethodCard extends StatelessWidget {
               ),
               const SizedBox(width: AppSpacing.sm),
               if (isSelected)
-                Icon(
-                  Icons.check_circle,
-                  color: colorScheme.primary,
-                  size: 20,
-                ),
+                Icon(Icons.check_circle, color: colorScheme.primary, size: 20),
             ],
           ),
         ),

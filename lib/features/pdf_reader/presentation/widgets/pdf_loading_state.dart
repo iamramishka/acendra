@@ -22,9 +22,9 @@ class PdfLoadingState extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
             Text(
               'Loading document…',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: textColor,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: textColor),
             ),
           ],
         ),

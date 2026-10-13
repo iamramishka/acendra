@@ -23,13 +23,16 @@ void main() {
       expect(progress.progress, 0.0);
     });
 
-    test('progress returns correct ratio when position and duration are set', () {
-      const progress = VideoProgress(
-        position: Duration(seconds: 30),
-        duration: Duration(seconds: 60),
-      );
-      expect(progress.progress, closeTo(0.5, 0.001));
-    });
+    test(
+      'progress returns correct ratio when position and duration are set',
+      () {
+        const progress = VideoProgress(
+          position: Duration(seconds: 30),
+          duration: Duration(seconds: 60),
+        );
+        expect(progress.progress, closeTo(0.5, 0.001));
+      },
+    );
 
     test('progress clamps to 1.0 if position exceeds duration', () {
       const progress = VideoProgress(
@@ -39,18 +42,21 @@ void main() {
       expect(progress.progress, 1.0);
     });
 
-    test('initialize sets loading status then transitions to error on bad URL', () async {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
+    test(
+      'initialize sets loading status then transitions to error on bad URL',
+      () async {
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
 
-      // Kick off initialization with an invalid URL; the controller will error.
-      await container
-          .read(videoPlayerProvider.notifier)
-          .initialize('not-a-valid-url');
+        // Kick off initialization with an invalid URL; the controller will error.
+        await container
+            .read(videoPlayerProvider.notifier)
+            .initialize('not-a-valid-url');
 
-      final state = container.read(videoPlayerProvider);
-      expect(state.status, VideoPlayerStatus.error);
-      expect(state.errorMessage, isNotNull);
-    });
+        final state = container.read(videoPlayerProvider);
+        expect(state.status, VideoPlayerStatus.error);
+        expect(state.errorMessage, isNotNull);
+      },
+    );
   });
 }

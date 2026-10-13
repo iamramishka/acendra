@@ -52,11 +52,7 @@ class PaymentPendingScreen extends StatelessWidget {
                     color: ext.warningContainer,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    Icons.schedule,
-                    size: 80,
-                    color: ext.warning,
-                  ),
+                  child: Icon(Icons.schedule, size: 80, color: ext.warning),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Text(
@@ -69,9 +65,7 @@ class PaymentPendingScreen extends StatelessWidget {
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   "Your bank transfer receipt has been submitted. We'll verify your payment and activate your access within 1–2 business days.",
-                  style: tt.bodyMedium?.copyWith(
-                    color: ext.textSecondary,
-                  ),
+                  style: tt.bodyMedium?.copyWith(color: ext.textSecondary),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -86,9 +80,7 @@ class PaymentPendingScreen extends StatelessWidget {
                   ),
                   child: Text(
                     'Order #$orderNumber',
-                    style: tt.bodySmall?.copyWith(
-                      color: ext.textSecondary,
-                    ),
+                    style: tt.bodySmall?.copyWith(color: ext.textSecondary),
                   ),
                 ),
                 if (bankName != null && accountNumber != null) ...[
@@ -111,14 +103,8 @@ class PaymentPendingScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: AppSpacing.xs),
-                        Text(
-                          'Bank: $bankName',
-                          style: tt.bodySmall,
-                        ),
-                        Text(
-                          'Account: $accountNumber',
-                          style: tt.bodySmall,
-                        ),
+                        Text('Bank: $bankName', style: tt.bodySmall),
+                        Text('Account: $accountNumber', style: tt.bodySmall),
                       ],
                     ),
                   ),
@@ -130,9 +116,7 @@ class PaymentPendingScreen extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'What happens next?',
-                    style: tt.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -205,9 +189,7 @@ class _NextStep extends StatelessWidget {
           child: Icon(icon, size: 18, color: ext.warning),
         ),
         const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: Text(label, style: tt.bodyMedium),
-        ),
+        Expanded(child: Text(label, style: tt.bodyMedium)),
       ],
     );
   }

@@ -10,28 +10,25 @@ import 'package:go_router/go_router.dart';
 
 // Minimal GoRouter for tests — captures go() calls without real navigation.
 GoRouter _testRouter(Widget screen) => GoRouter(
-      initialLocation: '/test',
-      routes: [
-        GoRoute(
-          path: '/test',
-          builder: (_, _) => screen,
-        ),
-        GoRoute(path: '/marketplace', builder: (_, _) => const _Stub('marketplace')),
-        GoRoute(path: '/dashboard', builder: (_, _) => const _Stub('dashboard')),
-        GoRoute(
-          path: '/learn/:courseId',
-          builder: (_, _) => const _Stub('learn'),
-        ),
-        GoRoute(
-          path: '/checkout/:courseId',
-          builder: (_, _) => const _Stub('checkout'),
-        ),
-        GoRoute(
-          path: '/marketplace/:courseId',
-          builder: (_, _) => const _Stub('courseDetail'),
-        ),
-      ],
-    );
+  initialLocation: '/test',
+  routes: [
+    GoRoute(path: '/test', builder: (_, _) => screen),
+    GoRoute(
+      path: '/marketplace',
+      builder: (_, _) => const _Stub('marketplace'),
+    ),
+    GoRoute(path: '/dashboard', builder: (_, _) => const _Stub('dashboard')),
+    GoRoute(path: '/learn/:courseId', builder: (_, _) => const _Stub('learn')),
+    GoRoute(
+      path: '/checkout/:courseId',
+      builder: (_, _) => const _Stub('checkout'),
+    ),
+    GoRoute(
+      path: '/marketplace/:courseId',
+      builder: (_, _) => const _Stub('courseDetail'),
+    ),
+  ],
+);
 
 class _Stub extends StatelessWidget {
   const _Stub(this.name);
@@ -48,9 +45,7 @@ Widget _wrap(Widget screen) {
     child: MaterialApp.router(
       routerConfig: router,
       theme: ThemeData(
-        extensions: [
-          AppThemeExtension.fromTokens(AppColors.light),
-        ],
+        extensions: [AppThemeExtension.fromTokens(AppColors.light)],
       ),
     ),
   );
@@ -100,8 +95,9 @@ void main() {
       expect(find.text('Payment Successful!'), findsOneWidget);
     });
 
-    testWidgets('renders Start Learning and Browse More Courses buttons',
-        (tester) async {
+    testWidgets('renders Start Learning and Browse More Courses buttons', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(
           const PaymentSuccessScreen(
@@ -132,8 +128,9 @@ void main() {
       expect(find.text('Awaiting Verification'), findsOneWidget);
     });
 
-    testWidgets('renders bank info when bankName and accountNumber provided',
-        (tester) async {
+    testWidgets('renders bank info when bankName and accountNumber provided', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(
           const PaymentPendingScreen(
@@ -150,8 +147,9 @@ void main() {
       expect(find.text('Account: 1234567890'), findsOneWidget);
     });
 
-    testWidgets('does not render bank info when bankName is null',
-        (tester) async {
+    testWidgets('does not render bank info when bankName is null', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(
           const PaymentPendingScreen(
@@ -183,9 +181,7 @@ void main() {
   group('PaymentFailureScreen', () {
     testWidgets('renders Try Again button', (tester) async {
       await tester.pumpWidget(
-        _wrap(
-          const PaymentFailureScreen(courseId: 'course-1'),
-        ),
+        _wrap(const PaymentFailureScreen(courseId: 'course-1')),
       );
       await tester.pumpAndSettle();
       expect(find.text('Try Again'), findsOneWidget);
@@ -201,18 +197,14 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(
-        find.text('Insufficient funds in your account.'),
-        findsOneWidget,
-      );
+      expect(find.text('Insufficient funds in your account.'), findsOneWidget);
     });
 
-    testWidgets('renders default description when reason is null',
-        (tester) async {
+    testWidgets('renders default description when reason is null', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        _wrap(
-          const PaymentFailureScreen(courseId: 'course-1'),
-        ),
+        _wrap(const PaymentFailureScreen(courseId: 'course-1')),
       );
       await tester.pumpAndSettle();
       expect(
@@ -225,9 +217,7 @@ void main() {
 
     testWidgets('renders Payment Failed heading', (tester) async {
       await tester.pumpWidget(
-        _wrap(
-          const PaymentFailureScreen(courseId: 'course-1'),
-        ),
+        _wrap(const PaymentFailureScreen(courseId: 'course-1')),
       );
       await tester.pumpAndSettle();
       expect(find.text('Payment Failed'), findsAtLeast(1));
