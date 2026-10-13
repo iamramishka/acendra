@@ -49,4 +49,3 @@ with tempfile.TemporaryDirectory(prefix='acendra-csa178-deferred-') as scratch:
                                       stdout=log, stderr=log, env=env, timeout=60)
             if stop.returncode:
                 raise RuntimeError('Task-owned regression cluster cleanup failed.')
-
