@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 
 class AppSkeleton extends StatefulWidget {
-  const AppSkeleton({super.key, this.width, this.height, this.borderRadius});
+  const AppSkeleton({
+    super.key,
+    this.width,
+    this.height,
+    this.borderRadius,
+    this.semanticLabel = 'Loading',
+  });
   final double? width;
   final double? height;
   final BorderRadius? borderRadius;
+  final String semanticLabel;
 
   @override
   State<AppSkeleton> createState() => _AppSkeletonState();
@@ -34,14 +41,17 @@ class _AppSkeletonState extends State<AppSkeleton>
   @override
   Widget build(BuildContext context) {
     final base = Theme.of(context).colorScheme.onSurface.withAlpha(30);
-    return AnimatedBuilder(
-      animation: _anim,
-      builder: (_, _) => Container(
-        width: widget.width,
-        height: widget.height,
-        decoration: BoxDecoration(
-          color: base.withAlpha((_anim.value * 255).round()),
-          borderRadius: widget.borderRadius ?? BorderRadius.circular(6),
+    return Semantics(
+      label: widget.semanticLabel,
+      child: AnimatedBuilder(
+        animation: _anim,
+        builder: (_, _) => Container(
+          width: widget.width,
+          height: widget.height,
+          decoration: BoxDecoration(
+            color: base.withAlpha((_anim.value * 255).round()),
+            borderRadius: widget.borderRadius ?? BorderRadius.circular(6),
+          ),
         ),
       ),
     );
