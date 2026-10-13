@@ -72,14 +72,17 @@ export async function runJourneySmoke({ root, layout, env, sql, base, key, conta
         const response = await handler(new Request(`http://127.0.0.1:61410${req.url}`, { method: req.method, headers: req.headers,
           ...(req.method !== 'GET' ? { body: Buffer.concat(chunks) } : {}) }));
         res.writeHead(response.status, Object.fromEntries(response.headers)); res.end(Buffer.from(await response.arrayBuffer()));
-      } catch { res.writeHead(500); res.end('Synthetic journey transport failure'); }
+      } catch { res.writeHead(500, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: { code: 'TEST_TRANSPORT_FAILURE' } })); }
     });
     await new Promise((resolve, reject) => { server.once('error', reject); server.listen(61410, '127.0.0.1', resolve); });
     const http = async (route, token, body, extra = {}) => {
       const response = await fetch('http://127.0.0.1:61410' + route, { method: 'POST', headers: { 'Content-Type': 'application/json',
         'Idempotency-Key': randomUUID(), ...(token ? { Authorization: 'Bearer ' + token } : {}), ...extra },
         body: body instanceof Uint8Array || body instanceof URLSearchParams ? body : JSON.stringify(body), signal: AbortSignal.timeout(30000) });
-      return { status: response.status, body: await response.json() };
+      const bodyResult = await response.json();
+      const safeCodes = new Set(['AUTH_REQUIRED','FORBIDDEN','INVALID_REQUEST','INVALID_IDEMPOTENCY_KEY','SERVICE_UNAVAILABLE','ORDER_CREATION_FAILED','BANK_CHECKOUT_UNAVAILABLE','TEST_TRANSPORT_FAILURE']);
+      stage += ` status=${response.status}` + (safeCodes.has(bodyResult?.error?.code) ? ` code=${bodyResult.error.code}` : '');
+      return { status: response.status, body: bodyResult };
     };
     const api = async (route, token, body, method = 'POST') => {
       const r = await fetch(base + route, { method, headers: { apikey: key, 'Content-Type': 'application/json',
