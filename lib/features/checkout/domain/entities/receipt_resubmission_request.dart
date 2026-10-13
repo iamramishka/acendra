@@ -4,10 +4,7 @@
 /// The actual file bytes are handled separately via the upload flow
 /// (see CSA-108 for the private receipt upload Edge Function).
 class ReceiptResubmissionRequest {
-  const ReceiptResubmissionRequest({
-    required this.orderId,
-    this.note = '',
-  });
+  const ReceiptResubmissionRequest({required this.orderId, this.note = ''});
 
   /// The order ID for which a new receipt is being submitted.
   final String orderId;
@@ -16,10 +13,7 @@ class ReceiptResubmissionRequest {
   /// (e.g. clarifying the transfer reference or correcting a mistake).
   final String note;
 
-  ReceiptResubmissionRequest copyWith({
-    String? orderId,
-    String? note,
-  }) {
+  ReceiptResubmissionRequest copyWith({String? orderId, String? note}) {
     return ReceiptResubmissionRequest(
       orderId: orderId ?? this.orderId,
       note: note ?? this.note,

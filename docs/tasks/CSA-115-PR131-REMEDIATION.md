@@ -28,3 +28,23 @@ found inherited dev missing learning/My Courses imports; PR134 merged during wor
 so integration is refreshed rather than taking ownership of its routing changes.
 Initial parallel verification exhausted Windows commit memory; retries serialized.
 No deployment, backend enabling, production data changes or merge authorized.
+
+Verified on the combined tree with dev after PR134/PR132 integration:
+- RED: two tests failed against original mock upload implementation.
+- GREEN: 26 focused form/bank-transfer tests passed.
+- `flutter test --no-pub --concurrency=1`: all 359 tests passed.
+- `flutter analyze --no-pub`: no issues.
+- `dart format --output=none --set-exit-if-changed lib test`: 175 files, zero changes.
+- `git diff --check`: passed.
+- No database changes; upload persistence/payment/security release remains unavailable.
+
+Browser adapter tests are retained at test/browser/receipt_file_picker.browser.dart
+(run explicitly with flutter test --platform chrome). Local Chrome launched but
+stalled at suite loading without a result; the run was stopped. Browser tests and
+manual native file-dialog interaction are therefore NOT claimed as passed.
+The release build result is recorded separately below when verified.
+- `flutter build web --release --no-pub`: passed; Wasm dry run succeeded, build/web generated (400.6s).
+
+Original PR is updated by fast-forward after verification, preserving CLAUDE's
+implementation history. No merge into dev or deployment. Implementation edit
+ownership is released at handoff; final status IN_REVIEW pending CI/maintainer.
