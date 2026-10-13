@@ -107,12 +107,18 @@ export async function runJourneySmoke({ root, layout, env, sql, base, key, conta
       insert into public.lessons(id,section_id,title,lesson_type,position,is_published) values('${lesson}','${section}','Synthetic text','text',0,true);`);
     const entitlement = async (user, value) => { const r = await api('/rest/v1/rpc/csa117_verify_entitlement', user.token, { p_course: course }); assert.equal(r.status, 200); assert.equal(r.body, value); };
     stage = 'bank order and real receipt Storage without premature access';
+    stage = 'bank order HTTP creation';
     const bankOrder = await http('/order', buyer.token, { course_id: course, payment_method: 'bank_transfer' }); assert.equal(bankOrder.status, 201);
     const order = bankOrder.body.data.order_id;
+    stage = 'pending bank entitlement HTTP denial';
     await entitlement(buyer, false);
+    stage = 'foreign receipt HTTP denial';
     const foreignReceipt = await http('/receipt', peer.token, png, { 'Content-Type': 'image/png', 'X-Order-Id': order, 'X-Receipt-Name': 'fixture.png' }); assert.equal(foreignReceipt.status, 403);
+    stage = 'owner receipt HTTP upload';
     const uploaded = await http('/receipt', buyer.token, png, { 'Content-Type': 'image/png', 'X-Order-Id': order, 'X-Receipt-Name': 'fixture.png' }); assert.equal(uploaded.status, 201);
+    stage = 'submitted receipt pending entitlement';
     assert.equal(uploaded.body.data.order_status, 'pending_verification'); await entitlement(buyer, false);
+    stage = 'pending receipt progress HTTP denial';
     assert.equal((await api('/rest/v1/rpc/csa133_save_progress', buyer.token, { p_lesson: lesson, p_completed: true })).status, 403);
     const review = { submission_id: uploaded.body.data.submission_id, decision: 'approve', verified_credit: { bank_credit_confirmed: true,
       destination_account_id: bank, bank_transaction_id: 'synthetic-' + randomUUID(), amount_minor: '12345', currency: 'LKR',
