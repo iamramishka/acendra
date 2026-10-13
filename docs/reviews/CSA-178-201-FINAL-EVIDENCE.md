@@ -42,7 +42,24 @@ inspection are explicitly synthetic. Pending/forged access, replay and symmetric
 progress assertions must pass before claiming this test integration verified.
 Initial real run failed in the bank/receipt stage; diagnostic checkpoints were
 refined without exposing credentials or private response bodies. This is an
-unresolved verification failure until corrected and rerun.
+historical verification failure. Supabase run38367822654 on4c50727 subsequently
+passed all stages, including real Auth/MFA/HTTP/RPC/Storage bank/online integration,
+pending/forged denial, replay idempotency and symmetric progress. Migration035
+fixes deferred invariant functions running after the RPC definer context ends;
+the original repeated orders42501 failure is resolved without direct financial
+privilege grants. Paid-grant transaction completion also passed the journey.
+
+The initial migration used an existing034 timestamp and failed replay23505;
+it was corrected to the unique035 timestamp before the successful run. The native
+RED/GREEN reproducer timed out at initdb on this host and cleaned its scratch
+directory; no native result is claimed. Independent review found no blocking
+privilege escalation in the two static qualified definer checks.
+
+During final PR CI, dev advanced to79aaff4 with checkout UI. Its ten inherited
+Dart formatting failures stopped Flutter's merged-head check. Root integrated
+that completed commit rather than overwrite it; formatting-only repair and final
+combined verification remain pending. Learning/My Courses and real provider/cloud
+dependencies remain separately unverified.
 
 Six actual marketplace/profile widget cases use image, SVG and script payloads;
 Chrome DOM checks run while malicious titles/profile text remain visible. Initial

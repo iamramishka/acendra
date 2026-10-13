@@ -28,41 +28,33 @@ void main() {
   group('PaymentMethodSelector', () {
     testWidgets('renders both payment method cards', (tester) async {
       await tester.pumpWidget(
-        _buildTestWidget(
-          selected: PaymentMethod.online,
-          onChanged: (_) {},
-        ),
+        _buildTestWidget(selected: PaymentMethod.online, onChanged: (_) {}),
       );
 
       expect(find.text('Online Payment'), findsOneWidget);
       expect(find.text('Bank Transfer'), findsOneWidget);
     });
 
-    testWidgets('renders descriptions for both payment methods',
-        (tester) async {
+    testWidgets('renders descriptions for both payment methods', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        _buildTestWidget(
-          selected: PaymentMethod.online,
-          onChanged: (_) {},
-        ),
+        _buildTestWidget(selected: PaymentMethod.online, onChanged: (_) {}),
       );
 
       expect(
-        find.text(
-          'Pay instantly with a credit or debit card via PayHere.',
-        ),
+        find.text('Pay instantly with a credit or debit card via PayHere.'),
         findsOneWidget,
       );
       expect(
-        find.text(
-          'Deposit to our bank account and submit your receipt.',
-        ),
+        find.text('Deposit to our bank account and submit your receipt.'),
         findsOneWidget,
       );
     });
 
-    testWidgets('tapping unselected card fires onChanged with correct value',
-        (tester) async {
+    testWidgets('tapping unselected card fires onChanged with correct value', (
+      tester,
+    ) async {
       PaymentMethod? changedTo;
 
       await tester.pumpWidget(
@@ -78,29 +70,28 @@ void main() {
       expect(changedTo, equals(PaymentMethod.bankTransfer));
     });
 
-    testWidgets('tapping already-selected card fires onChanged with same value',
-        (tester) async {
-      PaymentMethod? changedTo;
+    testWidgets(
+      'tapping already-selected card fires onChanged with same value',
+      (tester) async {
+        PaymentMethod? changedTo;
 
-      await tester.pumpWidget(
-        _buildTestWidget(
-          selected: PaymentMethod.online,
-          onChanged: (method) => changedTo = method,
-        ),
-      );
+        await tester.pumpWidget(
+          _buildTestWidget(
+            selected: PaymentMethod.online,
+            onChanged: (method) => changedTo = method,
+          ),
+        );
 
-      await tester.tap(find.text('Online Payment'));
-      await tester.pump();
+        await tester.tap(find.text('Online Payment'));
+        await tester.pump();
 
-      expect(changedTo, equals(PaymentMethod.online));
-    });
+        expect(changedTo, equals(PaymentMethod.online));
+      },
+    );
 
     testWidgets('selected card has Semantics selected=true', (tester) async {
       await tester.pumpWidget(
-        _buildTestWidget(
-          selected: PaymentMethod.online,
-          onChanged: (_) {},
-        ),
+        _buildTestWidget(selected: PaymentMethod.online, onChanged: (_) {}),
       );
 
       final selectedSemantics = tester.widget<Semantics>(
@@ -117,10 +108,7 @@ void main() {
 
     testWidgets('unselected card has Semantics selected=false', (tester) async {
       await tester.pumpWidget(
-        _buildTestWidget(
-          selected: PaymentMethod.online,
-          onChanged: (_) {},
-        ),
+        _buildTestWidget(selected: PaymentMethod.online, onChanged: (_) {}),
       );
 
       final unselectedSemantics = tester.widget<Semantics>(

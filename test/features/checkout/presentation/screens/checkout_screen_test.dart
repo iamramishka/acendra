@@ -19,27 +19,27 @@ class _FakeCheckoutRepository implements CheckoutRepository {
     required String idempotencyKey,
   }) async {
     return CheckoutOrder(
-          orderId: 'order-001',
-          orderNumber: 'ORD-001',
-          courseId: courseId,
-          courseTitle: 'Test Course',
-          amountMinor: 150000,
-          currencyCode: 'LKR',
-          paymentMethod: method,
-          status: 'pending_payment',
-          nextAction: method == PaymentMethod.online
-              ? 'initialize_online_payment'
-              : 'show_bank_instructions',
-          bankInstructions: method == PaymentMethod.bankTransfer
-              ? const BankInstructions(
-                  bankName: 'Test Bank',
-                  accountHolder: 'Acedra Ltd',
-                  accountNumber: '1234567890',
-                  branch: 'Colombo',
-                  currency: 'LKR',
-                )
-              : null,
-        );
+      orderId: 'order-001',
+      orderNumber: 'ORD-001',
+      courseId: courseId,
+      courseTitle: 'Test Course',
+      amountMinor: 150000,
+      currencyCode: 'LKR',
+      paymentMethod: method,
+      status: 'pending_payment',
+      nextAction: method == PaymentMethod.online
+          ? 'initialize_online_payment'
+          : 'show_bank_instructions',
+      bankInstructions: method == PaymentMethod.bankTransfer
+          ? const BankInstructions(
+              bankName: 'Test Bank',
+              accountHolder: 'Acedra Ltd',
+              accountNumber: '1234567890',
+              branch: 'Colombo',
+              currency: 'LKR',
+            )
+          : null,
+    );
   }
 }
 
@@ -47,9 +47,7 @@ class _FakeCheckoutRepository implements CheckoutRepository {
 
 Widget _wrap(Widget child, CheckoutRepository repo) {
   return ProviderScope(
-    overrides: [
-      checkoutRepositoryProvider.overrideWithValue(repo),
-    ],
+    overrides: [checkoutRepositoryProvider.overrideWithValue(repo)],
     child: MaterialApp(home: child),
   );
 }
@@ -70,7 +68,9 @@ void main() {
     expect(find.byType(CheckoutScreen), findsOneWidget);
   });
 
-  testWidgets('"Proceed to Payment" button is present initially', (tester) async {
+  testWidgets('"Proceed to Payment" button is present initially', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       _wrap(
         const CheckoutScreen(courseId: testCourseId),
@@ -96,8 +96,9 @@ void main() {
     expect(find.text('Checkout'), findsOneWidget);
   });
 
-  testWidgets('selecting bank transfer shows Bank Transfer label',
-      (tester) async {
+  testWidgets('selecting bank transfer shows Bank Transfer label', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       _wrap(
         const CheckoutScreen(courseId: testCourseId),
@@ -111,8 +112,9 @@ void main() {
     expect(find.text('Bank Transfer'), findsOneWidget);
   });
 
-  testWidgets('billing details section is shown before order is created',
-      (tester) async {
+  testWidgets('billing details section is shown before order is created', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       _wrap(
         const CheckoutScreen(courseId: testCourseId),
@@ -125,8 +127,9 @@ void main() {
     expect(find.text('Billing Details'), findsOneWidget);
   });
 
-  testWidgets('shows validation errors when form is empty and submitted',
-      (tester) async {
+  testWidgets('shows validation errors when form is empty and submitted', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       _wrap(
         const CheckoutScreen(courseId: testCourseId),

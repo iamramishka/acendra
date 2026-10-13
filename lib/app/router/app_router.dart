@@ -139,9 +139,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: RouteNames.checkout,
-            builder: (_, state) => CheckoutScreen(
-              courseId: state.pathParameters['courseId']!,
-            ),
+            builder: (_, state) =>
+                CheckoutScreen(courseId: state.pathParameters['courseId']!),
             routes: [
               GoRoute(
                 path: 'success',
