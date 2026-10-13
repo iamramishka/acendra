@@ -51,7 +51,9 @@ begin
  update storage.buckets set public=false where id='course-media';
  image_asset:=invalid_asset;
  foreach variant in array array['missing','bucket','provider','path'] loop
-  if variant='missing' then delete from storage.buckets where id='course-media';
+  -- Real Storage prevents direct SQL bucket deletion; temporarily rename within
+  -- this rollback-only fixture to model a missing configured bucket instead.
+  if variant='missing' then update storage.buckets set id='csa165-hidden-media',name='csa165-hidden-media' where id='course-media';
   else
    invalid_asset:=gen_random_uuid();
    insert into app_private.media_assets(id,asset_type,storage_provider,bucket_name,object_path,mime_type,size_bytes,checksum_sha256,validation_status,validated_at)
@@ -60,7 +62,7 @@ begin
    update app_private.lesson_assets set media_asset_id=invalid_asset where lesson_id=lesson;
   end if;
   begin perform public.csa165_publish_course(actor,ads,'aal2',course,stamp,'publish','image-'||variant);raise exception 'unsafe image published';exception when check_violation then null;end;
-  if variant='missing' then insert into storage.buckets(id,name,public) values('course-media','course-media',false);end if;
+  if variant='missing' then update storage.buckets set id='course-media',name='course-media' where id='csa165-hidden-media';end if;
   update app_private.lesson_assets set media_asset_id=image_asset where lesson_id=lesson;
  end loop;
  result:=public.csa165_publish_course(actor,ads,'aal2',course,stamp,'publish','private-image');
