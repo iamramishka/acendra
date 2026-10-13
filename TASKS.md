@@ -1566,23 +1566,29 @@ CLAUDE
 
 ## CLAUDE - LEARNING UI
 
-- [ ] CSA-128 [P1] [C]
+- [x] CSA-128 [P1] [C] [IN_REVIEW]
   Implement My Courses.
+  Branch: feat/csa-107-110-111-115-route-registration (PR #134). MyCoursesScreen responsive grid, EnrolledCourse entity, SupabaseMyCoursesRepository, MyCoursesNotifier. 27 tests passed, flutter analyze clean.
 
-- [ ] CSA-129 [P1] [C]
+- [x] CSA-129 [P1] [C] [IN_REVIEW]
   Implement learning workspace.
+  Branch: feat/csa-107-110-111-115-route-registration (PR #134). LearningWorkspaceScreen desktop sidebar + mobile FAB drawer, LearningNotifier, SupabaseLearningRepository. Route /learn/:courseId wired.
 
-- [ ] CSA-130 [P1] [C]
+- [x] CSA-130 [P1] [C] [IN_REVIEW]
   Implement curriculum navigation.
+  Branch: feat/csa-107-110-111-115-route-registration (PR #134). CurriculumNav widget with ExpansionTile sections, lesson type icons, selection highlight, accessibility.
 
-- [ ] CSA-131 [P1] [C]
+- [x] CSA-131 [P1] [C] [IN_REVIEW]
   Implement text lesson viewer.
+  Branch: feat/csa-107-110-111-115-route-registration (PR #134). TextLessonViewer with scrollable body, 720px max-width, Previous/Next navigation.
 
-- [ ] CSA-132 [P1] [C]
+- [x] CSA-132 [P1] [C] [IN_REVIEW]
   Implement image lesson viewer.
+  Branch: feat/csa-107-110-111-115-route-registration (PR #134). ImageLessonViewer with loading spinner, error fallback, caption, Previous/Next navigation.
 
-- [ ] CSA-134 [P1] [C]
+- [x] CSA-134 [P1] [C] [IN_REVIEW]
   Implement continue-learning UI.
+  Branch: feat/csa-107-110-111-115-route-registration (PR #134). ContinueLearningCard with progress indicator, course/lesson info, Resume button, full Semantics.
 
 ## CODEX - LEARNING DATA INTEGRATION
 
