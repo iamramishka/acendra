@@ -1,0 +1,326 @@
+import 'package:acendra/app/theme/app_theme_extension.dart';
+import 'package:acendra/features/bank_transfer/domain/entities/receipt_submission.dart';
+import 'package:acendra/features/bank_transfer/presentation/providers/bank_transfer_provider.dart';
+import 'package:acendra/features/bank_transfer/presentation/screens/bank_transfer_screen.dart';
+import 'package:acendra/features/bank_transfer/presentation/screens/finance_review_screen.dart';
+import 'package:acendra/features/bank_transfer/presentation/screens/receipt_resubmission_screen.dart';
+import 'package:acendra/features/bank_transfer/presentation/screens/receipt_status_screen.dart';
+import 'package:acendra/features/checkout/domain/entities/checkout_order.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+// ── Test helpers ──────────────────────────────────────────────────────────────
+
+AppThemeExtension _ext() => const AppThemeExtension(
+      success: Colors.green,
+      successContainer: Color(0xFFE8F5E9),
+      warning: Colors.orange,
+      warningContainer: Color(0xFFFFF3E0),
+      focusRing: Colors.blue,
+      surfaceSecondary: Color(0xFFF5F5F5),
+      surfaceTertiary: Color(0xFFEEEEEE),
+      textSecondary: Color(0xFF757575),
+      border: Color(0xFFE0E0E0),
+    );
+
+ThemeData _theme() => ThemeData.light().copyWith(extensions: [_ext()]);
+
+Widget _scaffold(Widget child) => ProviderScope(
+      child: MaterialApp(theme: _theme(), home: child),
+    );
+
+const _fakeBankInstructions = BankInstructions(
+  bankName: 'Test Bank',
+  accountHolder: 'Acedra Pvt Ltd',
+  accountNumber: '0001234567',
+  branch: 'Colombo',
+  currency: 'LKR',
+);
+
+// ── CSA-107: BankTransferScreen ───────────────────────────────────────────────
+
+void main() {
+  group('BankTransferScreen (CSA-107)', () {
+    testWidgets('renders step-by-step instructions', (tester) async {
+      await tester.pumpWidget(
+        _scaffold(
+          const BankTransferScreen(
+            orderId: 'order-1',
+            orderNumber: 'ORD-001',
+            courseTitle: 'Flutter Mastery',
+            formattedAmount: 'LKR 5,000.00',
+            bankInstructions: _fakeBankInstructions,
+          ),
+        ),
+      );
+
+      expect(find.text("I've made the transfer"), findsOneWidget);
+      expect(find.textContaining('ORD-001'), findsWidgets);
+      expect(find.textContaining('Flutter Mastery'), findsOneWidget);
+    });
+
+    testWidgets('shows bank account details', (tester) async {
+      await tester.pumpWidget(
+        _scaffold(
+          const BankTransferScreen(
+            orderId: 'order-1',
+            orderNumber: 'ORD-001',
+            courseTitle: 'Flutter Mastery',
+            formattedAmount: 'LKR 5,000.00',
+            bankInstructions: _fakeBankInstructions,
+          ),
+        ),
+      );
+
+      expect(find.text('Test Bank'), findsOneWidget);
+      expect(find.text('0001234567'), findsOneWidget);
+    });
+
+    testWidgets('shows disclaimer about independent verification', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _scaffold(
+          const BankTransferScreen(
+            orderId: 'order-1',
+            orderNumber: 'ORD-001',
+            courseTitle: 'Flutter Mastery',
+            formattedAmount: 'LKR 5,000.00',
+          ),
+        ),
+      );
+
+      expect(find.textContaining('independently verifies'), findsOneWidget);
+    });
+
+    testWidgets('renders without bank instructions', (tester) async {
+      await tester.pumpWidget(
+        _scaffold(
+          const BankTransferScreen(
+            orderId: 'order-1',
+            orderNumber: 'ORD-001',
+            courseTitle: 'Test Course',
+            formattedAmount: 'LKR 1,000.00',
+          ),
+        ),
+      );
+
+      expect(find.text("I've made the transfer"), findsOneWidget);
+    });
+  });
+
+  // ── CSA-110: ReceiptStatusScreen ─────────────────────────────────────────────
+
+  group('ReceiptStatusScreen (CSA-110)', () {
+    testWidgets('shows upload CTA for awaiting_receipt status', (tester) async {
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: ProviderContainer(
+            overrides: [
+              receiptSubmissionProvider('order-1').overrideWith(
+                (ref) async => const ReceiptSubmission(
+                  orderId: 'order-1',
+                  orderNumber: 'ORD-001',
+                  courseTitle: 'Flutter Course',
+                  status: ReceiptStatus.awaitingReceipt,
+                ),
+              ),
+            ],
+          ),
+          child: MaterialApp(
+            theme: _theme(),
+            home: const ReceiptStatusScreen(orderId: 'order-1'),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('Upload Receipt'), findsOneWidget);
+      expect(find.textContaining('Upload Your Receipt'), findsOneWidget);
+    });
+
+    testWidgets('shows under-review message', (tester) async {
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: ProviderContainer(
+            overrides: [
+              receiptSubmissionProvider('order-2').overrideWith(
+                (ref) async => const ReceiptSubmission(
+                  orderId: 'order-2',
+                  orderNumber: 'ORD-002',
+                  courseTitle: 'Dart Course',
+                  status: ReceiptStatus.underReview,
+                ),
+              ),
+            ],
+          ),
+          child: MaterialApp(
+            theme: _theme(),
+            home: const ReceiptStatusScreen(orderId: 'order-2'),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.textContaining('Under Review'), findsOneWidget);
+    });
+
+    testWidgets('shows rejection reason and resubmit CTA', (tester) async {
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: ProviderContainer(
+            overrides: [
+              receiptSubmissionProvider('order-3').overrideWith(
+                (ref) async => const ReceiptSubmission(
+                  orderId: 'order-3',
+                  orderNumber: 'ORD-003',
+                  courseTitle: 'Test Course',
+                  status: ReceiptStatus.rejected,
+                  rejectionReason: 'Amount does not match.',
+                ),
+              ),
+            ],
+          ),
+          child: MaterialApp(
+            theme: _theme(),
+            home: const ReceiptStatusScreen(orderId: 'order-3'),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('Amount does not match.'), findsOneWidget);
+      expect(find.text('Submit New Receipt'), findsOneWidget);
+    });
+
+    testWidgets('shows approved message without upload button', (tester) async {
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: ProviderContainer(
+            overrides: [
+              receiptSubmissionProvider('order-4').overrideWith(
+                (ref) async => const ReceiptSubmission(
+                  orderId: 'order-4',
+                  orderNumber: 'ORD-004',
+                  courseTitle: 'Test Course',
+                  status: ReceiptStatus.approved,
+                ),
+              ),
+            ],
+          ),
+          child: MaterialApp(
+            theme: _theme(),
+            home: const ReceiptStatusScreen(orderId: 'order-4'),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.textContaining('Payment Verified'), findsOneWidget);
+      expect(find.text('Upload Receipt'), findsNothing);
+    });
+  });
+
+  // ── CSA-115: ReceiptResubmissionScreen ───────────────────────────────────────
+
+  group('ReceiptResubmissionScreen (CSA-115)', () {
+    testWidgets('renders file picker and disabled-backend notice', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _scaffold(const ReceiptResubmissionScreen(orderId: 'order-1')),
+      );
+
+      expect(find.text('Submit a New Receipt'), findsOneWidget);
+      expect(find.textContaining('temporarily unavailable'), findsOneWidget);
+      expect(find.text('Submit Receipt'), findsOneWidget);
+    });
+
+    testWidgets('shows rejection reason when provided', (tester) async {
+      await tester.pumpWidget(
+        _scaffold(
+          const ReceiptResubmissionScreen(
+            orderId: 'order-1',
+            rejectionReason: 'Wrong account number.',
+          ),
+        ),
+      );
+
+      expect(find.text('Wrong account number.'), findsOneWidget);
+    });
+
+    testWidgets('submit button disabled until file selected', (tester) async {
+      await tester.pumpWidget(
+        _scaffold(const ReceiptResubmissionScreen(orderId: 'order-1')),
+      );
+
+      expect(find.text('Submit Receipt'), findsOneWidget);
+
+      // AppButton renders ElevatedButton; when onPressed=null the button is disabled.
+      final btns = tester.widgetList<ElevatedButton>(find.byType(ElevatedButton));
+      final submitBtn = btns.firstWhere(
+        (b) => b.child is Text && (b.child as Text).data == 'Submit Receipt',
+        orElse: () => btns.last,
+      );
+      expect(submitBtn.onPressed, isNull);
+    });
+  });
+
+  // ── CSA-111: FinanceReviewScreen ──────────────────────────────────────────────
+
+  group('FinanceReviewScreen (CSA-111)', () {
+    testWidgets('renders pending submissions header', (tester) async {
+      await tester.pumpWidget(_scaffold(const FinanceReviewScreen()));
+
+      expect(find.text('Pending Bank Transfers'), findsOneWidget);
+    });
+
+    testWidgets('shows backend-disabled notice', (tester) async {
+      await tester.pumpWidget(_scaffold(const FinanceReviewScreen()));
+
+      expect(find.textContaining('not yet enabled'), findsOneWidget);
+    });
+
+    testWidgets('shows approve and reject buttons on stub card', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_scaffold(const FinanceReviewScreen()));
+
+      expect(find.text('Approve'), findsOneWidget);
+      expect(find.text('Reject'), findsOneWidget);
+    });
+
+    testWidgets('shows rejection form when Reject tapped', (tester) async {
+      await tester.pumpWidget(_scaffold(const FinanceReviewScreen()));
+
+      await tester.ensureVisible(find.text('Reject'));
+      await tester.tap(find.text('Reject'));
+      await tester.pump();
+
+      expect(find.text('Confirm Reject'), findsOneWidget);
+      expect(find.text('Cancel'), findsOneWidget);
+    });
+
+    testWidgets('cancelling rejection form restores approve/reject buttons', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_scaffold(const FinanceReviewScreen()));
+
+      await tester.ensureVisible(find.text('Reject'));
+      await tester.tap(find.text('Reject'));
+      await tester.pump();
+
+      await tester.ensureVisible(find.text('Cancel'));
+      await tester.tap(find.text('Cancel'), warnIfMissed: false);
+      await tester.pump();
+
+      expect(find.text('Approve'), findsOneWidget);
+      expect(find.text('Reject'), findsOneWidget);
+    });
+  });
+}

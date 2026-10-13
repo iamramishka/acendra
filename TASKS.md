@@ -1398,14 +1398,21 @@ stays disabled. Issues #62–64/#66–67 are completion reconciliation; #65 reta
 the provider gate. See docs/tasks/CSA-PHASE5-PROGRESS.md. Downstream tasks and
 Phase 5 integration/release gates remain unchecked.
 
-- [ ] CSA-097 [P1] [C]
+- [x] CSA-097 [P1] [C]
   Implement checkout interface.
+  Branch: dev. Agent: CLAUDE. Status: IN_REVIEW.
+  Files: lib/features/checkout/{domain,data,presentation}/**. Router wired.
 
-- [ ] CSA-099 [P1] [C]
+- [x] CSA-099 [P1] [C]
   Implement payment method selector.
+  Branch: dev. Agent: CLAUDE. Status: IN_REVIEW.
+  Files: lib/features/checkout/domain/entities/payment_method.dart,
+         lib/features/checkout/presentation/widgets/payment_method_selector.dart.
 
-- [ ] CSA-106 [P1] [C]
+- [x] CSA-106 [P1] [C]
   Implement payment status screens.
+  Branch: dev. Agent: CLAUDE. Status: IN_REVIEW.
+  Files: lib/features/checkout/presentation/screens/payment_{success,pending,failure}_screen.dart.
 
 ## CODEX - ONLINE PAYMENT BACKEND
 Parallel review follow-up (2026-10-12): CSA-101–105 and CSA-119 reviewed at
