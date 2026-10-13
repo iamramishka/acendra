@@ -9,6 +9,11 @@ import 'package:acendra/features/authentication/presentation/screens/login_scree
 import 'package:acendra/features/authentication/presentation/screens/register_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/reset_password_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/verify_email_screen.dart';
+import 'package:acendra/features/bank_transfer/presentation/screens/bank_transfer_screen.dart';
+import 'package:acendra/features/bank_transfer/presentation/screens/finance_review_screen.dart';
+import 'package:acendra/features/bank_transfer/presentation/screens/receipt_resubmission_screen.dart';
+import 'package:acendra/features/bank_transfer/presentation/screens/receipt_status_screen.dart';
+import 'package:acendra/features/checkout/domain/entities/checkout_order.dart';
 import 'package:acendra/features/checkout/presentation/screens/checkout_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_failure_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_pending_screen.dart';
@@ -187,6 +192,39 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: RouteNames.profileEdit,
             builder: (_, _) => const ProfileEditScreen(),
           ),
+          // Bank transfer flow (CSA-107, 110, 115)
+          GoRoute(
+            path: RouteNames.bankTransfer,
+            builder: (_, state) {
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return BankTransferScreen(
+                orderId: state.pathParameters['orderId']!,
+                orderNumber: extra['orderNumber'] as String? ?? '',
+                courseTitle: extra['courseTitle'] as String? ?? '',
+                formattedAmount: extra['formattedAmount'] as String? ?? '',
+                bankInstructions:
+                    extra['bankInstructions'] as BankInstructions?,
+              );
+            },
+            routes: [
+              GoRoute(
+                path: 'status',
+                builder: (_, state) => ReceiptStatusScreen(
+                  orderId: state.pathParameters['orderId']!,
+                ),
+              ),
+              GoRoute(
+                path: 'resubmit',
+                builder: (_, state) {
+                  final extra = state.extra as Map<String, dynamic>? ?? {};
+                  return ReceiptResubmissionScreen(
+                    orderId: state.pathParameters['orderId']!,
+                    rejectionReason: extra['rejectionReason'] as String?,
+                  );
+                },
+              ),
+            ],
+          ),
         ],
       ),
 
@@ -210,6 +248,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: RouteNames.admin,
             builder: (_, _) => const _PlaceholderScreen(title: 'Admin'),
+          ),
+          // Finance review — CSA-111 (finance_admin / super_admin only)
+          GoRoute(
+            path: RouteNames.financeReview,
+            builder: (_, _) => const FinanceReviewScreen(),
           ),
         ],
       ),
