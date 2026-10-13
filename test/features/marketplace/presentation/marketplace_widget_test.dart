@@ -5,6 +5,7 @@ import 'package:acendra/features/marketplace/presentation/screens/marketplace_sc
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 import '../fakes/fake_course_repository.dart';
 
@@ -15,6 +16,30 @@ Widget _wrap(Widget child, {FakeCourseRepository? repo}) {
       overrides: [courseRepositoryProvider.overrideWithValue(r)],
     ),
     child: MaterialApp(home: Scaffold(body: child)),
+  );
+}
+
+Widget _wrapWithRouter({FakeCourseRepository? repo}) {
+  final r = repo ?? FakeCourseRepository(result: [fakeCourse], detail: fakeDetail);
+  final router = GoRouter(
+    initialLocation: '/marketplace',
+    routes: [
+      GoRoute(
+        path: '/marketplace',
+        builder: (_, __) => const MarketplaceScreen(),
+      ),
+      GoRoute(
+        path: '/marketplace/:courseId',
+        builder: (_, state) =>
+            CourseDetailScreen(courseId: state.pathParameters['courseId']!),
+      ),
+    ],
+  );
+  return UncontrolledProviderScope(
+    container: ProviderContainer(
+      overrides: [courseRepositoryProvider.overrideWithValue(r)],
+    ),
+    child: MaterialApp.router(routerConfig: router),
   );
 }
 
@@ -94,6 +119,18 @@ void main() {
 
       expect(find.text('All'), findsOneWidget);
       expect(find.text('Flutter'), findsOneWidget);
+    });
+
+    testWidgets('tapping a course card navigates to course detail',
+        (tester) async {
+      await tester.pumpWidget(_wrapWithRouter());
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      await tester.tap(find.text('Fake Course'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Enroll Now'), findsOneWidget);
     });
   });
 

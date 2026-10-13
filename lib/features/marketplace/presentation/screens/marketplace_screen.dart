@@ -1,9 +1,11 @@
+import 'package:acendra/app/router/route_names.dart';
 import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:acendra/features/marketplace/presentation/providers/marketplace_provider.dart';
 import 'package:acendra/features/marketplace/presentation/widgets/category_filter.dart';
 import 'package:acendra/features/marketplace/presentation/widgets/course_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class MarketplaceScreen extends ConsumerWidget {
   const MarketplaceScreen({super.key});
@@ -58,7 +60,15 @@ class MarketplaceScreen extends ConsumerWidget {
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 sliver: SliverToBoxAdapter(
-                  child: CourseGrid(courses: courses),
+                  child: CourseGrid(
+                    courses: courses,
+                    onCourseTap: (course) => context.push(
+                      RouteNames.courseDetail.replaceFirst(
+                        ':courseId',
+                        course.id,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             const SliverToBoxAdapter(child: SizedBox(height: 24)),

@@ -52,7 +52,7 @@ const fakeCourse = CourseSummary(
 
 const fakeCategory = Category(id: 'cat-1', name: 'Flutter', slug: 'flutter');
 
-final fakeDetail = CourseDetail(
+final fakeDetail = const CourseDetail(
   id: 'fake-id-1',
   slug: 'fake-course',
   title: 'Fake Course',
