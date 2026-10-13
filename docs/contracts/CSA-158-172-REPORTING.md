@@ -1,5 +1,14 @@
 # CSA-158 / CSA-172 reporting
 
+## Current status — 2026-10-13
+
+Foundation reviewed and merged into dev via [PR #107](https://github.com/iamramishka/acendra/pull/107).
+Hosted PR checks passed; integration and shared test/config updates are complete.
+Status remains IN_REVIEW for operational acceptance; production endpoints remain disabled.
+Earlier pending-PR/integration/CI statements below describe the historical worker stage.
+[Current evidence and remaining gates](../tasks/CSA-158-168-MERGE-RECONCILIATION.md) include the verified pre-existing
+dev formatting failure, post-merge tests and activation prerequisites.
+
 Status: IN_REVIEW. Owner: CODEX. Coordination: GitHub issue #106.
 Production entries remain hard-disabled until release activation receives review.
 The owner approved recognition on 2026-10-12; see

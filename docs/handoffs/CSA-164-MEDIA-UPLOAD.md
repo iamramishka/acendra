@@ -1,6 +1,15 @@
 # CSA-164 authorized course-media upload foundation
 
-Owner: CODEX. Issue: #106. Branch: feat/csa-164-media-upload.
+## Current status — 2026-10-13
+
+Foundation reviewed and merged into dev via [PR #107](https://github.com/iamramishka/acendra/pull/107).
+Hosted PR checks passed; integration and shared test/config updates are complete.
+Status remains IN_REVIEW for operational acceptance; production endpoints remain disabled.
+Earlier pending-PR/integration/CI statements below describe the historical worker stage.
+[Current evidence and remaining gates](../tasks/CSA-158-168-MERGE-RECONCILIATION.md) include the verified pre-existing
+dev formatting failure, post-merge tests and activation prerequisites.
+
+Owner: CODEX. Issue: #106. Branch: codex/feat/csa-164-media-upload.
 
 Endpoints are admin-create-media-upload and admin-finalize-media-upload. Preparation accepts request_id UUID, course_id, lesson_id (null/omitted for thumbnails), asset_type (course_pdf/lesson_image/public_thumbnail), file_name, content_type, size_bytes. Finalization accepts request_id UUID and asset_id. Responses contain data or a safe error.code. Creation returns a private signed upload token, server path and asset ID; finalization returns validated status after inspecting actual stored bytes. Tokens and private paths must not be logged or exposed in catalog records.
 
