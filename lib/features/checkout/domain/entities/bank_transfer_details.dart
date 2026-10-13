@@ -41,17 +41,18 @@ class BankTransferDetails {
 
   @override
   int get hashCode => Object.hash(
-        bankName,
-        accountName,
-        accountNumber,
-        branch,
-        amount,
-        currency,
-        referenceId,
-      );
+    bankName,
+    accountName,
+    accountNumber,
+    branch,
+    amount,
+    currency,
+    referenceId,
+  );
 
   @override
-  String toString() => 'BankTransferDetails('
+  String toString() =>
+      'BankTransferDetails('
       'bankName: $bankName, '
       'accountName: $accountName, '
       'accountNumber: $accountNumber, '

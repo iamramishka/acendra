@@ -84,18 +84,12 @@ class BankTransferInstructionsCard extends StatelessWidget {
                     value: details.bankName,
                     isFirst: true,
                   ),
-                  _DetailRow(
-                    label: 'Account Name',
-                    value: details.accountName,
-                  ),
+                  _DetailRow(label: 'Account Name', value: details.accountName),
                   _DetailRow(
                     label: 'Account Number',
                     value: details.accountNumber,
                   ),
-                  _DetailRow(
-                    label: 'Branch',
-                    value: details.branch,
-                  ),
+                  _DetailRow(label: 'Branch', value: details.branch),
                   _DetailRow(
                     label: 'Amount',
                     value: _formatAmount(details.currency, details.amount),
@@ -123,11 +117,7 @@ class BankTransferInstructionsCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.info_outline_rounded,
-                    size: 18,
-                    color: warningFg,
-                  ),
+                  Icon(Icons.info_outline_rounded, size: 18, color: warningFg),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
@@ -156,10 +146,9 @@ class BankTransferInstructionsCard extends StatelessWidget {
 
   static String _formatAmount(String currency, double amount) {
     // Format with two decimal places, e.g. "LKR 12,500.00"
-    final formatted = amount.toStringAsFixed(2).replaceAllMapped(
-          RegExp(r'\B(?=(\d{3})+(?!\d))'),
-          (m) => ',',
-        );
+    final formatted = amount
+        .toStringAsFixed(2)
+        .replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',');
     return '$currency $formatted';
   }
 }
@@ -186,10 +175,7 @@ class _StepList extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  width: 20,
-                  child: Text('${i + 1}.', style: textStyle),
-                ),
+                SizedBox(width: 20, child: Text('${i + 1}.', style: textStyle)),
                 const SizedBox(width: AppSpacing.xs),
                 Expanded(child: Text(steps[i], style: textStyle)),
               ],
@@ -248,8 +234,7 @@ class _DetailRow extends StatelessWidget {
               value,
               style: tt.bodyMedium?.copyWith(
                 color: cs.onSurface,
-                fontWeight:
-                    valueBold ? FontWeight.w700 : FontWeight.w500,
+                fontWeight: valueBold ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
           ),
@@ -261,10 +246,7 @@ class _DetailRow extends StatelessWidget {
 
 /// Special row for the Reference ID with a monospace highlight and copy button.
 class _ReferenceIdRow extends StatelessWidget {
-  const _ReferenceIdRow({
-    required this.referenceId,
-    required this.border,
-  });
+  const _ReferenceIdRow({required this.referenceId, required this.border});
 
   final String referenceId;
   final Color border;

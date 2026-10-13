@@ -1,3 +1,5 @@
+import 'package:acendra/features/checkout/presentation/providers/checkout_provider.dart';
+import 'package:acendra/features/checkout/domain/entities/payment_method.dart';
 import 'package:acendra/app/theme/app_theme_extension.dart';
 import 'package:acendra/features/bank_transfer/domain/entities/receipt_submission.dart';
 import 'package:acendra/features/bank_transfer/presentation/providers/bank_transfer_provider.dart';
@@ -26,7 +28,33 @@ AppThemeExtension _ext() => const AppThemeExtension(
 
 ThemeData _theme() => ThemeData.light().copyWith(extensions: [_ext()]);
 
-Widget _scaffold(Widget child) => ProviderScope(
+class _LoadedCheckout extends CheckoutNotifier {
+  _LoadedCheckout(this.order);
+  final CheckoutOrder order;
+  @override
+  Future<CheckoutOrder?> build() async => order;
+}
+
+Widget _scaffold(Widget child, {bool bankAvailable = true}) => ProviderScope(
+  overrides: [
+    if (child is BankTransferScreen)
+      checkoutProvider.overrideWith(
+        () => _LoadedCheckout(
+          CheckoutOrder(
+            orderId: child.orderId,
+            orderNumber: 'ORD-001',
+            courseId: 'course',
+            courseTitle: 'Flutter Mastery',
+            amountMinor: 500000,
+            currencyCode: 'LKR',
+            paymentMethod: PaymentMethod.bankTransfer,
+            status: 'pending_payment',
+            nextAction: 'show_bank_instructions',
+            bankInstructions: bankAvailable ? _fakeBankInstructions : null,
+          ),
+        ),
+      ),
+  ],
   child: MaterialApp(theme: _theme(), home: child),
 );
 
@@ -44,36 +72,25 @@ void main() {
   group('BankTransferScreen (CSA-107)', () {
     testWidgets('renders step-by-step instructions', (tester) async {
       await tester.pumpWidget(
-        _scaffold(
-          const BankTransferScreen(
-            orderId: 'order-1',
-            orderNumber: 'ORD-001',
-            courseTitle: 'Flutter Mastery',
-            formattedAmount: 'LKR 5,000.00',
-            bankInstructions: _fakeBankInstructions,
-          ),
-        ),
+        _scaffold(const BankTransferScreen(orderId: 'order-1')),
       );
 
+      await tester.pumpAndSettle();
       expect(find.text("I've made the transfer"), findsOneWidget);
+      await tester.pumpAndSettle();
       expect(find.textContaining('ORD-001'), findsWidgets);
+      await tester.pumpAndSettle();
       expect(find.textContaining('Flutter Mastery'), findsOneWidget);
     });
 
     testWidgets('shows bank account details', (tester) async {
       await tester.pumpWidget(
-        _scaffold(
-          const BankTransferScreen(
-            orderId: 'order-1',
-            orderNumber: 'ORD-001',
-            courseTitle: 'Flutter Mastery',
-            formattedAmount: 'LKR 5,000.00',
-            bankInstructions: _fakeBankInstructions,
-          ),
-        ),
+        _scaffold(const BankTransferScreen(orderId: 'order-1')),
       );
 
+      await tester.pumpAndSettle();
       expect(find.text('Test Bank'), findsOneWidget);
+      await tester.pumpAndSettle();
       expect(find.text('0001234567'), findsOneWidget);
     });
 
@@ -81,32 +98,27 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        _scaffold(
-          const BankTransferScreen(
-            orderId: 'order-1',
-            orderNumber: 'ORD-001',
-            courseTitle: 'Flutter Mastery',
-            formattedAmount: 'LKR 5,000.00',
-          ),
-        ),
+        _scaffold(const BankTransferScreen(orderId: 'order-1')),
       );
 
+      await tester.pumpAndSettle();
       expect(find.textContaining('independently verifies'), findsOneWidget);
     });
 
     testWidgets('renders without bank instructions', (tester) async {
       await tester.pumpWidget(
         _scaffold(
-          const BankTransferScreen(
-            orderId: 'order-1',
-            orderNumber: 'ORD-001',
-            courseTitle: 'Test Course',
-            formattedAmount: 'LKR 1,000.00',
-          ),
+          const BankTransferScreen(orderId: 'order-1'),
+          bankAvailable: false,
         ),
       );
 
-      expect(find.text("I've made the transfer"), findsOneWidget);
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('Payment instructions are unavailable'),
+        findsOneWidget,
+      );
+      expect(find.text("I've made the transfer"), findsNothing);
     });
   });
 

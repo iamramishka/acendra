@@ -42,8 +42,7 @@ Widget _buildCard({
       ),
       extensions: [AppThemeExtension.fromTokens(darkTokens)],
     ),
-    themeMode:
-        brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light,
+    themeMode: brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light,
     home: Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -107,8 +106,9 @@ void main() {
       );
     });
 
-    testWidgets('copy button exists and has accessible semantics',
-        (tester) async {
+    testWidgets('copy button exists and has accessible semantics', (
+      tester,
+    ) async {
       await tester.pumpWidget(_buildCard());
 
       // The IconButton for copying should be present.
@@ -116,9 +116,7 @@ void main() {
 
       // Semantics node with the reference ID in its label should exist.
       expect(
-        find.bySemanticsLabel(
-          RegExp(r'Copy reference ID ORD-TEST-99999'),
-        ),
+        find.bySemanticsLabel(RegExp(r'Copy reference ID ORD-TEST-99999')),
         findsOneWidget,
       );
     });
@@ -139,8 +137,9 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('confirm button is disabled when onConfirmTransfer is null',
-        (tester) async {
+    testWidgets('confirm button is disabled when onConfirmTransfer is null', (
+      tester,
+    ) async {
       await tester.pumpWidget(_buildCard());
 
       // The ElevatedButton should have a null onPressed when callback is null.
@@ -153,8 +152,9 @@ void main() {
       expect(btn.onPressed, isNull);
     });
 
-    testWidgets('renders without overflow in light theme at 390px width',
-        (tester) async {
+    testWidgets('renders without overflow in light theme at 390px width', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(390, 900);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
@@ -163,8 +163,9 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('renders without overflow in dark theme at 390px width',
-        (tester) async {
+    testWidgets('renders without overflow in dark theme at 390px width', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(390, 900);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);

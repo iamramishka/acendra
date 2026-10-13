@@ -99,8 +99,8 @@ class BankInstructionsDto {
       bankName: json['bank_name'] as String? ?? '',
       accountHolder: json['account_holder'] as String? ?? '',
       accountNumber: json['account_number'] as String? ?? '',
-      branch: json['branch'] as String? ?? '',
-      currency: json['currency'] as String? ?? '',
+      branch: json['branch_name'] as String? ?? '',
+      currency: json['currency_code'] as String? ?? '',
     );
   }
 
