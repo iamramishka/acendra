@@ -25,7 +25,7 @@ class ReceiptReviewTile extends StatelessWidget {
 
   final ReceiptReviewItem item;
   final VoidCallback? onApprove;
-  final VoidCallback? onReject;
+  final ValueChanged<String>? onReject;
   final VoidCallback? onViewReceipt;
   final bool isProcessing;
 
@@ -39,18 +39,25 @@ class ReceiptReviewTile extends StatelessWidget {
     final amountStr = '${item.currency} ${item.amount.toStringAsFixed(2)}';
 
     final statusBadge = switch (item.status) {
-      ReceiptStatus.pending => const StatusBadge(label: 'Pending', variant: BadgeVariant.warning),
-      ReceiptStatus.approved => const StatusBadge(label: 'Approved', variant: BadgeVariant.success),
-      ReceiptStatus.rejected => const StatusBadge(label: 'Rejected', variant: BadgeVariant.error),
+      ReceiptStatus.pending => const StatusBadge(
+        label: 'Pending',
+        variant: BadgeVariant.warning,
+      ),
+      ReceiptStatus.approved => const StatusBadge(
+        label: 'Approved',
+        variant: BadgeVariant.success,
+      ),
+      ReceiptStatus.rejected => const StatusBadge(
+        label: 'Rejected',
+        variant: BadgeVariant.error,
+      ),
     };
 
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.card),
-        side: BorderSide(
-          color: ext?.border ?? cs.outlineVariant,
-        ),
+        side: BorderSide(color: ext?.border ?? cs.outlineVariant),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -84,7 +91,11 @@ class ReceiptReviewTile extends StatelessWidget {
             // Amount row
             Row(
               children: [
-                Icon(Icons.payments_outlined, size: 16, color: cs.onSurfaceVariant),
+                Icon(
+                  Icons.payments_outlined,
+                  size: 16,
+                  color: cs.onSurfaceVariant,
+                ),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
                   amountStr,
@@ -99,7 +110,11 @@ class ReceiptReviewTile extends StatelessWidget {
             // Submitted at
             Row(
               children: [
-                Icon(Icons.schedule_outlined, size: 16, color: cs.onSurfaceVariant),
+                Icon(
+                  Icons.schedule_outlined,
+                  size: 16,
+                  color: cs.onSurfaceVariant,
+                ),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
                   'Submitted: $dateStr',
@@ -120,12 +135,18 @@ class ReceiptReviewTile extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.info_outline, size: 16, color: cs.onErrorContainer),
+                    Icon(
+                      Icons.info_outline,
+                      size: 16,
+                      color: cs.onErrorContainer,
+                    ),
                     const SizedBox(width: AppSpacing.xs),
                     Expanded(
                       child: Text(
                         item.rejectionReason!,
-                        style: tt.bodySmall?.copyWith(color: cs.onErrorContainer),
+                        style: tt.bodySmall?.copyWith(
+                          color: cs.onErrorContainer,
+                        ),
                       ),
                     ),
                   ],
@@ -193,7 +214,7 @@ class ReceiptReviewTile extends StatelessWidget {
 class _RejectDialog extends StatefulWidget {
   const _RejectDialog({this.onConfirm});
 
-  final VoidCallback? onConfirm;
+  final ValueChanged<String>? onConfirm;
 
   @override
   State<_RejectDialog> createState() => _RejectDialogState();
@@ -216,7 +237,7 @@ class _RejectDialogState extends State<_RejectDialog> {
       return;
     }
     Navigator.of(context).pop();
-    widget.onConfirm?.call();
+    widget.onConfirm?.call(reason);
   }
 
   @override

@@ -14,8 +14,9 @@ import 'package:flutter_riverpod/legacy.dart' show StateProvider;
 /// Active filter for the finance review list.
 enum _ReviewFilter { all, pending, approved, rejected }
 
-final _reviewFilterProvider =
-    StateProvider<_ReviewFilter>((_) => _ReviewFilter.all);
+final _reviewFilterProvider = StateProvider<_ReviewFilter>(
+  (_) => _ReviewFilter.all,
+);
 
 /// Tracks which receipt IDs are currently being processed (approve/reject).
 final _processingProvider = StateProvider<Set<String>>((_) => {});
@@ -28,8 +29,9 @@ final _processingProvider = StateProvider<Set<String>>((_) => {});
 // that fetches bank transfer receipts from the database.
 // Security note: Receipt file access must use signed URLs from the trusted
 // backend. Never expose permanent public storage links.
-final _receiptListProvider =
-    StateProvider<List<ReceiptReviewItem>>((_) => _mockReceipts);
+final _receiptListProvider = StateProvider<List<ReceiptReviewItem>>(
+  (_) => _mockReceipts,
+);
 
 final _mockReceipts = [
   ReceiptReviewItem(
@@ -120,6 +122,12 @@ class FinanceReviewScreen extends ConsumerWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          const Padding(
+            padding: EdgeInsets.all(AppSpacing.md),
+            child: Text(
+              'Synthetic preview — bank review is unavailable. No decisions will be recorded.',
+            ),
+          ),
           // Filter chips
           _FilterRow(
             selected: filter,
@@ -134,12 +142,10 @@ class FinanceReviewScreen extends ConsumerWidget {
                 : _ReceiptList(
                     receipts: filteredReceipts,
                     processing: processing,
-                    onApprove: (item) =>
-                        _handleApprove(context, ref, item),
-                    onReject: (item) =>
-                        _handleReject(context, ref, item),
-                    onViewReceipt: (item) =>
-                        _handleViewReceipt(context, item),
+                    onApprove: (item) => _handleApprove(context, ref, item),
+                    onReject: (item, reason) =>
+                        _handleReject(context, ref, item, reason),
+                    onViewReceipt: (item) => _handleViewReceipt(context, item),
                   ),
           ),
         ],
@@ -150,84 +156,44 @@ class FinanceReviewScreen extends ConsumerWidget {
   Map<_ReviewFilter, int> _buildCounts(List<ReceiptReviewItem> all) {
     return {
       _ReviewFilter.all: all.length,
-      _ReviewFilter.pending:
-          all.where((r) => r.status == ReceiptStatus.pending).length,
-      _ReviewFilter.approved:
-          all.where((r) => r.status == ReceiptStatus.approved).length,
-      _ReviewFilter.rejected:
-          all.where((r) => r.status == ReceiptStatus.rejected).length,
+      _ReviewFilter.pending: all
+          .where((r) => r.status == ReceiptStatus.pending)
+          .length,
+      _ReviewFilter.approved: all
+          .where((r) => r.status == ReceiptStatus.approved)
+          .length,
+      _ReviewFilter.rejected: all
+          .where((r) => r.status == ReceiptStatus.rejected)
+          .length,
     };
   }
 
-  Future<void> _handleApprove(
+  void _handleApprove(
     BuildContext context,
     WidgetRef ref,
     ReceiptReviewItem item,
-  ) async {
-    // Mark as processing
-    ref.read(_processingProvider.notifier).update(
-          (s) => <String>{...s, item.id},
-        );
-
-    // TODO(CSA-111): Call the Supabase Edge Function / RPC to approve the
-    // bank transfer. Only the trusted backend may grant course enrollment.
-    await Future<void>.delayed(const Duration(milliseconds: 800));
-
-    // Update local mock state
-    ref.read(_receiptListProvider.notifier).update(
-          (list) => list
-              .map(
-                (r) => r.id == item.id
-                    ? r.copyWith(status: ReceiptStatus.approved)
-                    : r,
-              )
-              .toList(),
-        );
-
-    ref.read(_processingProvider.notifier).update(
-          (s) => s.where((id) => id != item.id).toSet(),
-        );
-
-    if (context.mounted) {
-      AppSnackbar.show(context, 'Receipt approved successfully.');
-    }
+  ) {
+    // Fail closed until the trusted review backend is available.
+    _showReviewUnavailable(context);
   }
 
-  Future<void> _handleReject(
+  void _handleReject(
     BuildContext context,
     WidgetRef ref,
     ReceiptReviewItem item,
-  ) async {
-    // Mark as processing
-    ref.read(_processingProvider.notifier).update(
-          (s) => <String>{...s, item.id},
-        );
+    String reason,
+  ) {
+    if (reason.trim().length < 10) return;
+    // Preserve the reason in the callback contract; no local financial decision.
+    _showReviewUnavailable(context);
+  }
 
-    // TODO(CSA-111): Call the Supabase Edge Function / RPC to reject the
-    // bank transfer with the provided rejection reason.
-    await Future<void>.delayed(const Duration(milliseconds: 800));
-
-    // Update local mock state (rejection reason captured in tile dialog)
-    ref.read(_receiptListProvider.notifier).update(
-          (list) => list
-              .map(
-                (r) => r.id == item.id
-                    ? r.copyWith(
-                        status: ReceiptStatus.rejected,
-                        rejectionReason: 'Rejected by finance officer.',
-                      )
-                    : r,
-              )
-              .toList(),
-        );
-
-    ref.read(_processingProvider.notifier).update(
-          (s) => s.where((id) => id != item.id).toSet(),
-        );
-
-    if (context.mounted) {
-      AppSnackbar.show(context, 'Receipt rejected.');
-    }
+  void _showReviewUnavailable(BuildContext context) {
+    AppSnackbar.show(
+      context,
+      'Bank review is temporarily unavailable. No decision was recorded.',
+      variant: SnackbarVariant.warning,
+    );
   }
 
   void _handleViewReceipt(BuildContext context, ReceiptReviewItem item) {
@@ -302,7 +268,7 @@ class _ReceiptList extends StatelessWidget {
   final List<ReceiptReviewItem> receipts;
   final Set<String> processing;
   final ValueChanged<ReceiptReviewItem> onApprove;
-  final ValueChanged<ReceiptReviewItem> onReject;
+  final void Function(ReceiptReviewItem item, String reason) onReject;
   final ValueChanged<ReceiptReviewItem> onViewReceipt;
 
   @override
@@ -315,14 +281,15 @@ class _ReceiptList extends StatelessWidget {
         child: ListView.separated(
           padding: const EdgeInsets.all(AppSpacing.md),
           itemCount: receipts.length,
-          separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.sm),
+          separatorBuilder: (context, index) =>
+              const SizedBox(height: AppSpacing.sm),
           itemBuilder: (context, index) {
             final item = receipts[index];
             return ReceiptReviewTile(
               item: item,
               isProcessing: processing.contains(item.id),
               onApprove: () => onApprove(item),
-              onReject: () => onReject(item),
+              onReject: (reason) => onReject(item, reason),
               onViewReceipt: () => onViewReceipt(item),
             );
           },
