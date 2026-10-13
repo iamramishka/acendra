@@ -54,6 +54,12 @@ export async function runJourneySmoke({ root, layout, env, sql, base, key, conta
           ['Current account required.', 'account-gate'],
           ['Current verified session required.', 'session-gate'],
           ['permission denied for function csa098_create_checkout_order', 'execution-grant'],
+          ['permission denied for schema public', 'public-schema-grant'],
+          ['permission denied for schema app_private', 'private-schema-grant'],
+          ['permission denied for schema auth', 'auth-schema-grant'],
+          ['permission denied for table users', 'auth-users-grant'],
+          ['permission denied for table sessions', 'auth-sessions-grant'],
+          ['permission denied for table orders', 'orders-grant'],
         ]);
         stage += ' rpc=' + (messages.get(failure.message) || 'unclassified');
       }
