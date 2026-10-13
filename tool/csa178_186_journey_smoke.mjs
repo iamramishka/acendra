@@ -39,12 +39,26 @@ export async function runJourneySmoke({ root, layout, env, sql, base, key, conta
     // Handler REST calls use the internal legacy JWT, never an opaque secret in Bearer.
     const service = status.SERVICE_ROLE_KEY || field('SERVICE_KEY') || field('SUPABASE_SERVICE_ROLE_KEY');
     assert.equal(service?.split('.').length, 3);
+    assert.equal(JSON.parse(Buffer.from(service.split('.')[1], 'base64url').toString()).role, 'service_role');
     stage = 'synthetic bank fixture setup';
     const bank = randomUUID(), version = randomUUID();
     sql(`insert into app_private.bank_account_versions(id,bank_account_id,version,bank_name,account_holder,account_number,branch_name,currency_code)
       values('${version}','${bank}',1,'Synthetic bank','Synthetic owner','TEST-ONLY','Synthetic branch','LKR');`);
     const config = { SUPABASE_URL: base, SUPABASE_ANON_KEY: key, SUPABASE_SERVICE_ROLE_KEY: service, ACENDRA_CHECKOUT_BANK_VERSION_ID: version };
     const getEnv = n => config[n];
+    const orderTransport = async (url, options) => {
+      const response = await fetch(url, options);
+      if (!response.ok && url === base + '/rest/v1/rpc/csa098_create_checkout_order') {
+        const failure = await response.clone().json();
+        const messages = new Map([
+          ['Current account required.', 'account-gate'],
+          ['Current verified session required.', 'session-gate'],
+          ['permission denied for function csa098_create_checkout_order', 'execution-grant'],
+        ]);
+        stage += ' rpc=' + (messages.get(failure.message) || 'unclassified');
+      }
+      return response;
+    };
     const provider = { ready: true, environment: 'sandbox', merchantId: '123456', merchantSecret: 'synthetic-secret', appId: 'synthetic-app',
       appSecret: 'synthetic-app-secret', returnUrl: 'https://example.test/return', cancelUrl: 'https://example.test/cancel', notifyUrl: 'https://example.test/notify' };
     let providerAttempt;
@@ -57,7 +71,7 @@ export async function runJourneySmoke({ root, layout, env, sql, base, key, conta
       throw new Error('Unexpected outbound request');
     };
     const routes = {
-      '/order': orderHandler({ env: getEnv, onlineCheckoutEnabled: true }),
+      '/order': orderHandler({ env: getEnv, onlineCheckoutEnabled: true, fetch: orderTransport }),
       '/initialize': initializeHandler({ env: getEnv, onlineCheckoutEnabled: true, paymentConfig: provider }),
       '/webhook': webhookHandler({ env: getEnv, onlinePaymentsEnabled: true, providerConfig: provider, fetch: transport }),
       '/receipt': receiptHandler({ env: getEnv, receiptUploadsEnabled: true, inspector: fixtureInspector }),
