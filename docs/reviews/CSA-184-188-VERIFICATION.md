@@ -106,3 +106,15 @@ The branch inherited unrelated task-status and accessibility/marketplace changes
 The reviewer reran the eleven distinct Node test files listed in the three historical commands above in one invocation: 213 tests passed, zero failed or skipped. This removes repeated PDF test executions from the historical total of 285; the historical evidence remains unchanged. These component tests retain their mocked/injected dependencies and do not establish live SQL, Storage or deployment acceptance.
 
 [CI run 38350062116](https://github.com/iamramishka/acendra/actions/runs/38350062116) passed formatting, analysis, all Flutter tests, release web build and tooling regression checks. The previously unverified delegate Flutter invocation remains unverified as a historical execution; the successful CI run is separate evidence. All five task checkboxes remain unchecked. No deployment or security-policy approval is inferred from the merge.
+
+## Current security acceptance status
+
+| Task | Current status | Remaining acceptance |
+|---|---|---|
+| CSA-184 | IN_REVIEW, unchecked; evidence PR merged | Effective finance-role SQL denials and operational finance workflow |
+| CSA-185 | IN_REVIEW, unchecked; evidence PR merged | Current SQL/Storage REST private-file policy matrix |
+| CSA-186 | IN_REVIEW, unchecked; evidence PR merged | Approved actual inspection and integrated receipt/admin media uploads |
+| CSA-187 | IN_REVIEW, unchecked; evidence PR merged | Effective deployed headers and browser XSS payload checks |
+| CSA-188 | IN_REVIEW, unchecked; evidence PR merged | Dedicated history/build scans and runtime log privacy/access/retention |
+
+PR #125 reconciliation preserves PR #126's evidence and the original historical base. Review artifacts are accepted; production readiness and P0 security acceptance remain unverified. Documentation reconciliation ownership ends after this update is reviewed and merged.

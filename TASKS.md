@@ -1799,23 +1799,23 @@ Integration Gate:
 - [ ] CSA-183 [P0] [X]
   Test cross-student data isolation.
 
-- [ ] CSA-184 [P0] [X]
+- [ ] CSA-184 [P0] [X] [IN_REVIEW]
   Test finance role restrictions.
   IN_REVIEW: review artifacts merged in PR #120; effective-role/runtime acceptance remains unverified. See [security evidence](docs/reviews/CSA-184-188-VERIFICATION.md).
 
-- [ ] CSA-185 [P0] [X]
+- [ ] CSA-185 [P0] [X] [IN_REVIEW]
   Test private file policies.
   IN_REVIEW: PR #120 evidence merged; direct Storage/API and complete asset-policy acceptance remain unverified. See [security evidence](docs/reviews/CSA-184-188-VERIFICATION.md).
 
-- [ ] CSA-186 [P0] [X]
+- [ ] CSA-186 [P0] [X] [IN_REVIEW]
   Test upload security.
   IN_REVIEW: PR #120 evidence merged; real inspection and complete media-ingestion acceptance remain unverified. See [security evidence](docs/reviews/CSA-184-188-VERIFICATION.md).
 
-- [ ] CSA-187 [P0] [X]
+- [ ] CSA-187 [P0] [X] [IN_REVIEW]
   Review XSS and security headers.
   IN_REVIEW: PR #120 static review merged; deployed headers and browser payload checks remain unverified. See [security evidence](docs/reviews/CSA-184-188-VERIFICATION.md).
 
-- [ ] CSA-188 [P0] [X]
+- [ ] CSA-188 [P0] [X] [IN_REVIEW]
   Review secrets and logging.
   IN_REVIEW: PR #120 bounded scan merged; history/build scans and operational log controls remain unverified. See [security evidence](docs/reviews/CSA-184-188-VERIFICATION.md).
 

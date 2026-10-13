@@ -28,3 +28,15 @@ Related PR: [#120](https://github.com/iamramishka/acendra/pull/120), merged into
 Integration review: owner authorized PR #120 review/merge on 2026-10-13. Root temporarily owns these two documentation paths for reconciliation. Unrelated inherited changes were removed from the final diff against dev; shared master/application files match dev. Release this documentation reservation after merge. Historical delegation/base information above is preserved.
 
 Merge verification: reviewed head `ca6cc04413c6571525e23e21fed5a29073ffc218`; 213 distinct component tests passed in the combined reviewer invocation. [Flutter and tooling CI](https://github.com/iamramishka/acendra/actions/runs/38350062116) passed. The original documentation reservation is released. This merge accepts the review artifacts only; CSA-184–188 acceptance and production deployment remain separate.
+
+## Documentation reconciliation assignment — 2026-10-13
+
+Owner: CODEX root. User authorized updating documents after PR #120 and now explicitly requests review and merge of PR #125.
+Original base: dev b0f3dd61592d6fc8623dde28233910dec6833736.
+Branch: docs/csa-184-188-merge-status.
+Worktree: C:/Users/ramis/.codex/worktrees/csa-184-188-status/acendra.
+Writable scope: this board, CSA-184-188-VERIFICATION.md and TASKS.md entries CSA-184–188 only.
+Temporary shared ownership: these five task entries for merge-status reconciliation. Other task owners and entries remain unchanged.
+Dependencies: verified PR #120 merge and final CI. Acceptance: preserve merged evidence, retain unchecked security tasks, accurately record outstanding acceptance, pass diff review and exact-head CI. Project owner controls approval. This is a local documentation record, not a GitHub implementation claim.
+
+PR #126 merged during PR #125 review and updated the same records. Reviewed both versions before resolving conflicts: retain PR #126's verified merge/test attribution, historical limitations, recovery entry CSA-200 and other documentation; add PR #125's explicit task statuses, acceptance table and this assignment. No source changes or completed P0 acceptance are implied. This temporary documentation reservation releases after PR #125 merge.
