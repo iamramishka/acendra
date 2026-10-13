@@ -4913,3 +4913,25 @@ TEST BEFORE MERGE.
 SECURITY BEFORE SPEED.
 
 END OF API_CONTRACTS.md
+
+# CSA158/164/165/168/172 implementation addendum (2026-10-12)
+
+Issue106, coordinated development implementation IN_REVIEW. Endpoint examples
+in sections47,54,55,57,58,60 must defer to these concrete task contracts:
+- [Reporting158/172](contracts/CSA-158-172-REPORTING.md): permission-filtered current
+  counts and confirmed settlement facts, exact decimal strings, approved Colombo
+  receipt reporting basis. Confirmed refund/net totals remain unavailable until a
+  trusted adjustment ledger exists; absence is never presented as zero.
+- [Media164](handoffs/CSA-164-MEDIA-UPLOAD.md): course PDF/thumbnail limits approved,
+  private preparation/finalization and trusted inspection before readiness. Production
+  inspector is not configured; video upload integration deferred.
+- [Publication165](contracts/CSA-165-PUBLICATION.md): ONLY current MFA super admins
+  publish/unpublish. Content-manager authoring authority does not permit publishing.
+- [Enrollment168](contracts/CSA-168-ENROLLMENT-ADMIN.md): canonical audited mutations
+  remain admin-entitlements (grant/source/course/account/release); bounded
+  admin-enrollments provides safe views. Legacy separate grant/revoke examples
+  are superseded; no unaudited duplicate mutation endpoints introduced.
+
+All new entrypoints retain code-level release gates. Development integration and
+owner metric/file-limit approvals do not authorize deployment/production activation.
+See [coordination and evidence](tasks/CSA-158-164-165-168-172-INTEGRATION.md).

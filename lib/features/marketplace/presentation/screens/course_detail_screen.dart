@@ -1,11 +1,9 @@
-import 'package:acendra/app/router/route_names.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:acendra/features/marketplace/presentation/providers/marketplace_provider.dart';
 import 'package:acendra/features/marketplace/presentation/widgets/curriculum_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class CourseDetailScreen extends ConsumerWidget {
   const CourseDetailScreen({super.key, required this.courseId});
@@ -18,9 +16,8 @@ class CourseDetailScreen extends ConsumerWidget {
     final enrollState = ref.watch(isEnrolledProvider(courseId));
 
     return detailState.when(
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (err, _) => Scaffold(
         body: AppErrorState(
           message: 'Failed to load course details.',
@@ -52,20 +49,20 @@ class CourseDetailScreen extends ConsumerWidget {
                     if (isEnrolled)
                       Chip(
                         label: const Text('Enrolled'),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.primaryContainer,
-                        avatar: const Icon(Icons.check_circle_outline,
-                            size: 16),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                        avatar: const Icon(
+                          Icons.check_circle_outline,
+                          size: 16,
+                        ),
                       ),
                   ],
                 ),
                 const SizedBox(height: 8),
 
                 // Short description
-                Text(
-                  detail.shortDescription,
-                  style: theme.textTheme.bodyLarge,
-                ),
+                Text(detail.shortDescription, style: theme.textTheme.bodyLarge),
 
                 // Full description
                 if (detail.description != null &&
@@ -82,12 +79,14 @@ class CourseDetailScreen extends ConsumerWidget {
                   children: [
                     _StatChip(
                       icon: Icons.library_books_outlined,
-                      label: '${detail.sections.length} section'
+                      label:
+                          '${detail.sections.length} section'
                           '${detail.sections.length == 1 ? '' : 's'}',
                     ),
                     _StatChip(
                       icon: Icons.play_lesson_outlined,
-                      label: '${detail.totalLessons} lesson'
+                      label:
+                          '${detail.totalLessons} lesson'
                           '${detail.totalLessons == 1 ? '' : 's'}',
                     ),
                   ],
@@ -100,19 +99,7 @@ class CourseDetailScreen extends ConsumerWidget {
                   width: double.infinity,
                   child: AppButton(
                     label: isEnrolled ? 'Continue Learning' : 'Enroll Now',
-                    onPressed: isEnrolled
-                        ? () => context.go(
-                              RouteNames.learn.replaceFirst(
-                                ':courseId',
-                                courseId,
-                              ),
-                            )
-                        : () => context.go(
-                              RouteNames.checkout.replaceFirst(
-                                ':courseId',
-                                courseId,
-                              ),
-                            ),
+                    onPressed: isEnrolled ? () {} : () {},
                   ),
                 ),
 

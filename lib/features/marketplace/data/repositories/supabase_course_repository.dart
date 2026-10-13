@@ -61,7 +61,6 @@ class SupabaseCourseRepository implements CourseRepository {
     final rows = await _client
         .from('enrollments')
         .select('id')
-        .eq('user_id', user.id)
         .eq('course_id', courseId)
         .eq('status', 'active')
         .limit(1);

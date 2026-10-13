@@ -199,14 +199,29 @@ function run(layout, args, { json = false } = {}) {
         for (const error of diagnostics.matchAll(/ERROR:\s+(permission denied for (?:table|schema)|relation|column|record|new row for relation|insert or update on table|update or delete on table|violates check constraint) ["']?([a-z_][a-z0-9_]*)/g)) {
           if (knownIdentifiers.has(error[2])) testFailures.push(`${error[1]} ${error[2]}`);
         }
-        for (const location of diagnostics.matchAll(/(csa(?:127|133|136|139)_[a-z_]+\.test\.sql):(\d+):/g)) {
+        const knownTests = new Set(fs.readdirSync(path.join(root, 'supabase', 'tests', 'database'))
+          .filter(file => /^csa[0-9]{3}(?:_[0-9]{3})?_[a-z_]+\.test\.sql$/.test(file)));
+        for (const location of diagnostics.matchAll(/(csa[0-9]{3}(?:_[0-9]{3})?_[a-z_]+\.test\.sql):(\d+):/g)) {
+          if (!knownTests.has(location[1])) continue;
           testFailures.push(`SQL location ${location[1]}:${location[2]}`);
         }
         for (const file of fs.readdirSync(path.join(root, 'supabase', 'tests', 'database'))) {
-          if (!/^csa(?:127|133|136|139)_[a-z_]+\.test\.sql$/.test(file)) continue;
+          if (!knownTests.has(file)) continue;
           const source = fs.readFileSync(path.join(root, 'supabase', 'tests', 'database', file), 'utf8');
           for (const match of source.matchAll(/raise exception '([A-Za-z0-9 _-]{1,100})'/g)) {
             if (diagnostics.includes(`ERROR:  ${match[1]}`)) testFailures.push(`${file}: ${match[1]}`);
+          }
+        }
+      }
+      if (args.includes('test')) {
+        // Surface only literal source-controlled labels, not interpolated values or arbitrary server messages.
+        for (const directory of ['migrations', 'tests/database']) {
+          for (const file of fs.readdirSync(path.join(root, 'supabase', directory))) {
+            if (!file.endsWith('.sql')) continue;
+            const source = fs.readFileSync(path.join(root, 'supabase', directory, file), 'utf8');
+            for (const label of source.matchAll(/(?:raise exception|message\s*=)\s*'([A-Za-z0-9 _-]{5,100})'/gi)) {
+              if (diagnostics.includes(`ERROR:  ${label[1]}`)) testFailures.push(`Declared SQL error: ${label[1]}`);
+            }
           }
         }
       }

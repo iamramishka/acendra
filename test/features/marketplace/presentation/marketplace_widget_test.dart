@@ -32,8 +32,10 @@ void main() {
   group('MarketplaceScreen', () {
     testWidgets('shows course title when data loads', (tester) async {
       await tester.pumpWidget(
-        _wrap(const MarketplaceScreen(),
-            repo: FakeCourseRepository(result: [fakeCourse])),
+        _wrap(
+          const MarketplaceScreen(),
+          repo: FakeCourseRepository(result: [fakeCourse]),
+        ),
       );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
@@ -43,8 +45,10 @@ void main() {
 
     testWidgets('shows empty state when no courses', (tester) async {
       await tester.pumpWidget(
-        _wrap(const MarketplaceScreen(),
-            repo: FakeCourseRepository(result: [])),
+        _wrap(
+          const MarketplaceScreen(),
+          repo: FakeCourseRepository(result: []),
+        ),
       );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
@@ -54,8 +58,10 @@ void main() {
 
     testWidgets('shows error state on failure', (tester) async {
       await tester.pumpWidget(
-        _wrap(const MarketplaceScreen(),
-            repo: FakeCourseRepository(shouldThrow: true)),
+        _wrap(
+          const MarketplaceScreen(),
+          repo: FakeCourseRepository(shouldThrow: true),
+        ),
       );
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
@@ -79,8 +85,9 @@ void main() {
       expect(find.text('Fake Course'), findsNothing);
     });
 
-    testWidgets('shows category filter chips when categories present',
-        (tester) async {
+    testWidgets('shows category filter chips when categories present', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(
           const MarketplaceScreen(),

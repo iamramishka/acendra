@@ -58,3 +58,11 @@ Coverage gaps:
 Establish target Issues and detailed acceptance/ownership, complete dependent UI and approved sandbox/banking/media readiness, start an isolated disposable Docker/Supabase stack, add missing effective-role/isolation scenarios in separately claimed test scopes, then run full database/API and browser journeys A/B/C/E/F. Keep financial implementation and deployment changes separately owned and reviewed.
 
 This report is documentation preparation for review. TASKS.md remains unchanged; no full task acceptance or independent security approval is claimed.
+
+## Review against current dev (2026-10-13)
+
+The report above is historical evidence for revision 4bdf495, not an assertion about the latest dev. During PR #115 review, the source snapshot was integrated with current dev and inherited marketplace/accessibility/task-status changes were excluded from this documentation PR. Their original commits remain available for separate review. Current dev application code, migrations and master task coordination were preserved exactly.
+
+Subsequent dev work now includes csa155_progress.test.sql and effective authenticated-role entitlement coverage in csa116_119_entitlements.test.sql; the earlier coverage gaps must be reassessed against these implementations. Existing successful Supabase CI from newer PRs is separate evidence and does not retrospectively mean this historical SQL/browser run occurred. Full journey/provider/browser acceptance still requires its own current evidence.
+
+Project owner authorized the review and dev merge. Acceptance of these documentation artifacts does not mark CSA-178/179/180/182/183 DONE or waive P0 gates.
