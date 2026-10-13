@@ -53,3 +53,4 @@ of the seven operational acceptance gates are not authorized or implied.
 Status: IN_PROGRESS. Existing task acceptance gaps remain recorded.
 
 Scope extension: formatting-only fixes for 15 inherited PDF/video and bank test files identified by the mandatory whole-tree formatter; no APIs or behavior changed.
+Scope extension: fix four inherited checkout test harness failures demonstrated in run38401609359, retaining validation and accessibility assertions.

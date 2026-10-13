@@ -139,6 +139,7 @@ void main() {
 
     await tester.pump();
 
+    await tester.ensureVisible(find.text('Proceed to Payment'));
     await tester.tap(find.text('Proceed to Payment'));
     await tester.pump();
 
