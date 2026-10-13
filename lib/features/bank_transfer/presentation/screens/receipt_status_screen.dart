@@ -4,6 +4,7 @@ import 'package:acendra/app/theme/app_theme_extension.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/features/bank_transfer/domain/entities/receipt_submission.dart';
 import 'package:acendra/features/bank_transfer/presentation/providers/bank_transfer_provider.dart';
+import 'package:acendra/features/checkout/presentation/widgets/receipt_status_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -53,6 +54,30 @@ class _StatusBody extends StatelessWidget {
     final ext = Theme.of(context).extension<AppThemeExtension>()!;
     final tt = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
+
+    if (submission.status != ReceiptStatus.awaitingReceipt) {
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Column(
+              children: [
+                ReceiptStatusCard(
+                  submission: submission,
+                  onResubmit: onUploadTap,
+                  onGoToCourse: () => context.go(RouteNames.myCourses),
+                ),
+                TextButton(
+                  onPressed: () => context.go(RouteNames.dashboard),
+                  child: const Text('Go to Dashboard'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     final config = _statusConfig(submission.status, ext, cs);
 
