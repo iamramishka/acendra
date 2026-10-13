@@ -1801,28 +1801,23 @@ Integration Gate:
 
 - [ ] CSA-184 [P0] [X] [IN_REVIEW]
   Test finance role restrictions.
-  Review evidence merged in PR #120 into dev at b0f3dd6 (2026-10-13); report acceptance does not complete security verification. Finance least-privilege runtime SQL and operational review checks remain pending.
-  Evidence: docs/reviews/CSA-184-188-VERIFICATION.md.
+  IN_REVIEW: review artifacts merged in PR #120; effective-role/runtime acceptance remains unverified. See [security evidence](docs/reviews/CSA-184-188-VERIFICATION.md).
 
 - [ ] CSA-185 [P0] [X] [IN_REVIEW]
   Test private file policies.
-  Review evidence merged in PR #120 into dev at b0f3dd6 (2026-10-13); report acceptance does not complete security verification. Effective SQL and direct Storage REST policy acceptance remains pending.
-  Evidence: docs/reviews/CSA-184-188-VERIFICATION.md.
+  IN_REVIEW: PR #120 evidence merged; direct Storage/API and complete asset-policy acceptance remain unverified. See [security evidence](docs/reviews/CSA-184-188-VERIFICATION.md).
 
 - [ ] CSA-186 [P0] [X] [IN_REVIEW]
   Test upload security.
-  Review evidence merged in PR #120 into dev at b0f3dd6 (2026-10-13); report acceptance does not complete security verification. Real inspection, enabled upload and complete admin media-ingestion acceptance remain pending.
-  Evidence: docs/reviews/CSA-184-188-VERIFICATION.md.
+  IN_REVIEW: PR #120 evidence merged; real inspection and complete media-ingestion acceptance remain unverified. See [security evidence](docs/reviews/CSA-184-188-VERIFICATION.md).
 
 - [ ] CSA-187 [P0] [X] [IN_REVIEW]
   Review XSS and security headers.
-  Review evidence merged in PR #120 into dev at b0f3dd6 (2026-10-13); report acceptance does not complete security verification. Deployed security headers and browser XSS payload verification remain pending.
-  Evidence: docs/reviews/CSA-184-188-VERIFICATION.md.
+  IN_REVIEW: PR #120 static review merged; deployed headers and browser payload checks remain unverified. See [security evidence](docs/reviews/CSA-184-188-VERIFICATION.md).
 
 - [ ] CSA-188 [P0] [X] [IN_REVIEW]
   Review secrets and logging.
-  Review evidence merged in PR #120 into dev at b0f3dd6 (2026-10-13); report acceptance does not complete security verification. History/release-asset secret scans and operational log privacy verification remain pending.
-  Evidence: docs/reviews/CSA-184-188-VERIFICATION.md.
+  IN_REVIEW: PR #120 bounded scan merged; history/build scans and operational log controls remain unverified. See [security evidence](docs/reviews/CSA-184-188-VERIFICATION.md).
 
 - [ ] CSA-189 [P0] [X]
   Review dependency vulnerabilities.
@@ -1865,6 +1860,7 @@ Integration Gate:
 
 - [ ] CSA-200 [P0] [X]
   Test backup and recovery.
+  IN_REVIEW; release acceptance BLOCKED: isolated recovery tooling merged in PR #124; managed-service/object restoration, operational controls and approved RPO/RTO remain unverified. See [recovery evidence](docs/tasks/CSA-200.md), issue #119.
 
 - [ ] CSA-201 [P0] [X]
   Test financial failure recovery.
