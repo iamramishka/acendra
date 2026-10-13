@@ -32,7 +32,7 @@ data or credentials, deployments, real provider transactions, policy approval,
 issue closure or merge is authorized by this record. Project owner retains P0
 acceptance, recovery-policy decisions and release authority.
 
-Status: IN_PROGRESS. Exact commands, outcomes and remaining dependencies will
+Status: IN_REVIEW. Exact commands, outcomes and remaining dependencies are
 be recorded in task acceptance documents. DONE requires all applicable acceptance
 requirements; passing component tests or merging evidence alone is insufficient.
 
@@ -47,3 +47,23 @@ Owner decision update: the project owner replied “you can decide” to the ope
 question. The selected baseline is recorded in
 `docs/decisions/CSA-200-RECOVERY-OPERATIONS-BASELINE.md`; selection is resolved,
 while actual implementation and measured recovery/hosting/logging evidence are not.
+
+Integration handoff: root reviewed the Storage smoke and recovery harness changes,
+and the recovery delegate independently reviewed the header/scanner changes.
+Review defects (accepting server errors as denials and overly broad header policies)
+were fixed with regression tests before integration. Root reruns passed eight header
+tests, three Storage safeguards, two notification-loss tests, five recovery safeguards
+and the explicitly enabled scanner regression. The optional scanner test is skipped
+on platforms without configured Gitleaks and is not reported there as scanner evidence.
+
+Hosted Supabase run38353918916 passed the exact Storage smoke revision88d5ea8,
+including all SQL, real private image/receipt/PDF transport, MFA and cleanup.
+The combined branch is submitted for its own CI and owner review. Worker clusters,
+browser and local server were stopped; worker worktrees and source evidence remain
+preserved. Shared runner ownership is released into root's reviewed integration.
+
+Remaining requirements: approved real file-inspection integration and enabled
+operational finance/media journeys; deployed response policies and stored/authenticated
+browser payloads; configured release/log controls; actual managed backup/object/service
+restoration, representative volume and provider reconciliation. These are explicit
+acceptance gaps, not resolved by local policy selection or component test success.
