@@ -1,13 +1,13 @@
 # CSA-200/201 acceptance continuation
 
 Owner: CODEX/recovery. User authorized parallel acceptance verification 2026-10-13.
-Status: IN_PROGRESS. Branch: codex/test/csa-200-201-acceptance.
+Status: IN_REVIEW; available development checks complete, operational acceptance retained. Branch: codex/test/csa-200-201-acceptance.
 Worktree: C:/Users/ramis/Downloads/Acendra/csa-200-201-acceptance.
 Base: origin/dev 8365d84. Issues: #119 and #117; previous deliverables merged in #124 and #123.
 Allowed scope: tool/csa200*, tool/csa201*, supabase/tests/database/csa201*, this document.
 Dependencies: disposable PostgreSQL17; real managed recovery and provider evidence remain external gates.
 Overlap check: existing completed task worktrees retained; no concurrent mutable recovery assignment reported by parent coordination. No shared files edited.
-Approval authority: project owner/security/operations reviewers. User request authorizes test completion, not operational policy invention or production recovery.
+Approval authority: project owner/security/operations reviewers. The user authorized test completion and subsequently delegated baseline choices to root; production recovery remains separately authorized.
 Verification criteria: current disposable recovery drill, existing safeguards, CSA201 actual merged Supabase CI result; explicitly retain remaining external acceptance requirements.
 Runtime: new temporary cluster only, loopback port61310; no shared database or hosted credentials.
 

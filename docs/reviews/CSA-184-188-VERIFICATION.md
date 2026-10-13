@@ -118,3 +118,19 @@ The reviewer reran the eleven distinct Node test files listed in the three histo
 | CSA-188 | IN_REVIEW, unchecked; evidence PR merged | Dedicated history/build scans and runtime log privacy/access/retention |
 
 PR #125 reconciliation preserves PR #126's evidence and the original historical base. Review artifacts are accepted; production readiness and P0 security acceptance remain unverified. Documentation reconciliation ownership ends after this update is reviewed and merged.
+
+## Parallel acceptance continuation — 2026-10-13
+
+The project owner requested completion of remaining acceptance checks in parallel.
+New effective SQL/Storage and current component evidence is recorded in
+[CSA-184-186-ACCEPTANCE-EVIDENCE.md](CSA-184-186-ACCEPTANCE-EVIDENCE.md), including
+the new private thumbnail/lesson-image Storage transport smoke. Dedicated history
+and release-asset scans plus local browser/header checks are recorded in
+[CSA-187-188-ACCEPTANCE.md](CSA-187-188-ACCEPTANCE.md). The historical unexecuted
+checks above remain historical rather than overwritten or represented as rerun.
+
+Runtime/logging baseline selection is now owner-delegated and recorded in
+[the operations decision](../decisions/CSA-200-RECOVERY-OPERATIONS-BASELINE.md).
+Actual deployed settings, backend-configured browser payload journeys and an
+approved real content inspector remain independently verifiable requirements.
+Continuation tooling does not enable production receipt, review or media endpoints.

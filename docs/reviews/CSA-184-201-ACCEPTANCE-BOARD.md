@@ -35,3 +35,15 @@ acceptance, recovery-policy decisions and release authority.
 Status: IN_PROGRESS. Exact commands, outcomes and remaining dependencies will
 be recorded in task acceptance documents. DONE requires all applicable acceptance
 requirements; passing component tests or merging evidence alone is insufficient.
+
+Coordinated scope extension: security_runtime holds temporary exclusive ownership
+of `tool/supabase_smoke.mjs` for only importing/calling a new task-specific admin
+media Storage smoke. This closes a discovered private thumbnail/lesson-image REST
+verification gap in the existing disposable CI stack. Existing policies, production
+handlers and inspector gates remain unchanged. Root integrates the completed commit
+and releases the shared ownership after review.
+
+Owner decision update: the project owner replied “you can decide” to the operations
+question. The selected baseline is recorded in
+`docs/decisions/CSA-200-RECOVERY-OPERATIONS-BASELINE.md`; selection is resolved,
+while actual implementation and measured recovery/hosting/logging evidence are not.
