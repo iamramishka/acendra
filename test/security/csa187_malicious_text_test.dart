@@ -43,10 +43,12 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text(payload), findsOneWidget);
+      verifyNoPayloadElements();
       await tester.enterText(find.byType(TextField), payload);
       await tester.pumpAndSettle();
       expect(find.text(payload), findsWidgets);
       expect(find.text('No courses available yet.'), findsNothing);
+      verifyNoPayloadElements();
       await tester.enterText(
         find.byType(TextField),
         'unmatched-security-query',
