@@ -1550,9 +1550,8 @@ CLAUDE
 
 ## CODEX - LEARNING DATA
 
-- [x] CSA-127 [P1] [X] [DONE]
+- [ ] CSA-127 [P1] [X]
   Create learning progress data model.
-  Accepted and merged PR #92 into dev at e5c7418; final-head Flutter/Supabase CI passed. Owner-authorized inherited router/shell findings fixed; 308 Node and 22 focused Flutter tests passed. CSA-133 persistence remains separate.
 
 ## CLAUDE - LEARNING UI
 
@@ -1576,20 +1575,18 @@ CLAUDE
 
 ## CODEX - LEARNING DATA INTEGRATION
 
-- [x] CSA-133 [P1] [X] [DONE]
+- [ ] CSA-133 [P1] [X] [IN_REVIEW]
   Implement learning progress persistence.
-  Accepted development scope merged in PR #102 at 58a6ad2; exact-head Flutter/Supabase CI passed.
-  CODEX implementation in stacked PR #102; current-session/entitlement RPCs added. Combined Flutter/Supabase verification passed; depends on unmerged PR #92.
+  CODEX implementation in stacked PR #102; current-session/entitlement RPCs added. Combined verification in progress; depends on PR #92.
 
 ## VIDEO
 
 - [ ] CSA-135 [P1] [C]
   Implement video player interface.
 
-- [x] CSA-136 [P0] [X] [DONE]
+- [ ] CSA-136 [P0] [X] [IN_REVIEW]
   Implement playback authorization.
-  Accepted development scope merged in PR #102 at 58a6ad2; exact-head CI passed. Mux provisioning/player renewal remains a release gate.
-  CODEX implementation in stacked PR #102; signed Mux authorization added. Combined Flutter/Supabase verification passed; real provider readiness retained.
+  CODEX implementation in stacked PR #102; signed Mux authorization added. Combined verification in progress; real provider readiness retained.
 
 - [ ] CSA-137 [P1] [C]
   Implement video error/loading states.
@@ -1599,15 +1596,14 @@ CLAUDE
 
 ## CODEX - PROTECTED PDF BACKEND
 
-- [x] CSA-139 [P0] [X] [DONE]
+- [ ] CSA-139 [P0] [X] [IN_REVIEW]
   Configure private PDF storage.
-  Accepted development scope merged in PR #102 at 58a6ad2; real private Storage lifecycle and exact-head CI passed.
-  CODEX implementation in stacked PR #102; private bucket and client-denial tests added. Pinned real Storage lifecycle and combined CI passed.
+  CODEX implementation in stacked PR #102; private bucket and client-denial tests added. Pinned Storage lifecycle verification in progress.
 
-- [x] CSA-140 [P0] [X] [DONE]
+- [ ] CSA-140 [P0] [X] [IN_REVIEW]
   Implement PDF entitlement checks.
 
-- [x] CSA-141 [P0] [X] [DONE]
+- [ ] CSA-141 [P0] [X] [IN_REVIEW]
   Implement controlled PDF delivery.
 
 ## CLAUDE - PDF READER
@@ -1632,7 +1628,7 @@ CLAUDE
 
 ## WATERMARK STRATEGY
 
-- [x] CSA-148 [P0] [X] [DONE]
+- [ ] CSA-148 [P0] [X] [IN_REVIEW]
   Implement approved watermark delivery
   or generation strategy.
 
@@ -1652,21 +1648,21 @@ CLAUDE
 
 ## SECURITY AND INTEGRATION TESTS
 
-- [x] CSA-152 [P0] [X] [DONE]
+- [ ] CSA-152 [P0] [X]
+  IN_REVIEW, CODEX: issue #101; tests prepared/verified against committed dependency snapshots; merged integration pending.
   Test unauthorized PDF requests.
-  CODEX: reviewed and merged PR #103 into dev at fd347ef; final head d865438 passed Flutter and Supabase CI (runs 38282850960/38282851094). Regression scope accepted; hosted provider/browser/production release gates remain separate.
 
-- [x] CSA-153 [P0] [X] [DONE]
+- [ ] CSA-153 [P0] [X]
+  IN_REVIEW, CODEX: issue #101; tests prepared/verified against committed dependency snapshots; merged integration pending.
   Test revoked entitlement behavior.
-  CODEX: reviewed and merged PR #103 into dev at fd347ef; final head d865438 passed Flutter and Supabase CI (runs 38282850960/38282851094). Regression scope accepted; hosted provider/browser/production release gates remain separate.
 
-- [x] CSA-154 [P0] [X] [DONE]
+- [ ] CSA-154 [P0] [X]
+  IN_REVIEW, CODEX: issue #101; tests prepared/verified against committed dependency snapshots; merged integration pending.
   Test unauthorized video playback.
-  CODEX: reviewed and merged PR #103 into dev at fd347ef; final head d865438 passed Flutter and Supabase CI (runs 38282850960/38282851094). Regression scope accepted; hosted provider/browser/production release gates remain separate.
 
-- [x] CSA-155 [P1] [X] [DONE]
+- [ ] CSA-155 [P1] [X]
+  IN_REVIEW, CODEX: issue #101; tests prepared/verified against committed dependency snapshots; merged integration pending.
   Test learning progress persistence.
-  CODEX: reviewed and merged PR #103 into dev at fd347ef; final head d865438 passed Flutter and Supabase CI (runs 38282850960/38282851094). Regression scope accepted; hosted provider/browser/production release gates remain separate.
 
 - [ ] CSA-156 [P1] [C]
   Test PDF rendering across devices.
@@ -1731,30 +1727,39 @@ CODEX
 
 - [ ] CSA-158 [P1] [X]
   Implement real dashboard statistics.
+  Status: IN_REVIEW; Issue #106; coordinated implementation and verification: docs/tasks/CSA-158-164-165-168-172-INTEGRATION.md.
 
 - [ ] CSA-164 [P1] [X]
   Implement authorized media uploads.
+  Status: IN_REVIEW; Issue #106; coordinated implementation and verification: docs/tasks/CSA-158-164-165-168-172-INTEGRATION.md.
 
 - [ ] CSA-165 [P1] [X]
   Implement trusted course publish actions.
+  Status: IN_REVIEW; Issue #106; coordinated implementation and verification: docs/tasks/CSA-158-164-165-168-172-INTEGRATION.md.
 
 - [ ] CSA-168 [P0] [X]
   Implement audited enrollment management.
+  Status: IN_REVIEW; Issue #106; coordinated implementation and verification: docs/tasks/CSA-158-164-165-168-172-INTEGRATION.md.
 
 - [ ] CSA-172 [P1] [X]
   Implement transaction reporting backend.
+  Status: IN_REVIEW; Issue #106; coordinated implementation and verification: docs/tasks/CSA-158-164-165-168-172-INTEGRATION.md.
 
 - [ ] CSA-173 [P0] [X]
   Verify all admin operation permissions.
+  IN_REVIEW: parallel implementation and verification; see docs/tasks/CSA-173.md and docs/tasks/CSA-173-176-INTEGRATION.md (issue #108).
 
 - [ ] CSA-174 [P0] [X]
   Implement/review audit logging.
+  IN_REVIEW: parallel implementation and verification; see docs/tasks/CSA-174.md and docs/tasks/CSA-173-176-INTEGRATION.md (issue #108).
 
 - [ ] CSA-175 [P0] [X]
   Implement trusted role management.
+  IN_REVIEW: parallel implementation and verification; see docs/tasks/CSA-175.md and docs/tasks/CSA-173-176-INTEGRATION.md (issue #108).
 
 - [ ] CSA-176 [P0] [X]
   Test unauthorized admin API access.
+  IN_REVIEW: parallel implementation and verification; see docs/tasks/CSA-176.md and docs/tasks/CSA-173-176-INTEGRATION.md (issue #108).
 
 Integration Gate:
 

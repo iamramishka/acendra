@@ -1,0 +1,34 @@
+begin;
+select '1..1';
+do $$
+declare admin uuid:=gen_random_uuid(); student uuid:=gen_random_uuid(); finance uuid:=gen_random_uuid(); content uuid:=gen_random_uuid();
+ ads uuid:=gen_random_uuid(); ss uuid:=gen_random_uuid(); fs uuid:=gen_random_uuid(); cs uuid:=gen_random_uuid(); course uuid:=gen_random_uuid(); result jsonb; gid uuid;
+begin
+ insert into auth.users(id) values(admin),(student),(finance),(content);
+ insert into auth.sessions(id,user_id,aal,not_after) values(ads,admin,'aal2',now()+interval '1 day'),(ss,student,'aal1',now()+interval '1 day'),(fs,finance,'aal2',now()+interval '1 day'),(cs,content,'aal2',now()+interval '1 day');
+ insert into public.user_roles(user_id,role_id) select admin,id from public.roles where code='super_admin';
+ insert into public.user_roles(user_id,role_id) select finance,id from public.roles where code='finance_admin';
+ insert into public.user_roles(user_id,role_id) select content,id from public.roles where code='content_manager';
+ insert into public.courses(id,slug,title,price_minor,status) values(course,'csa168-'||course,'Synthetic',10000,'draft');
+ begin perform public.csa168_list_enrollments(student,ss,'aal1',student,null,20); raise exception 'student read'; exception when insufficient_privilege then null; end;
+ begin perform public.csa168_list_enrollments(finance,fs,'aal2',student,null,20); raise exception 'finance read'; exception when insufficient_privilege then null; end;
+ begin perform public.csa168_list_enrollments(content,cs,'aal2',student,null,20); raise exception 'content read'; exception when insufficient_privilege then null; end;
+ begin perform public.csa168_list_enrollments(admin,ads,'aal1',student,null,20); raise exception 'low aal'; exception when insufficient_privilege then null; end;
+ begin perform public.csa168_list_enrollments(admin,ss,'aal2',student,null,20); raise exception 'foreign session'; exception when insufficient_privilege then null; end;
+ begin perform public.csa168_list_enrollments(admin,ads,'aal2',student,null,51); raise exception 'unbounded list'; exception when invalid_parameter_value then null; end;
+ result:=public.csa116_grant_admin(admin,ads,'aal2','csa168-grant',student,course,'Synthetic',null); gid:=(result->>'grant_id')::uuid;
+ result:=public.csa168_list_enrollments(admin,ads,'aal2',student,null,1);
+ if jsonb_array_length(result->'items')<>1 or not (result->'items'->0->>'has_access')::boolean then raise exception 'active read'; end if;
+ if result::text like '%Synthetic%' or result::text like '%reason%' then raise exception 'private notes'; end if;
+ if jsonb_array_length(public.csa168_list_enrollments(admin,ads,'aal2',student,(result->'items'->0->>'enrollment_id')::uuid,1)->'items')<>0 then raise exception 'cursor repeats'; end if;
+ perform public.csa118_revoke_access(admin,ads,'aal2','csa168-revoke',student,course,gid,'grant','Synthetic');
+ if (public.csa168_list_enrollments(admin,ads,'aal2',student,null,1)->'items'->0->>'has_access')::boolean then raise exception 'revocation stale read'; end if;
+ perform public.csa116_grant_admin(admin,ads,'aal2','csa168-expiry',student,course,'Synthetic',clock_timestamp()+interval '1 second');
+ perform pg_sleep(1.1);
+ if (public.csa168_list_enrollments(admin,ads,'aal2',student,null,1)->'items'->0->>'has_access')::boolean then raise exception 'expired projection read'; end if;
+ if has_function_privilege('authenticated','public.csa168_list_enrollments(uuid,uuid,text,uuid,uuid,integer)','EXECUTE') or has_function_privilege('anon','public.csa168_list_enrollments(uuid,uuid,text,uuid,uuid,integer)','EXECUTE') then raise exception 'direct client RPC'; end if;
+ update public.user_roles set revoked_at=clock_timestamp() where user_id=admin;
+ begin perform public.csa168_list_enrollments(admin,ads,'aal2',student,null,20); raise exception 'revoked role read'; exception when insufficient_privilege then null; end;
+end; $$;
+select 'ok 1 - CSA168 current authority bounded enrollment read';
+rollback;

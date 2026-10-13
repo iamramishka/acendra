@@ -92,3 +92,9 @@ Root verification: git diff --check. Flutter analyze/build/full-suite were not r
 
 
 Web delegate also invoked `flutter test test/core/config/env_config_test.dart`. Dependency resolution and test loading were observed, but no final result was captured. Root could not resume the delegate session (unknown process ID). This check is unverified and is not counted as passed.
+
+## PR #120 integration review — 2026-10-13
+
+The owner requested review and merge into dev. The report above is historical evidence against 4bdf495, not a current security clearance. Current dev includes the admin media-upload foundation and newer security tests; the old absence statement applies only to the recorded base. Runtime and operational acceptance gaps still require separate verification.
+
+The branch inherited unrelated task-status and accessibility/marketplace changes from its local base. During integration, those paths were compared with current origin/dev and restored to the reviewed dev versions; the price-format helper belonging to that unrelated refactor was removed. Final PR scope is only this report and its coordination board. No production code, policies or task checkboxes change relative to dev. This is deliberate scoped reconciliation, not blanket conflict resolution. The user authorizes merging these review artifacts; CSA-184 through CSA-188 remain incomplete pending their documented acceptance evidence.

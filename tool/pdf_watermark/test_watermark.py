@@ -1,10 +1,13 @@
 import hashlib
 import io
 import unittest
+import subprocess
+import sys
+from pathlib import Path
 from uuid import uuid4
 from reportlab.pdfgen.canvas import Canvas
 from pypdf import PdfReader, PdfWriter
-from pypdf.generic import NameObject, DictionaryObject, BooleanObject
+from pypdf.generic import NameObject, DictionaryObject, BooleanObject, ArrayObject, EncodedStreamObject
 from watermark import generate, Limits, WatermarkError
 
 
@@ -123,6 +126,61 @@ class DeterminismTests(unittest.TestCase):
         kwargs=dict(license_id='44444444-4444-4444-8444-444444444444',source_sha256=hashlib.sha256(data).hexdigest())
         self.assertTrue(generate(data,display_name='i'*100,**kwargs))
         with self.assertRaises(WatermarkError): generate(data,display_name='A'*101,**kwargs)
+
+class ParserSecurityRegressionTests(unittest.TestCase):
+    def test_truncated_xref_rejected_without_hanging(self):
+        # Upstream GHSA-39mj-jf6j-2qj3 fixture; bound the subprocess so a
+        # vulnerable parser cannot hang the test runner itself.
+        body = b'%PDF-1.0\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[]/Count 0>>endobj\n'
+        tail = b'\nstartxref\n%d\n%%%%EOF' % len(body)
+        data = body + b'xref\n0 3\n0000000000 65535 f \n' + tail
+        script = '''
+import hashlib, sys
+from watermark import generate, WatermarkError
+data = sys.stdin.buffer.read()
+try:
+    generate(data, display_name='Student',
+             license_id='44444444-4444-4444-8444-444444444444',
+             source_sha256=hashlib.sha256(data).hexdigest())
+except WatermarkError:
+    raise SystemExit(0)
+raise SystemExit(1)
+'''
+        try:
+            result = subprocess.run([sys.executable, '-c', script], input=data,
+                                    cwd=Path(__file__).resolve().parent,
+                                    capture_output=True, timeout=10)
+        except subprocess.TimeoutExpired:
+            self.fail('Malformed xref did not fail closed within the deadline')
+        self.assertEqual(result.returncode, 0, 'Malformed xref must reject without output')
+
+    def test_excessive_filters_rejected_and_ordinary_filters_preserved(self):
+        # Valid nested filters exercise the real merge/decode path rather than
+        # rejection of an unknown filter name. No decompression bomb is needed.
+        for count in (2, 17):
+            with self.subTest(filter_count=count):
+                reader = PdfReader(io.BytesIO(fixture()))
+                writer = PdfWriter()
+                page = writer.add_page(reader.pages[0])
+                content = page.get_contents().get_data()
+                for _ in range(count):
+                    content = content.hex().encode('ascii') + b'>'
+                stream = EncodedStreamObject()
+                stream._data = content
+                stream[NameObject('/Filter')] = ArrayObject([NameObject('/ASCIIHexDecode')] * count)
+                page[NameObject('/Contents')] = writer._add_object(stream)
+                source = io.BytesIO(); writer.write(source); data = source.getvalue()
+                kwargs = dict(display_name='Student',
+                              license_id='44444444-4444-4444-8444-444444444444',
+                              source_sha256=hashlib.sha256(data).hexdigest())
+                if count == 17:
+                    with self.assertRaises(WatermarkError):
+                        generate(data, **kwargs)
+                else:
+                    output = generate(data, **kwargs)
+                    text = PdfReader(io.BytesIO(output)).pages[0].extract_text()
+                    self.assertIn('Original selectable lesson text', text)
+                    self.assertIn(kwargs['license_id'], text)
 
 class LinuxSupervisorTests(unittest.TestCase):
     @unittest.skipUnless(__import__('sys').platform=='linux' and hasattr(os,'getuid') and os.getuid()!=0,'Requires non-root Linux runtime')

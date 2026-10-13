@@ -1,0 +1,559 @@
+{
+  "date": "2026-10-13T04:22:28.114Z",
+  "counts": {
+    "Pub": 126,
+    "PyPI": 3,
+    "npm": 15
+  },
+  "findings": [
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-23w6-3w8w-8484",
+      "modified": "2026-09-10T12:25:45.197931Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-248m-82v9-q6g6",
+      "modified": "2026-09-10T03:51:07.304973Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-4pxv-j86v-mhcw",
+      "modified": "2026-09-10T03:50:42.729754Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-52x6-gq3r-vpf4",
+      "modified": "2026-09-10T03:50:48.282377Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-55h5-xmcq-c37v",
+      "modified": "2026-09-10T03:50:12.272620Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-5hgr-hg42-57jg",
+      "modified": "2026-07-13T16:42:25.325556Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-5jq2-8x83-x246",
+      "modified": "2026-10-01T17:55:50.646603Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-5qjq-93h5-hrgp",
+      "modified": "2026-09-10T03:51:10.495417Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-5xf7-4p34-54qr",
+      "modified": "2026-09-10T03:51:10.501615Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-763m-79hh-57f2",
+      "modified": "2026-09-10T12:26:04.098858Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-7gw9-cf7v-778f",
+      "modified": "2026-09-10T03:50:43.750842Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-cj93-chg6-vgv8",
+      "modified": "2026-09-10T03:51:08.468487Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-fc8x-2rww-xw9m",
+      "modified": "2026-09-10T12:25:53.327187Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-fp3f-mc75-235c",
+      "modified": "2026-09-10T03:51:13.982103Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-fp3h-c4fm-7vvf",
+      "modified": "2026-10-01T17:56:15.156271Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-fwg2-594c-jp42",
+      "modified": "2026-09-10T03:51:13.932861Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-g867-7843-wf8q",
+      "modified": "2026-09-10T03:50:51.957724Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-g9cg-prrw-2r8q",
+      "modified": "2026-10-01T17:55:49.593652Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-g9xf-7f8q-9mcj",
+      "modified": "2026-07-13T16:42:31.458290Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-j543-4vmf-qm7v",
+      "modified": "2026-07-13T16:43:16.995390Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-jj6c-8h6c-hppx",
+      "modified": "2026-09-10T03:50:44.569518Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-jm82-fx9c-mx94",
+      "modified": "2026-09-10T03:51:08.790625Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-jp53-mhqp-8xcg",
+      "modified": "2026-09-10T12:25:36.667036Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-jw7q-gvrg-4vj3",
+      "modified": "2026-10-01T17:56:11.608019Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-m2v9-299j-rv96",
+      "modified": "2026-09-10T03:51:08.924739Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-php9-fj8v-98fj",
+      "modified": "2026-10-01T17:55:51.350316Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-qv6h-rv94-w285",
+      "modified": "2026-10-01T17:56:17.149212Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-v247-6f48-mgcj",
+      "modified": "2026-10-01T17:55:57.901958Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-w23x-9jrw-r45c",
+      "modified": "2026-10-01T17:56:15.557598Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-wjqc-6w8f-h24c",
+      "modified": "2026-07-13T16:42:29.123625Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "GHSA-x284-j5p8-9c5p",
+      "modified": "2026-09-10T03:51:03.926113Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3004",
+      "modified": "2026-07-13T16:33:08.822851Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3007",
+      "modified": "2026-07-13T16:33:08.858387Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3009",
+      "modified": "2026-07-13T16:33:08.967216Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3010",
+      "modified": "2026-07-13T16:33:08.991048Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3011",
+      "modified": "2026-07-13T16:33:08.986136Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3016",
+      "modified": "2026-07-13T16:33:09.978909Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3018",
+      "modified": "2026-07-13T16:33:05.720750Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3020",
+      "modified": "2026-07-13T16:33:05.754257Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3021",
+      "modified": "2026-07-13T16:33:05.744616Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3022",
+      "modified": "2026-07-13T16:33:05.718241Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3025",
+      "modified": "2026-07-13T16:33:09.986339Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3026",
+      "modified": "2026-07-13T16:33:10.029564Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3610",
+      "modified": "2026-08-04T14:30:26.214155Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3611",
+      "modified": "2026-08-04T14:30:29.975242Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3612",
+      "modified": "2026-08-04T14:30:29.975219Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3613",
+      "modified": "2026-08-04T14:30:19.271362Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3655",
+      "modified": "2026-08-10T11:30:12.871465Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3656",
+      "modified": "2026-08-10T11:30:13.138982Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3910",
+      "modified": "2026-09-10T12:15:11.754454Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3911",
+      "modified": "2026-09-10T12:15:12.053292Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3912",
+      "modified": "2026-09-10T12:15:11.755909Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-3913",
+      "modified": "2026-09-10T12:15:12.765651Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-4153",
+      "modified": "2026-10-01T17:45:14.200694Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-4154",
+      "modified": "2026-10-01T17:45:13.795166Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-4155",
+      "modified": "2026-10-01T17:45:17.849117Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-4156",
+      "modified": "2026-10-01T17:45:17.628292Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-4157",
+      "modified": "2026-10-01T17:45:17.844503Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-4158",
+      "modified": "2026-10-01T17:45:15.988582Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-4159",
+      "modified": "2026-10-01T17:45:16.839952Z"
+    },
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "pypdf"
+      },
+      "version": "6.10.0",
+      "id": "PYSEC-2026-4160",
+      "modified": "2026-10-01T17:45:15.991772Z"
+    }
+  ]
+}

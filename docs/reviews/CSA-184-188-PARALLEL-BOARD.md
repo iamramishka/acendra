@@ -24,3 +24,5 @@ Dependencies: integrated foundations, disposable Supabase/Docker runtime, provid
 Verification criteria: finance least privilege; private storage denial; upload type/size/path/ownership validation; XSS sinks and configured/effective headers; redacted secret scanning and sensitive logging review. Distinguish static evidence and mocks from actual RLS/runtime verification. Do not mark unchecked tasks DONE.
 Release condition: reviewed report or explicit handoff; no shared-file locks acquired.
 Related PR: pending.
+
+Integration review: owner authorized PR #120 review/merge on 2026-10-13. Root temporarily owns these two documentation paths for reconciliation. Unrelated inherited changes were removed from the final diff against dev; shared master/application files match dev. Release this documentation reservation after merge. Historical delegation/base information above is preserved.
