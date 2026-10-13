@@ -29,9 +29,9 @@ ReceiptReviewItem _item({
 }
 
 Widget _wrap(Widget child) => MaterialApp(
-      theme: ThemeData(useMaterial3: true),
-      home: Scaffold(body: SingleChildScrollView(child: child)),
-    );
+  theme: ThemeData(useMaterial3: true),
+  home: Scaffold(body: SingleChildScrollView(child: child)),
+);
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -39,14 +39,15 @@ Widget _wrap(Widget child) => MaterialApp(
 
 void main() {
   group('ReceiptReviewTile', () {
-    testWidgets('pending item shows both Approve and Reject buttons',
-        (tester) async {
+    testWidgets('pending item shows both Approve and Reject buttons', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(
           ReceiptReviewTile(
             item: _item(status: ReceiptStatus.pending),
             onApprove: () {},
-            onReject: () {},
+            onReject: (_) {},
           ),
         ),
       );
@@ -55,14 +56,15 @@ void main() {
       expect(find.text('Reject'), findsOneWidget);
     });
 
-    testWidgets('approved item shows success badge and no action buttons',
-        (tester) async {
+    testWidgets('approved item shows success badge and no action buttons', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(
           ReceiptReviewTile(
             item: _item(status: ReceiptStatus.approved),
             onApprove: () {},
-            onReject: () {},
+            onReject: (_) {},
           ),
         ),
       );
@@ -81,45 +83,48 @@ void main() {
     });
 
     testWidgets(
-        'rejected item shows error badge, rejection reason, and no action buttons',
-        (tester) async {
-      const reason = 'Receipt image is illegible.';
-      await tester.pumpWidget(
-        _wrap(
-          ReceiptReviewTile(
-            item: _item(
-              status: ReceiptStatus.rejected,
-              rejectionReason: reason,
+      'rejected item shows error badge, rejection reason, and no action buttons',
+      (tester) async {
+        const reason = 'Receipt image is illegible.';
+        await tester.pumpWidget(
+          _wrap(
+            ReceiptReviewTile(
+              item: _item(
+                status: ReceiptStatus.rejected,
+                rejectionReason: reason,
+              ),
+              onApprove: () {},
+              onReject: (_) {},
             ),
-            onApprove: () {},
-            onReject: () {},
           ),
-        ),
-      );
+        );
 
-      // Error badge present
-      expect(
-        find.byWidgetPredicate(
-          (w) => w is StatusBadge && w.variant == BadgeVariant.error,
-        ),
-        findsOneWidget,
-      );
+        // Error badge present
+        expect(
+          find.byWidgetPredicate(
+            (w) => w is StatusBadge && w.variant == BadgeVariant.error,
+          ),
+          findsOneWidget,
+        );
 
-      // Rejection reason shown
-      expect(find.text(reason), findsOneWidget);
+        // Rejection reason shown
+        expect(find.text(reason), findsOneWidget);
 
-      // No action buttons
-      expect(find.text('Approve'), findsNothing);
-      expect(find.text('Reject'), findsNothing);
-    });
+        // No action buttons
+        expect(find.text('Approve'), findsNothing);
+        expect(find.text('Reject'), findsNothing);
+      },
+    );
 
-    testWidgets('Reject button opens dialog requiring a reason', (tester) async {
+    testWidgets('Reject button opens dialog requiring a reason', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(
           ReceiptReviewTile(
             item: _item(status: ReceiptStatus.pending),
             onApprove: () {},
-            onReject: () {},
+            onReject: (_) {},
           ),
         ),
       );
@@ -139,7 +144,7 @@ void main() {
           ReceiptReviewTile(
             item: _item(status: ReceiptStatus.pending),
             onApprove: () {},
-            onReject: () {},
+            onReject: (_) {},
           ),
         ),
       );
@@ -164,7 +169,7 @@ void main() {
           ReceiptReviewTile(
             item: _item(status: ReceiptStatus.pending),
             onApprove: () => approved = true,
-            onReject: () {},
+            onReject: (_) {},
           ),
         ),
       );
@@ -175,15 +180,16 @@ void main() {
       expect(approved, isTrue);
     });
 
-    testWidgets('onReject fires after entering valid rejection reason',
-        (tester) async {
-      var rejected = false;
+    testWidgets('onReject fires after entering valid rejection reason', (
+      tester,
+    ) async {
+      String? rejectedReason;
       await tester.pumpWidget(
         _wrap(
           ReceiptReviewTile(
             item: _item(status: ReceiptStatus.pending),
             onApprove: () {},
-            onReject: () => rejected = true,
+            onReject: (reason) => rejectedReason = reason,
           ),
         ),
       );
@@ -199,16 +205,18 @@ void main() {
       await tester.tap(find.text('Confirm Rejection'));
       await tester.pumpAndSettle();
 
-      expect(rejected, isTrue);
+      expect(rejectedReason, 'The bank receipt amount does not match.');
     });
 
-    testWidgets('isProcessing: true disables the action buttons', (tester) async {
+    testWidgets('isProcessing: true disables the action buttons', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(
           ReceiptReviewTile(
             item: _item(status: ReceiptStatus.pending),
             onApprove: () {},
-            onReject: () {},
+            onReject: (_) {},
             // ignore: avoid_redundant_argument_values
             isProcessing: true,
           ),
@@ -226,39 +234,37 @@ void main() {
 
     testWidgets('View Receipt button is always present', (tester) async {
       await tester.pumpWidget(
-        _wrap(
-          ReceiptReviewTile(
-            item: _item(status: ReceiptStatus.approved),
-          ),
-        ),
+        _wrap(ReceiptReviewTile(item: _item(status: ReceiptStatus.approved))),
       );
 
       expect(find.text('View Receipt'), findsOneWidget);
     });
 
-    testWidgets('cancel button in reject dialog dismisses without calling onReject',
-        (tester) async {
-      var rejected = false;
-      await tester.pumpWidget(
-        _wrap(
-          ReceiptReviewTile(
-            item: _item(status: ReceiptStatus.pending),
-            onApprove: () {},
-            onReject: () => rejected = true,
+    testWidgets(
+      'cancel button in reject dialog dismisses without calling onReject',
+      (tester) async {
+        String? rejectedReason;
+        await tester.pumpWidget(
+          _wrap(
+            ReceiptReviewTile(
+              item: _item(status: ReceiptStatus.pending),
+              onApprove: () {},
+              onReject: (reason) => rejectedReason = reason,
+            ),
           ),
-        ),
-      );
+        );
 
-      await tester.tap(find.text('Reject'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('Reject'));
+        await tester.pumpAndSettle();
 
-      // Cancel without entering a reason
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
+        // Cancel without entering a reason
+        await tester.tap(find.text('Cancel'));
+        await tester.pumpAndSettle();
 
-      expect(rejected, isFalse);
-      // Dialog dismissed
-      expect(find.text('Reject Receipt'), findsNothing);
-    });
+        expect(rejectedReason, isNull);
+        // Dialog dismissed
+        expect(find.text('Reject Receipt'), findsNothing);
+      },
+    );
   });
 }
