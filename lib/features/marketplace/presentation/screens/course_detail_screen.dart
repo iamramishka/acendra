@@ -16,9 +16,8 @@ class CourseDetailScreen extends ConsumerWidget {
     final enrollState = ref.watch(isEnrolledProvider(courseId));
 
     return detailState.when(
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (err, _) => Scaffold(
         body: AppErrorState(
           message: 'Failed to load course details.',
@@ -50,20 +49,20 @@ class CourseDetailScreen extends ConsumerWidget {
                     if (isEnrolled)
                       Chip(
                         label: const Text('Enrolled'),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.primaryContainer,
-                        avatar: const Icon(Icons.check_circle_outline,
-                            size: 16),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                        avatar: const Icon(
+                          Icons.check_circle_outline,
+                          size: 16,
+                        ),
                       ),
                   ],
                 ),
                 const SizedBox(height: 8),
 
                 // Short description
-                Text(
-                  detail.shortDescription,
-                  style: theme.textTheme.bodyLarge,
-                ),
+                Text(detail.shortDescription, style: theme.textTheme.bodyLarge),
 
                 // Full description
                 if (detail.description != null &&
@@ -80,12 +79,14 @@ class CourseDetailScreen extends ConsumerWidget {
                   children: [
                     _StatChip(
                       icon: Icons.library_books_outlined,
-                      label: '${detail.sections.length} section'
+                      label:
+                          '${detail.sections.length} section'
                           '${detail.sections.length == 1 ? '' : 's'}',
                     ),
                     _StatChip(
                       icon: Icons.play_lesson_outlined,
-                      label: '${detail.totalLessons} lesson'
+                      label:
+                          '${detail.totalLessons} lesson'
                           '${detail.totalLessons == 1 ? '' : 's'}',
                     ),
                   ],

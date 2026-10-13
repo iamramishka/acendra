@@ -1,5 +1,6 @@
 // CSA-056: Accessibility foundations
 // Covers NFR-ACC-001 through NFR-ACC-007 from SRS section 9.6.
+import 'dart:ui' show Tristate;
 import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/cards/course_card.dart';
 import 'package:acendra/core/widgets/dialogs/app_dialog.dart';
@@ -8,7 +9,6 @@ import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:acendra/core/widgets/feedback/status_badge.dart';
 import 'package:acendra/core/widgets/inputs/app_text_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap({required Widget child, ThemeData? theme}) {
@@ -98,7 +98,7 @@ void main() {
         ),
       );
       final semantics = tester.getSemantics(find.byType(CourseCard));
-      expect(semantics.hasFlag(SemanticsFlag.isButton), isFalse);
+      expect(semantics.getSemanticsData().flagsCollection.isButton, isFalse);
     });
   });
 
@@ -140,7 +140,10 @@ void main() {
         _wrap(child: const AppButton(label: 'Submit', onPressed: null)),
       );
       final semantics = tester.getSemantics(find.byType(AppButton));
-      expect(semantics.hasFlag(SemanticsFlag.isEnabled), isFalse);
+      expect(
+        semantics.getSemanticsData().flagsCollection.isEnabled,
+        Tristate.isFalse,
+      );
     });
   });
 
