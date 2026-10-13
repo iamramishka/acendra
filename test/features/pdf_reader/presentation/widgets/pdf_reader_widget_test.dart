@@ -11,9 +11,7 @@ void main() {
     testWidgets('shows CircularProgressIndicator', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: SizedBox.expand(child: PdfLoadingState()),
-          ),
+          home: Scaffold(body: SizedBox.expand(child: PdfLoadingState())),
         ),
       );
 
@@ -23,9 +21,7 @@ void main() {
     testWidgets('shows loading label', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: SizedBox.expand(child: PdfLoadingState()),
-          ),
+          home: Scaffold(body: SizedBox.expand(child: PdfLoadingState())),
         ),
       );
 

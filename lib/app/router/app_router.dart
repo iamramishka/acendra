@@ -1,4 +1,5 @@
 import 'package:acendra/app/router/route_names.dart';
+import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:acendra/core/widgets/navigation/admin_shell.dart';
 import 'package:acendra/core/widgets/navigation/learning_shell.dart';
 import 'package:acendra/core/widgets/navigation/public_shell.dart';
@@ -18,8 +19,6 @@ import 'package:acendra/features/checkout/presentation/screens/checkout_screen.d
 import 'package:acendra/features/checkout/presentation/screens/payment_failure_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_pending_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_success_screen.dart';
-import 'package:acendra/features/learning/presentation/screens/learning_workspace_screen.dart';
-import 'package:acendra/features/my_courses/presentation/screens/my_courses_screen.dart';
 import 'package:acendra/features/marketplace/presentation/screens/course_detail_screen.dart';
 import 'package:acendra/features/marketplace/presentation/screens/marketplace_screen.dart';
 import 'package:acendra/features/profile/presentation/screens/profile_edit_screen.dart';
@@ -140,7 +139,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: RouteNames.myCourses,
-            builder: (_, _) => const MyCoursesScreen(),
+            // Register the actual screen only with its reviewed feature dependency.
+            builder: (_, _) => const AppErrorState(
+              message:
+                  'My Courses is currently unavailable. Please try again later.',
+            ),
           ),
           GoRoute(
             path: RouteNames.checkout,
@@ -234,8 +237,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: RouteNames.learn,
-            builder: (_, state) => LearningWorkspaceScreen(
-              courseId: state.pathParameters['courseId']!,
+            builder: (_, _) => const AppErrorState(
+              message:
+                  'Course learning is currently unavailable. Please try again later.',
             ),
           ),
         ],

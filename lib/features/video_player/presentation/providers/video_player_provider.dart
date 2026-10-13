@@ -1,5 +1,6 @@
 import 'package:acendra/features/video_player/domain/entities/video_progress.dart';
-import 'package:flutter_riverpod/legacy.dart' show StateNotifier, StateNotifierProvider;
+import 'package:flutter_riverpod/legacy.dart'
+    show StateNotifier, StateNotifierProvider;
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerNotifier extends StateNotifier<VideoProgress> {
@@ -47,8 +48,8 @@ class VideoPlayerNotifier extends StateNotifier<VideoProgress> {
 
     final buffered = value.buffered.isNotEmpty
         ? (value.buffered.last.end.inMilliseconds /
-                value.duration.inMilliseconds.toDouble())
-            .clamp(0.0, 1.0)
+                  value.duration.inMilliseconds.toDouble())
+              .clamp(0.0, 1.0)
         : 0.0;
 
     VideoPlayerStatus status;
@@ -56,7 +57,8 @@ class VideoPlayerNotifier extends StateNotifier<VideoProgress> {
       status = VideoPlayerStatus.buffering;
     } else if (value.isPlaying) {
       status = VideoPlayerStatus.playing;
-    } else if (value.position >= value.duration && value.duration > Duration.zero) {
+    } else if (value.position >= value.duration &&
+        value.duration > Duration.zero) {
       status = VideoPlayerStatus.ended;
     } else {
       status = VideoPlayerStatus.paused;

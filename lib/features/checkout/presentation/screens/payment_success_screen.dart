@@ -48,11 +48,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                     color: ext.successContainer,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    Icons.check_circle,
-                    size: 80,
-                    color: ext.success,
-                  ),
+                  child: Icon(Icons.check_circle, size: 80, color: ext.success),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Text(
@@ -65,17 +61,13 @@ class PaymentSuccessScreen extends StatelessWidget {
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   "You're enrolled in:",
-                  style: tt.bodyMedium?.copyWith(
-                    color: ext.textSecondary,
-                  ),
+                  style: tt.bodyMedium?.copyWith(color: ext.textSecondary),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   courseTitle,
-                  style: tt.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -90,9 +82,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                   ),
                   child: Text(
                     'Order #$orderNumber',
-                    style: tt.bodySmall?.copyWith(
-                      color: ext.textSecondary,
-                    ),
+                    style: tt.bodySmall?.copyWith(color: ext.textSecondary),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xxl),
