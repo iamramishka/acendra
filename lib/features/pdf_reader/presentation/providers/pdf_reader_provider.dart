@@ -47,8 +47,9 @@ class PdfReaderState {
     totalPages: totalPages ?? this.totalPages,
     zoom: zoom ?? this.zoom,
     zoomPreset: zoomPreset ?? this.zoomPreset,
-    errorMessage:
-        clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
+    errorMessage: clearErrorMessage
+        ? null
+        : (errorMessage ?? this.errorMessage),
   );
 
   @override
@@ -64,19 +65,27 @@ class PdfReaderState {
           errorMessage == other.errorMessage;
 
   @override
-  int get hashCode =>
-      Object.hash(status, currentPage, totalPages, zoom, zoomPreset, errorMessage);
+  int get hashCode => Object.hash(
+    status,
+    currentPage,
+    totalPages,
+    zoom,
+    zoomPreset,
+    errorMessage,
+  );
 }
 
 class PdfReaderNotifier extends StateNotifier<PdfReaderState> {
   PdfReaderNotifier()
-      : super(const PdfReaderState(
+    : super(
+        const PdfReaderState(
           status: PdfReaderStatus.idle,
           currentPage: 1,
           totalPages: 1,
           zoom: 1.0,
           zoomPreset: PdfZoomPreset.fitWidth,
-        ));
+        ),
+      );
 
   pdfx.PdfController? _controller;
 
@@ -176,8 +185,8 @@ class PdfReaderNotifier extends StateNotifier<PdfReaderState> {
 
 final pdfReaderProvider =
     StateNotifierProvider.autoDispose<PdfReaderNotifier, PdfReaderState>(
-  (ref) => PdfReaderNotifier(),
-);
+      (ref) => PdfReaderNotifier(),
+    );
 
 /// Exposes the [pdfx.PdfController] once the document has started loading.
 /// Returns null in idle/error states.

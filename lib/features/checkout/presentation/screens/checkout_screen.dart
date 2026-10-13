@@ -51,18 +51,22 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     bool valid = true;
 
     setState(() {
-      _firstNameError =
-          _firstNameController.text.trim().isEmpty ? 'Required' : null;
-      _lastNameError =
-          _lastNameController.text.trim().isEmpty ? 'Required' : null;
+      _firstNameError = _firstNameController.text.trim().isEmpty
+          ? 'Required'
+          : null;
+      _lastNameError = _lastNameController.text.trim().isEmpty
+          ? 'Required'
+          : null;
       _phoneError = _phoneController.text.trim().length < 7
           ? 'Enter a valid phone number'
           : null;
-      _addressError =
-          _addressController.text.trim().isEmpty ? 'Required' : null;
+      _addressError = _addressController.text.trim().isEmpty
+          ? 'Required'
+          : null;
       _cityError = _cityController.text.trim().isEmpty ? 'Required' : null;
-      _countryError =
-          _countryController.text.trim().isEmpty ? 'Required' : null;
+      _countryError = _countryController.text.trim().isEmpty
+          ? 'Required'
+          : null;
 
       if (_firstNameError != null ||
           _lastNameError != null ||
@@ -80,16 +84,15 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   void _onProceed(PaymentMethod method) {
     if (!_validate()) return;
 
-    ref.read(checkoutProvider.notifier).createOrder(
-      courseId: widget.courseId,
-      method: method,
-    );
+    ref
+        .read(checkoutProvider.notifier)
+        .createOrder(courseId: widget.courseId, method: method);
   }
 
   void _onPayNow() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Online payment coming soon')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Online payment coming soon')));
   }
 
   @override
@@ -100,9 +103,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Checkout'),
-        leading: BackButton(
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
+        leading: BackButton(onPressed: () => Navigator.of(context).maybePop()),
       ),
       body: checkoutState.when(
         loading: () => _buildLoadingBody(),
@@ -163,10 +164,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   if (order != null) ...[
-                    Text(
-                      order.courseTitle,
-                      style: theme.textTheme.bodyLarge,
-                    ),
+                    Text(order.courseTitle, style: theme.textTheme.bodyLarge),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
                       order.formattedAmount,
@@ -214,9 +212,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     PaymentMethodSelector(
                       selected: selectedMethod,
                       onChanged: (method) {
-                        ref
-                            .read(selectedPaymentMethodProvider.notifier)
-                            .state = method;
+                        ref.read(selectedPaymentMethodProvider.notifier).state =
+                            method;
                       },
                     ),
                   ],
@@ -346,9 +343,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 order.paymentMethod == PaymentMethod.bankTransfer &&
                 order.bankInstructions != null) ...[
               const SizedBox(height: AppSpacing.lg),
-              _BankInstructionsCard(
-                instructions: order.bankInstructions!,
-              ),
+              _BankInstructionsCard(instructions: order.bankInstructions!),
             ],
 
             const SizedBox(height: AppSpacing.xl),

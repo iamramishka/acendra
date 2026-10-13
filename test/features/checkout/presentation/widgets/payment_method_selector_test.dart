@@ -1,216 +1,83 @@
 import 'package:acendra/features/checkout/domain/entities/payment_method.dart';
 import 'package:acendra/features/checkout/presentation/widgets/payment_method_selector.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _buildTestWidget({
   required PaymentMethod selected,
   required ValueChanged<PaymentMethod> onChanged,
-}) {
-  return ProviderScope(
-    child: MaterialApp(
-      theme: ThemeData.light(),
-      home: Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: PaymentMethodSelector(
-            selected: selected,
-            onChanged: onChanged,
-          ),
-        ),
-      ),
-    ),
+}) => MaterialApp(
+  home: Scaffold(
+    body: PaymentMethodSelector(selected: selected, onChanged: onChanged),
+  ),
+);
+
+bool? _selected(WidgetTester tester, PaymentMethod method) {
+  final control = find.byWidgetPredicate(
+    (widget) => widget is Semantics && widget.properties.label == method.label,
   );
+  expect(control, findsOneWidget);
+  return tester
+      .getSemantics(control)
+      .getSemanticsData()
+      .flagsCollection
+      .isSelected
+      .toBoolOrNull();
 }
 
 void main() {
-  group('PaymentMethodSelector', () {
-    testWidgets('renders both payment method cards', (tester) async {
-      await tester.pumpWidget(
-        _buildTestWidget(
-          selected: PaymentMethod.online,
-          onChanged: (_) {},
-        ),
-      );
+  testWidgets('renders both payment methods and descriptions', (tester) async {
+    await tester.pumpWidget(
+      _buildTestWidget(selected: PaymentMethod.online, onChanged: (_) {}),
+    );
+    for (final method in PaymentMethod.values) {
+      expect(find.text(method.label), findsOneWidget);
+      expect(find.text(method.description), findsOneWidget);
+    }
+  });
 
-      expect(find.text('Online Payment'), findsOneWidget);
-      expect(find.text('Bank Transfer'), findsOneWidget);
-    });
-
-    testWidgets('renders descriptions for both payment methods',
-        (tester) async {
-      await tester.pumpWidget(
-        _buildTestWidget(
-          selected: PaymentMethod.online,
-          onChanged: (_) {},
-        ),
-      );
-
-      expect(
-        find.text(
-          'Pay instantly with a credit or debit card via PayHere.',
-        ),
-        findsOneWidget,
-      );
-      expect(
-        find.text(
-          'Deposit to our bank account and submit your receipt.',
-        ),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('tapping unselected card fires onChanged with correct value',
-        (tester) async {
+  for (final method in PaymentMethod.values) {
+    testWidgets('tapping ${method.label} reports the correct payment method', (
+      tester,
+    ) async {
       PaymentMethod? changedTo;
-
       await tester.pumpWidget(
         _buildTestWidget(
           selected: PaymentMethod.online,
-          onChanged: (method) => changedTo = method,
+          onChanged: (value) => changedTo = value,
         ),
       );
-
-      await tester.tap(find.text('Bank Transfer'));
+      await tester.tap(find.text(method.label));
       await tester.pump();
-
-      expect(changedTo, equals(PaymentMethod.bankTransfer));
+      expect(changedTo, method);
     });
-
-    testWidgets('tapping already-selected card fires onChanged with same value',
-        (tester) async {
-      PaymentMethod? changedTo;
-
+    testWidgets('${method.label} exposes its selected accessibility state', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        _buildTestWidget(
-          selected: PaymentMethod.online,
-          onChanged: (method) => changedTo = method,
-        ),
+        _buildTestWidget(selected: PaymentMethod.online, onChanged: (_) {}),
       );
-
-      await tester.tap(find.text('Online Payment'));
-      await tester.pump();
-
-      expect(changedTo, equals(PaymentMethod.online));
+      expect(_selected(tester, method), method == PaymentMethod.online);
     });
+  }
 
-    testWidgets('selected card has Semantics selected=true', (tester) async {
-      await tester.pumpWidget(
-        _buildTestWidget(
-          selected: PaymentMethod.online,
-          onChanged: (_) {},
+  testWidgets('switching selection updates both accessible states', (
+    tester,
+  ) async {
+    var selected = PaymentMethod.online;
+    await tester.pumpWidget(
+      StatefulBuilder(
+        builder: (context, setState) => _buildTestWidget(
+          selected: selected,
+          onChanged: (value) => setState(() => selected = value),
         ),
-      );
-
-      final selectedSemantics = tester.widget<Semantics>(
-        find
-            .ancestor(
-              of: find.text('Online Payment'),
-              matching: find.byType(Semantics),
-            )
-            .first,
-      );
-
-      expect(selectedSemantics.properties.selected, isTrue);
-    });
-
-    testWidgets('unselected card has Semantics selected=false', (tester) async {
-      await tester.pumpWidget(
-        _buildTestWidget(
-          selected: PaymentMethod.online,
-          onChanged: (_) {},
-        ),
-      );
-
-      final unselectedSemantics = tester.widget<Semantics>(
-        find
-            .ancestor(
-              of: find.text('Bank Transfer'),
-              matching: find.byType(Semantics),
-            )
-            .first,
-      );
-
-      expect(unselectedSemantics.properties.selected, isFalse);
-    });
-
-    testWidgets('switching selection updates visual state', (tester) async {
-      PaymentMethod currentSelection = PaymentMethod.online;
-
-      await tester.pumpWidget(
-        StatefulBuilder(
-          builder: (context, setState) {
-            return ProviderScope(
-              child: MaterialApp(
-                theme: ThemeData.light(),
-                home: Scaffold(
-                  body: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: PaymentMethodSelector(
-                      selected: currentSelection,
-                      onChanged: (method) =>
-                          setState(() => currentSelection = method),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      );
-
-      // Initially Online Payment is selected
-      expect(
-        tester
-            .widget<Semantics>(
-              find
-                  .ancestor(
-                    of: find.text('Online Payment'),
-                    matching: find.byType(Semantics),
-                  )
-                  .first,
-            )
-            .properties
-            .selected,
-        isTrue,
-      );
-
-      // Tap Bank Transfer
-      await tester.tap(find.text('Bank Transfer'));
-      await tester.pump();
-
-      // Now Bank Transfer should be selected
-      expect(
-        tester
-            .widget<Semantics>(
-              find
-                  .ancestor(
-                    of: find.text('Bank Transfer'),
-                    matching: find.byType(Semantics),
-                  )
-                  .first,
-            )
-            .properties
-            .selected,
-        isTrue,
-      );
-
-      // And Online Payment should be unselected
-      expect(
-        tester
-            .widget<Semantics>(
-              find
-                  .ancestor(
-                    of: find.text('Online Payment'),
-                    matching: find.byType(Semantics),
-                  )
-                  .first,
-            )
-            .properties
-            .selected,
-        isFalse,
-      );
-    });
+      ),
+    );
+    expect(_selected(tester, PaymentMethod.online), isTrue);
+    expect(_selected(tester, PaymentMethod.bankTransfer), isFalse);
+    await tester.tap(find.text('Bank Transfer'));
+    await tester.pumpAndSettle();
+    expect(_selected(tester, PaymentMethod.bankTransfer), isTrue);
+    expect(_selected(tester, PaymentMethod.online), isFalse);
   });
 }

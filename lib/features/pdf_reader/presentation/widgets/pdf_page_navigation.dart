@@ -32,9 +32,7 @@ class PdfPageNavigation extends StatelessWidget {
           controller: controller,
           keyboardType: TextInputType.number,
           autofocus: true,
-          decoration: InputDecoration(
-            labelText: 'Page (1–$totalPages)',
-          ),
+          decoration: InputDecoration(labelText: 'Page (1–$totalPages)'),
           onSubmitted: (_) => _commitJump(ctx, controller.text),
         ),
         actions: [
@@ -78,9 +76,7 @@ class PdfPageNavigation extends StatelessWidget {
           label: 'Page $currentPage of $totalPages, tap to jump',
           button: true,
           child: GestureDetector(
-            onTap: onJumpToPage != null
-                ? () => _showJumpDialog(context)
-                : null,
+            onTap: onJumpToPage != null ? () => _showJumpDialog(context) : null,
             child: Container(
               constraints: const BoxConstraints(minWidth: 64),
               padding: const EdgeInsets.symmetric(

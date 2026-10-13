@@ -13,22 +13,22 @@ import 'package:flutter_test/flutter_test.dart';
 // ── Test helpers ──────────────────────────────────────────────────────────────
 
 AppThemeExtension _ext() => const AppThemeExtension(
-      success: Colors.green,
-      successContainer: Color(0xFFE8F5E9),
-      warning: Colors.orange,
-      warningContainer: Color(0xFFFFF3E0),
-      focusRing: Colors.blue,
-      surfaceSecondary: Color(0xFFF5F5F5),
-      surfaceTertiary: Color(0xFFEEEEEE),
-      textSecondary: Color(0xFF757575),
-      border: Color(0xFFE0E0E0),
-    );
+  success: Colors.green,
+  successContainer: Color(0xFFE8F5E9),
+  warning: Colors.orange,
+  warningContainer: Color(0xFFFFF3E0),
+  focusRing: Colors.blue,
+  surfaceSecondary: Color(0xFFF5F5F5),
+  surfaceTertiary: Color(0xFFEEEEEE),
+  textSecondary: Color(0xFF757575),
+  border: Color(0xFFE0E0E0),
+);
 
 ThemeData _theme() => ThemeData.light().copyWith(extensions: [_ext()]);
 
 Widget _scaffold(Widget child) => ProviderScope(
-      child: MaterialApp(theme: _theme(), home: child),
-    );
+  child: MaterialApp(theme: _theme(), home: child),
+);
 
 const _fakeBankInstructions = BankInstructions(
   bankName: 'Test Bank',
@@ -262,7 +262,9 @@ void main() {
       expect(find.text('Submit Receipt'), findsOneWidget);
 
       // AppButton renders ElevatedButton; when onPressed=null the button is disabled.
-      final btns = tester.widgetList<ElevatedButton>(find.byType(ElevatedButton));
+      final btns = tester.widgetList<ElevatedButton>(
+        find.byType(ElevatedButton),
+      );
       final submitBtn = btns.firstWhere(
         (b) => b.child is Text && (b.child as Text).data == 'Submit Receipt',
         orElse: () => btns.last,

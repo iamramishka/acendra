@@ -52,11 +52,7 @@ class PaymentFailureScreen extends StatelessWidget {
                     color: cs.errorContainer,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    Icons.error_outline,
-                    size: 80,
-                    color: cs.error,
-                  ),
+                  child: Icon(Icons.error_outline, size: 80, color: cs.error),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Text(
@@ -69,9 +65,7 @@ class PaymentFailureScreen extends StatelessWidget {
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   description,
-                  style: tt.bodyMedium?.copyWith(
-                    color: ext.textSecondary,
-                  ),
+                  style: tt.bodyMedium?.copyWith(color: ext.textSecondary),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppSpacing.xxl),
@@ -93,9 +87,7 @@ class PaymentFailureScreen extends StatelessWidget {
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text(
-                            'Please email support@acedra.com',
-                          ),
+                          content: Text('Please email support@acedra.com'),
                         ),
                       );
                     },

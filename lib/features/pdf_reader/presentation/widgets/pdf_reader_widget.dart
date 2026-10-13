@@ -158,8 +158,8 @@ class _MediumLayout extends ConsumerWidget {
                     Text(
                       '/ ${state.totalPages}',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: ext.textSecondary,
-                          ),
+                        color: ext.textSecondary,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Semantics(
@@ -288,15 +288,13 @@ class _BottomToolbar extends StatelessWidget {
             PdfPageNavigation(
               currentPage: state.currentPage,
               totalPages: state.totalPages,
-              onPrevious:
-                  state.currentPage > 1 ? notifier.previousPage : null,
+              onPrevious: state.currentPage > 1 ? notifier.previousPage : null,
               onNext: state.currentPage < state.totalPages
                   ? notifier.nextPage
                   : null,
-              onJumpToPage:
-                  state.status == PdfReaderStatus.ready
-                      ? notifier.goToPage
-                      : null,
+              onJumpToPage: state.status == PdfReaderStatus.ready
+                  ? notifier.goToPage
+                  : null,
             ),
             PdfZoomControls(
               currentZoom: state.zoom,

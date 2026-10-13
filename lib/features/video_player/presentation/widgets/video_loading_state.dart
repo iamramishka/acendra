@@ -14,9 +14,7 @@ class VideoLoadingState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(
-              color: AppColors.dark.primary,
-            ),
+            CircularProgressIndicator(color: AppColors.dark.primary),
             if (label != null && label!.isNotEmpty) ...[
               const SizedBox(height: 12),
               Text(

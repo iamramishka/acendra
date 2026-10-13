@@ -21,8 +21,7 @@ class PdfZoomControls extends StatelessWidget {
   static const double _minZoom = 0.25;
   static const double _maxZoom = 4.0;
 
-  String get _zoomLabel =>
-      '${(currentZoom * 100).round()}%';
+  String get _zoomLabel => '${(currentZoom * 100).round()}%';
 
   String _presetLabel(PdfZoomPreset p) => switch (p) {
     PdfZoomPreset.fitPage => 'Fit Page',

@@ -10,6 +10,8 @@ import { runAuthSecuritySmoke } from './auth_security_smoke.mjs';
 import { runReceiptStorageSmoke } from './csa108_storage_smoke.mjs';
 import { runPdfStorageSmoke } from './csa139_storage_smoke.mjs';
 import { runAdminStorageSmoke } from './csa185_admin_storage_smoke.mjs';
+import { runStorageRecoverySmoke } from './csa200_storage_recovery.mjs';
+import { runJourneySmoke } from './csa178_186_journey_smoke.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dev = createLayout(root, 'dev', process.env.ACENDRA_LOCAL_PORT_BASE);
@@ -142,11 +144,15 @@ async function main() {
     containers: devItems });
   await runAdminStorageSmoke({ root, layout: dev, env: dockerEnv, sql: statement => sql(devDb,statement), base, key, token,
     containers: devItems });
+  await runStorageRecoverySmoke({ root, layout: dev, env: dockerEnv, sql: statement => sql(devDb,statement), base, key, token,
+    containers: devItems });
+  await runJourneySmoke({ root, layout: dev, env: dockerEnv, sql: statement => sql(devDb,statement), base, key,
+    containers: devItems });
   console.log('PASS: real Auth/Storage/API smoke checks, public export, loopback ports and independent volumes/databases.');
   await runAuthSecuritySmoke();
 }
 
 main().catch(error => {
-  console.error(/^(Auth security|Receipt Storage|PDF Storage) smoke failed at /.test(error.message) ? error.message : 'Supabase foundation smoke check failed; no private response data logged.');
+  console.error(/^(Auth security|Receipt Storage|PDF Storage|Journey|Storage recovery) smoke failed at /.test(error.message) ? error.message : 'Supabase foundation smoke check failed; no private response data logged.');
   process.exitCode = 1;
 });
