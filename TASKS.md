@@ -1550,8 +1550,9 @@ CLAUDE
 
 ## CODEX - LEARNING DATA
 
-- [ ] CSA-127 [P1] [X]
+- [x] CSA-127 [P1] [X] [DONE]
   Create learning progress data model.
+  Accepted and merged PR #92 into dev at e5c7418; final-head Flutter/Supabase CI passed. Owner-authorized inherited router/shell findings fixed; 308 Node and 22 focused Flutter tests passed. CSA-133 persistence remains separate.
 
 ## CLAUDE - LEARNING UI
 
@@ -1575,18 +1576,20 @@ CLAUDE
 
 ## CODEX - LEARNING DATA INTEGRATION
 
-- [ ] CSA-133 [P1] [X] [IN_REVIEW]
+- [x] CSA-133 [P1] [X] [DONE]
   Implement learning progress persistence.
-  CODEX implementation in stacked PR #102; current-session/entitlement RPCs added. Combined verification in progress; depends on PR #92.
+  Accepted development scope merged in PR #102 at 58a6ad2; exact-head Flutter/Supabase CI passed.
+  CODEX implementation in stacked PR #102; current-session/entitlement RPCs added. Combined Flutter/Supabase verification passed; depends on unmerged PR #92.
 
 ## VIDEO
 
 - [ ] CSA-135 [P1] [C]
   Implement video player interface.
 
-- [ ] CSA-136 [P0] [X] [IN_REVIEW]
+- [x] CSA-136 [P0] [X] [DONE]
   Implement playback authorization.
-  CODEX implementation in stacked PR #102; signed Mux authorization added. Combined verification in progress; real provider readiness retained.
+  Accepted development scope merged in PR #102 at 58a6ad2; exact-head CI passed. Mux provisioning/player renewal remains a release gate.
+  CODEX implementation in stacked PR #102; signed Mux authorization added. Combined Flutter/Supabase verification passed; real provider readiness retained.
 
 - [ ] CSA-137 [P1] [C]
   Implement video error/loading states.
@@ -1596,14 +1599,15 @@ CLAUDE
 
 ## CODEX - PROTECTED PDF BACKEND
 
-- [ ] CSA-139 [P0] [X] [IN_REVIEW]
+- [x] CSA-139 [P0] [X] [DONE]
   Configure private PDF storage.
-  CODEX implementation in stacked PR #102; private bucket and client-denial tests added. Pinned Storage lifecycle verification in progress.
+  Accepted development scope merged in PR #102 at 58a6ad2; real private Storage lifecycle and exact-head CI passed.
+  CODEX implementation in stacked PR #102; private bucket and client-denial tests added. Pinned real Storage lifecycle and combined CI passed.
 
-- [ ] CSA-140 [P0] [X] [IN_REVIEW]
+- [x] CSA-140 [P0] [X] [DONE]
   Implement PDF entitlement checks.
 
-- [ ] CSA-141 [P0] [X] [IN_REVIEW]
+- [x] CSA-141 [P0] [X] [DONE]
   Implement controlled PDF delivery.
 
 ## CLAUDE - PDF READER
@@ -1628,7 +1632,7 @@ CLAUDE
 
 ## WATERMARK STRATEGY
 
-- [ ] CSA-148 [P0] [X] [IN_REVIEW]
+- [x] CSA-148 [P0] [X] [DONE]
   Implement approved watermark delivery
   or generation strategy.
 
@@ -1648,17 +1652,21 @@ CLAUDE
 
 ## SECURITY AND INTEGRATION TESTS
 
-- [ ] CSA-152 [P0] [X]
+- [x] CSA-152 [P0] [X] [DONE]
   Test unauthorized PDF requests.
+  CODEX: reviewed and merged PR #103 into dev at fd347ef; final head d865438 passed Flutter and Supabase CI (runs 38282850960/38282851094). Regression scope accepted; hosted provider/browser/production release gates remain separate.
 
-- [ ] CSA-153 [P0] [X]
+- [x] CSA-153 [P0] [X] [DONE]
   Test revoked entitlement behavior.
+  CODEX: reviewed and merged PR #103 into dev at fd347ef; final head d865438 passed Flutter and Supabase CI (runs 38282850960/38282851094). Regression scope accepted; hosted provider/browser/production release gates remain separate.
 
-- [ ] CSA-154 [P0] [X]
+- [x] CSA-154 [P0] [X] [DONE]
   Test unauthorized video playback.
+  CODEX: reviewed and merged PR #103 into dev at fd347ef; final head d865438 passed Flutter and Supabase CI (runs 38282850960/38282851094). Regression scope accepted; hosted provider/browser/production release gates remain separate.
 
-- [ ] CSA-155 [P1] [X]
+- [x] CSA-155 [P1] [X] [DONE]
   Test learning progress persistence.
+  CODEX: reviewed and merged PR #103 into dev at fd347ef; final head d865438 passed Flutter and Supabase CI (runs 38282850960/38282851094). Regression scope accepted; hosted provider/browser/production release gates remain separate.
 
 - [ ] CSA-156 [P1] [C]
   Test PDF rendering across devices.
