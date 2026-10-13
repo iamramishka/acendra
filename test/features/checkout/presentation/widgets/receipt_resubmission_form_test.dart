@@ -1,194 +1,168 @@
+import 'dart:async';
+import 'dart:typed_data';
+
 import 'package:acendra/app/theme/app_theme.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
+import 'package:acendra/features/checkout/presentation/services/receipt_file.dart';
 import 'package:acendra/features/checkout/presentation/widgets/receipt_resubmission_form.dart';
+import 'package:acendra/features/bank_transfer/presentation/screens/receipt_resubmission_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-// ---------------------------------------------------------------------------
-// Test helpers
-// ---------------------------------------------------------------------------
-
-/// Wraps [child] in a [MaterialApp] that uses the Acendra light theme, which
-/// registers [AppThemeExtension] so theme-dependent widgets render correctly.
-Widget _wrap(Widget child) => MaterialApp(
-  theme: AppTheme.light,
-  home: Scaffold(body: Center(child: child)),
+Widget wrap(Widget child, {bool dark = false}) => MaterialApp(
+  theme: dark ? AppTheme.dark : AppTheme.light,
+  home: Scaffold(body: child),
 );
-
-/// Finds the submit [AppButton] by its label text.
-Finder get _submitButtonFinder =>
-    find.widgetWithText(AppButton, 'Submit New Receipt');
-
-/// Calls [simulateFilePick] on the [ReceiptResubmissionForm] state.
-void _simulateFilePick(
-  WidgetTester tester, {
-  required String filename,
-  required int sizeBytes,
-}) {
-  // The state is accessed via dynamic to avoid referencing the private class
-  // name from outside the library.
-  // ignore: avoid_dynamic_calls
-  (tester.state(find.byType(ReceiptResubmissionForm)) as dynamic)
-      .simulateFilePick(filename: filename, sizeBytes: sizeBytes);
+Finder get submit => find.widgetWithText(AppButton, 'Submit New Receipt');
+Future<void> pick(WidgetTester tester) async {
+  await tester.tap(
+    find.byWidgetPredicate(
+      (widget) =>
+          widget is Semantics &&
+          widget.properties.label == 'Select receipt file',
+    ),
+  );
+  await tester.pumpAndSettle();
 }
 
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
-
 void main() {
-  group('ReceiptResubmissionForm', () {
-    // ── 1. Submit button disabled when no file selected ─────────────────────
-    testWidgets('submit button is disabled when no file is selected',
-        (tester) async {
+  testWidgets(
+    'valid selection never enables unavailable submission or reports success',
+    (tester) async {
+      var calls = 0;
       await tester.pumpWidget(
-        _wrap(const ReceiptResubmissionForm(orderId: 'order-001')),
-      );
-      await tester.pump();
-
-      final button = tester.widget<AppButton>(_submitButtonFinder);
-      // onPressed is null when no file is selected → button is disabled.
-      expect(button.onPressed, isNull);
-    });
-
-    // ── 2. Submit button enabled after valid file selected ───────────────────
-    testWidgets('submit button becomes enabled after a valid file is selected',
-        (tester) async {
-      await tester.pumpWidget(
-        _wrap(const ReceiptResubmissionForm(orderId: 'order-002')),
-      );
-      await tester.pump();
-
-      // Simulate picking a valid 1 MB JPG.
-      _simulateFilePick(
-        tester,
-        filename: 'receipt.jpg',
-        sizeBytes: 1024 * 1024,
-      );
-      await tester.pump();
-
-      final button = tester.widget<AppButton>(_submitButtonFinder);
-      expect(button.onPressed, isNotNull);
-    });
-
-    // ── 3. File too large shows inline validation error ──────────────────────
-    testWidgets('selecting a file larger than 5 MB shows an inline error',
-        (tester) async {
-      await tester.pumpWidget(
-        _wrap(const ReceiptResubmissionForm(orderId: 'order-003')),
-      );
-      await tester.pump();
-
-      // 6 MB > 5 MB limit.
-      _simulateFilePick(
-        tester,
-        filename: 'large_receipt.pdf',
-        sizeBytes: 6 * 1024 * 1024,
-      );
-      await tester.pump();
-
-      expect(find.textContaining('File is too large'), findsOneWidget);
-
-      // Submit button must remain disabled.
-      final button = tester.widget<AppButton>(_submitButtonFinder);
-      expect(button.onPressed, isNull);
-    });
-
-    // ── 4. onSubmitted fires after successful mock submit ────────────────────
-    testWidgets('onSubmitted callback fires after successful submission',
-        (tester) async {
-      var callbackFired = false;
-
-      await tester.pumpWidget(
-        _wrap(
+        wrap(
           ReceiptResubmissionForm(
-            orderId: 'order-004',
-            onSubmitted: () => callbackFired = true,
+            orderId: 'order-1',
+            filePicker: () async {
+              calls++;
+              return ReceiptFile(
+                name: 'receipt.jpg',
+                bytes: Uint8List.fromList([1, 2, 3]),
+              );
+            },
           ),
         ),
       );
-      await tester.pump();
-
-      // Simulate picking a valid file.
-      _simulateFilePick(
-        tester,
-        filename: 'receipt.pdf',
-        sizeBytes: 512 * 1024,
-      );
-      await tester.pump();
-
-      // Tap the submit button.
-      await tester.tap(_submitButtonFinder);
-      // Pump past the fake 1-second upload delay.
+      await pick(tester);
+      expect(calls, 1);
+      expect(find.text('receipt.jpg'), findsOneWidget);
+      expect(tester.widget<AppButton>(submit).onPressed, isNull);
+      await tester.tap(submit);
       await tester.pump(const Duration(seconds: 2));
-
-      expect(callbackFired, isTrue);
-    });
-
-    // ── 5. Rejection reason is shown when provided ───────────────────────────
-    testWidgets('rejection reason text is shown when provided', (tester) async {
-      const reason =
-          'The bank reference number is not visible in your receipt.';
-
+      expect(find.textContaining('submitted successfully'), findsNothing);
+      expect(find.textContaining('temporarily unavailable'), findsOneWidget);
+    },
+  );
+  for (final entry in <String, int>{
+    'empty.jpg': 0,
+    'large.pdf': maxReceiptBytes + 1,
+    'receipt.png': 10,
+  }.entries) {
+    testWidgets('rejects invalid selection ${entry.key}', (tester) async {
       await tester.pumpWidget(
-        _wrap(
-          const ReceiptResubmissionForm(
-            orderId: 'order-005',
-            rejectionReason: reason,
+        wrap(
+          ReceiptResubmissionForm(
+            orderId: 'order-1',
+            filePicker: () async =>
+                ReceiptFile(name: entry.key, bytes: Uint8List(entry.value)),
           ),
         ),
       );
-      await tester.pump();
-
-      expect(find.text(reason), findsOneWidget);
-      expect(find.text('Reason for rejection'), findsOneWidget);
-    });
-
-    // ── 6. No rejection reason rendered when null ────────────────────────────
-    testWidgets(
-        'rejection reason box is absent when rejectionReason is null',
-        (tester) async {
-      await tester.pumpWidget(
-        _wrap(const ReceiptResubmissionForm(orderId: 'order-006')),
+      await pick(tester);
+      expect(tester.widget<AppButton>(submit).onPressed, isNull);
+      expect(find.text(entry.key), findsNothing);
+      expect(
+        find.textContaining(
+          entry.value == 0
+              ? 'empty'
+              : entry.value > maxReceiptBytes
+              ? 'too large'
+              : 'Only JPG and PDF',
+        ),
+        findsOneWidget,
       );
-      await tester.pump();
-
-      expect(find.text('Reason for rejection'), findsNothing);
     });
-
-    // ── 7. No overflow at 390 px width ───────────────────────────────────────
-    testWidgets('no overflow at 390 px viewport width', (tester) async {
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-
-      await tester.pumpWidget(
-        _wrap(const ReceiptResubmissionForm(orderId: 'order-007')),
-      );
-      await tester.pump();
-
-      // pumpWidget completing without a layout overflow exception is the pass.
-      expect(find.byType(ReceiptResubmissionForm), findsOneWidget);
-    });
-
-    // ── 8. Unsupported file type shows validation error ──────────────────────
-    testWidgets('unsupported file type shows validation error', (tester) async {
-      await tester.pumpWidget(
-        _wrap(const ReceiptResubmissionForm(orderId: 'order-008')),
-      );
-      await tester.pump();
-
-      _simulateFilePick(
-        tester,
-        filename: 'receipt.png',
-        sizeBytes: 200 * 1024,
-      );
-      await tester.pump();
-
-      expect(find.textContaining('Only JPG and PDF'), findsOneWidget);
-
-      final button = tester.widget<AppButton>(_submitButtonFinder);
-      expect(button.onPressed, isNull);
-    });
+  }
+  testWidgets('cancel preserves selected file', (tester) async {
+    var calls = 0;
+    await tester.pumpWidget(
+      wrap(
+        ReceiptResubmissionForm(
+          orderId: 'order-1',
+          filePicker: () async => calls++ == 0
+              ? ReceiptFile(name: 'receipt.pdf', bytes: Uint8List(1))
+              : null,
+        ),
+      ),
+    );
+    await pick(tester);
+    await pick(tester);
+    expect(find.text('receipt.pdf'), findsOneWidget);
   });
+  testWidgets('picker failure is sanitized', (tester) async {
+    await tester.pumpWidget(
+      wrap(
+        ReceiptResubmissionForm(
+          orderId: 'order-1',
+          filePicker: () async => throw StateError('private/path'),
+        ),
+      ),
+    );
+    await pick(tester);
+    expect(find.textContaining('Could not read'), findsOneWidget);
+    expect(find.textContaining('private/path'), findsNothing);
+  });
+  testWidgets('completion after disposal is harmless', (tester) async {
+    final pending = Completer<ReceiptFile?>();
+    await tester.pumpWidget(
+      wrap(
+        ReceiptResubmissionForm(
+          orderId: 'order-1',
+          filePicker: () => pending.future,
+        ),
+      ),
+    );
+    await tester.tap(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Semantics &&
+            widget.properties.label == 'Select receipt file',
+      ),
+    );
+    await tester.pumpWidget(wrap(const SizedBox()));
+    pending.complete(ReceiptFile(name: 'receipt.pdf', bytes: Uint8List(1)));
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+  });
+  for (final dark in [false, true]) {
+    testWidgets('canonical screen uses shared form at 390px, dark=$dark', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        wrap(
+          const ReceiptResubmissionScreen(
+            orderId: 'order-1',
+            rejectionReason: 'Reference not visible.',
+          ),
+          dark: dark,
+        ),
+      );
+      expect(find.byType(ReceiptResubmissionForm), findsOneWidget);
+      expect(find.text('Reference not visible.'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+  test(
+    'size and extension boundaries use the same validation as browser selection',
+    () {
+      expect(receiptFileError('receipt.JPEG', maxReceiptBytes), isNull);
+      expect(receiptFileError('receipt.pdf', maxReceiptBytes + 1), isNotNull);
+      expect(receiptFileError('receipt.jpg', 0), isNotNull);
+    },
+  );
 }

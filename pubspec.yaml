@@ -17,6 +17,8 @@ dependencies:
   google_fonts: ^8.2.1
   video_player: ^2.9.2
   pdfx: ^2.9.0
+  # Browser file input; already present transitively, now used directly.
+  web: ^1.1.1
 
 dev_dependencies:
   flutter_test:

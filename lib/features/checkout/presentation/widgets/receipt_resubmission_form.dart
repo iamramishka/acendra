@@ -1,22 +1,13 @@
 import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:acendra/app/theme/app_theme_extension.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
-import 'package:acendra/core/widgets/feedback/app_snackbar.dart';
 import 'package:acendra/core/widgets/feedback/status_badge.dart';
-import 'package:acendra/core/widgets/inputs/app_text_field.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-// Conditional import for web file picking.
-// On non-web platforms this stub is used; on web the real implementation is
-// wired up at runtime via `_pickFileWeb`.
-// TODO: wire up actual file picker using dart:html on web.
-
-/// Maximum allowed file size in bytes (5 MB).
-const int _kMaxFileSizeBytes = 5 * 1024 * 1024;
-
-/// Accepted MIME types / extensions for receipt uploads.
-const List<String> _kAcceptedExtensions = ['jpg', 'jpeg', 'pdf'];
+import '../services/receipt_file_picker.dart'
+    if (dart.library.js_interop) '../services/receipt_file_picker_web.dart'
+    as picker;
+import '../services/receipt_file.dart';
 
 /// A form that allows a student to upload a new bank transfer receipt after
 /// their previous one was rejected by the finance team.
@@ -26,7 +17,6 @@ const List<String> _kAcceptedExtensions = ['jpg', 'jpeg', 'pdf'];
 /// ReceiptResubmissionForm(
 ///   orderId: 'order-123',
 ///   rejectionReason: 'Reference ID not visible in the uploaded image.',
-///   onSubmitted: () { /* navigate away or refresh */ },
 /// )
 /// ```
 class ReceiptResubmissionForm extends StatefulWidget {
@@ -34,7 +24,7 @@ class ReceiptResubmissionForm extends StatefulWidget {
     super.key,
     required this.orderId,
     this.rejectionReason,
-    this.onSubmitted,
+    this.filePicker,
   });
 
   /// The order for which the receipt is being resubmitted.
@@ -43,8 +33,8 @@ class ReceiptResubmissionForm extends StatefulWidget {
   /// The rejection reason provided by the finance team, if any.
   final String? rejectionReason;
 
-  /// Called after a successful mock submission.
-  final VoidCallback? onSubmitted;
+  /// Injectable selection boundary for widget tests.
+  final ReceiptFilePicker? filePicker;
 
   @override
   State<ReceiptResubmissionForm> createState() =>
@@ -52,161 +42,34 @@ class ReceiptResubmissionForm extends StatefulWidget {
 }
 
 class _ReceiptResubmissionFormState extends State<ReceiptResubmissionForm> {
-  /// Selected file bytes (null until a file is chosen).
-  Uint8List? _fileBytes;
-
-  /// Display name of the selected file.
   String? _fileName;
-
-  /// Inline validation error message for the selected file.
   String? _fileError;
+  bool _isPicking = false;
 
-  /// Whether the upload/submit is in progress.
-  bool _isSubmitting = false;
-
-  final TextEditingController _noteController = TextEditingController();
-
-  @override
-  void dispose() {
-    _noteController.dispose();
-    super.dispose();
-  }
-
-  // ---------------------------------------------------------------------------
-  // File picking
-  // ---------------------------------------------------------------------------
-
-  /// Simulates picking a file on non-web platforms for testing purposes.
-  /// On web, this delegates to [_pickFileWeb].
   Future<void> _pickFile() async {
-    if (kIsWeb) {
-      await _pickFileWeb();
-    } else {
-      // Non-web: simulate picking for tests / non-web debug builds.
-      // In a real native build, integrate file_picker package here.
-      // TODO: wire up actual file picker for non-web platforms.
-      _applyMockFile(
-        Uint8List(0),
-        'mock_receipt.jpg',
-        overrideForTest: true,
-      );
-    }
-  }
-
-  /// Picks a file using the browser's file input element.
-  /// TODO: wire up actual file picker using dart:html on web.
-  Future<void> _pickFileWeb() async {
-    // Platform-specific implementation is deferred to CSA-108 integration.
-    // For now, show a snackbar indicating the action is pending.
-    if (!mounted) return;
-    AppSnackbar.show(
-      context,
-      'File picker integration pending (CSA-108).',
-    );
-  }
-
-  /// Applies the given file bytes and name, validating type and size.
-  void _applyMockFile(
-    Uint8List bytes,
-    String filename, {
-    bool overrideForTest = false,
-  }) {
-    final ext = filename.split('.').last.toLowerCase();
-    final isValidType = _kAcceptedExtensions.contains(ext);
-    final isValidSize = bytes.length <= _kMaxFileSizeBytes || overrideForTest;
-
-    setState(() {
-      if (!isValidType) {
-        _fileBytes = null;
-        _fileName = null;
-        _fileError = 'Only JPG and PDF files are accepted.';
-        return;
-      }
-      if (!isValidSize) {
-        _fileBytes = null;
-        _fileName = null;
-        _fileError =
-            'File is too large. Maximum size is 5 MB. '
-            'Selected file: ${(bytes.length / (1024 * 1024)).toStringAsFixed(1)} MB.';
-        return;
-      }
-      _fileBytes = bytes;
-      _fileName = filename;
-      _fileError = null;
-    });
-  }
-
-  /// Validates file metadata without real bytes (used in widget tests).
-  @visibleForTesting
-  void simulateFilePick({
-    required String filename,
-    required int sizeBytes,
-  }) {
-    final ext = filename.split('.').last.toLowerCase();
-    final isValidType = _kAcceptedExtensions.contains(ext);
-    final isValidSize = sizeBytes <= _kMaxFileSizeBytes;
-
-    setState(() {
-      if (!isValidType) {
-        _fileBytes = null;
-        _fileName = null;
-        _fileError = 'Only JPG and PDF files are accepted.';
-        return;
-      }
-      if (!isValidSize) {
-        _fileBytes = null;
-        _fileName = null;
-        _fileError =
-            'File is too large. Maximum size is 5 MB. '
-            'Selected file: ${(sizeBytes / (1024 * 1024)).toStringAsFixed(1)} MB.';
-        return;
-      }
-      // Use empty bytes to satisfy non-null check without needing real data.
-      _fileBytes = Uint8List(sizeBytes > 0 ? 1 : 0);
-      _fileName = filename;
-      _fileError = null;
-    });
-  }
-
-  // ---------------------------------------------------------------------------
-  // Submission
-  // ---------------------------------------------------------------------------
-
-  /// Stub upload call.
-  /// TODO: Replace with real call to Supabase receipt upload Edge Function (CSA-108).
-  /// The function validates file type, size, and ownership before storing privately.
-  Future<void> _uploadReceipt(Uint8List bytes, String filename) async {
-    await Future.delayed(const Duration(seconds: 1)); // mock
-  }
-
-  Future<void> _submit() async {
-    if (_fileBytes == null || _fileName == null) return;
-
-    setState(() => _isSubmitting = true);
-
+    if (_isPicking) return;
+    setState(() => _isPicking = true);
     try {
-      await _uploadReceipt(_fileBytes!, _fileName!);
-
+      final file = await (widget.filePicker ?? picker.pickReceiptFile)();
+      if (!mounted || file == null) return;
+      final error = receiptFileError(file.name, file.bytes.length);
+      setState(() {
+        _fileError = error;
+        _fileName = error == null ? file.name : null;
+      });
+    } on FormatException catch (error) {
       if (!mounted) return;
-
-      AppSnackbar.show(
-        context,
-        'Receipt submitted successfully. The finance team will review it.',
-        variant: SnackbarVariant.success,
-      );
-
-      widget.onSubmitted?.call();
-    } catch (e) {
+      setState(() {
+        _fileName = null;
+        _fileError = error.message;
+      });
+    } catch (_) {
       if (!mounted) return;
-      AppSnackbar.show(
-        context,
-        'Submission failed. Please try again.',
-        variant: SnackbarVariant.error,
+      setState(
+        () => _fileError = 'Could not read the receipt. Please try again.',
       );
     } finally {
-      if (mounted) {
-        setState(() => _isSubmitting = false);
-      }
+      if (mounted) setState(() => _isPicking = false);
     }
   }
 
@@ -297,45 +160,27 @@ class _ReceiptResubmissionFormState extends State<ReceiptResubmissionForm> {
               fileError: _fileError,
               borderColor: borderColor,
               surfaceSecondary: surfaceSecondary,
-              onTap: _pickFile,
+              onTap: _isPicking ? null : _pickFile,
             ),
 
             const SizedBox(height: AppSpacing.md),
 
-            // ── Optional note ─────────────────────────────────────────────────
-            AppTextField(
-              label: 'Note to finance team (optional)',
-              hint: 'e.g. Transfer reference shown on page 2',
-              controller: _noteController,
-              maxLines: 3,
-              keyboardType: TextInputType.multiline,
+            Text(
+              'Online receipt submission is temporarily unavailable. '
+              'Selecting a file does not upload it. Please contact support '
+              'with your order number; do not email receipt attachments.',
+              style: tt.bodyMedium,
             ),
-
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.only(top: AppSpacing.xs),
-                child: ValueListenableBuilder<TextEditingValue>(
-                  valueListenable: _noteController,
-                  builder: (_, value, child) => Text(
-                    '${value.text.length}/200',
-                    style: tt.labelSmall?.copyWith(color: textSecondary),
-                  ),
-                ),
-              ),
-            ),
-
             const SizedBox(height: AppSpacing.xl),
 
             // ── Submit button ─────────────────────────────────────────────────
-            SizedBox(
+            const SizedBox(
               width: double.infinity,
               child: AppButton(
                 label: 'Submit New Receipt',
                 variant: ButtonVariant.primary,
                 size: ButtonSize.large,
-                isLoading: _isSubmitting,
-                onPressed: _fileBytes != null ? _submit : null,
+                onPressed: null,
               ),
             ),
           ],
@@ -362,7 +207,7 @@ class _FilePicker extends StatelessWidget {
   final String? fileError;
   final Color borderColor;
   final Color surfaceSecondary;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -421,9 +266,7 @@ class _FilePicker extends StatelessWidget {
               else
                 Text(
                   'Tap to select receipt image\n(JPG or PDF, max 5 MB)',
-                  style: tt.bodyMedium?.copyWith(
-                    color: cs.onSurfaceVariant,
-                  ),
+                  style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                   textAlign: TextAlign.center,
                 ),
               if (hasError) ...[
