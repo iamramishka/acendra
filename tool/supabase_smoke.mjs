@@ -9,6 +9,7 @@ import { createLayout, pinLocalDockerEndpoint } from './local_supabase.mjs';
 import { runAuthSecuritySmoke } from './auth_security_smoke.mjs';
 import { runReceiptStorageSmoke } from './csa108_storage_smoke.mjs';
 import { runPdfStorageSmoke } from './csa139_storage_smoke.mjs';
+import { runAdminStorageSmoke } from './csa185_admin_storage_smoke.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dev = createLayout(root, 'dev', process.env.ACENDRA_LOCAL_PORT_BASE);
@@ -138,6 +139,8 @@ async function main() {
   await runReceiptStorageSmoke({ root, layout: dev, env: dockerEnv, sql: statement => sql(devDb,statement), base, key, token, studentId,
     containers: devItems });
   await runPdfStorageSmoke({ root, layout: dev, env: dockerEnv, sql: statement => sql(devDb,statement), base, key, token, studentId,
+    containers: devItems });
+  await runAdminStorageSmoke({ root, layout: dev, env: dockerEnv, sql: statement => sql(devDb,statement), base, key, token,
     containers: devItems });
   console.log('PASS: real Auth/Storage/API smoke checks, public export, loopback ports and independent volumes/databases.');
   await runAuthSecuritySmoke();

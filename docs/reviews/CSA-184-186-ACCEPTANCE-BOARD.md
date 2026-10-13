@@ -12,3 +12,5 @@ Verification: effective finance-role SQL denials; receipt/PDF Storage REST negat
 Approval authority: project owner. No production configuration, endpoint enablement, merges or issue closure authorized here.
 Overlap check: Git worktrees and local records inspected; GitHub has zero open PRs and no CSA-184/185/186 task issue. Related foundation issues #106, #81, #82 remain open and preserved. Root owns shared registry; other delegates own CSA-187/188 and CSA-200/201.
 Release: handoff of reviewable evidence to root; retain IN_REVIEW until acceptance.
+
+Expanded test scope authorized by root coordinator for the user's acceptance request: new `tool/csa185_admin_storage_smoke.mjs`, plus temporary exclusive ownership of import and call lines in `tool/supabase_smoke.mjs`. No policies or runtime configuration change. Verify real private thumbnail/lesson-image transport in disposable CI; exact generated object paths only for cleanup. Synthetic image bytes do not establish inspection approval.
