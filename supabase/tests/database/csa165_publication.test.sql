@@ -3,7 +3,7 @@ select '1..1';
 do $$
 declare actor uuid:=gen_random_uuid(); manager uuid:=gen_random_uuid(); buyer uuid:=gen_random_uuid();
  ads uuid:=gen_random_uuid(); ms uuid:=gen_random_uuid(); course uuid:=gen_random_uuid(); section uuid:=gen_random_uuid(); lesson uuid:=gen_random_uuid(); asset uuid:=gen_random_uuid();
- stamp timestamptz; result jsonb; before_count bigint; grant_id uuid; invalid_asset uuid; variant text;
+ stamp timestamptz; result jsonb; before_count bigint; grant_id uuid; invalid_asset uuid; image_asset uuid; variant text;
 begin
  insert into auth.users(id) values(actor),(manager),(buyer);
  insert into public.profiles(id,display_name) values(actor,'Publisher'),(manager,'Manager'),(buyer,'Buyer') on conflict(id) do nothing;
@@ -40,6 +40,36 @@ begin
   begin perform public.csa165_publish_course(actor,ads,'aal2',course,stamp,'publish','bad-'||variant);raise exception 'unsafe PDF % published',variant;exception when check_violation then null;end;
   if variant='duplicate' then delete from app_private.lesson_assets where media_asset_id=invalid_asset;else update app_private.lesson_assets set media_asset_id=asset where lesson_id=lesson;end if;
  end loop;
+ -- Image readiness must recheck storage drift after successful byte validation.
+ invalid_asset:=gen_random_uuid();
+ insert into app_private.media_assets(id,asset_type,storage_provider,bucket_name,object_path,mime_type,size_bytes,checksum_sha256,validation_status,validated_at)
+ values(invalid_asset,'lesson_image','supabase','course-media',course::text||'/'||lesson::text||'/'||invalid_asset::text||'.png','image/png',1000,repeat('d',64),'validated',clock_timestamp());
+ update public.lessons set lesson_type='image' where id=lesson;
+ update app_private.lesson_assets set media_asset_id=invalid_asset where lesson_id=lesson;
+ update storage.buckets set public=true where id='course-media';
+ begin perform public.csa165_publish_course(actor,ads,'aal2',course,stamp,'publish','public-image');raise exception 'public image bucket published';exception when check_violation then null;end;
+ update storage.buckets set public=false where id='course-media';
+ image_asset:=invalid_asset;
+ foreach variant in array array['missing','bucket','provider','path'] loop
+  if variant='missing' then delete from storage.buckets where id='course-media';
+  else
+   invalid_asset:=gen_random_uuid();
+   insert into app_private.media_assets(id,asset_type,storage_provider,bucket_name,object_path,mime_type,size_bytes,checksum_sha256,validation_status,validated_at)
+   values(invalid_asset,'lesson_image',case when variant='provider' then 'other' else 'supabase' end,case when variant='bucket' then 'foreign-bucket' else 'course-media' end,
+    case when variant='path' then 'foreign-course/image.png' else course::text||'/'||lesson::text||'/'||invalid_asset::text||'.png' end,'image/png',1000,repeat('e',64),'validated',clock_timestamp());
+   update app_private.lesson_assets set media_asset_id=invalid_asset where lesson_id=lesson;
+  end if;
+  begin perform public.csa165_publish_course(actor,ads,'aal2',course,stamp,'publish','image-'||variant);raise exception 'unsafe image published';exception when check_violation then null;end;
+  if variant='missing' then insert into storage.buckets(id,name,public) values('course-media','course-media',false);end if;
+  update app_private.lesson_assets set media_asset_id=image_asset where lesson_id=lesson;
+ end loop;
+ result:=public.csa165_publish_course(actor,ads,'aal2',course,stamp,'publish','private-image');
+ if result->>'status'<>'published' then raise exception 'private image denied';end if;
+ select updated_at into stamp from public.courses where id=course;
+ perform public.csa165_publish_course(actor,ads,'aal2',course,stamp,'unpublish','private-image-unpublish');
+ select updated_at into stamp from public.courses where id=course;
+ update public.lessons set lesson_type='pdf' where id=lesson;
+ update app_private.lesson_assets set media_asset_id=asset where lesson_id=lesson;
  invalid_asset:=gen_random_uuid();
  insert into app_private.media_assets(id,asset_type,storage_provider,external_asset_id,mime_type,size_bytes,checksum_sha256,validation_status,validated_at)
  values(invalid_asset,'course_video','mux','SyntheticAsset','video/mp4',1000,repeat('c',64),'validated',clock_timestamp());
