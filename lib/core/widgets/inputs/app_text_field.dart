@@ -1,3 +1,4 @@
+import 'package:acendra/core/accessibility/semantics_labels.dart';
 import 'package:flutter/material.dart';
 
 class AppTextField extends StatelessWidget {
@@ -107,6 +108,9 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
       keyboardType: TextInputType.visiblePassword,
       autofillHints: const [AutofillHints.password],
       suffixIcon: IconButton(
+        tooltip: _obscure
+            ? SemanticsLabels.showPassword
+            : SemanticsLabels.hidePassword,
         icon: Icon(
           _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
         ),

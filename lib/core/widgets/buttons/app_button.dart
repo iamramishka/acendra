@@ -1,4 +1,5 @@
 import 'package:acendra/app/theme/app_spacing.dart';
+import 'package:acendra/core/accessibility/semantics_labels.dart';
 import 'package:flutter/material.dart';
 
 enum ButtonVariant { primary, secondary, outlined, destructive }
@@ -83,7 +84,7 @@ class AppButton extends StatelessWidget {
         : Text(label);
 
     return Semantics(
-      label: isLoading ? '$label, loading' : null,
+      label: isLoading ? SemanticsLabels.loadingButton(label) : null,
       button: true,
       enabled: effectiveOnPressed != null,
       child: ElevatedButton(
