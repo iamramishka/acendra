@@ -21,11 +21,14 @@ notification tests remain independent financial failure evidence.
 
 ## Current verification
 
-`node --test tool/csa200_storage_recovery.test.mjs`: 4 passed, zero failures/skips.
+`node --test tool/csa200_storage_recovery.test.mjs`: 5 passed, zero failures/skips.
 Tests reject corruption in even tombstoned bytes, duplicate/missing/unbound objects,
 wrong MIME/size/bucket/version/base64 and tombstone removal or additions. The entire
 archive is validated against independently retained exact fixture identities and
 tombstones before any restored object upload. `git diff --check` passed.
+Explicit denial/missing-object statuses are required;500,503,429 and redirects
+cannot masquerade as access-control success. Archive cleanup runs even when exact
+remote fixture cleanup fails.
 
 Real API execution is pending root's combined hosted CI run. Local host has no Docker
 Linux runtime; parser tests do not simulate or establish actual service recovery.

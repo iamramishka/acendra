@@ -1,7 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash, randomUUID } from 'node:crypto';
-import { validateArchive } from './csa200_storage_recovery.mjs';
+import { validateArchive, assertDeniedStatus } from './csa200_storage_recovery.mjs';
+
+test('server errors, redirects and successful reads cannot count as denial', () => {
+  for (const status of [400, 401, 403, 404]) assert.doesNotThrow(() => assertDeniedStatus(status));
+  for (const status of [200, 206, 302, 429, 500, 503]) assert.throws(() => assertDeniedStatus(status));
+});
 
 function fixture() {
   const names = [0, 1].map(() => `originals/${randomUUID()}/v1.pdf`);

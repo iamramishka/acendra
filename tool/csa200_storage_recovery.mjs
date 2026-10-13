@@ -7,6 +7,9 @@ import path from 'node:path';
 
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 const pdfPath = /^originals\/[0-9a-f-]{36}\/v[1-9][0-9]*\.pdf$/;
+export function assertDeniedStatus(status) {
+  assert.ok([400, 401, 403, 404].includes(status), 'Expected explicit access denial or missing object');
+}
 
 // Validate the entire archive before returning any restoration plan.
 export function validateArchive(archive, expectedPaths, expectedTombstones) {
@@ -80,7 +83,7 @@ export async function runStorageRecoverySmoke({ root, layout, env, sql, base, ke
     stage = 'exact object loss and metadata absence';
     assert.ok((await remove(names)).ok);
     assert.equal(count(), '0');
-    for (const name of names) assert.equal((await call('object/course-pdfs/' + name, 'GET', service)).ok, false);
+    for (const name of names) assertDeniedStatus((await call('object/course-pdfs/' + name, 'GET', service)).status);
     stage = 'durable archive and tombstone restoration';
     const loaded = JSON.parse(fs.readFileSync(archivePath, 'utf8'));
     const restore = validateArchive(loaded, names, [names[2]]);
@@ -96,13 +99,13 @@ export async function runStorageRecoverySmoke({ root, layout, env, sql, base, ke
       assert.equal(metadata.mimetype, item.mime);
     }
     assert.equal(count(), '2');
-    assert.equal((await call('object/course-pdfs/' + names[2], 'GET', service)).ok, false);
+    assertDeniedStatus((await call('object/course-pdfs/' + names[2], 'GET', service)).status);
     assert.equal(sql(`select count(*) from storage.objects where bucket_id='course-pdfs' and name='${names[2]}'`), '0');
     stage = 'restored authorization boundaries';
     for (const item of restore) for (const bearer of [undefined, token]) {
-      assert.equal((await call('object/course-pdfs/' + item.name, 'GET', bearer)).ok, false);
-      assert.equal((await call('object/public/course-pdfs/' + item.name, 'GET', bearer)).ok, false);
-      assert.equal((await call('object/sign/course-pdfs/' + item.name, 'POST', bearer, JSON.stringify({ expiresIn: 60 }), { 'Content-Type': 'application/json' })).ok, false);
+      assertDeniedStatus((await call('object/course-pdfs/' + item.name, 'GET', bearer)).status);
+      assertDeniedStatus((await call('object/public/course-pdfs/' + item.name, 'GET', bearer)).status);
+      assertDeniedStatus((await call('object/sign/course-pdfs/' + item.name, 'POST', bearer, JSON.stringify({ expiresIn: 60 }), { 'Content-Type': 'application/json' })).status);
     }
     stage = 'exact fixture cleanup';
     assert.ok((await remove(names)).ok);
@@ -110,10 +113,13 @@ export async function runStorageRecoverySmoke({ root, layout, env, sql, base, ke
     console.log(`PASS: actual disposable Storage archive/loss/restore, 2 byte digests and metadata, 1 tombstone, restored access denial; elapsed_ms=${Math.round(performance.now() - started)}; cloud recovery unverified.`);
   } catch { throw new Error('Storage recovery smoke failed at ' + stage + '; private diagnostics suppressed.'); }
   finally {
-    if (remove) {
-      const cleanup = await remove(names);
-      if (!cleanup.ok) throw new Error('Storage recovery exact fixture cleanup failed; private diagnostics suppressed.');
+    try {
+      if (remove) {
+        const cleanup = await remove(names);
+        if (!cleanup.ok) throw new Error('Storage recovery exact fixture cleanup failed; private diagnostics suppressed.');
+      }
+    } finally {
+      if (scratch) fs.rmSync(scratch, { recursive: true, force: true });
     }
-    if (scratch) fs.rmSync(scratch, { recursive: true, force: true });
   }
 }
