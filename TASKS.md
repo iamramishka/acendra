@@ -1562,23 +1562,47 @@ CLAUDE
 
 ## CLAUDE - LEARNING UI
 
-- [ ] CSA-128 [P1] [C]
+- [x] CSA-128 [P1] [C] IN_REVIEW
   Implement My Courses.
+  Agent: CLAUDE | Branch: feat/csa-107-110-111-115-route-registration
+  Commit: 571c92e
+  Files: lib/features/my_courses/** | test/features/my_courses/**
+  Tests: 4/4 pass | flutter analyze: clean
 
-- [ ] CSA-129 [P1] [C]
+- [x] CSA-129 [P1] [C] IN_REVIEW
   Implement learning workspace.
+  Agent: CLAUDE | Branch: feat/csa-107-110-111-115-route-registration
+  Commit: 571c92e
+  Files: lib/features/learning/** | lib/app/router/app_router.dart
+  Tests: 4/4 pass | flutter analyze: clean
 
-- [ ] CSA-130 [P1] [C]
+- [x] CSA-130 [P1] [C] IN_REVIEW
   Implement curriculum navigation.
+  Agent: CLAUDE | Branch: feat/csa-107-110-111-115-route-registration
+  Commit: 571c92e
+  Files: lib/features/learning/presentation/widgets/curriculum_nav.dart
+  Tests: 7/7 pass | flutter analyze: clean
 
-- [ ] CSA-131 [P1] [C]
+- [x] CSA-131 [P1] [C] IN_REVIEW
   Implement text lesson viewer.
+  Agent: CLAUDE | Branch: feat/csa-107-110-111-115-route-registration
+  Commit: 571c92e
+  Files: lib/features/learning/presentation/widgets/text_lesson_viewer.dart
+  Tests: 6/6 pass | flutter analyze: clean
 
-- [ ] CSA-132 [P1] [C]
+- [x] CSA-132 [P1] [C] IN_REVIEW
   Implement image lesson viewer.
+  Agent: CLAUDE | Branch: feat/csa-107-110-111-115-route-registration
+  Commit: 571c92e
+  Files: lib/features/learning/presentation/widgets/image_lesson_viewer.dart
+  Tests: 6/6 pass | flutter analyze: clean
 
-- [ ] CSA-134 [P1] [C]
+- [x] CSA-134 [P1] [C] IN_REVIEW
   Implement continue-learning UI.
+  Agent: CLAUDE | Branch: feat/csa-107-110-111-115-route-registration
+  Commit: 571c92e
+  Files: lib/features/my_courses/presentation/widgets/continue_learning_card.dart
+  Tests: covered by my_courses suite | flutter analyze: clean
 
 ## CODEX - LEARNING DATA INTEGRATION
 
