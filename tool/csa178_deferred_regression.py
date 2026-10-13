@@ -27,7 +27,7 @@ with tempfile.TemporaryDirectory(prefix='acendra-csa178-deferred-') as scratch:
         assert start.returncode == 0
         started = True
         assert query(BOOTSTRAP).returncode == 0
-        fix = ROOT / 'supabase/migrations/20261013003400_csa178_deferred_financial_checks.sql'
+        fix = ROOT / 'supabase/migrations/20261013003500_csa178_deferred_financial_checks.sql'
         for migration in sorted((ROOT / 'supabase/migrations').glob('*.sql')):
             if migration == fix:
                 continue
@@ -36,12 +36,12 @@ with tempfile.TemporaryDirectory(prefix='acendra-csa178-deferred-') as scratch:
         regression = (ROOT / 'supabase/tests/database/csa178_deferred_financial_checks.test.sql').read_text()
         before = query(regression)
         assert before.returncode != 0 and 'permission denied for table orders' in before.stderr
-        print('RED: restricted service caller fails deferred orders permission check before migration034.')
+        print('RED: restricted service caller fails deferred orders permission check before migration035.')
         assert query(fix.read_text()).returncode == 0
         after = query(regression)
         assert after.returncode == 0, 'Corrected deferred check regression must pass.'
         assert after.stdout.count('ok ') == 4
-        print('GREEN: four deferred-check and privilege regressions pass after migration034.')
+        print('GREEN: four deferred-check and privilege regressions pass after migration035.')
     finally:
         if started:
             with (task_root / 'stop.log').open('w') as log:
@@ -49,3 +49,4 @@ with tempfile.TemporaryDirectory(prefix='acendra-csa178-deferred-') as scratch:
                                       stdout=log, stderr=log, env=env, timeout=60)
             if stop.returncode:
                 raise RuntimeError('Task-owned regression cluster cleanup failed.')
+
