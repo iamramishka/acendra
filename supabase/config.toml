@@ -437,3 +437,23 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+# CSA158/164/165/168/172 entrypoints retain explicit code-level release gates.
+[functions.admin-dashboard-stats]
+enabled = true
+verify_jwt = true
+[functions.admin-financial-report]
+enabled = true
+verify_jwt = true
+[functions.admin-create-media-upload]
+enabled = true
+verify_jwt = true
+[functions.admin-finalize-media-upload]
+enabled = true
+verify_jwt = true
+[functions.admin-publish-course]
+enabled = true
+verify_jwt = true
+[functions.admin-enrollments]
+enabled = true
+verify_jwt = true
