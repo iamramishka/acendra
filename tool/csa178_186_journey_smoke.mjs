@@ -108,6 +108,11 @@ export async function runJourneySmoke({ root, layout, env, sql, base, key, conta
     sql(`insert into public.courses(id,slug,title,price_minor,status,published_at) values('${course}','journey-${course}','Synthetic journey',12345,'published',now());
       insert into public.course_sections(id,course_id,title,position,is_published) values('${section}','${course}','Synthetic',0,true);
       insert into public.lessons(id,section_id,title,lesson_type,position,is_published) values('${lesson}','${section}','Synthetic text','text',0,true);`);
+    const claims = JSON.parse(Buffer.from(buyer.token.split('.')[1], 'base64url').toString());
+    assert.match(claims.session_id, /^[0-9a-f-]{36}$/);
+    const sessionAal = sql(`select coalesce(aal::text,'null') from auth.sessions where id='${claims.session_id}' and user_id='${buyer.id}'`);
+    stage = 'real buyer session assurance=' + (['aal1','aal2','null',''].includes(sessionAal) ? sessionAal || 'missing' : 'unexpected');
+    assert.equal(sessionAal, claims.aal);
     const entitlement = async (user, value) => { const r = await api('/rest/v1/rpc/csa117_verify_entitlement', user.token, { p_course: course }); assert.equal(r.status, 200); assert.equal(r.body, value); };
     stage = 'bank order and real receipt Storage without premature access';
     stage = 'bank order HTTP creation';
