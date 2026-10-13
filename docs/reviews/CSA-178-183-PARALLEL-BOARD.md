@@ -19,3 +19,7 @@ Dependencies: integrated checkout and learning UI, approved provider sandbox, ap
 Verification criteria: exact executed commands/results, distinguish component tests from E2E; record blocked acceptance and coverage gaps; preserve gates; no unchecked task marked DONE.
 Release condition: report review or explicit handoff; no shared file locks acquired.
 Related PR: none yet.
+
+## PR #115 review integration ownership
+
+2026-10-13: project owner authorized review and merge into dev. CODEX root owns reconciliation in C:/Users/ramis/.codex/worktrees/pr115-review/acendra, branch docs/pr115-reviewed-integration. Scope: this board/report and removal of inherited out-of-scope deltas from the PR; preserve dev application and task registry. Original branch commits remain in history, so their marketplace/accessibility work can be reviewed separately. No deployment or security acceptance is implied. Merge conflicts in TASKS.md, semantic labels and CourseDetail were compared with both versions before resolution. Current dev implementations and coordination records are the approved integration basis.
