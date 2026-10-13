@@ -1727,23 +1727,23 @@ CODEX
 
 - [ ] CSA-158 [P1] [X]
   Implement real dashboard statistics.
-  Status: IN_REVIEW; Issue #106; coordinated implementation and verification: docs/tasks/CSA-158-164-165-168-172-INTEGRATION.md.
+  Status: IN_REVIEW; backend foundation merged into dev via PR #107 on 2026-10-13; operational acceptance and activation remain pending. Issue #106; current evidence: docs/tasks/CSA-158-168-MERGE-RECONCILIATION.md.
 
 - [ ] CSA-164 [P1] [X]
   Implement authorized media uploads.
-  Status: IN_REVIEW; Issue #106; coordinated implementation and verification: docs/tasks/CSA-158-164-165-168-172-INTEGRATION.md.
+  Status: IN_REVIEW; backend foundation merged into dev via PR #107 on 2026-10-13; operational acceptance and activation remain pending. Issue #106; current evidence: docs/tasks/CSA-158-168-MERGE-RECONCILIATION.md.
 
 - [ ] CSA-165 [P1] [X]
   Implement trusted course publish actions.
-  Status: IN_REVIEW; Issue #106; coordinated implementation and verification: docs/tasks/CSA-158-164-165-168-172-INTEGRATION.md.
+  Status: IN_REVIEW; backend foundation merged into dev via PR #107 on 2026-10-13; operational acceptance and activation remain pending. Issue #106; current evidence: docs/tasks/CSA-158-168-MERGE-RECONCILIATION.md.
 
 - [ ] CSA-168 [P0] [X]
   Implement audited enrollment management.
-  Status: IN_REVIEW; Issue #106; coordinated implementation and verification: docs/tasks/CSA-158-164-165-168-172-INTEGRATION.md.
+  Status: IN_REVIEW; backend foundation merged into dev via PR #107 on 2026-10-13; operational acceptance and activation remain pending. Issue #106; current evidence: docs/tasks/CSA-158-168-MERGE-RECONCILIATION.md.
 
 - [ ] CSA-172 [P1] [X]
   Implement transaction reporting backend.
-  Status: IN_REVIEW; Issue #106; coordinated implementation and verification: docs/tasks/CSA-158-164-165-168-172-INTEGRATION.md.
+  Status: IN_REVIEW; backend foundation merged into dev via PR #107 on 2026-10-13; operational acceptance and activation remain pending. Issue #106; current evidence: docs/tasks/CSA-158-168-MERGE-RECONCILIATION.md.
 
 - [ ] CSA-173 [P0] [X]
   Verify all admin operation permissions.
