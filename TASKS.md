@@ -1793,11 +1793,13 @@ Integration Gate:
 
 ## CODEX - SECURITY TESTING
 
-- [ ] CSA-182 [P0] [X]
+- [x] CSA-182 [P0] [X] [DONE]
   Audit RLS and grants.
+  DONE for current repository database audit: catalog-wide RLS, private table/column grants, backend RPC execution, public mutation grants and definer search paths verified in real disposable Supabase CI. See docs/reviews/CSA-178-201-FINAL-EVIDENCE.md; hosted production configuration remains a separate release gate.
 
-- [ ] CSA-183 [P0] [X]
+- [x] CSA-183 [P0] [X] [DONE]
   Test cross-student data isolation.
+  DONE for current repository isolation tests: symmetric entitled-student progress and effective authenticated-role profile/order/enrollment/content denials passed in real Supabase SQL/API checks. See docs/reviews/CSA-178-201-FINAL-EVIDENCE.md. Full purchase/browser/provider journey acceptance remains separately tracked.
 
 - [ ] CSA-184 [P0] [X] [IN_REVIEW]
   Test finance role restrictions.
