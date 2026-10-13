@@ -9,6 +9,12 @@ import 'package:acendra/features/authentication/presentation/screens/login_scree
 import 'package:acendra/features/authentication/presentation/screens/register_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/reset_password_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/verify_email_screen.dart';
+import 'package:acendra/features/checkout/presentation/screens/checkout_screen.dart';
+import 'package:acendra/features/checkout/presentation/screens/payment_failure_screen.dart';
+import 'package:acendra/features/checkout/presentation/screens/payment_pending_screen.dart';
+import 'package:acendra/features/checkout/presentation/screens/payment_success_screen.dart';
+import 'package:acendra/features/learning/presentation/screens/learning_workspace_screen.dart';
+import 'package:acendra/features/my_courses/presentation/screens/my_courses_screen.dart';
 import 'package:acendra/features/marketplace/presentation/screens/course_detail_screen.dart';
 import 'package:acendra/features/marketplace/presentation/screens/marketplace_screen.dart';
 import 'package:acendra/features/profile/presentation/screens/profile_edit_screen.dart';
@@ -129,11 +135,50 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: RouteNames.myCourses,
-            builder: (_, _) => const _PlaceholderScreen(title: 'My Courses'),
+            builder: (_, _) => const MyCoursesScreen(),
           ),
           GoRoute(
             path: RouteNames.checkout,
-            builder: (_, _) => const _PlaceholderScreen(title: 'Checkout'),
+            builder: (_, state) => CheckoutScreen(
+              courseId: state.pathParameters['courseId']!,
+            ),
+            routes: [
+              GoRoute(
+                path: 'success',
+                builder: (_, state) {
+                  final extra = state.extra as Map<String, dynamic>? ?? {};
+                  return PaymentSuccessScreen(
+                    courseId: state.pathParameters['courseId']!,
+                    courseTitle: extra['courseTitle'] as String? ?? '',
+                    orderNumber: extra['orderNumber'] as String? ?? '',
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'pending',
+                builder: (_, state) {
+                  final extra = state.extra as Map<String, dynamic>? ?? {};
+                  return PaymentPendingScreen(
+                    courseId: state.pathParameters['courseId']!,
+                    courseTitle: extra['courseTitle'] as String? ?? '',
+                    orderNumber: extra['orderNumber'] as String? ?? '',
+                    bankName: extra['bankName'] as String?,
+                    accountNumber: extra['accountNumber'] as String?,
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'failure',
+                builder: (_, state) {
+                  final extra = state.extra as Map<String, dynamic>? ?? {};
+                  return PaymentFailureScreen(
+                    courseId: state.pathParameters['courseId']!,
+                    courseTitle: extra['courseTitle'] as String?,
+                    reason: extra['reason'] as String?,
+                  );
+                },
+              ),
+            ],
           ),
           GoRoute(
             path: RouteNames.profile,
@@ -152,8 +197,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: RouteNames.learn,
-            builder: (_, _) =>
-                const _PlaceholderScreen(title: 'Learning Workspace'),
+            builder: (_, state) => LearningWorkspaceScreen(
+              courseId: state.pathParameters['courseId']!,
+            ),
           ),
         ],
       ),
