@@ -1,4 +1,3 @@
-import 'dart:ui' show SemanticsFlag;
 import 'package:acendra/features/checkout/domain/entities/payment_method.dart';
 import 'package:acendra/features/checkout/presentation/widgets/payment_method_selector.dart';
 import 'package:flutter/material.dart';
@@ -13,12 +12,17 @@ Widget _buildTestWidget({
   ),
 );
 
-bool _selected(WidgetTester tester, PaymentMethod method) {
+bool? _selected(WidgetTester tester, PaymentMethod method) {
   final control = find.byWidgetPredicate(
     (widget) => widget is Semantics && widget.properties.label == method.label,
   );
   expect(control, findsOneWidget);
-  return tester.getSemantics(control).hasFlag(SemanticsFlag.isSelected);
+  return tester
+      .getSemantics(control)
+      .getSemanticsData()
+      .flagsCollection
+      .isSelected
+      .toBoolOrNull();
 }
 
 void main() {
