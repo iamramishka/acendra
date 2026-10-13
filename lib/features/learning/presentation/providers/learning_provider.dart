@@ -4,7 +4,8 @@ import 'package:acendra/features/marketplace/domain/entities/curriculum_section.
 import 'package:acendra/features/marketplace/domain/entities/lesson_item.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart' show StateNotifier, StateNotifierProvider;
+import 'package:flutter_riverpod/legacy.dart'
+    show StateNotifier, StateNotifierProvider;
 
 @immutable
 class LearningState {
@@ -37,8 +38,9 @@ class LearningState {
       courseId: courseId,
       sections: sections ?? this.sections,
       currentLessonId: currentLessonId ?? this.currentLessonId,
-      currentContent:
-          clearContent ? null : (currentContent ?? this.currentContent),
+      currentContent: clearContent
+          ? null
+          : (currentContent ?? this.currentContent),
       isLoading: isLoading ?? this.isLoading,
       error: clearError ? null : (error ?? this.error),
     );
@@ -61,14 +63,16 @@ class LearningNotifier extends StateNotifier<LearningState> {
   }
 
   final Ref _ref;
+  int _requestId = 0;
 
   Future<void> loadCourse(String courseId) async {
     if (!mounted) return;
+    final requestId = ++_requestId;
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final repo = _ref.read(learningRepositoryProvider);
       final sections = await repo.getCurriculumWithLessons(courseId);
-      if (!mounted) return;
+      if (!mounted || requestId != _requestId) return;
       state = state.copyWith(sections: sections, isLoading: false);
 
       final flat = state.flatLessons;
@@ -76,13 +80,14 @@ class LearningNotifier extends StateNotifier<LearningState> {
         await selectLesson(flat.first.id);
       }
     } catch (e) {
-      if (!mounted) return;
+      if (!mounted || requestId != _requestId) return;
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
   Future<void> selectLesson(String lessonId) async {
     if (!mounted) return;
+    final requestId = ++_requestId;
     state = state.copyWith(
       currentLessonId: lessonId,
       isLoading: true,
@@ -92,10 +97,10 @@ class LearningNotifier extends StateNotifier<LearningState> {
     try {
       final repo = _ref.read(learningRepositoryProvider);
       final content = await repo.getLessonContent(lessonId);
-      if (!mounted) return;
+      if (!mounted || requestId != _requestId) return;
       state = state.copyWith(currentContent: content, isLoading: false);
     } catch (e) {
-      if (!mounted) return;
+      if (!mounted || requestId != _requestId) return;
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }

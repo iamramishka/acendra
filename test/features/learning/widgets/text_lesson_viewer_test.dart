@@ -45,8 +45,9 @@ void main() {
     expect(find.text('Next →'), findsNothing);
   });
 
-  testWidgets('shows Previous button when onPrevious is provided',
-      (tester) async {
+  testWidgets('shows Previous button when onPrevious is provided', (
+    tester,
+  ) async {
     await tester.pumpWidget(buildWidget(onPrevious: () {}));
 
     expect(find.text('← Previous'), findsOneWidget);

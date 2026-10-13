@@ -36,9 +36,7 @@ class CurriculumNav extends StatelessWidget {
       itemCount: sections.length,
       itemBuilder: (context, index) {
         final section = sections[index];
-        final isExpanded = section.lessons.any(
-          (l) => l.id == currentLessonId,
-        );
+        final isExpanded = section.lessons.any((l) => l.id == currentLessonId);
         return _SectionTile(
           section: section,
           initiallyExpanded: isExpanded,
@@ -75,8 +73,9 @@ class _SectionTile extends StatelessWidget {
       ),
       title: Text(
         '${section.position}. ${section.title}',
-        style: theme.textTheme.titleSmall
-            ?.copyWith(fontWeight: FontWeight.bold),
+        style: theme.textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.bold,
+        ),
       ),
       children: section.lessons
           .map(
@@ -141,8 +140,7 @@ class _LessonTile extends StatelessWidget {
         ? Text(
             _formatDuration(lesson.durationSeconds!),
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color:
-                  isSelected ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+              color: isSelected ? cs.onPrimaryContainer : cs.onSurfaceVariant,
             ),
           )
         : null;

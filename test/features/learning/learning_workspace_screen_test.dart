@@ -73,9 +73,9 @@ const _lessonContent = LessonContent(
 Widget _wrap(Widget child, LearningState stubState) {
   return ProviderScope(
     overrides: [
-      learningWorkspaceProvider(_testCourseId).overrideWith(
-        (ref) => _StubLearningNotifier(stubState, ref),
-      ),
+      learningWorkspaceProvider(
+        _testCourseId,
+      ).overrideWith((ref) => _StubLearningNotifier(stubState, ref)),
     ],
     child: MaterialApp(home: Scaffold(body: child)),
   );
@@ -86,6 +86,37 @@ Widget _wrap(Widget child, LearningState stubState) {
 // ---------------------------------------------------------------------------
 
 void main() {
+  for (final type in ['text', 'image']) {
+    testWidgets(
+      '$type metadata shows unavailable content instead of an empty viewer',
+      (tester) async {
+        final metadata = LessonContent(
+          id: 'les-1',
+          title: 'Lesson',
+          lessonType: type,
+          position: 1,
+          sectionId: 'sec-1',
+        );
+        await tester.pumpWidget(
+          _wrap(
+            const LearningWorkspaceScreen(courseId: _testCourseId),
+            LearningState(
+              courseId: _testCourseId,
+              sections: _sections,
+              currentLessonId: 'les-1',
+              currentContent: metadata,
+            ),
+          ),
+        );
+        expect(
+          find.text('This lesson content is currently unavailable.'),
+          findsOneWidget,
+        );
+        expect(find.text('Next'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
   group('LearningWorkspaceScreen', () {
     testWidgets('shows AppSkeleton placeholders in loading state', (
       tester,
@@ -125,36 +156,35 @@ void main() {
       expect(find.text('Retry'), findsOneWidget);
     });
 
-    testWidgets(
-      'desktop layout (>=900px) shows 280px sidebar SizedBox',
-      (tester) async {
-        tester.view.physicalSize = const Size(1200, 800);
-        tester.view.devicePixelRatio = 1.0;
-        addTearDown(tester.view.resetPhysicalSize);
+    testWidgets('desktop layout (>=900px) shows 280px sidebar SizedBox', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1200, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
 
-        await tester.pumpWidget(
-          _wrap(
-            const LearningWorkspaceScreen(courseId: _testCourseId),
-            const LearningState(
-              courseId: _testCourseId,
-              isLoading: false,
-              sections: _sections,
-              currentLessonId: 'les-1',
-              currentContent: _lessonContent,
-            ),
+      await tester.pumpWidget(
+        _wrap(
+          const LearningWorkspaceScreen(courseId: _testCourseId),
+          const LearningState(
+            courseId: _testCourseId,
+            isLoading: false,
+            sections: _sections,
+            currentLessonId: 'les-1',
+            currentContent: _lessonContent,
           ),
-        );
-        await tester.pump();
+        ),
+      );
+      await tester.pump();
 
-        final sizedBoxes = tester.widgetList<SizedBox>(find.byType(SizedBox));
-        final hasSidebar = sizedBoxes.any((sb) => sb.width == 280.0);
-        expect(
-          hasSidebar,
-          isTrue,
-          reason: 'Expected a 280px SizedBox for the desktop sidebar',
-        );
-      },
-    );
+      final sizedBoxes = tester.widgetList<SizedBox>(find.byType(SizedBox));
+      final hasSidebar = sizedBoxes.any((sb) => sb.width == 280.0);
+      expect(
+        hasSidebar,
+        isTrue,
+        reason: 'Expected a 280px SizedBox for the desktop sidebar',
+      );
+    });
 
     testWidgets(
       'mobile layout (<900px) shows FloatingActionButton for curriculum',

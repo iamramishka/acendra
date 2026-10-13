@@ -1,8 +1,27 @@
 import 'package:acendra/app/router/app_router.dart';
 import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
+import 'package:acendra/features/learning/data/repositories/supabase_learning_repository.dart';
+import 'package:acendra/features/learning/domain/entities/lesson_content.dart';
+import 'package:acendra/features/learning/domain/repositories/learning_repository.dart';
+import 'package:acendra/features/marketplace/domain/entities/curriculum_section.dart';
+import 'package:acendra/features/my_courses/data/repositories/supabase_my_courses_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../features/my_courses/fakes/fake_my_courses_repository.dart';
+
+class _UnavailableLearningRepository implements LearningRepository {
+  @override
+  Future<List<CurriculumSection>> getCurriculumWithLessons(
+    String courseId,
+  ) async => throw StateError('Unavailable');
+  @override
+  Future<LessonContent> getLessonContent(String lessonId) async =>
+      throw StateError('Unavailable');
+  @override
+  Future<bool> isEnrolledOrPreview(String courseId, String lessonId) async =>
+      false;
+}
 
 Widget _app({required bool sessionRestored, required bool isAuthenticated}) =>
     ProviderScope(
@@ -10,6 +29,12 @@ Widget _app({required bool sessionRestored, required bool isAuthenticated}) =>
         sessionRestoredProvider.overrideWithValue(sessionRestored),
         isAuthenticatedProvider.overrideWithValue(isAuthenticated),
         authStreamProvider.overrideWith((ref) => const Stream.empty()),
+        learningRepositoryProvider.overrideWithValue(
+          _UnavailableLearningRepository(),
+        ),
+        myCoursesRepositoryProvider.overrideWithValue(
+          FakeMyCoursesRepository(shouldThrow: true),
+        ),
       ],
       child: Consumer(
         builder: (_, ref, _) =>
@@ -31,7 +56,15 @@ void main() {
         ).read(appRouterProvider);
         router.go(route);
         await tester.pumpAndSettle();
-        expect(find.textContaining('currently unavailable'), findsOneWidget);
+        expect(
+          find.text(
+            route.startsWith('/learn/')
+                ? 'Could not load course content.'
+                : 'Failed to load your courses. Please try again.',
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('Retry'), findsOneWidget);
         expect(tester.takeException(), isNull);
       },
     );

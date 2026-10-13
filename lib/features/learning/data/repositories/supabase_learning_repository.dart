@@ -18,7 +18,7 @@ class SupabaseLearningRepository implements LearningRepository {
     final rows = await _client
         .from('course_sections')
         .select(
-          'id, title, position, lessons(id, title, lesson_type, position, is_preview, duration_seconds, content_text, content_image_url)',
+          'id, title, position, lessons(id, title, lesson_type, position, is_preview, duration_seconds)',
         )
         .eq('course_id', courseId)
         .order('position');
@@ -33,7 +33,8 @@ class SupabaseLearningRepository implements LearningRepository {
   Future<LessonContent> getLessonContent(String lessonId) async {
     final row = await _client
         .from('lessons')
-        .select('*')
+        // lessons contains publicly readable metadata, never paid lesson bodies.
+        .select('id, title, lesson_type, position, section_id')
         .eq('id', lessonId)
         .single();
     return LessonContentDto.fromJson(row);

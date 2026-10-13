@@ -63,12 +63,7 @@ void main() {
   group('CurriculumNav', () {
     testWidgets('renders section titles', (tester) async {
       await tester.pumpWidget(
-        _wrap(
-          CurriculumNav(
-            sections: _sections,
-            onLessonTap: (_) {},
-          ),
-        ),
+        _wrap(CurriculumNav(sections: _sections, onLessonTap: (_) {})),
       );
 
       expect(find.text('1. Getting Started'), findsOneWidget);
@@ -76,32 +71,33 @@ void main() {
     });
 
     testWidgets(
-        'calls onLessonTap with correct id when lesson tile is tapped',
-        (tester) async {
-      String? tappedId;
+      'calls onLessonTap with correct id when lesson tile is tapped',
+      (tester) async {
+        String? tappedId;
 
-      await tester.pumpWidget(
-        _wrap(
-          CurriculumNav(
-            sections: _sections,
-            onLessonTap: (id) => tappedId = id,
+        await tester.pumpWidget(
+          _wrap(
+            CurriculumNav(
+              sections: _sections,
+              onLessonTap: (id) => tappedId = id,
+            ),
           ),
-        ),
-      );
+        );
 
-      // Expand the first section so lesson tiles become visible.
-      await tester.tap(find.text('1. Getting Started'));
-      await tester.pumpAndSettle();
+        // Expand the first section so lesson tiles become visible.
+        await tester.tap(find.text('1. Getting Started'));
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Introduction'));
-      await tester.pump();
+        await tester.tap(find.text('Introduction'));
+        await tester.pump();
 
-      expect(tappedId, equals('l1'));
-    });
+        expect(tappedId, equals('l1'));
+      },
+    );
 
-    testWidgets(
-        'highlights the current lesson tile with selected state',
-        (tester) async {
+    testWidgets('highlights the current lesson tile with selected state', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(
           CurriculumNav(
@@ -121,12 +117,16 @@ void main() {
       expect(listTileFinder, findsOneWidget);
 
       final tile = tester.widget<ListTile>(listTileFinder);
-      expect(tile.selected, isTrue,
-          reason: 'Expected the current lesson tile to have selected == true');
+      expect(
+        tile.selected,
+        isTrue,
+        reason: 'Expected the current lesson tile to have selected == true',
+      );
     });
 
-    testWidgets('section containing currentLessonId is expanded by default',
-        (tester) async {
+    testWidgets('section containing currentLessonId is expanded by default', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(
           CurriculumNav(
@@ -144,12 +144,7 @@ void main() {
 
     testWidgets('shows Preview chip for isPreview lessons', (tester) async {
       await tester.pumpWidget(
-        _wrap(
-          CurriculumNav(
-            sections: _sections,
-            onLessonTap: (_) {},
-          ),
-        ),
+        _wrap(CurriculumNav(sections: _sections, onLessonTap: (_) {})),
       );
 
       // Expand section 1.
@@ -161,12 +156,7 @@ void main() {
 
     testWidgets('shows empty state when no sections provided', (tester) async {
       await tester.pumpWidget(
-        _wrap(
-          CurriculumNav(
-            sections: const [],
-            onLessonTap: (_) {},
-          ),
-        ),
+        _wrap(CurriculumNav(sections: const [], onLessonTap: (_) {})),
       );
 
       expect(find.text('No curriculum available yet.'), findsOneWidget);
@@ -174,12 +164,7 @@ void main() {
 
     testWidgets('formats durationSeconds as mm:ss', (tester) async {
       await tester.pumpWidget(
-        _wrap(
-          CurriculumNav(
-            sections: _sections,
-            onLessonTap: (_) {},
-          ),
-        ),
+        _wrap(CurriculumNav(sections: _sections, onLessonTap: (_) {})),
       );
 
       // Expand section 1 to see lesson1 (185 s = 03:05).

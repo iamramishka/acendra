@@ -9,8 +9,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'fakes/fake_my_courses_repository.dart';
 
 ProviderContainer _container(MyCoursesRepository repo) => ProviderContainer(
-      overrides: [myCoursesRepositoryProvider.overrideWithValue(repo)],
-    );
+  overrides: [myCoursesRepositoryProvider.overrideWithValue(repo)],
+);
 
 Widget _wrap(Widget child, ProviderContainer container) =>
     UncontrolledProviderScope(
@@ -20,8 +20,9 @@ Widget _wrap(Widget child, ProviderContainer container) =>
 
 void main() {
   group('MyCoursesScreen', () {
-    testWidgets('shows loading indicator while courses are being fetched',
-        (tester) async {
+    testWidgets('shows loading indicator while courses are being fetched', (
+      tester,
+    ) async {
       // The async notifier starts in AsyncLoading before the first future
       // resolves. Pumping without settling captures that initial frame.
       final container = _container(
@@ -35,8 +36,9 @@ void main() {
       container.dispose();
     });
 
-    testWidgets('shows AppEmptyState when enrolled course list is empty',
-        (tester) async {
+    testWidgets('shows AppEmptyState when enrolled course list is empty', (
+      tester,
+    ) async {
       final container = _container(FakeMyCoursesRepository());
 
       await tester.pumpWidget(_wrap(const MyCoursesScreen(), container));
@@ -50,8 +52,9 @@ void main() {
       container.dispose();
     });
 
-    testWidgets('shows course card when enrolled courses are returned',
-        (tester) async {
+    testWidgets('shows course card when enrolled courses are returned', (
+      tester,
+    ) async {
       final container = _container(
         FakeMyCoursesRepository(result: [fakeEnrolledCourse]),
       );
@@ -63,10 +66,10 @@ void main() {
       container.dispose();
     });
 
-    testWidgets('shows error state with retry button on failure',
-        (tester) async {
-      final container =
-          _container(FakeMyCoursesRepository(shouldThrow: true));
+    testWidgets('shows error state with retry button on failure', (
+      tester,
+    ) async {
+      final container = _container(FakeMyCoursesRepository(shouldThrow: true));
 
       await tester.pumpWidget(_wrap(const MyCoursesScreen(), container));
       await tester.pumpAndSettle();

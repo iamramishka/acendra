@@ -15,12 +15,17 @@ class SupabaseMyCoursesRepository implements MyCoursesRepository {
         .from('enrollments')
         .select(
           'id, course_id, status, created_at, '
-          'courses(id, title, short_description, thumbnail_url)',
+          // thumbnail_path is a storage reference, not a deliverable URL.
+          // Keep the card placeholder until authorized thumbnail delivery exists.
+          'courses(id, title, short_description)',
         )
         .eq('status', 'active')
         .order('created_at', ascending: false);
     return (rows as List<dynamic>)
-        .map((r) => EnrolledCourseDto.fromJson(r as Map<String, dynamic>).toEntity())
+        .map(
+          (r) =>
+              EnrolledCourseDto.fromJson(r as Map<String, dynamic>).toEntity(),
+        )
         .toList();
   }
 }

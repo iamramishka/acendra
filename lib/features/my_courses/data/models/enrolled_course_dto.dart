@@ -12,8 +12,7 @@ import 'package:acendra/features/my_courses/domain/entities/enrolled_course.dart
 ///   "courses": {
 ///     "id": "course-uuid",
 ///     "title": "Course Title",
-///     "short_description": "...",
-///     "thumbnail_url": "https://..."
+///     "short_description": "..."
 ///   }
 /// }
 /// ```
@@ -23,7 +22,6 @@ class EnrolledCourseDto {
     required this.courseId,
     required this.title,
     required this.shortDescription,
-    this.thumbnailUrl,
     required this.status,
     required this.enrolledAt,
   });
@@ -32,7 +30,6 @@ class EnrolledCourseDto {
   final String courseId;
   final String title;
   final String shortDescription;
-  final String? thumbnailUrl;
   final String status;
   final String enrolledAt;
 
@@ -43,19 +40,17 @@ class EnrolledCourseDto {
       courseId: json['course_id'] as String,
       title: courseMap['title'] as String? ?? '',
       shortDescription: courseMap['short_description'] as String? ?? '',
-      thumbnailUrl: courseMap['thumbnail_url'] as String?,
       status: json['status'] as String? ?? '',
       enrolledAt: json['created_at'] as String? ?? '',
     );
   }
 
   EnrolledCourse toEntity() => EnrolledCourse(
-        id: id,
-        courseId: courseId,
-        title: title,
-        shortDescription: shortDescription,
-        thumbnailUrl: thumbnailUrl,
-        status: status,
-        enrolledAt: enrolledAt,
-      );
+    id: id,
+    courseId: courseId,
+    title: title,
+    shortDescription: shortDescription,
+    status: status,
+    enrolledAt: enrolledAt,
+  );
 }

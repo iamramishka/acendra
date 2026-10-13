@@ -2,10 +2,7 @@ import 'package:acendra/features/my_courses/domain/entities/enrolled_course.dart
 import 'package:acendra/features/my_courses/domain/repositories/my_courses_repository.dart';
 
 class FakeMyCoursesRepository implements MyCoursesRepository {
-  FakeMyCoursesRepository({
-    this.result = const [],
-    this.shouldThrow = false,
-  });
+  FakeMyCoursesRepository({this.result = const [], this.shouldThrow = false});
 
   final List<EnrolledCourse> result;
   final bool shouldThrow;

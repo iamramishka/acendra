@@ -44,10 +44,7 @@ class TextLessonViewer extends StatelessWidget {
               const SizedBox(height: AppSpacing.lg),
               Text(
                 content,
-                style: tt.bodyLarge?.copyWith(
-                  height: 1.6,
-                  color: cs.onSurface,
-                ),
+                style: tt.bodyLarge?.copyWith(height: 1.6, color: cs.onSurface),
               ),
               const SizedBox(height: AppSpacing.xl),
               if (onPrevious != null || onNext != null)

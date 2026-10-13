@@ -53,8 +53,9 @@ class LearningWorkspaceScreen extends ConsumerWidget {
       content: state.currentContent,
       isLoading: state.isLoading,
       onPrevious: currentIndex > 0 ? onPrevious : null,
-      onNext:
-          currentIndex >= 0 && currentIndex < flat.length - 1 ? onNext : null,
+      onNext: currentIndex >= 0 && currentIndex < flat.length - 1
+          ? onNext
+          : null,
     );
 
     final curriculumNav = CurriculumNav(
@@ -73,8 +74,7 @@ class LearningWorkspaceScreen extends ConsumerWidget {
               SizedBox(
                 width: _kSidebarWidth,
                 child: Material(
-                  color:
-                      Theme.of(context).colorScheme.surfaceContainerLow,
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
                   child: curriculumNav,
                 ),
               ),
@@ -186,6 +186,20 @@ class _LessonContentArea extends StatelessWidget {
       return const Center(child: Text('Select a lesson to begin.'));
     }
 
+    if ((content!.lessonType == 'text' && content!.contentText == null) ||
+        (content!.lessonType == 'image' && content!.contentImageUrl == null)) {
+      return Column(
+        children: [
+          const Expanded(
+            child: Center(
+              child: Text('This lesson content is currently unavailable.'),
+            ),
+          ),
+          _LessonNavBar(onPrevious: onPrevious, onNext: onNext),
+        ],
+      );
+    }
+
     return switch (content!.lessonType) {
       'text' => TextLessonViewer(
         title: content!.title,
@@ -240,10 +254,7 @@ class _PlaceholderLessonViewer extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
+                Text(title, style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(height: AppSpacing.xl),
                 Center(
                   child: Card(
@@ -345,10 +356,7 @@ class _LoadingSkeleton extends StatelessWidget {
         if (isDesktop) {
           return Row(
             children: [
-              SizedBox(
-                width: _kSidebarWidth,
-                child: _SidebarSkeleton(),
-              ),
+              SizedBox(width: _kSidebarWidth, child: _SidebarSkeleton()),
               const VerticalDivider(width: 1),
               const Expanded(child: _LessonLoadingSkeleton()),
             ],
