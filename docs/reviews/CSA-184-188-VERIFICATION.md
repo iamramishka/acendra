@@ -4,7 +4,7 @@ Date: 2026-10-13 (Asia/Colombo). Agent: CODEX root with three parallel delegates
 Base: dev 4bdf4952831d859299c39cf23522083251a4d426.
 Branch: test/csa-184-188-parallel-security.
 Scope: existing tests and read-only security review; no application or policy changes.
-Status: IN_REVIEW for review artifacts. All five acceptance tasks remain unchecked.
+Status: review artifacts merged in PR #120; all five acceptance tasks remain IN_REVIEW and unchecked.
 
 Three isolated workspaces were used; no shared mutable database, storage bucket or fixtures were used. Open Issues, PRs and worktree ownership were checked before allocation. AGENTS.md section 8 permits this bounded documentation fallback where target Issues are absent; this record is not a GitHub implementation claim. No merge or release approval is implied.
 
@@ -98,3 +98,11 @@ Web delegate also invoked `flutter test test/core/config/env_config_test.dart`. 
 The owner requested review and merge into dev. The report above is historical evidence against 4bdf495, not a current security clearance. Current dev includes the admin media-upload foundation and newer security tests; the old absence statement applies only to the recorded base. Runtime and operational acceptance gaps still require separate verification.
 
 The branch inherited unrelated task-status and accessibility/marketplace changes from its local base. During integration, those paths were compared with current origin/dev and restored to the reviewed dev versions; the price-format helper belonging to that unrelated refactor was removed. Final PR scope is only this report and its coordination board. No production code, policies or task checkboxes change relative to dev. This is deliberate scoped reconciliation, not blanket conflict resolution. The user authorizes merging these review artifacts; CSA-184 through CSA-188 remain incomplete pending their documented acceptance evidence.
+
+## Verified merge outcome — 2026-10-13
+
+[PR #120](https://github.com/iamramishka/acendra/pull/120) merged into `dev` at `b0f3dd61592d6fc8623dde28233910dec6833736`. The reviewed head was `ca6cc04413c6571525e23e21fed5a29073ffc218`. Full-diff review found no blocking findings for the documentation artifacts; integration with the then-current remote `dev` was conflict-free and `git diff --check` passed.
+
+The reviewer reran the eleven distinct Node test files listed in the three historical commands above in one invocation: 213 tests passed, zero failed or skipped. This removes repeated PDF test executions from the historical total of 285; the historical evidence remains unchanged. These component tests retain their mocked/injected dependencies and do not establish live SQL, Storage or deployment acceptance.
+
+[CI run 38350062116](https://github.com/iamramishka/acendra/actions/runs/38350062116) passed formatting, analysis, all Flutter tests, release web build and tooling regression checks. The previously unverified delegate Flutter invocation remains unverified as a historical execution; the successful CI run is separate evidence. All five task checkboxes remain unchecked. No deployment or security-policy approval is inferred from the merge.
