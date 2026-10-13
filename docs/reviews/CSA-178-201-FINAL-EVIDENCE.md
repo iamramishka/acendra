@@ -73,7 +73,8 @@ not deployed headers, managed logs or a configured production release bundle.
 
 ## Remaining requirements
 
-Checkout/My Courses/learning routes are still placeholders in the approved base.
+Checkout UI was added by the newly integrated dev commit79aaff4; a complete
+checkout-to-My-Courses/learning browser journey remains unverified.
 Provider-enabled receipt/bank/payment/media production entry points are gated.
 The test fixture inspector is not an approved operational parser/scanner, and
 synthetic bank/provider evidence is not actual independent credit verification.
