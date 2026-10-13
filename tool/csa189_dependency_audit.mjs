@@ -14,10 +14,12 @@ const lock = JSON.parse(readFileSync(new URL('package-lock.json',root),'utf8'));
 for(const [path, value] of Object.entries(lock.packages)) {
   if(path && value.version) queries.push({package:{ecosystem:'npm',name:path.split('node_modules/').at(-1)},version:value.version});
 }
+if (!queries.some(q => q.package.ecosystem === 'Pub') || !queries.some(q => q.package.ecosystem === 'PyPI') || !queries.some(q => q.package.ecosystem === 'npm')) throw new Error('Incomplete package inventory');
 const response = await fetch('https://api.osv.dev/v1/querybatch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({queries}),signal:AbortSignal.timeout(60000)});
 if (!response.ok) throw new Error(`OSV HTTP ${response.status}`);
 const body = await response.json();
 if (!Array.isArray(body.results) || body.results.length !== queries.length) throw new Error('Incomplete OSV response');
+if (body.results.some(result => !result || result.error || (result.vulns !== undefined && !Array.isArray(result.vulns)))) throw new Error('Invalid OSV result');
 const findings = body.results.flatMap((result,index)=>(result.vulns ?? []).map(v=>({ ...queries[index],id:v.id,modified:v.modified })));
 console.log(JSON.stringify({date:new Date().toISOString(),counts:Object.fromEntries(['Pub','PyPI','npm'].map(e=>[e,queries.filter(q=>q.package.ecosystem===e).length])),findings},null,2));
 process.exitCode = findings.length ? 1 : 0;
