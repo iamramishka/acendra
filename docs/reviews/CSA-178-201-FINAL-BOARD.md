@@ -1,5 +1,20 @@
 Owner: CODEX root with three isolated workers; user explicitly requested remaining Phase8 tasks finished in parallel in one integration on 2026-10-13.
-Status: CLAIMED
+Status: IN_PROGRESS
+
+Root scope extension: the actual HTTP journey reproducibly fails with42501 on
+orders at transaction completion. CSA096's two deferred constraint functions are
+SECURITY INVOKER and run after the trusted RPC definer context ends. Root exclusively
+owns one new migration and its task-specific SQL regression to fix this required
+financial acceptance defect. Existing applied migrations are preserved. No sibling
+worker edits migrations; current open PR128 is marketplace-only. The fix retains
+all financial invariants, empty search paths and revoked direct/client privileges;
+it requires P0 review/CI before integration and does not enable production handlers.
+
+Integration ownership update: workers committed their isolated test slices and
+root integrated them. The backend worker's later diagnostic turn failed because
+its model was at capacity; root now exclusively owns remaining journey diagnostics
+in the integration tree. No previous worker worktree is modified. Known synthetic
+provider/inspector boundaries and production gates remain intact.
 Base: dev c89796f129d77ee1229a70108e9692a026f95f14
 Integration branch: codex/test/csa-178-201-final-acceptance
 Integration worktree: C:/Users/ramis/.codex/worktrees/csa-phase8-final-integration/acendra
