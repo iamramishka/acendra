@@ -72,12 +72,13 @@ begin
  if not exists(select 1 from app_private.notification_outbox where id=event and status='sent' and sent_at is not null and attempt_count=3) then raise exception 'sent state'; end if;
  insert into public.courses(id,slug,title,price_minor,status) values(timed_course,'expiry-'||timed_course,'Synthetic expiry',10000,'draft');
  -- Use another eligible buyer to isolate the account restriction above.
- expires:=clock_timestamp()+interval '100 milliseconds';
+ -- Allow preceding real RPC/constraint work on slow CI hosts; wait for the actual deadline below.
+ expires:=clock_timestamp()+interval '5 seconds';
  perform public.csa116_grant_admin(admin,ads,'aal2','timed-grant',finance,timed_course,'Timed complimentary',expires);
  if not public.csa117_check_entitlement(finance,fs,'aal2',timed_course) then raise exception 'timed grant initially denied'; end if;
  update public.courses set status='published',published_at=clock_timestamp() where id=timed_course;
  begin perform public.csa098_create_checkout_order(finance,fs,'aal2','duplicate-entitlement',timed_course,'online',null); raise exception 'duplicate access purchase'; exception when unique_violation then null; end;
- perform pg_sleep(0.15);
+ perform pg_sleep(greatest(0,extract(epoch from (expires-clock_timestamp())))+0.05);
  if public.csa117_check_entitlement(finance,fs,'aal2',timed_course) then raise exception 'expiry requires worker'; end if;
  update public.enrollments set updated_at=clock_timestamp() where user_id=finance and course_id=timed_course;
  if not exists(select 1 from public.enrollments where user_id=finance and course_id=timed_course and status='expired') then raise exception 'expired projection'; end if;
