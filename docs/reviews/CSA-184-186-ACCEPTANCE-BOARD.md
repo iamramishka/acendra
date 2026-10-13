@@ -5,7 +5,7 @@ Authorization: project owner explicitly requested parallel completion of remaini
 Base: origin/dev 8365d844dc717cb2dc572205635639ba148c003f.
 Branch: codex/test/csa-184-186-acceptance.
 Worktree: C:/Users/ramis/.codex/worktrees/csa-184-186-acceptance/acendra.
-Status: IN_PROGRESS. This is a local bounded verification/documentation assignment, not a GitHub implementation claim.
+Status: IN_REVIEW. This is a local bounded verification/documentation assignment, not a GitHub implementation claim.
 Allowed writes: new docs/reviews/CSA-184-186-ACCEPTANCE-*.md and task-specific tests only. Existing workflows, migrations, production code, dependencies and TASKS.md reserved to their owners.
 Dependencies: current merged foundations; isolated disposable GitHub CI stack; owner-approved actual inspection and operational release gates.
 Verification: effective finance-role SQL denials; receipt/PDF Storage REST negatives; current media reservation tests; component upload negatives. Distinguish synthetic inspectors from operational readiness.
@@ -14,3 +14,5 @@ Overlap check: Git worktrees and local records inspected; GitHub has zero open P
 Release: handoff of reviewable evidence to root; retain IN_REVIEW until acceptance.
 
 Expanded test scope authorized by root coordinator for the user's acceptance request: new `tool/csa185_admin_storage_smoke.mjs`, plus temporary exclusive ownership of import and call lines in `tool/supabase_smoke.mjs`. No policies or runtime configuration change. Verify real private thumbnail/lesson-image transport in disposable CI; exact generated object paths only for cleanup. Synthetic image bytes do not establish inspection approval.
+
+Handoff: task test head `88d5ea8` passed existing Supabase foundations run 38353918916, including real new private image transport and both cleanup steps. Root reviewed the changes and owns consolidated integration; temporary runner ownership is released on handoff. Remaining operational approval gates are retained in the evidence report.
