@@ -163,12 +163,14 @@ class _FinanceReviewScreenState extends ConsumerState<FinanceReviewScreen> {
         .approve(submissionId: submissionId, verifiedCredit: '');
   }
 
-  void _onReject(String submissionId) {
+  Future<void> _onReject(String submissionId) async {
+    if (ref.read(bankReviewProvider).isLoading) return;
     final reason = _rejectionController.text.trim();
     if (reason.isEmpty) return;
-    ref
+    await ref
         .read(bankReviewProvider.notifier)
         .reject(submissionId: submissionId, rejectionReason: reason);
+    if (!mounted || ref.read(bankReviewProvider).hasError) return;
     setState(() {
       _showRejectForm = false;
       _rejectionController.clear();
@@ -279,6 +281,7 @@ class _PendingCard extends StatelessWidget {
           if (showRejectForm) ...[
             TextField(
               controller: rejectionController,
+              enabled: !isProcessing,
               maxLines: 3,
               maxLength: 1000,
               decoration: InputDecoration(
@@ -295,7 +298,7 @@ class _PendingCard extends StatelessWidget {
                 Expanded(
                   child: AppButton(
                     label: 'Confirm Reject',
-                    onPressed: onRejectConfirm,
+                    onPressed: isProcessing ? null : onRejectConfirm,
                     variant: ButtonVariant.destructive,
                   ),
                 ),
@@ -303,7 +306,7 @@ class _PendingCard extends StatelessWidget {
                 Expanded(
                   child: AppButton(
                     label: 'Cancel',
-                    onPressed: onRejectCancel,
+                    onPressed: isProcessing ? null : onRejectCancel,
                     variant: ButtonVariant.outlined,
                   ),
                 ),
