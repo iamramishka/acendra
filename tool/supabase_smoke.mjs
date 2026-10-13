@@ -153,6 +153,6 @@ async function main() {
 }
 
 main().catch(error => {
-  console.error(/^(Auth security|Receipt Storage|PDF Storage) smoke failed at /.test(error.message) ? error.message : 'Supabase foundation smoke check failed; no private response data logged.');
+  console.error(/^(Auth security|Receipt Storage|PDF Storage|Journey|Storage recovery) smoke failed at /.test(error.message) ? error.message : 'Supabase foundation smoke check failed; no private response data logged.');
   process.exitCode = 1;
 });
