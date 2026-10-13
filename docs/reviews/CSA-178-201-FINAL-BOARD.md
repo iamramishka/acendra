@@ -33,3 +33,23 @@ Acceptance: current actual disposable Auth/SQL/Storage-integrated request journe
 Required tests: targeted failing tests for added critical scenarios, current disposable Supabase SQL/API/Storage verification, relevant Flutter malicious-text tests, formatting/analyzer/tests/release build; exact results recorded.
 Dependencies: existing merged schema/handlers. Full UI/provider/bank/inspector/cloud operational acceptance requires actual available environments, which are not supplied; no synthetic substitute may be called real provider acceptance. Prior owner-delegated RPO24h/RTO4h/30day retention baseline applies without claiming implemented controls.
 Approval authority: project owner/security/operations reviewer; no merge or production activation implied by implementation request. Completion evidence and PR will be added to local coordination record; tasks remain incomplete wherever an acceptance requirement is unverified.
+
+## PR135 review-fix assignment — 2026-10-13
+
+Project owner explicitly requested fixing findings, re-review and merge to dev.
+Owner: CODEX root. Worktree: C:/Users/ramis/Downloads/Acendra/fix-pr135.
+Branch: codex/fix/csa-135-review; delivery updates PR135's existing branch by fast-forward.
+Scope: app_router.dart, router regression tests, and this task's review/evidence records.
+Temporary shared router ownership is limited to removing references to missing screens
+and displaying an explicit unavailable state using existing feedback components.
+PR134 remains separately owned; its unmerged learning files are not modified or copied.
+The dependency's content_text/content_image_url and thumbnail_url selections need
+schema/contract review; enrollments itself exists. No new content contract is invented.
+Base: PR135 head546a2b2 plus latest origin/dev merged without conflicts.
+Verification: authenticated and unauthenticated direct-route tests, analyzer,
+formatting, required Flutter/Supabase hosted CI and review of the final diff.
+Merge authority: current project-owner request; production deployment and completion
+of the seven operational acceptance gates are not authorized or implied.
+Status: IN_PROGRESS. Existing task acceptance gaps remain recorded.
+
+Scope extension: formatting-only fixes for 15 inherited PDF/video and bank test files identified by the mandatory whole-tree formatter; no APIs or behavior changed.

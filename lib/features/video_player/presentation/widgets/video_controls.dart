@@ -28,9 +28,10 @@ class VideoControls extends StatelessWidget {
   Widget build(BuildContext context) {
     final isPlaying = progress.status == VideoPlayerStatus.playing;
     final totalMs = progress.duration.inMilliseconds.toDouble();
-    final posMs = progress.position.inMilliseconds
-        .toDouble()
-        .clamp(0.0, totalMs > 0 ? totalMs : 1.0);
+    final posMs = progress.position.inMilliseconds.toDouble().clamp(
+      0.0,
+      totalMs > 0 ? totalMs : 1.0,
+    );
     final sliderMax = totalMs > 0 ? totalMs : 1.0;
     final primaryColor = AppColors.dark.primary;
 

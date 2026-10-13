@@ -18,6 +18,40 @@ Widget _app({required bool sessionRestored, required bool isAuthenticated}) =>
     );
 
 void main() {
+  for (final route in ['/dashboard/courses', '/learn/course-fixture']) {
+    testWidgets(
+      'authenticated $route reports unavailable without content access',
+      (tester) async {
+        await tester.pumpWidget(
+          _app(sessionRestored: true, isAuthenticated: true),
+        );
+        await tester.pumpAndSettle();
+        final router = ProviderScope.containerOf(
+          tester.element(find.byType(Consumer)),
+        ).read(appRouterProvider);
+        router.go(route);
+        await tester.pumpAndSettle();
+        expect(find.textContaining('currently unavailable'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets('unauthenticated $route still requires login', (tester) async {
+      await tester.pumpWidget(
+        _app(sessionRestored: true, isAuthenticated: false),
+      );
+      await tester.pumpAndSettle();
+      final router = ProviderScope.containerOf(
+        tester.element(find.byType(Consumer)),
+      ).read(appRouterProvider);
+      router.go(route);
+      await tester.pumpAndSettle();
+      expect(find.text('Sign in'), findsWidgets);
+      expect(find.textContaining('currently unavailable'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('unauthenticated user lands on login screen', (tester) async {
     await tester.pumpWidget(
       _app(sessionRestored: true, isAuthenticated: false),

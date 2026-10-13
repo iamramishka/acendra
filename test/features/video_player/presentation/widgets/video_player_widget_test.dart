@@ -11,11 +11,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: SizedBox(
-              width: 400,
-              height: 225,
-              child: VideoLoadingState(),
-            ),
+            body: SizedBox(width: 400, height: 225, child: VideoLoadingState()),
           ),
         ),
       );
@@ -65,9 +61,7 @@ void main() {
             body: SizedBox(
               width: 400,
               height: 225,
-              child: VideoErrorState(
-                errorMessage: 'Network error',
-              ),
+              child: VideoErrorState(errorMessage: 'Network error'),
             ),
           ),
         ),
@@ -115,15 +109,13 @@ void main() {
       expect(find.text('Retry'), findsNothing);
     });
 
-    testWidgets('shows default message when errorMessage is null', (tester) async {
+    testWidgets('shows default message when errorMessage is null', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: SizedBox(
-              width: 400,
-              height: 225,
-              child: VideoErrorState(),
-            ),
+            body: SizedBox(width: 400, height: 225, child: VideoErrorState()),
           ),
         ),
       );

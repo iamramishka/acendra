@@ -84,3 +84,17 @@ provider reconciliation remain unverified despite selected RPO/RTO objectives.
 These facts cannot be completed by marking synthetic tests as live acceptance.
 Tasks with these requirements remain IN_REVIEW/BLOCKED until actual dependencies
 and evidence exist; no endpoint is enabled and no production data is accessed.
+
+## Owner-authorized PR135 review correction — 2026-10-13
+
+Refreshed against dev bee1e22 without conflicts. Four analyzer errors came from
+premature registration of two screens absent from dev. Removed those missing
+imports and kept the two authenticated routes visible as explicit unavailable
+states using AppErrorState. No invented learning implementation, direct content
+requests or entitlement grants are added. PR134's separately owned implementation
+is excluded pending its schema/contract review. This fixes build readiness only;
+My Courses/learning acceptance remains incomplete. Added four direct-route
+regressions for unavailable authenticated routes and unauthenticated login guards.
+The earlier instruction to wait for PR134 is superseded by this bounded route
+availability correction under the owner's explicit fix-and-merge request.
+Required hosted checks on the corrected combined head must pass before merge.
