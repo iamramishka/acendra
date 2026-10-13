@@ -33,11 +33,13 @@ export async function runJourneySmoke({ root, layout, env, sql, base, key, conta
       'status', '--output', 'json', '--workdir', layout.workdir, '--network-id', `${layout.projectId}-loopback`], { env, encoding: 'utf8' });
     assert.equal(statusResult.status, 0);
     const status = JSON.parse(statusResult.stdout); assert.equal(status.API_URL, base);
+    stage = 'legacy local handler credential availability';
     const fields = containers.flatMap(c => c.Config?.Env ?? []);
     const field = n => fields.find(v => v.startsWith(n + '='))?.slice(n.length + 1);
     // Handler REST calls use the internal legacy JWT, never an opaque secret in Bearer.
     const service = status.SERVICE_ROLE_KEY || field('SERVICE_KEY') || field('SUPABASE_SERVICE_ROLE_KEY');
     assert.equal(service?.split('.').length, 3);
+    stage = 'synthetic bank fixture setup';
     const bank = randomUUID(), version = randomUUID();
     sql(`insert into app_private.bank_account_versions(id,bank_account_id,version,bank_name,account_holder,account_number,branch_name,currency_code)
       values('${version}','${bank}',1,'Synthetic bank','Synthetic owner','TEST-ONLY','Synthetic branch','LKR');`);
