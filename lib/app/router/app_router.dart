@@ -113,9 +113,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: RouteNames.courseDetail,
-            builder: (_, state) => CourseDetailScreen(
-              courseId: state.pathParameters['courseId']!,
-            ),
+            builder: (_, state) =>
+                CourseDetailScreen(courseId: state.pathParameters['courseId']!),
           ),
         ],
       ),

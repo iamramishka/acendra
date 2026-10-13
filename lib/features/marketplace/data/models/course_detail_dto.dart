@@ -4,12 +4,12 @@ import 'package:acendra/features/marketplace/domain/entities/lesson_item.dart';
 
 class CourseDetailDto {
   static CourseDetail fromJson(Map<String, dynamic> json) {
-    final sectionsRaw =
-        (json['course_sections'] as List<dynamic>? ?? []);
-    final sections = sectionsRaw
-        .map((s) => _sectionFromJson(s as Map<String, dynamic>))
-        .toList()
-      ..sort((a, b) => a.position.compareTo(b.position));
+    final sectionsRaw = (json['course_sections'] as List<dynamic>? ?? []);
+    final sections =
+        sectionsRaw
+            .map((s) => _sectionFromJson(s as Map<String, dynamic>))
+            .toList()
+          ..sort((a, b) => a.position.compareTo(b.position));
 
     return CourseDetail(
       id: json['id'] as String,
@@ -27,10 +27,11 @@ class CourseDetailDto {
 
   static CurriculumSection _sectionFromJson(Map<String, dynamic> json) {
     final lessonsRaw = (json['lessons'] as List<dynamic>? ?? []);
-    final lessons = lessonsRaw
-        .map((l) => _lessonFromJson(l as Map<String, dynamic>))
-        .toList()
-      ..sort((a, b) => a.position.compareTo(b.position));
+    final lessons =
+        lessonsRaw
+            .map((l) => _lessonFromJson(l as Map<String, dynamic>))
+            .toList()
+          ..sort((a, b) => a.position.compareTo(b.position));
     return CurriculumSection(
       id: json['id'] as String,
       title: json['title'] as String,
