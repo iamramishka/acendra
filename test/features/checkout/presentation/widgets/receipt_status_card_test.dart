@@ -1,6 +1,6 @@
 import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/feedback/status_badge.dart';
-import 'package:acendra/features/checkout/domain/entities/receipt_submission.dart';
+import 'package:acendra/features/bank_transfer/domain/entities/receipt_submission.dart';
 import 'package:acendra/features/checkout/presentation/widgets/receipt_status_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,28 +21,29 @@ Widget _wrapNarrow(Widget child) => MaterialApp(
 );
 
 ReceiptSubmission _pending() => ReceiptSubmission(
-  id: 'r1',
   orderId: 'o1',
-  status: ReceiptReviewStatus.pending,
+  orderNumber: 'ORD-TEST',
+  courseTitle: 'Test Course',
+  status: ReceiptStatus.submitted,
   submittedAt: DateTime(2026, 10, 12, 14, 30),
 );
 
 ReceiptSubmission _approved() => ReceiptSubmission(
-  id: 'r2',
   orderId: 'o2',
-  status: ReceiptReviewStatus.approved,
+  orderNumber: 'ORD-TEST',
+  courseTitle: 'Test Course',
+  status: ReceiptStatus.approved,
   submittedAt: DateTime(2026, 10, 12, 9, 0),
-  reviewedAt: DateTime(2026, 10, 13, 10, 0),
 );
 
 ReceiptSubmission _rejected({String reason = 'Receipt is blurry.'}) =>
     ReceiptSubmission(
-      id: 'r3',
       orderId: 'o3',
-      status: ReceiptReviewStatus.rejected,
+      orderNumber: 'ORD-TEST',
+      courseTitle: 'Test Course',
+      status: ReceiptStatus.rejected,
       submittedAt: DateTime(2026, 10, 11, 8, 0),
       rejectionReason: reason,
-      reviewedAt: DateTime(2026, 10, 12, 11, 0),
     );
 
 // ---------------------------------------------------------------------------
@@ -51,11 +52,10 @@ ReceiptSubmission _rejected({String reason = 'Receipt is blurry.'}) =>
 
 void main() {
   group('ReceiptStatusCard – pending state', () {
-    testWidgets('renders warning badge with "Pending Review" label',
-        (tester) async {
-      await tester.pumpWidget(
-        _wrap(ReceiptStatusCard(submission: _pending())),
-      );
+    testWidgets('renders warning badge with "Pending Review" label', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_wrap(ReceiptStatusCard(submission: _pending())));
 
       expect(find.byType(StatusBadge), findsOneWidget);
 
@@ -65,36 +65,28 @@ void main() {
     });
 
     testWidgets('shows informational pending text', (tester) async {
-      await tester.pumpWidget(
-        _wrap(ReceiptStatusCard(submission: _pending())),
-      );
+      await tester.pumpWidget(_wrap(ReceiptStatusCard(submission: _pending())));
 
-      expect(
-        find.textContaining('1–2 business days'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('1–2 business days'), findsOneWidget);
     });
 
     testWidgets('does NOT show a "Go to Course" button', (tester) async {
-      await tester.pumpWidget(
-        _wrap(ReceiptStatusCard(submission: _pending())),
-      );
+      await tester.pumpWidget(_wrap(ReceiptStatusCard(submission: _pending())));
 
       expect(find.widgetWithText(AppButton, 'Go to Course'), findsNothing);
     });
 
-    testWidgets('does NOT show a "Resubmit Receipt" button', (tester) async {
-      await tester.pumpWidget(
-        _wrap(ReceiptStatusCard(submission: _pending())),
-      );
+    testWidgets('does NOT show a "Submit New Receipt" button', (tester) async {
+      await tester.pumpWidget(_wrap(ReceiptStatusCard(submission: _pending())));
 
-      expect(find.widgetWithText(AppButton, 'Resubmit Receipt'), findsNothing);
+      expect(
+        find.widgetWithText(AppButton, 'Submit New Receipt'),
+        findsNothing,
+      );
     });
 
     testWidgets('shows submitted timestamp', (tester) async {
-      await tester.pumpWidget(
-        _wrap(ReceiptStatusCard(submission: _pending())),
-      );
+      await tester.pumpWidget(_wrap(ReceiptStatusCard(submission: _pending())));
 
       expect(find.textContaining('Submitted'), findsOneWidget);
       expect(find.textContaining('12 Oct 2026'), findsOneWidget);
@@ -109,11 +101,12 @@ void main() {
 
       final badge = tester.widget<StatusBadge>(find.byType(StatusBadge));
       expect(badge.variant, BadgeVariant.success);
-      expect(badge.label, 'Approved');
+      expect(badge.label, 'Payment Verified');
     });
 
-    testWidgets('shows "Go to Course" button that fires callback',
-        (tester) async {
+    testWidgets('shows "Go to Course" button that fires callback', (
+      tester,
+    ) async {
       var tapped = false;
       await tester.pumpWidget(
         _wrap(
@@ -129,12 +122,15 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('does NOT show "Resubmit Receipt" button', (tester) async {
+    testWidgets('does NOT show "Submit New Receipt" button', (tester) async {
       await tester.pumpWidget(
         _wrap(ReceiptStatusCard(submission: _approved())),
       );
 
-      expect(find.widgetWithText(AppButton, 'Resubmit Receipt'), findsNothing);
+      expect(
+        find.widgetWithText(AppButton, 'Submit New Receipt'),
+        findsNothing,
+      );
     });
 
     testWidgets('shows verification confirmation text', (tester) async {
@@ -160,15 +156,18 @@ void main() {
     testWidgets('shows the rejection reason text', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          ReceiptStatusCard(submission: _rejected(reason: 'Receipt is blurry.')),
+          ReceiptStatusCard(
+            submission: _rejected(reason: 'Receipt is blurry.'),
+          ),
         ),
       );
 
       expect(find.text('Receipt is blurry.'), findsOneWidget);
     });
 
-    testWidgets('shows "Resubmit Receipt" button that fires callback',
-        (tester) async {
+    testWidgets('shows "Submit New Receipt" button that fires callback', (
+      tester,
+    ) async {
       var tapped = false;
       await tester.pumpWidget(
         _wrap(
@@ -180,10 +179,10 @@ void main() {
       );
 
       expect(
-        find.widgetWithText(AppButton, 'Resubmit Receipt'),
+        find.widgetWithText(AppButton, 'Submit New Receipt'),
         findsOneWidget,
       );
-      await tester.tap(find.widgetWithText(AppButton, 'Resubmit Receipt'));
+      await tester.tap(find.widgetWithText(AppButton, 'Submit New Receipt'));
       expect(tapped, isTrue);
     });
 
@@ -213,8 +212,9 @@ void main() {
       expect(find.byType(ReceiptStatusCard), findsOneWidget);
     });
 
-    testWidgets('renders rejected state without overflow at 390px',
-        (tester) async {
+    testWidgets('renders rejected state without overflow at 390px', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);

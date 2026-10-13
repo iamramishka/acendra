@@ -2,14 +2,14 @@ import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:acendra/app/theme/app_theme_extension.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/feedback/status_badge.dart';
-import 'package:acendra/features/checkout/domain/entities/receipt_submission.dart';
+import 'package:acendra/features/bank_transfer/domain/entities/receipt_submission.dart';
 import 'package:flutter/material.dart';
 
 /// Displays the review status of a bank transfer receipt submission.
 ///
 /// Shows different UI depending on whether the status is
-/// [ReceiptReviewStatus.pending], [ReceiptReviewStatus.approved], or
-/// [ReceiptReviewStatus.rejected].
+/// [ReceiptStatus.submitted], [ReceiptStatus.approved], or
+/// [ReceiptStatus.rejected].
 class ReceiptStatusCard extends StatelessWidget {
   const ReceiptStatusCard({
     super.key,
@@ -45,8 +45,12 @@ class ReceiptStatusCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             _StatusHeader(submission: submission),
-            const SizedBox(height: AppSpacing.md),
-            _SubmittedTimestamp(submittedAt: submission.submittedAt),
+            if (submission.submittedAt != null) ...[
+              const SizedBox(height: AppSpacing.md),
+              _SubmittedTimestamp(
+                submittedAt: submission.submittedAt!.toLocal(),
+              ),
+            ],
             const SizedBox(height: AppSpacing.md),
             _StatusBody(
               submission: submission,
@@ -71,15 +75,18 @@ class _StatusHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (BadgeVariant variant, String label) = switch (submission.status) {
-      ReceiptReviewStatus.pending => (BadgeVariant.warning, 'Pending Review'),
-      ReceiptReviewStatus.approved => (BadgeVariant.success, 'Approved'),
-      ReceiptReviewStatus.rejected => (BadgeVariant.error, 'Rejected'),
+      ReceiptStatus.awaitingReceipt => (
+        BadgeVariant.warning,
+        'Awaiting Receipt',
+      ),
+      ReceiptStatus.submitted => (BadgeVariant.warning, 'Pending Review'),
+      ReceiptStatus.underReview => (BadgeVariant.warning, 'Under Review'),
+      ReceiptStatus.approved => (BadgeVariant.success, 'Payment Verified'),
+      ReceiptStatus.rejected => (BadgeVariant.error, 'Rejected'),
     };
 
     return Row(
-      children: [
-        StatusBadge(label: label, variant: variant),
-      ],
+      children: [StatusBadge(label: label, variant: variant)],
     );
   }
 }
@@ -87,8 +94,18 @@ class _StatusHeader extends StatelessWidget {
 /// Format a [DateTime] as e.g. "12 Oct 2026 at 14:30".
 String _formatSubmittedAt(DateTime dt) {
   const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
   final h = dt.hour.toString().padLeft(2, '0');
   final m = dt.minute.toString().padLeft(2, '0');
@@ -105,7 +122,8 @@ class _SubmittedTimestamp extends StatelessWidget {
     return Text(
       'Submitted $formatted',
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        color: Theme.of(context).extension<AppThemeExtension>()?.textSecondary ??
+        color:
+            Theme.of(context).extension<AppThemeExtension>()?.textSecondary ??
             Theme.of(context).colorScheme.onSurfaceVariant,
       ),
     );
@@ -126,12 +144,18 @@ class _StatusBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return switch (submission.status) {
-      ReceiptReviewStatus.pending => const _PendingBody(),
-      ReceiptReviewStatus.approved => _ApprovedBody(onGoToCourse: onGoToCourse),
-      ReceiptReviewStatus.rejected => _RejectedBody(
-          rejectionReason: submission.rejectionReason ?? '',
-          onResubmit: onResubmit,
-        ),
+      ReceiptStatus.awaitingReceipt => const Text(
+        'Please upload your bank transfer receipt.',
+      ),
+      ReceiptStatus.submitted ||
+      ReceiptStatus.underReview => const _PendingBody(),
+      ReceiptStatus.approved => _ApprovedBody(onGoToCourse: onGoToCourse),
+      ReceiptStatus.rejected => _RejectedBody(
+        rejectionReason:
+            submission.rejectionReason ??
+            'Please contact support for the rejection reason.',
+        onResubmit: onResubmit,
+      ),
     };
   }
 }
@@ -264,9 +288,9 @@ class _RejectedBody extends StatelessWidget {
               const SizedBox(height: AppSpacing.xs),
               Text(
                 rejectionReason,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: cs.onErrorContainer,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: cs.onErrorContainer),
               ),
             ],
           ),
@@ -275,7 +299,7 @@ class _RejectedBody extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           child: AppButton(
-            label: 'Resubmit Receipt',
+            label: 'Submit New Receipt',
             onPressed: onResubmit,
             variant: ButtonVariant.primary,
           ),
