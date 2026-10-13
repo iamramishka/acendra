@@ -1453,17 +1453,21 @@ See the dated parallel review in the reconciliation record for evidence and limi
 
 ## CLAUDE - BANK TRANSFER UI
 
-- [ ] CSA-107 [P1] [C]
+- [ ] CSA-107 [P1] [C] [IN_REVIEW]
   Implement bank transfer instructions.
+  PR: [#130](https://github.com/iamramishka/acendra/pull/130) open; BankTransferInstructionsCard + BankTransferScreen; 15 tests passed, flutter analyze clean. Pending merge + route activation (PR #134).
 
-- [ ] CSA-110 [P1] [C]
+- [ ] CSA-110 [P1] [C] [IN_REVIEW]
   Implement receipt submission status UI.
+  PR: [#132](https://github.com/iamramishka/acendra/pull/132) open; ReceiptStatusCard (pending/approved/rejected states) + ReceiptStatusScreen; 15 tests passed, flutter analyze clean. Pending merge + route activation (PR #134).
 
-- [ ] CSA-111 [P0] [C]
+- [ ] CSA-111 [P0] [C] [IN_REVIEW]
   Implement minimum finance review UI.
+  PR: [#133](https://github.com/iamramishka/acendra/pull/133) open; FinanceReviewScreen + ReceiptReviewTile with approve/reject dialog; 10 tests passed, flutter analyze clean. Pending merge + route activation (PR #134).
 
-- [ ] CSA-115 [P1] [C]
+- [ ] CSA-115 [P1] [C] [IN_REVIEW]
   Implement receipt resubmission UI.
+  PR: [#131](https://github.com/iamramishka/acendra/pull/131) open; ReceiptResubmissionForm with file picker + validation + ReceiptResubmissionScreen; 8 tests passed, flutter analyze clean. Pending merge + route activation (PR #134).
 
 ## CODEX - BANK TRANSFER BACKEND
 
