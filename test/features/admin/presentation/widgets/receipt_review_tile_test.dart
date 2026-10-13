@@ -47,7 +47,7 @@ void main() {
           ReceiptReviewTile(
             item: _item(status: ReceiptStatus.pending),
             onApprove: () {},
-            onReject: (_) {},
+            onReject: (_) => true,
           ),
         ),
       );
@@ -64,7 +64,7 @@ void main() {
           ReceiptReviewTile(
             item: _item(status: ReceiptStatus.approved),
             onApprove: () {},
-            onReject: (_) {},
+            onReject: (_) => true,
           ),
         ),
       );
@@ -94,7 +94,7 @@ void main() {
                 rejectionReason: reason,
               ),
               onApprove: () {},
-              onReject: (_) {},
+              onReject: (_) => true,
             ),
           ),
         );
@@ -124,7 +124,7 @@ void main() {
           ReceiptReviewTile(
             item: _item(status: ReceiptStatus.pending),
             onApprove: () {},
-            onReject: (_) {},
+            onReject: (_) => true,
           ),
         ),
       );
@@ -144,7 +144,7 @@ void main() {
           ReceiptReviewTile(
             item: _item(status: ReceiptStatus.pending),
             onApprove: () {},
-            onReject: (_) {},
+            onReject: (_) => true,
           ),
         ),
       );
@@ -169,7 +169,7 @@ void main() {
           ReceiptReviewTile(
             item: _item(status: ReceiptStatus.pending),
             onApprove: () => approved = true,
-            onReject: (_) {},
+            onReject: (_) => true,
           ),
         ),
       );
@@ -189,7 +189,10 @@ void main() {
           ReceiptReviewTile(
             item: _item(status: ReceiptStatus.pending),
             onApprove: () {},
-            onReject: (reason) => rejectedReason = reason,
+            onReject: (reason) {
+              rejectedReason = reason;
+              return true;
+            },
           ),
         ),
       );
@@ -216,7 +219,7 @@ void main() {
           ReceiptReviewTile(
             item: _item(status: ReceiptStatus.pending),
             onApprove: () {},
-            onReject: (_) {},
+            onReject: (_) => true,
             // ignore: avoid_redundant_argument_values
             isProcessing: true,
           ),
@@ -249,7 +252,10 @@ void main() {
             ReceiptReviewTile(
               item: _item(status: ReceiptStatus.pending),
               onApprove: () {},
-              onReject: (reason) => rejectedReason = reason,
+              onReject: (reason) {
+                rejectedReason = reason;
+                return true;
+              },
             ),
           ),
         );

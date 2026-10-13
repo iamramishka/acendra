@@ -25,7 +25,9 @@ class ReceiptReviewTile extends StatelessWidget {
 
   final ReceiptReviewItem item;
   final VoidCallback? onApprove;
-  final ValueChanged<String>? onReject;
+
+  /// Returns true only when the rejection was recorded successfully.
+  final bool Function(String reason)? onReject;
   final VoidCallback? onViewReceipt;
   final bool isProcessing;
 
@@ -97,11 +99,13 @@ class ReceiptReviewTile extends StatelessWidget {
                   color: cs.onSurfaceVariant,
                 ),
                 const SizedBox(width: AppSpacing.xs),
-                Text(
-                  amountStr,
-                  style: tt.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: ext?.success ?? cs.primary,
+                Expanded(
+                  child: Text(
+                    amountStr,
+                    style: tt.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: ext?.success ?? cs.primary,
+                    ),
                   ),
                 ),
               ],
@@ -116,9 +120,11 @@ class ReceiptReviewTile extends StatelessWidget {
                   color: cs.onSurfaceVariant,
                 ),
                 const SizedBox(width: AppSpacing.xs),
-                Text(
-                  'Submitted: $dateStr',
-                  style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                Expanded(
+                  child: Text(
+                    'Submitted: $dateStr',
+                    style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                  ),
                 ),
               ],
             ),
@@ -182,7 +188,7 @@ class ReceiptReviewTile extends StatelessWidget {
                     label: 'Reject receipt for ${item.studentEmail}',
                     child: AppButton(
                       label: 'Reject',
-                      onPressed: isProcessing
+                      onPressed: isProcessing || onReject == null
                           ? null
                           : () => _showRejectDialog(context),
                       variant: ButtonVariant.destructive,
@@ -214,7 +220,7 @@ class ReceiptReviewTile extends StatelessWidget {
 class _RejectDialog extends StatefulWidget {
   const _RejectDialog({this.onConfirm});
 
-  final ValueChanged<String>? onConfirm;
+  final bool Function(String reason)? onConfirm;
 
   @override
   State<_RejectDialog> createState() => _RejectDialogState();
@@ -236,8 +242,15 @@ class _RejectDialogState extends State<_RejectDialog> {
       setState(() => _errorText = 'Please enter at least 10 characters.');
       return;
     }
-    Navigator.of(context).pop();
-    widget.onConfirm?.call(reason);
+    final recorded = widget.onConfirm?.call(reason) ?? false;
+    if (!mounted) return;
+    if (recorded) {
+      Navigator.of(context).pop();
+    } else {
+      setState(() {
+        _errorText = 'Rejection was not recorded. Your reason has been kept.';
+      });
+    }
   }
 
   @override

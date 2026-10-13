@@ -177,15 +177,16 @@ class FinanceReviewScreen extends ConsumerWidget {
     _showReviewUnavailable(context);
   }
 
-  void _handleReject(
+  bool _handleReject(
     BuildContext context,
     WidgetRef ref,
     ReceiptReviewItem item,
     String reason,
   ) {
-    if (reason.trim().length < 10) return;
+    if (reason.trim().length < 10) return false;
     // Preserve the reason in the callback contract; no local financial decision.
     _showReviewUnavailable(context);
+    return false;
   }
 
   void _showReviewUnavailable(BuildContext context) {
@@ -268,7 +269,7 @@ class _ReceiptList extends StatelessWidget {
   final List<ReceiptReviewItem> receipts;
   final Set<String> processing;
   final ValueChanged<ReceiptReviewItem> onApprove;
-  final void Function(ReceiptReviewItem item, String reason) onReject;
+  final bool Function(ReceiptReviewItem item, String reason) onReject;
   final ValueChanged<ReceiptReviewItem> onViewReceipt;
 
   @override

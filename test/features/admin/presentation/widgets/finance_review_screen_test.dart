@@ -39,6 +39,11 @@ void main() {
     expect(find.text('Rejected (1)'), findsOneWidget);
     expect(find.text('Pending (2)'), findsOneWidget);
     expect(find.text('Receipt rejected.'), findsNothing);
+    expect(find.text('Reject Receipt'), findsOneWidget);
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      'Amount does not match.',
+    );
     expect(
       find.textContaining('Bank review is temporarily unavailable'),
       findsOneWidget,
