@@ -51,4 +51,3 @@ export function createHandler({env,fetch: request = globalThis.fetch,enabled = f
     } catch {return respond(503,'SERVICE_UNAVAILABLE');}
   };
 }
-
