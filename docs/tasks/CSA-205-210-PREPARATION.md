@@ -99,3 +99,27 @@ whitespace validation, integrated diff review. Keep operational task boxes
 unchecked; distinguish preparation from production acceptance. Database/storage
 mutation, DNS/provider setup, payment enablement and purchases are outside this
 dummy scope. Root integrates isolated commits sequentially and submits one PR.
+
+### Refresh completion and verification
+
+Three isolated agents refreshed their exclusive documents in parallel. Root
+integrated hosting commits `235a022` and `f812923`, database commit `fe476ca`
+and secret/payment commit `6c89190` sequentially. Preparation status: IN_REVIEW.
+The six operational tasks remain unchecked; TASKS.md now links their preparation
+and explicitly identifies remaining live configuration work.
+
+Fresh integrated offline checks: 14 storage-recovery/local-isolation tests and
+94 PayHere/checkout/webhook tests passed (108 total, zero failures or skips).
+Document link/whitespace checks and full scoped diff review passed. These tests
+use local or synthetic collaborators and do not establish hosted configuration,
+SQL replay, real provider settlement, browser startup or production acceptance.
+No secrets were injected, domain or provider selected, migration applied or
+payment gate enabled. Only the five assigned Markdown files changed.
+
+The refresh records a current bootstrap prerequisite: the app consumes the
+legacy anon key directly and does not invoke the public-config validator.
+A reviewed runtime integration is required before release. Existing production
+and sandbox acceptance requirements are retained. Handoff: owner/designated
+maintainer reviews this preparation; later operators replace dummy targets and
+execute the documented dependency-ordered release gates. Temporary refresh
+ownership is released at this review handoff; these records are not live locks.
