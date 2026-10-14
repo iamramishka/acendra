@@ -1869,6 +1869,11 @@ Integration Gate:
   IN_REVIEW: dedicated history and default release-asset scans passed; configured release bundles and enforced operational log controls remain unverified. Retention baseline selected by owner delegation. See [web continuation](docs/reviews/CSA-187-188-ACCEPTANCE.md).
   Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
 
+CSA-184–188 owner decision, 2026-10-14: reviewed changes are merged; use dummy
+details and defer real-environment acceptance until later configuration.
+All five tasks remain IN_REVIEW with unchecked boxes. See
+[review and operational deferral](docs/reviews/CSA-184-188-OPERATIONAL-DEFERRAL.md).
+
 - [x] CSA-189 [P0] [X] [DONE]
   Review dependency vulnerabilities.
   DONE: PR #121 merged with passing Flutter/Supabase CI and Issue #116 closed as completed. Fresh integrated audit on 2026-10-13 covered 126 Pub, 3 PyPI and 15 npm locked entries with no returned advisories after merged pypdf remediation; bounded review acceptance does not certify every platform/runtime dependency. See docs/tasks/CSA-189.md.
