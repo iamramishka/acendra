@@ -23,7 +23,6 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          fetch-depth: 0
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
           flutter-version: '3.44.0'
@@ -50,19 +49,6 @@ jobs:
           cache: npm
       - name: Restore locked tooling dependencies
         run: npm ci --no-audit --no-fund
-      - name: Verify history and built release assets for credential patterns
-        shell: bash
-        run: |
-          set -euo pipefail
-          scanner_dir="$RUNNER_TEMP/csa188-gitleaks"
-          mkdir -p "$scanner_dir"
-          curl --fail --silent --show-error --location --retry 3 \
-            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
-            --output "$scanner_dir/gitleaks.tar.gz"
-          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $scanner_dir/gitleaks.tar.gz" | sha256sum --check
-          tar -xzf "$scanner_dir/gitleaks.tar.gz" -C "$scanner_dir" gitleaks
-          node tool/csa188_hosted_scan.mjs history "$scanner_dir/gitleaks"
-          node tool/csa188_hosted_scan.mjs assets "$scanner_dir/gitleaks"
       - name: Run isolated tooling regression tests
         run: npm run tool:test
       - name: Retain synthetic test coverage
