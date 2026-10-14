@@ -1,0 +1,22 @@
+{
+  "classification": "synthetic acceptance planning data only",
+  "persisted": false,
+  "accounts": [
+    {"label": "student-a", "email": "student-a@example.invalid", "role": "student"},
+    {"label": "student-b", "email": "student-b@example.invalid", "role": "student"},
+    {"label": "finance-a", "email": "finance-a@example.invalid", "role": "finance", "mfa_required": true}
+  ],
+  "course": {"title": "Sample protected course", "currency": "LKR", "amount_minor": 125000},
+  "bank_credit": {"synthetic": true, "reference": "SAMPLE-CREDIT-001", "currency": "LKR", "amount_minor": 125000, "independently_verified": false},
+  "receipt": {"synthetic": true, "description": "Use the existing exact PNG harness fixture; it is not bank evidence"},
+  "expected_checks": [
+    "Pending orders do not grant protected access",
+    "Forged or mismatched provider events do not grant access",
+    "Replayed verified fixture events do not duplicate enrollments",
+    "Student cannot approve bank transfers",
+    "Finance review requires appropriate role and MFA",
+    "Student B cannot read Student A receipt or entitlement",
+    "Unauthenticated private file delivery is denied",
+    "Authorized student can reach My Courses and protected learning after verified fixture settlement"
+  ]
+}
