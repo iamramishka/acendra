@@ -31,3 +31,10 @@ uncertainty, and route-extra truthfulness. No local tests/analyzer/build ran.
 Dart formatting ran successfully (missing flutter_lints package resolution warning
 in fresh worktree); git diff --check passed. Root must run exact-head hosted
 Flutter formatting/analyzer/tests/build and applicable backend checks before merge.
+
+Independent review follow-up: picker, receipt acknowledgement and payment handoff
+now capture order and authenticated subject, discard stale completion after an
+identity/order change, and clear receipt bytes/replay keys on account changes.
+An identity epoch prevents account A→B→A from accepting an old completion.
+Prepared deterministic pending-operation regressions for hosted CI. Reported
+hosted analyzer brace/const findings were repaired; no local analyzer/test ran.
