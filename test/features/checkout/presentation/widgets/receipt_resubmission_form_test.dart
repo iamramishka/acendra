@@ -24,7 +24,7 @@ Widget wrap(
     checkoutSubmissionRepositoryProvider.overrideWithValue(
       repository ??
           CheckoutSubmissionRepository(
-            (name, headers, body) async => FunctionResponse(
+            (name, headers, body) async => const FunctionResponse(
               status: 503,
               data: {
                 'error': {'code': 'RECEIPT_UPLOAD_UNAVAILABLE'},
@@ -136,8 +136,9 @@ void main() {
       final repo = CheckoutSubmissionRepository((name, headers, body) async {
         calls++;
         keys.add(headers['Idempotency-Key']!);
-        if (calls == 1)
+        if (calls == 1) {
           throw const FunctionException(status: 0, details: 'private timeout');
+        }
         return const FunctionResponse(
           status: 201,
           data: {

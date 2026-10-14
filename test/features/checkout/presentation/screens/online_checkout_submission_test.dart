@@ -139,11 +139,12 @@ void main() {
           keys.add(headers['Idempotency-Key']!);
           expect(name, 'initialize-checkout');
           expect((body as Map)['order_id'], orderId);
-          if (gated)
+          if (gated) {
             throw const FunctionException(
               status: 503,
               details: 'private/provider-secret',
             );
+          }
           return const FunctionResponse(
             status: 201,
             data: {

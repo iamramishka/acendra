@@ -66,8 +66,9 @@ class CheckoutSubmissionRepository {
     required CustomerInfo customer,
     required String key,
   }) async {
-    if (!_uuid.hasMatch(orderId))
+    if (!_uuid.hasMatch(orderId)) {
       throw const CheckoutFlowException('Invalid checkout order.');
+    }
     final data = await _call(
       'initialize-checkout',
       {'Idempotency-Key': key},

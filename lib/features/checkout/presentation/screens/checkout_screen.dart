@@ -109,8 +109,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final order = ref.read(checkoutProvider).value;
     if (order == null ||
         order.paymentMethod != PaymentMethod.online ||
-        order.status != 'pending_payment')
+        order.status != 'pending_payment') {
       return;
+    }
     if (_paymentOrderId != order.orderId) {
       _paymentOrderId = order.orderId;
       _paymentKey = 'online-${DateTime.now().microsecondsSinceEpoch}';
@@ -135,15 +136,17 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       if (!mounted ||
           epoch != _identityEpoch ||
           ref.read(checkoutActorProvider) != actor ||
-          ref.read(checkoutProvider).value?.orderId != order.orderId)
+          ref.read(checkoutProvider).value?.orderId != order.orderId) {
         return;
+      }
       await ref.read(paymentLauncherProvider)(payment);
     } catch (error) {
       if (!mounted ||
           epoch != _identityEpoch ||
           ref.read(checkoutActorProvider) != actor ||
-          ref.read(checkoutProvider).value?.orderId != order.orderId)
+          ref.read(checkoutProvider).value?.orderId != order.orderId) {
         return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
