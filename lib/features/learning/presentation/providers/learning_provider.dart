@@ -1,5 +1,6 @@
 import 'package:acendra/features/learning/data/repositories/supabase_learning_repository.dart';
 import 'package:acendra/features/learning/data/repositories/learning_progress_repository.dart';
+import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:acendra/features/learning/domain/entities/lesson_content.dart';
 import 'package:acendra/features/marketplace/domain/entities/curriculum_section.dart';
 import 'package:acendra/features/marketplace/domain/entities/lesson_item.dart';
@@ -20,6 +21,7 @@ class LearningState {
     this.progress = const {},
     this.progressError,
     this.isSavingProgress = false,
+    this.progressReady = false,
   });
 
   final String courseId;
@@ -31,6 +33,7 @@ class LearningState {
   final Map<String, SavedLessonProgress> progress;
   final String? progressError;
   final bool isSavingProgress;
+  final bool progressReady;
 
   LearningState copyWith({
     List<CurriculumSection>? sections,
@@ -44,6 +47,7 @@ class LearningState {
     String? progressError,
     bool clearProgressError = false,
     bool? isSavingProgress,
+    bool? progressReady,
   }) {
     return LearningState(
       courseId: courseId,
@@ -59,6 +63,7 @@ class LearningState {
           ? null
           : (progressError ?? this.progressError),
       isSavingProgress: isSavingProgress ?? this.isSavingProgress,
+      progressReady: progressReady ?? this.progressReady,
     );
   }
 
@@ -84,7 +89,11 @@ class LearningNotifier extends StateNotifier<LearningState> {
   Future<void> loadCourse(String courseId) async {
     if (!mounted || state.isSavingProgress) return;
     final requestId = ++_requestId;
-    state = state.copyWith(isLoading: true, clearError: true);
+    state = state.copyWith(
+      isLoading: true,
+      clearError: true,
+      progressReady: false,
+    );
     try {
       final repo = _ref.read(learningRepositoryProvider);
       final sections = await repo.getCurriculumWithLessons(courseId);
@@ -114,6 +123,7 @@ class LearningNotifier extends StateNotifier<LearningState> {
           state = state.copyWith(
             progress: {for (final entry in valid) entry.lessonId: entry},
             clearProgressError: true,
+            progressReady: true,
           );
           if (valid.isNotEmpty) selected = valid.first.lessonId;
         } catch (_) {
@@ -131,10 +141,11 @@ class LearningNotifier extends StateNotifier<LearningState> {
   }
 
   Future<void> setCompleted(bool completed) async {
+    if (!mounted) return;
     final lessonId = state.currentLessonId;
-    if (!mounted || lessonId == null || state.isSavingProgress) return;
+    if (lessonId == null || state.isSavingProgress) return;
     // Do not overwrite unknown resume data after a failed progress read.
-    if (state.progressError != null) return;
+    if (!state.progressReady || state.progressError != null) return;
     state = state.copyWith(isSavingProgress: true);
     try {
       final saved = await _ref
@@ -178,6 +189,9 @@ class LearningNotifier extends StateNotifier<LearningState> {
 }
 
 final learningWorkspaceProvider = StateNotifierProvider.autoDispose
-    .family<LearningNotifier, LearningState, String>(
-      (ref, courseId) => LearningNotifier(courseId, ref),
-    );
+    .family<LearningNotifier, LearningState, String>((ref, courseId) {
+      // A surviving workspace must never carry one subject's snapshots into
+      // another subject's save. Session refresh does not change ownership.
+      ref.watch(currentSessionProvider.select((session) => session?.user.id));
+      return LearningNotifier(courseId, ref);
+    });

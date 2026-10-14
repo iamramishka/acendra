@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:acendra/features/learning/data/repositories/learning_progress_repository.dart';
 import 'package:acendra/features/learning/data/repositories/supabase_learning_repository.dart';
 import 'package:acendra/features/learning/domain/entities/lesson_content.dart';
@@ -7,6 +10,7 @@ import 'package:acendra/features/marketplace/domain/entities/curriculum_section.
 import 'package:acendra/features/marketplace/domain/entities/lesson_item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class _Lessons implements LearningRepository {
   @override
@@ -46,12 +50,14 @@ class _Lessons implements LearningRepository {
 }
 
 class _Progress implements LearningProgressRepository {
+  Completer<List<SavedLessonProgress>>? pendingRead;
   bool failRead = false;
   bool failSave = false;
   int writes = 0;
   SavedLessonProgress? previous;
   @override
   Future<List<SavedLessonProgress>> read(String course) async {
+    if (pendingRead != null) return pendingRead!.future;
     if (failRead) throw StateError('private database detail');
     return [
       SavedLessonProgress(
@@ -83,6 +89,73 @@ class _Progress implements LearningProgressRepository {
 }
 
 void main() {
+  test('does not save while progress read is pending', () async {
+    final progress = _Progress()
+      ..pendingRead = Completer<List<SavedLessonProgress>>();
+    final container = ProviderContainer(
+      overrides: [
+        learningRepositoryProvider.overrideWithValue(_Lessons()),
+        learningProgressRepositoryProvider.overrideWithValue(progress),
+        currentSessionProvider.overrideWithValue(null),
+      ],
+    );
+    addTearDown(container.dispose);
+    final provider = learningWorkspaceProvider('course');
+    container.listen(provider, (_, _) {});
+    await Future<void>.delayed(Duration.zero);
+    await container.read(provider.notifier).selectLesson('first');
+    await container.read(provider.notifier).setCompleted(true);
+    expect(progress.writes, 0);
+    expect(container.read(provider).progressReady, isFalse);
+    progress.pendingRead!.complete([]);
+    await Future<void>.delayed(Duration.zero);
+  });
+
+  test(
+    'account change recreates workspace without prior saved snapshots',
+    () async {
+      final events = StreamController<AuthState>.broadcast();
+      final progress = _Progress();
+      final container = ProviderContainer(
+        overrides: [
+          learningRepositoryProvider.overrideWithValue(_Lessons()),
+          learningProgressRepositoryProvider.overrideWithValue(progress),
+          authStreamProvider.overrideWith((ref) => events.stream),
+        ],
+      );
+      addTearDown(() async {
+        container.dispose();
+        await events.close();
+      });
+      final provider = learningWorkspaceProvider('course');
+      container.listen(provider, (_, _) {});
+      Session session(String id) => Session(
+        accessToken: 'synthetic-$id',
+        tokenType: 'bearer',
+        user: User(
+          id: id,
+          appMetadata: {},
+          userMetadata: {},
+          aud: 'authenticated',
+          createdAt: '2026-10-14T00:00:00Z',
+        ),
+      );
+      events.add(AuthState(AuthChangeEvent.signedIn, session('A')));
+      await Future<void>.delayed(Duration.zero);
+      final previousNotifier = container.read(provider.notifier);
+      expect(container.read(provider).progress['second'], isNotNull);
+      progress.pendingRead = Completer<List<SavedLessonProgress>>();
+      events.add(AuthState(AuthChangeEvent.signedIn, session('B')));
+      await Future<void>.delayed(Duration.zero);
+      expect(container.read(provider.notifier), isNot(same(previousNotifier)));
+      expect(container.read(provider).progress, isEmpty);
+      await previousNotifier.setCompleted(true);
+      expect(progress.writes, 0);
+      progress.pendingRead!.complete([]);
+      await Future<void>.delayed(Duration.zero);
+    },
+  );
+
   Future<ProviderContainer> setup(_Progress progress) async {
     final container = ProviderContainer(
       overrides: [

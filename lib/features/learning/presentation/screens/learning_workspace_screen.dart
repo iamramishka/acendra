@@ -70,7 +70,10 @@ class LearningWorkspaceScreen extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.sm),
               child: TextButton.icon(
-                onPressed: state.isSavingProgress || state.progressError != null
+                onPressed:
+                    state.isSavingProgress ||
+                        !state.progressReady ||
+                        state.progressError != null
                     ? null
                     : () => notifier.setCompleted(
                         !(state.progress[state.currentLessonId]?.completed ??
