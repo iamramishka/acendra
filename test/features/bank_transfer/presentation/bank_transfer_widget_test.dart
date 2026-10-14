@@ -241,17 +241,21 @@ void main() {
   // ── CSA-115: ReceiptResubmissionScreen ───────────────────────────────────────
 
   group('ReceiptResubmissionScreen (CSA-115)', () {
-    testWidgets('renders file picker and disabled-backend notice', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        _scaffold(const ReceiptResubmissionScreen(orderId: 'order-1')),
-      );
+    testWidgets(
+      'renders secure-upload disclosure without implying course access',
+      (tester) async {
+        await tester.pumpWidget(
+          _scaffold(const ReceiptResubmissionScreen(orderId: 'order-1')),
+        );
 
-      expect(find.text('Receipt Rejected'), findsOneWidget);
-      expect(find.textContaining('temporarily unavailable'), findsOneWidget);
-      expect(find.text('Submit New Receipt'), findsOneWidget);
-    });
+        expect(find.text('Receipt Rejected'), findsOneWidget);
+        expect(
+          find.textContaining('A receipt does not grant course access'),
+          findsOneWidget,
+        );
+        expect(find.text('Submit New Receipt'), findsOneWidget);
+      },
+    );
 
     testWidgets('shows rejection reason when provided', (tester) async {
       await tester.pumpWidget(
