@@ -36,9 +36,12 @@ planning amounts are neither provider selection nor purchase authority.
    configurable response headers, deployment rollback and restricted administrator
    access. Record provider-specific setup after provider selection; no universal
    DNS record or deployment command is assumed here.
-3. Obtain verified public backend configuration. The current client reads precisely
-   `APP_ENV`, `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`; legacy
-   `SUPABASE_ANON_KEY` is a compatibility fallback. The project reference above is
+3. Obtain verified public backend configuration. `EnvConfig` declares compile-time
+   bindings for `APP_ENV`, `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`; legacy
+   `SUPABASE_ANON_KEY` is its compatibility fallback. Current bootstrap consumes
+   only the URL and legacy anon binding, without invoking the validator. Complete
+   the reviewed runtime prerequisite below before using production configuration.
+   The project reference above is
    an operator identity check, not a Flutter environment key. See
    [EnvConfig](../../lib/core/config/env_config.dart) and
    [local configuration guidance](../LOCAL_DEVELOPMENT.md).
@@ -61,13 +64,16 @@ The public configuration schema below is illustrative and intentionally invalid:
 }
 ```
 
-`EnvConfig` requires a non-loopback HTTPS backend in production and accepts only a
-publishable key or legacy anon key shape. The dummy key fails that check by design.
+`EnvConfig.read()` validates a non-loopback HTTPS backend in production and accepts
+only a publishable key or legacy anon key shape. The dummy key would fail that
+validator by design, but current bootstrap does not invoke it. The illustrative
+JSON is therefore not sufficient for current backend initialization.
 Never put service-role, payment, SMTP or video signing credentials in this JSON,
 Dart defines or browser assets. After replacement with verified public values,
 the existing build pattern is `flutter build web --release
 --dart-define-from-file=config/production.local.json`; keep that local file ignored.
-This command has not been executed for this preparation. Current
+This command has not been executed for this preparation and does not establish
+runtime backend initialization. Current
 [Flutter CI](../../.github/workflows/flutter-ci.yml) builds without backend
 credentials and contains no deployment job; its successful build would not prove
 production configuration.
