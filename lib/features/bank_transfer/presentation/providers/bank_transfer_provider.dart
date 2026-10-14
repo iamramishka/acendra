@@ -120,7 +120,7 @@ final receiptSubmissionProvider =
         );
       }
       return value;
-    });
+    }, retry: (_, _) => null);
 final financeQueueProvider = FutureProvider<List<Map<String, dynamic>>>((
   ref,
 ) async {
@@ -137,4 +137,4 @@ final financeQueueProvider = FutureProvider<List<Map<String, dynamic>>>((
     );
   }
   return value;
-});
+}, retry: (_, _) => null);
