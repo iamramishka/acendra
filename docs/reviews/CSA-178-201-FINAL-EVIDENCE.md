@@ -191,3 +191,7 @@ existing evidence, not freshly certified by this review.
 No new confirmed exploitable backend/storage defect was found in this bounded
 review. The documented implementation and operational gaps remain prerequisites
 for task acceptance; this is not an independent human security approval.
+
+## CSA-178 merged implementation update — 2026-10-15
+
+PR #153 is merged into dev befe7a9. Its reviewed head 4f5a6bb passed hosted Flutter and Supabase CI. The earlier Pay Now coming-soon description is historical: authenticated initialization and validated provider handoff are now implemented, with identity/order race guards and verification-pending return messaging. Actual sandbox/browser acceptance remains pending and the deployed provider gate remains closed. See [verified merge and acceptance boundary](CSA-178-PR153-MERGE-RECORD.md). This addendum supersedes only CSA178's prior frontend implementation description, not its unverified operational requirements.
