@@ -1821,7 +1821,7 @@ Integration Gate:
 
 - [ ] CSA-178 [P0] [X]
   Test online purchase journey.
-  IN_REVIEW; full acceptance blocked. Review on 2026-10-14 at dev `10c8b54`: checkout's Pay Now remains a coming-soon message and deployed provider initialization is disabled. Requires approved sandbox payment through verified settlement, enrollment, My Courses and paid-lesson browser access. See [current review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#csa-178179180-current-review--2026-10-14).
+  IN_REVIEW; implementation merged through PR #153 into dev befe7a9 with successful exact-head hosted Flutter/Supabase CI. Pay Now now invokes trusted initialization and a validated provider handoff; redirects do not grant access. Full acceptance still requires actual approved sandbox settlement and the complete purchase-to-paid-content browser journey; deployed provider initialization remains gated. See [verified merge record](docs/reviews/CSA-178-PR153-MERGE-RECORD.md).
 
 - [ ] CSA-179 [P0] [X]
   Test bank approval journey.
