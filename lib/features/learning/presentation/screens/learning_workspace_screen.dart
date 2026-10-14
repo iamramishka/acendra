@@ -7,6 +7,8 @@ import 'package:acendra/features/learning/presentation/widgets/curriculum_nav.da
 import 'package:acendra/features/learning/presentation/widgets/image_lesson_viewer.dart';
 import 'package:acendra/features/learning/presentation/widgets/text_lesson_viewer.dart';
 import 'package:flutter/material.dart';
+import 'package:acendra/features/pdf_reader/presentation/widgets/protected_pdf_lesson.dart';
+import 'package:acendra/features/video_player/presentation/widgets/authorized_video_widget.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const double _kSidebarWidth = 280.0;
@@ -250,6 +252,23 @@ class _LessonContentArea extends StatelessWidget {
     }
 
     return switch (content!.lessonType) {
+      'video' => Column(
+        children: [
+          Expanded(
+            child: AuthorizedVideoWidget(
+              lessonId: content!.id,
+              title: content!.title,
+            ),
+          ),
+          _LessonNavBar(onPrevious: onPrevious, onNext: onNext),
+        ],
+      ),
+      'pdf' => Column(
+        children: [
+          Expanded(child: ProtectedPdfLesson(lessonId: content!.id)),
+          _LessonNavBar(onPrevious: onPrevious, onNext: onNext),
+        ],
+      ),
       'text' => TextLessonViewer(
         title: content!.title,
         content: content!.contentText ?? '',
