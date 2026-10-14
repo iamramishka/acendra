@@ -1469,6 +1469,7 @@ See the dated parallel review in the reconciliation record for evidence and limi
 
 - [ ] CSA-111 [P0] [C]
   Implement minimum finance review UI.
+  Preview UI and route integration merged via [PR #133](https://github.com/iamramishka/acendra/pull/133) into dev at `31630ddd00378f7695e9eae17417bfeaccebaede` on 2026-10-14. Post-merge [CI](https://github.com/iamramishka/acendra/actions/runs/38509792565) passed formatting, analysis, Flutter tests, release web build and tooling checks. Fake decision success, lost rejection reason and mobile overflow are fixed. Operational review remains gated: synthetic records only, no real receipt viewer or trusted review activation. Full task remains IN_REVIEW; bounded route remediation is DONE. See [evidence](docs/tasks/PR-133-ROUTE-INTEGRATION.md).
 
 - [ ] CSA-115 [P1] [C]
   Implement receipt resubmission UI.
