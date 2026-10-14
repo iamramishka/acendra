@@ -1,10 +1,33 @@
 # CSA-184–188 review and operational deferral
 
 Date: 2026-10-14 (Asia/Colombo). Owner: CODEX root.
-Status: IN_REVIEW; review artifacts accepted for merge, operational checks deferred.
+Review status: ACCEPTED AND MERGED INTO DEV.
+Operational acceptance: DEFERRED until real-environment setup.
+Registry status: IN_REVIEW applies to outstanding operational acceptance only.
 User requested review/merge, then explicitly instructed use of dummy details,
 skipping checks requiring real environments and merging into dev for later setup.
 This accepts the bounded review records; it does not waive production controls.
+
+## Current owner decision
+
+On 2026-10-14 the owner confirmed that no further local testing is required
+for the current review/documentation stage and requested this document update.
+The CSA-184–188 review and dev integration are accepted and complete for this
+stage. Existing test evidence is retained as historical verification; no new
+local runtime tests are required or claimed by this update. Real-environment
+finance, private-file, upload inspection, hosted headers and managed logging
+acceptance remain deferred for later setup. IN_REVIEW does not mean a pending
+dev merge. It records those outstanding operational checks.
+
+Coordination: CODEX owns this new owner-decision section and status wording
+only on `docs/csa-184-owner-review-acceptance`, based on `4ab617b`, in
+`C:/Users/ramis/Downloads/Acendra/csa184-owner-acceptance`.
+Related issue: #129. PR #150 contains a redundant historical merge record;
+its branch and proposed record are preserved untouched. This follow-up adds
+the current owner decision without discarding that proposal or changing runtime
+controls. Scope: this document only. Authority: current project-owner request.
+Verification: document/diff review and whitespace check; merge through CI.
+Temporary ownership ends on merge.
 
 ## Coordination and scope
 
