@@ -295,7 +295,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               ),
 
               const SizedBox(height: AppSpacing.lg),
+            ],
 
+            // Keep contact inputs available for an existing pending online
+            // order: Pay Now validates and submits these actual controller values.
+            if (order == null ||
+                order.paymentMethod == PaymentMethod.online) ...[
               // ── Section 3: Customer Info form ─────────────────────────────────
               _SectionCard(
                 child: Column(

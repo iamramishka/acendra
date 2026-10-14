@@ -64,6 +64,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      expect(find.byType(TextField), findsNWidgets(6));
       final values = [
         'Sample',
         'Student',
@@ -199,6 +200,7 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
+        expect(find.byType(TextField), findsNWidgets(6));
         final values = [
           'Sample',
           'Student',
