@@ -214,7 +214,7 @@ BankTransferFailure bankTransferHttpFailure(int status) => switch (status) {
     'The receipt could not pass file inspection.',
   ),
   503 => const BankTransferFailure(
-    'Receipt upload is temporarily unavailable. No submission was confirmed.',
+    'Bank transfer service is temporarily unavailable. No change was confirmed.',
   ),
   _ => const BankTransferFailure(
     'Receipt submission could not be confirmed. Refresh the order before retrying.',
