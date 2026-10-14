@@ -37,6 +37,7 @@ class _LoadedCheckout extends CheckoutNotifier {
 
 Widget _scaffold(Widget child, {bool bankAvailable = true}) => ProviderScope(
   overrides: [
+    bankSessionIdentityProvider.overrideWithValue('test-session'),
     if (child is BankTransferScreen)
       checkoutProvider.overrideWith(
         () => _LoadedCheckout(
@@ -130,7 +131,11 @@ void main() {
         UncontrolledProviderScope(
           container: ProviderContainer(
             overrides: [
-              receiptSubmissionProvider('order-1').overrideWith(
+              bankSessionIdentityProvider.overrideWithValue('test-session'),
+              receiptSubmissionRequestProvider((
+                'test-session',
+                'order-1',
+              )).overrideWith(
                 (ref) async => const ReceiptSubmission(
                   orderId: 'order-1',
                   orderNumber: 'ORD-001',
@@ -158,7 +163,11 @@ void main() {
         UncontrolledProviderScope(
           container: ProviderContainer(
             overrides: [
-              receiptSubmissionProvider('order-2').overrideWith(
+              bankSessionIdentityProvider.overrideWithValue('test-session'),
+              receiptSubmissionRequestProvider((
+                'test-session',
+                'order-2',
+              )).overrideWith(
                 (ref) async => const ReceiptSubmission(
                   orderId: 'order-2',
                   orderNumber: 'ORD-002',
@@ -185,7 +194,11 @@ void main() {
         UncontrolledProviderScope(
           container: ProviderContainer(
             overrides: [
-              receiptSubmissionProvider('order-3').overrideWith(
+              bankSessionIdentityProvider.overrideWithValue('test-session'),
+              receiptSubmissionRequestProvider((
+                'test-session',
+                'order-3',
+              )).overrideWith(
                 (ref) async => const ReceiptSubmission(
                   orderId: 'order-3',
                   orderNumber: 'ORD-003',
@@ -214,7 +227,11 @@ void main() {
         UncontrolledProviderScope(
           container: ProviderContainer(
             overrides: [
-              receiptSubmissionProvider('order-4').overrideWith(
+              bankSessionIdentityProvider.overrideWithValue('test-session'),
+              receiptSubmissionRequestProvider((
+                'test-session',
+                'order-4',
+              )).overrideWith(
                 (ref) async => const ReceiptSubmission(
                   orderId: 'order-4',
                   orderNumber: 'ORD-004',
@@ -241,17 +258,21 @@ void main() {
   // ── CSA-115: ReceiptResubmissionScreen ───────────────────────────────────────
 
   group('ReceiptResubmissionScreen (CSA-115)', () {
-    testWidgets('renders file picker and disabled-backend notice', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        _scaffold(const ReceiptResubmissionScreen(orderId: 'order-1')),
-      );
+    testWidgets(
+      'renders secure-upload disclosure without implying course access',
+      (tester) async {
+        await tester.pumpWidget(
+          _scaffold(const ReceiptResubmissionScreen(orderId: 'order-1')),
+        );
 
-      expect(find.text('Receipt Rejected'), findsOneWidget);
-      expect(find.textContaining('temporarily unavailable'), findsOneWidget);
-      expect(find.text('Submit New Receipt'), findsOneWidget);
-    });
+        expect(find.text('Receipt Rejected'), findsOneWidget);
+        expect(
+          find.textContaining('A receipt does not grant course access'),
+          findsOneWidget,
+        );
+        expect(find.text('Submit New Receipt'), findsOneWidget);
+      },
+    );
 
     testWidgets('shows rejection reason when provided', (tester) async {
       await tester.pumpWidget(
@@ -289,53 +310,47 @@ void main() {
   // ── CSA-111: FinanceReviewScreen ──────────────────────────────────────────────
 
   group('FinanceReviewScreen (CSA-111)', () {
-    testWidgets('renders pending submissions header', (tester) async {
-      await tester.pumpWidget(_scaffold(const FinanceReviewScreen()));
-
-      expect(find.text('Pending Bank Transfers'), findsOneWidget);
-    });
-
-    testWidgets('shows backend-disabled notice', (tester) async {
-      await tester.pumpWidget(_scaffold(const FinanceReviewScreen()));
-
-      expect(find.textContaining('not yet enabled'), findsOneWidget);
-    });
-
-    testWidgets('shows approve and reject buttons on stub card', (
-      tester,
-    ) async {
-      await tester.pumpWidget(_scaffold(const FinanceReviewScreen()));
-
-      expect(find.text('Approve'), findsOneWidget);
-      expect(find.text('Reject'), findsOneWidget);
-    });
-
-    testWidgets('shows rejection form when Reject tapped', (tester) async {
-      await tester.pumpWidget(_scaffold(const FinanceReviewScreen()));
-
-      await tester.ensureVisible(find.text('Reject'));
-      await tester.tap(find.text('Reject'));
-      await tester.pump();
-
-      expect(find.text('Confirm Reject'), findsOneWidget);
-      expect(find.text('Cancel'), findsOneWidget);
-    });
-
-    testWidgets('cancelling rejection form restores approve/reject buttons', (
-      tester,
-    ) async {
-      await tester.pumpWidget(_scaffold(const FinanceReviewScreen()));
-
-      await tester.ensureVisible(find.text('Reject'));
-      await tester.tap(find.text('Reject'));
-      await tester.pump();
-
-      await tester.ensureVisible(find.text('Cancel'));
-      await tester.tap(find.text('Cancel'), warnIfMissed: false);
-      await tester.pump();
-
-      expect(find.text('Approve'), findsOneWidget);
-      expect(find.text('Reject'), findsOneWidget);
+    testWidgets(
+      'queue unavailable never renders invented receipts or decisions',
+      (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              bankSessionIdentityProvider.overrideWithValue('test-session'),
+              financeQueueRequestProvider.overrideWith(
+                (ref, _) async => throw Exception('Unavailable'),
+              ),
+            ],
+            child: MaterialApp(
+              theme: _theme(),
+              home: const FinanceReviewScreen(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.textContaining('Finance review is unavailable'),
+          findsOneWidget,
+        );
+        expect(find.textContaining('Example Student'), findsNothing);
+        expect(find.text('Record approval'), findsNothing);
+      },
+    );
+    testWidgets('empty authorized queue renders empty state', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            bankSessionIdentityProvider.overrideWithValue('test-session'),
+            financeQueueRequestProvider.overrideWith((ref, _) async => []),
+          ],
+          child: MaterialApp(
+            theme: _theme(),
+            home: const FinanceReviewScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('No receipts to review'), findsOneWidget);
     });
   });
 }

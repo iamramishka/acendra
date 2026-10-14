@@ -49,13 +49,62 @@ class LearningWorkspaceScreen extends ConsumerWidget {
       }
     }
 
-    final contentArea = _LessonContentArea(
-      content: state.currentContent,
-      isLoading: state.isLoading,
-      onPrevious: currentIndex > 0 ? onPrevious : null,
-      onNext: currentIndex >= 0 && currentIndex < flat.length - 1
-          ? onNext
-          : null,
+    final contentArea = Column(
+      children: [
+        if (state.progressError != null)
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            child: Row(
+              children: [
+                Expanded(child: Text(state.progressError!)),
+                TextButton(
+                  onPressed: () => notifier.loadCourse(courseId),
+                  child: const Text('Reload progress'),
+                ),
+              ],
+            ),
+          ),
+        if (state.currentLessonId != null && !state.isLoading)
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.sm),
+              child: TextButton.icon(
+                onPressed:
+                    state.isSavingProgress ||
+                        !state.progressReady ||
+                        state.progressError != null
+                    ? null
+                    : () => notifier.setCompleted(
+                        !(state.progress[state.currentLessonId]?.completed ??
+                            false),
+                      ),
+                icon: Icon(
+                  state.progress[state.currentLessonId]?.completed == true
+                      ? Icons.check_circle
+                      : Icons.check_circle_outline,
+                ),
+                label: Text(
+                  state.isSavingProgress
+                      ? 'Saving progress…'
+                      : state.progress[state.currentLessonId]?.completed == true
+                      ? 'Mark incomplete'
+                      : 'Mark complete',
+                ),
+              ),
+            ),
+          ),
+        Expanded(
+          child: _LessonContentArea(
+            content: state.currentContent,
+            isLoading: state.isLoading,
+            onPrevious: currentIndex > 0 ? onPrevious : null,
+            onNext: currentIndex >= 0 && currentIndex < flat.length - 1
+                ? onNext
+                : null,
+          ),
+        ),
+      ],
     );
 
     final curriculumNav = CurriculumNav(
@@ -280,7 +329,7 @@ class _PlaceholderLessonViewer extends StatelessWidget {
                           ),
                           const SizedBox(height: AppSpacing.md),
                           Text(
-                            '$label player coming soon',
+                            '$label content is currently unavailable',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ],

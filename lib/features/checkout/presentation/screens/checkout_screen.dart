@@ -8,6 +8,12 @@ import 'package:acendra/core/widgets/inputs/app_text_field.dart';
 import 'package:acendra/core/widgets/layout/responsive_container.dart';
 import 'package:acendra/features/checkout/domain/entities/checkout_order.dart';
 import 'package:acendra/features/checkout/domain/entities/payment_method.dart';
+import 'package:acendra/features/checkout/domain/entities/customer_info.dart';
+import 'package:acendra/features/checkout/domain/entities/payment_handoff.dart';
+import 'package:acendra/features/checkout/data/repositories/checkout_submission_repository.dart';
+import 'package:acendra/features/checkout/presentation/widgets/receipt_resubmission_form.dart';
+import 'package:acendra/features/checkout/presentation/providers/payment_launcher_provider.dart';
+import 'package:acendra/features/checkout/presentation/providers/checkout_actor_provider.dart';
 import 'package:acendra/features/checkout/presentation/providers/checkout_provider.dart';
 import 'package:acendra/features/checkout/presentation/widgets/payment_method_selector.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +43,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   String? _addressError;
   String? _cityError;
   String? _countryError;
+  bool _isPaying = false;
+  String? _paymentKey;
+  String? _paymentOrderId;
+  int _identityEpoch = 0;
 
   @override
   void dispose() {
@@ -91,14 +101,76 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         .createOrder(courseId: widget.courseId, method: method);
   }
 
-  void _onPayNow() {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Online payment coming soon')));
+  Future<void> _onPayNow() async {
+    if (_isPaying || !_validate()) return;
+    final actor = ref.read(checkoutActorProvider);
+    if (actor == null) return;
+    final epoch = _identityEpoch;
+    final order = ref.read(checkoutProvider).value;
+    if (order == null ||
+        order.paymentMethod != PaymentMethod.online ||
+        order.status != 'pending_payment') {
+      return;
+    }
+    if (_paymentOrderId != order.orderId) {
+      _paymentOrderId = order.orderId;
+      _paymentKey = 'online-${DateTime.now().microsecondsSinceEpoch}';
+    }
+    setState(() => _isPaying = true);
+    try {
+      final payment = await ref
+          .read(checkoutSubmissionRepositoryProvider)
+          .initialize(
+            orderId: order.orderId,
+            amountMinor: order.amountMinor,
+            key: _paymentKey!,
+            customer: CustomerInfo(
+              firstName: _firstNameController.text,
+              lastName: _lastNameController.text,
+              phone: _phoneController.text,
+              address: _addressController.text,
+              city: _cityController.text,
+              country: _countryController.text,
+            ),
+          );
+      if (!mounted ||
+          epoch != _identityEpoch ||
+          ref.read(checkoutActorProvider) != actor ||
+          ref.read(checkoutProvider).value?.orderId != order.orderId) {
+        return;
+      }
+      await ref.read(paymentLauncherProvider)(payment);
+    } catch (error) {
+      if (!mounted ||
+          epoch != _identityEpoch ||
+          ref.read(checkoutActorProvider) != actor ||
+          ref.read(checkoutProvider).value?.orderId != order.orderId) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            error is CheckoutFlowException
+                ? error.message
+                : 'Online payment could not be started. Please retry.',
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isPaying = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(checkoutActorProvider, (previous, next) {
+      if (previous == next) return;
+      _identityEpoch++;
+      setState(() {
+        _paymentKey = null;
+        _paymentOrderId = null;
+      });
+    });
     final checkoutState = ref.watch(checkoutProvider);
     final selectedMethod = ref.watch(selectedPaymentMethodProvider);
 
@@ -223,7 +295,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               ),
 
               const SizedBox(height: AppSpacing.lg),
+            ],
 
+            // Keep contact inputs available for an existing pending online
+            // order: Pay Now validates and submits these actual controller values.
+            if (order == null ||
+                order.paymentMethod == PaymentMethod.online) ...[
               // ── Section 3: Customer Info form ─────────────────────────────────
               _SectionCard(
                 child: Column(
@@ -360,8 +437,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               )
             else if (order.paymentMethod == PaymentMethod.online)
               AppButton(
-                label: 'Pay Now',
-                onPressed: _onPayNow,
+                label: _isPaying ? 'Starting payment…' : 'Pay Now',
+                onPressed: _isPaying ? null : _onPayNow,
                 variant: ButtonVariant.primary,
                 size: ButtonSize.large,
               )
@@ -377,6 +454,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 variant: ButtonVariant.primary,
                 size: ButtonSize.large,
               ),
+            if (order != null &&
+                order.paymentMethod == PaymentMethod.bankTransfer)
+              ReceiptResubmissionForm(orderId: order.orderId),
 
             const SizedBox(height: AppSpacing.xl),
           ],

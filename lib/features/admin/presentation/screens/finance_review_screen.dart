@@ -1,299 +1,239 @@
-import 'package:acendra/app/theme/app_spacing.dart';
-import 'package:acendra/core/widgets/feedback/app_snackbar.dart';
-import 'package:acendra/core/widgets/feedback/app_state_views.dart';
-import 'package:acendra/features/admin/domain/entities/receipt_review_item.dart';
-import 'package:acendra/features/admin/presentation/widgets/receipt_review_tile.dart';
+import 'package:acendra/features/bank_transfer/data/bank_transfer_repository.dart';
+import 'package:acendra/features/bank_transfer/presentation/providers/bank_transfer_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart' show StateProvider;
 
-// ---------------------------------------------------------------------------
-// Filter state provider
-// ---------------------------------------------------------------------------
-
-/// Active filter for the finance review list.
-enum _ReviewFilter { all, pending, approved, rejected }
-
-final _reviewFilterProvider = StateProvider<_ReviewFilter>(
-  (_) => _ReviewFilter.all,
-);
-
-/// Tracks which receipt IDs are currently being processed (approve/reject).
-final _processingProvider = StateProvider<Set<String>>((_) => {});
-
-// ---------------------------------------------------------------------------
-// Mock data provider
-// ---------------------------------------------------------------------------
-
-// TODO(CSA-111): Replace this mock provider with a real Supabase provider
-// that fetches bank transfer receipts from the database.
-// Security note: Receipt file access must use signed URLs from the trusted
-// backend. Never expose permanent public storage links.
-final _receiptListProvider = StateProvider<List<ReceiptReviewItem>>(
-  (_) => _mockReceipts,
-);
-
-final _mockReceipts = [
-  ReceiptReviewItem(
-    id: 'rec-001',
-    orderId: 'ord-001',
-    studentId: 'stu-001',
-    studentEmail: 'alice@example.com',
-    courseTitle: 'Advanced Flutter Development',
-    amount: 149.99,
-    currency: 'USD',
-    submittedAt: DateTime.now().subtract(const Duration(hours: 2)),
-    status: ReceiptStatus.pending,
-    receiptStoragePath: 'receipts/ord-001/bank_receipt.pdf',
-  ),
-  ReceiptReviewItem(
-    id: 'rec-002',
-    orderId: 'ord-002',
-    studentId: 'stu-002',
-    studentEmail: 'bob@example.com',
-    courseTitle: 'Supabase Backend Masterclass',
-    amount: 99.00,
-    currency: 'USD',
-    submittedAt: DateTime.now().subtract(const Duration(days: 1)),
-    status: ReceiptStatus.approved,
-    receiptStoragePath: 'receipts/ord-002/bank_receipt.jpg',
-  ),
-  ReceiptReviewItem(
-    id: 'rec-003',
-    orderId: 'ord-003',
-    studentId: 'stu-003',
-    studentEmail: 'carol@example.com',
-    courseTitle: 'UI/UX Design Fundamentals',
-    amount: 79.00,
-    currency: 'USD',
-    submittedAt: DateTime.now().subtract(const Duration(days: 3)),
-    status: ReceiptStatus.rejected,
-    rejectionReason:
-        'Receipt image is illegible. Please resubmit a clearer copy.',
-    receiptStoragePath: 'receipts/ord-003/bank_receipt.png',
-  ),
-  ReceiptReviewItem(
-    id: 'rec-004',
-    orderId: 'ord-004',
-    studentId: 'stu-004',
-    studentEmail: 'david@example.com',
-    courseTitle: 'Advanced Flutter Development',
-    amount: 149.99,
-    currency: 'USD',
-    submittedAt: DateTime.now().subtract(const Duration(minutes: 30)),
-    status: ReceiptStatus.pending,
-    receiptStoragePath: 'receipts/ord-004/bank_receipt.pdf',
-  ),
-];
-
-// ---------------------------------------------------------------------------
-// Finance Review Screen
-// ---------------------------------------------------------------------------
-
-/// Admin screen that allows finance staff to review submitted bank transfer
-/// receipts and approve or reject them.
-///
-/// Security note: Receipt file access must use signed URLs from the trusted
-/// backend. Never expose permanent public storage links.
 class FinanceReviewScreen extends ConsumerWidget {
   const FinanceReviewScreen({super.key});
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final filter = ref.watch(_reviewFilterProvider);
-    final allReceipts = ref.watch(_receiptListProvider);
-    final processing = ref.watch(_processingProvider);
-
-    final filteredReceipts = switch (filter) {
-      _ReviewFilter.all => allReceipts,
-      _ReviewFilter.pending =>
-        allReceipts.where((r) => r.status == ReceiptStatus.pending).toList(),
-      _ReviewFilter.approved =>
-        allReceipts.where((r) => r.status == ReceiptStatus.approved).toList(),
-      _ReviewFilter.rejected =>
-        allReceipts.where((r) => r.status == ReceiptStatus.rejected).toList(),
-    };
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Finance Receipt Review'),
-        centerTitle: false,
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(AppSpacing.md),
-            child: Text(
-              'Synthetic preview — bank review is unavailable. No decisions will be recorded.',
-            ),
-          ),
-          // Filter chips
-          _FilterRow(
-            selected: filter,
-            onSelected: (f) =>
-                ref.read(_reviewFilterProvider.notifier).state = f,
-            counts: _buildCounts(allReceipts),
-          ),
-          // List
-          Expanded(
-            child: filteredReceipts.isEmpty
-                ? const AppEmptyState(message: 'No receipts to review')
-                : _ReceiptList(
-                    receipts: filteredReceipts,
-                    processing: processing,
-                    onApprove: (item) => _handleApprove(context, ref, item),
-                    onReject: (item, reason) =>
-                        _handleReject(context, ref, item, reason),
-                    onViewReceipt: (item) => _handleViewReceipt(context, item),
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Map<_ReviewFilter, int> _buildCounts(List<ReceiptReviewItem> all) {
-    return {
-      _ReviewFilter.all: all.length,
-      _ReviewFilter.pending: all
-          .where((r) => r.status == ReceiptStatus.pending)
-          .length,
-      _ReviewFilter.approved: all
-          .where((r) => r.status == ReceiptStatus.approved)
-          .length,
-      _ReviewFilter.rejected: all
-          .where((r) => r.status == ReceiptStatus.rejected)
-          .length,
-    };
-  }
-
-  void _handleApprove(
-    BuildContext context,
-    WidgetRef ref,
-    ReceiptReviewItem item,
-  ) {
-    // Fail closed until the trusted review backend is available.
-    _showReviewUnavailable(context);
-  }
-
-  bool _handleReject(
-    BuildContext context,
-    WidgetRef ref,
-    ReceiptReviewItem item,
-    String reason,
-  ) {
-    if (reason.trim().length < 10) return false;
-    // Preserve the reason in the callback contract; no local financial decision.
-    _showReviewUnavailable(context);
-    return false;
-  }
-
-  void _showReviewUnavailable(BuildContext context) {
-    AppSnackbar.show(
-      context,
-      'Bank review is temporarily unavailable. No decision was recorded.',
-      variant: SnackbarVariant.warning,
-    );
-  }
-
-  void _handleViewReceipt(BuildContext context, ReceiptReviewItem item) {
-    // TODO(CSA-111): Fetch a short-lived signed URL from the trusted backend
-    // and open it in a new tab or viewer.
-    // Security note: Receipt file access must use signed URLs from the trusted
-    // backend. Never expose permanent public storage links.
-    AppSnackbar.show(
-      context,
-      'Opening receipt viewer… (signed URL fetch not yet implemented)',
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Private sub-widgets
-// ---------------------------------------------------------------------------
-
-class _FilterRow extends StatelessWidget {
-  const _FilterRow({
-    required this.selected,
-    required this.onSelected,
-    required this.counts,
-  });
-
-  final _ReviewFilter selected;
-  final ValueChanged<_ReviewFilter> onSelected;
-  final Map<_ReviewFilter, int> counts;
-
-  @override
-  Widget build(BuildContext context) {
-    const filters = _ReviewFilter.values;
-    final labels = {
-      _ReviewFilter.all: 'All',
-      _ReviewFilter.pending: 'Pending',
-      _ReviewFilter.approved: 'Approved',
-      _ReviewFilter.rejected: 'Rejected',
-    };
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      child: Row(
-        children: filters.map((f) {
-          final label = '${labels[f]!} (${counts[f] ?? 0})';
-          return Padding(
-            padding: const EdgeInsets.only(right: AppSpacing.sm),
-            child: FilterChip(
-              label: Text(label),
-              selected: selected == f,
-              onSelected: (_) => onSelected(f),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-}
-
-class _ReceiptList extends StatelessWidget {
-  const _ReceiptList({
-    required this.receipts,
-    required this.processing,
-    required this.onApprove,
-    required this.onReject,
-    required this.onViewReceipt,
-  });
-
-  final List<ReceiptReviewItem> receipts;
-  final Set<String> processing;
-  final ValueChanged<ReceiptReviewItem> onApprove;
-  final bool Function(ReceiptReviewItem item, String reason) onReject;
-  final ValueChanged<ReceiptReviewItem> onViewReceipt;
-
-  @override
-  Widget build(BuildContext context) {
-    // Responsive: constrain width on large screens (finance uses desktop/tablet)
-    return Align(
-      alignment: Alignment.topCenter,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 860),
-        child: ListView.separated(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          itemCount: receipts.length,
-          separatorBuilder: (context, index) =>
-              const SizedBox(height: AppSpacing.sm),
-          itemBuilder: (context, index) {
-            final item = receipts[index];
-            return ReceiptReviewTile(
-              item: item,
-              isProcessing: processing.contains(item.id),
-              onApprove: () => onApprove(item),
-              onReject: (reason) => onReject(item, reason),
-              onViewReceipt: () => onViewReceipt(item),
-            );
+  Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    appBar: AppBar(
+      title: const Text('Finance Receipt Review'),
+      actions: [
+        IconButton(
+          tooltip: 'Refresh queue',
+          onPressed: () {
+            final identity = ref.read(bankSessionIdentityProvider);
+            if (identity != null) {
+              ref.invalidate(financeQueueRequestProvider(identity));
+            }
           },
+          icon: const Icon(Icons.refresh),
+        ),
+      ],
+    ),
+    body: ref
+        .watch(financeQueueProvider)
+        .when(
+          skipLoadingOnReload: false,
+          skipLoadingOnRefresh: false,
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, _) => const Center(
+            child: Text(
+              'Finance review is unavailable. Sign in with an authorized finance account and MFA, or try again later.',
+            ),
+          ),
+          data: (items) => items.isEmpty
+              ? const Center(child: Text('No receipts to review'))
+              : ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: items
+                      .map(
+                        (item) => _ReviewCard(
+                          key: ValueKey((
+                            item['submission_id'],
+                            ref.watch(bankSessionWidgetKeyProvider),
+                          )),
+                          item: item,
+                        ),
+                      )
+                      .toList(),
+                ),
+        ),
+  );
+}
+
+class _ReviewCard extends ConsumerStatefulWidget {
+  const _ReviewCard({super.key, required this.item});
+  final Map<String, dynamic> item;
+  @override
+  ConsumerState<_ReviewCard> createState() => _ReviewCardState();
+}
+
+class _ReviewCardState extends ConsumerState<_ReviewCard> {
+  final reason = TextEditingController();
+  final fields = List.generate(5, (_) => TextEditingController());
+  bool busy = false, confirmed = false, approve = false;
+  String source = 'bank_portal';
+  String? message;
+  @override
+  void dispose() {
+    reason.dispose();
+    for (final field in fields) {
+      field.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> decide() async {
+    if (busy) {
+      return;
+    }
+    final identity = ref.read(bankSessionIdentityProvider);
+    if (identity == null) {
+      setState(
+        () => message = 'Sign in with an authorized finance account and MFA.',
+      );
+      return;
+    }
+    final item = widget.item;
+    if (approve &&
+        (!confirmed || fields.any((field) => field.text.trim().isEmpty))) {
+      setState(
+        () => message =
+            'Complete the independent bank-credit evidence and confirmation.',
+      );
+      return;
+    }
+    if (!approve && reason.text.trim().isEmpty) {
+      setState(() => message = 'Enter a student-safe rejection reason.');
+      return;
+    }
+    setState(() {
+      busy = true;
+      message = null;
+    });
+    try {
+      await ref
+          .read(bankTransferRepositoryProvider)
+          .review(
+            submissionId: item['submission_id'] as String,
+            rejectionReason: approve ? null : reason.text.trim(),
+            verifiedCredit: approve
+                ? {
+                    'bank_credit_confirmed': true,
+                    'destination_account_id': fields[0].text.trim(),
+                    'bank_transaction_id': fields[1].text.trim(),
+                    'amount_minor': fields[2].text.trim(),
+                    'currency': 'LKR',
+                    'settled_at': fields[3].text.trim(),
+                    'source': source,
+                    'order_reference': fields[4].text.trim(),
+                  }
+                : null,
+          );
+      if (!mounted || ref.read(bankSessionIdentityProvider) != identity) {
+        return;
+      }
+      ref.invalidate(financeQueueRequestProvider(identity));
+      setState(() {
+        message = 'Decision recorded by the server.';
+        reason.clear();
+      });
+    } catch (_) {
+      if (mounted && ref.read(bankSessionIdentityProvider) == identity) {
+        setState(
+          () => message =
+              'The decision was not confirmed. Your inputs are preserved. Refresh before retrying.',
+        );
+      }
+    } finally {
+      if (mounted && ref.read(bankSessionIdentityProvider) == identity) {
+        setState(() => busy = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const labels = [
+      'Destination account ID',
+      'Independent bank transaction ID',
+      'Exact amount in minor units',
+      'Settled date and time (ISO 8601)',
+      'Stored order reference',
+    ];
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(widget.item['course_title'] as String),
+            Text('Order ${widget.item['order_number']}'),
+            Text(
+              '${widget.item['currency']} ${widget.item['amount_minor']} minor units',
+            ),
+            const Text(
+              'Verify settled funds in the business-controlled bank source. A receipt alone does not prove payment.',
+            ),
+            SwitchListTile(
+              title: const Text('Approve with independent bank evidence'),
+              value: approve,
+              onChanged: busy
+                  ? null
+                  : (value) => setState(() => approve = value),
+            ),
+            if (approve) ...[
+              for (var i = 0; i < labels.length; i++)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: TextField(
+                    controller: fields[i],
+                    enabled: !busy,
+                    decoration: InputDecoration(labelText: labels[i]),
+                  ),
+                ),
+              DropdownButtonFormField<String>(
+                initialValue: source,
+                items: const [
+                  DropdownMenuItem(
+                    value: 'bank_portal',
+                    child: Text('Bank portal'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'bank_statement',
+                    child: Text('Bank statement'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'authenticated_bank_feed',
+                    child: Text('Authenticated bank feed'),
+                  ),
+                ],
+                onChanged: busy
+                    ? null
+                    : (value) => setState(() => source = value!),
+              ),
+              CheckboxListTile(
+                title: const Text(
+                  'I independently verified this settled credit in the bank source',
+                ),
+                value: confirmed,
+                onChanged: busy
+                    ? null
+                    : (value) => setState(() => confirmed = value ?? false),
+              ),
+            ] else
+              TextField(
+                controller: reason,
+                enabled: !busy,
+                maxLength: 1000,
+                decoration: const InputDecoration(
+                  labelText: 'Student-safe rejection reason',
+                ),
+              ),
+            if (message != null) Text(message!),
+            FilledButton(
+              onPressed: busy ? null : decide,
+              child: Text(
+                busy
+                    ? 'Recording…'
+                    : approve
+                    ? 'Record approval'
+                    : 'Record rejection',
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -8,10 +8,35 @@ import 'package:acendra/features/checkout/presentation/widgets/receipt_resubmiss
 import 'package:acendra/features/bank_transfer/presentation/screens/receipt_resubmission_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:acendra/features/checkout/data/repositories/checkout_submission_repository.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_riverpod/legacy.dart' show StateProvider;
+import 'package:acendra/features/checkout/presentation/providers/checkout_actor_provider.dart';
 
-Widget wrap(Widget child, {bool dark = false}) => MaterialApp(
-  theme: dark ? AppTheme.dark : AppTheme.light,
-  home: Scaffold(body: child),
+Widget wrap(
+  Widget child, {
+  bool dark = false,
+  CheckoutSubmissionRepository? repository,
+}) => ProviderScope(
+  overrides: [
+    checkoutActorProvider.overrideWithValue('synthetic-student'),
+    checkoutSubmissionRepositoryProvider.overrideWithValue(
+      repository ??
+          CheckoutSubmissionRepository(
+            (name, headers, body) async => const FunctionResponse(
+              status: 503,
+              data: {
+                'error': {'code': 'RECEIPT_UPLOAD_UNAVAILABLE'},
+              },
+            ),
+          ),
+    ),
+  ],
+  child: MaterialApp(
+    theme: dark ? AppTheme.dark : AppTheme.light,
+    home: Scaffold(body: child),
+  ),
 );
 Finder get submit => find.widgetWithText(AppButton, 'Submit New Receipt');
 Future<void> pick(WidgetTester tester) async {
@@ -26,14 +51,140 @@ Future<void> pick(WidgetTester tester) async {
 }
 
 void main() {
+  for (final change in ['order', 'actor']) {
+    testWidgets('pending picker discards receipt after $change switch', (
+      tester,
+    ) async {
+      final pending = Completer<ReceiptFile?>();
+      final actor = StateProvider<String?>((ref) => 'student-a');
+      final container = ProviderContainer(
+        overrides: [
+          checkoutActorProvider.overrideWith((ref) => ref.watch(actor)),
+        ],
+      );
+      addTearDown(container.dispose);
+      Widget screen(String order) => UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: AppTheme.light,
+          home: Scaffold(
+            body: ReceiptResubmissionForm(
+              orderId: order,
+              filePicker: () => pending.future,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpWidget(screen('order-a'));
+      await tester.tap(
+        find.byWidgetPredicate(
+          (w) => w is Semantics && w.properties.label == 'Select receipt file',
+        ),
+      );
+      await tester.pump();
+      if (change == 'actor') {
+        container.read(actor.notifier).state = 'student-b';
+        await tester.pump();
+      } else {
+        await tester.pumpWidget(screen('order-b'));
+      }
+      pending.complete(
+        ReceiptFile(name: 'previous-account.pdf', bytes: Uint8List(1)),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('previous-account.pdf'), findsNothing);
+      expect(tester.widget<AppButton>(submit).onPressed, isNull);
+    });
+  }
+  testWidgets('actor switch clears selected bytes and replay key', (
+    tester,
+  ) async {
+    final actor = StateProvider<String?>((ref) => 'student-a');
+    final container = ProviderContainer(
+      overrides: [
+        checkoutActorProvider.overrideWith((ref) => ref.watch(actor)),
+      ],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: AppTheme.light,
+          home: Scaffold(
+            body: ReceiptResubmissionForm(
+              orderId: 'order-a',
+              filePicker: () async =>
+                  ReceiptFile(name: 'private.pdf', bytes: Uint8List(1)),
+            ),
+          ),
+        ),
+      ),
+    );
+    await pick(tester);
+    expect(find.text('private.pdf'), findsOneWidget);
+    container.read(actor.notifier).state = null;
+    await tester.pumpAndSettle();
+    expect(find.text('private.pdf'), findsNothing);
+    expect(tester.widget<AppButton>(submit).onPressed, isNull);
+  });
   testWidgets(
-    'valid selection never enables unavailable submission or reports success',
+    'receipt timeout retries same key; acknowledged receipt stays pending and cannot resubmit',
+    (tester) async {
+      var calls = 0;
+      final keys = <String>[];
+      final repo = CheckoutSubmissionRepository((name, headers, body) async {
+        calls++;
+        keys.add(headers['Idempotency-Key']!);
+        if (calls == 1) {
+          throw const FunctionException(status: 0, details: 'private timeout');
+        }
+        return const FunctionResponse(
+          status: 201,
+          data: {
+            'data': {
+              'order_id': '11111111-1111-4111-8111-111111111111',
+              'submission_id': '22222222-2222-4222-8222-222222222222',
+              'status': 'submitted',
+            },
+          },
+        );
+      });
+      await tester.pumpWidget(
+        wrap(
+          ReceiptResubmissionForm(
+            orderId: '11111111-1111-4111-8111-111111111111',
+            filePicker: () async =>
+                ReceiptFile(name: 'receipt.pdf', bytes: Uint8List(1)),
+          ),
+          repository: repo,
+        ),
+      );
+      await pick(tester);
+      await tester.ensureVisible(submit);
+      await tester.tap(submit);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('could not be confirmed'), findsOneWidget);
+      expect(find.textContaining('private timeout'), findsNothing);
+      await tester.tap(submit);
+      await tester.pumpAndSettle();
+      expect(keys[0], keys[1]);
+      expect(
+        find.textContaining('Receipt submitted for verification'),
+        findsOneWidget,
+      );
+      expect(tester.widget<AppButton>(submit).onPressed, isNull);
+      expect(find.textContaining('Payment Successful'), findsNothing);
+    },
+  );
+  testWidgets(
+    'valid receipt attempts server submission and gated failure never reports success',
     (tester) async {
       var calls = 0;
       await tester.pumpWidget(
         wrap(
           ReceiptResubmissionForm(
-            orderId: 'order-1',
+            orderId: '11111111-1111-4111-8111-111111111111',
             filePicker: () async {
               calls++;
               return ReceiptFile(
@@ -47,7 +198,7 @@ void main() {
       await pick(tester);
       expect(calls, 1);
       expect(find.text('receipt.jpg'), findsOneWidget);
-      expect(tester.widget<AppButton>(submit).onPressed, isNull);
+      expect(tester.widget<AppButton>(submit).onPressed, isNotNull);
       await tester.tap(submit);
       await tester.pump(const Duration(seconds: 2));
       expect(find.textContaining('submitted successfully'), findsNothing);
