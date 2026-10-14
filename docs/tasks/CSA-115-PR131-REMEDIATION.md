@@ -48,3 +48,11 @@ The release build result is recorded separately below when verified.
 Original PR is updated by fast-forward after verification, preserving CLAUDE's
 implementation history. No merge into dev or deployment. Implementation edit
 ownership is released at handoff; final status IN_REVIEW pending CI/maintainer.
+
+## 2026-10-14 verification follow-up
+Owner CODEX under renewed user authorization; temporary workflow scope recorded
+in issue139. Found browser tests excluded from default discovery (.browser.dart)
+and no explicit CI execution. Added a five-minute bounded Chrome test step after
+the native suite. This is a required CI check, not a claim of browser success.
+No backend activation or financial policy changes. Local browser run pending;
+final fresh evidence is reported below and in the hosted CI record.
