@@ -10,7 +10,8 @@ this preparation record.
 
 No corresponding open GitHub task found during issue/PR inspection. This is a
 local documentation assignment under AGENTS.md section 8, not a GitHub claim.
-Base: ca3158b. Open PR #146 continues Phase 8 acceptance and is outside this scope.
+Initial base: ca3158b; integration refreshed onto origin/dev e7a1cdc.
+Open PR #146 continues Phase 8 acceptance and is outside this scope.
 No overlapping production worktree or open production PR was found.
 
 | Tasks | Accountable owner | Exclusive writable scope | Branch | Isolated worktree |
@@ -61,3 +62,14 @@ Flutter, database, provider or browser verification.
 
 Operational next action: replace dummy targets through authorized account access,
 complete retained release gates, then execute and record production verification.
+
+## Preparation completion evidence
+
+Three agents prepared the documents in parallel in the isolated worktrees above.
+Root integrated their commits through cherry-pick after refreshing the base.
+Reviewed actual environment reads, payment entry-point gates, migration filenames,
+test filenames, public configuration validation and ignored local config pattern.
+The integrated diff contains only these four documentation files.
+`git diff origin/dev --check` passed. Local documentation link validation passed.
+No runtime or production checks were run for this documentation-only change.
+The preparation is submitted for review; all six operational tasks remain pending.
