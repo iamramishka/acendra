@@ -34,10 +34,11 @@ class VideoAuthorizationRepository {
     }
     try {
       final response = await invoke({'lesson_id': lessonId});
-      if (response.status != 200)
+      if (response.status != 200) {
         throw const VideoAuthorizationException(
           'Video access is temporarily unavailable.',
         );
+      }
       final envelope = response.data;
       final data = envelope is Map ? envelope['data'] : null;
       final raw = data is Map ? data['playback_url'] : null;

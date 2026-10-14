@@ -71,7 +71,9 @@ class _VideoLeaseState extends ConsumerState<_VideoLease> {
   }
 
   void _playbackChanged() {
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     if (_controller?.value.hasError == true) {
       _stopPlayback();
       setState(() {
@@ -91,7 +93,9 @@ class _VideoLeaseState extends ConsumerState<_VideoLease> {
   }
 
   Future<void> _authorize() async {
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     final request = ++_request;
     _expiry?.cancel();
     _stopPlayback();
@@ -104,7 +108,9 @@ class _VideoLeaseState extends ConsumerState<_VideoLease> {
       final video = await ref
           .read(videoAuthorizationRepositoryProvider)
           .authorize(widget.lessonId);
-      if (!mounted || request != _request) return;
+      if (!mounted || request != _request) {
+        return;
+      }
       final remaining = video.expiresAt.difference(DateTime.now());
       if (remaining <= const Duration(seconds: 1)) {
         throw const VideoAuthorizationException(
@@ -128,12 +134,16 @@ class _VideoLeaseState extends ConsumerState<_VideoLease> {
       _controller = controller;
       controller.addListener(_playbackChanged);
       await controller.initialize();
-      if (!mounted || request != _request || _controller != controller) return;
+      if (!mounted || request != _request || _controller != controller) {
+        return;
+      }
       setState(() {
         _loading = false;
       });
     } catch (error) {
-      if (!mounted || request != _request) return;
+      if (!mounted || request != _request) {
+        return;
+      }
       _expiry?.cancel();
       _stopPlayback();
       setState(() {
@@ -157,7 +167,9 @@ class _VideoLeaseState extends ConsumerState<_VideoLease> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
     final video = _video;
     if (video == null) {
       return Column(
@@ -172,8 +184,9 @@ class _VideoLeaseState extends ConsumerState<_VideoLease> {
       );
     }
     final controller = _controller;
-    if (controller == null)
+    if (controller == null) {
       return const Text('Video access is temporarily unavailable.');
+    }
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

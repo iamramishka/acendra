@@ -72,7 +72,9 @@ void main() {
             videoAuthorizationRepositoryProvider.overrideWithValue(
               VideoAuthorizationRepository((body) {
                 calls++;
-                if (calls == 1) return pending.future;
+                if (calls == 1) {
+                  return pending.future;
+                }
                 return Future.value(
                   const FunctionResponse(status: 503, data: {}),
                 );
