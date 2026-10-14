@@ -12,9 +12,7 @@ import 'package:acendra/features/checkout/domain/entities/customer_info.dart';
 import 'package:acendra/features/checkout/domain/entities/payment_handoff.dart';
 import 'package:acendra/features/checkout/data/repositories/checkout_submission_repository.dart';
 import 'package:acendra/features/checkout/presentation/widgets/receipt_resubmission_form.dart';
-import 'package:acendra/features/checkout/presentation/services/payment_handoff.dart'
-    if (dart.library.js_interop) 'package:acendra/features/checkout/presentation/services/payment_handoff_web.dart'
-    as handoff;
+import 'package:acendra/features/checkout/presentation/providers/payment_launcher_provider.dart';
 import 'package:acendra/features/checkout/presentation/providers/checkout_provider.dart';
 import 'package:acendra/features/checkout/presentation/widgets/payment_method_selector.dart';
 import 'package:flutter/material.dart';
@@ -130,7 +128,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             ),
           );
       if (!mounted) return;
-      await handoff.launchPayment(payment);
+      await ref.read(paymentLauncherProvider)(payment);
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
