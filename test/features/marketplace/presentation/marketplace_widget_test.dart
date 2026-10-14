@@ -27,7 +27,7 @@ Widget _wrapWithRouter({FakeCourseRepository? repo}) {
     routes: [
       GoRoute(
         path: '/marketplace',
-        builder: (_, __) => const MarketplaceScreen(),
+        builder: (_, _) => const MarketplaceScreen(),
       ),
       GoRoute(
         path: '/marketplace/:courseId',
