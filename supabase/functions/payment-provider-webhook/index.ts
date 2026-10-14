@@ -1,4 +1,3 @@
-import { createHandler } from './handler.mjs';
-// CSA-100 real sandbox acceptance unavailable. No environment flag can enable
-// this deployed endpoint; enablement needs a separately reviewed release change.
-Deno.serve(createHandler({ env: (name: string) => Deno.env.get(name) }));
+import { createStagingPaymentHandler } from '../_shared/payments/staging-entrypoints.mjs';
+// Sandbox callbacks still require checksum plus authenticated settlement retrieval.
+Deno.serve(createStagingPaymentHandler('webhook', { env: (name: string) => Deno.env.get(name) }));
