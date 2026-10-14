@@ -72,5 +72,25 @@ then submit sanitized scenario results for owner acceptance. Keep deployed
 financial/upload gates closed until prerequisites are satisfied. All five tasks
 remain unchecked IN_REVIEW; merge of this record does not establish DONE.
 
-Preparation verification: source/reference review and git diff --check. CI for
-this documentation PR must pass before merge. No security requirement was removed.
+Preparation verification: source/reference review and git diff --check passed.
+No security requirement was removed.
+
+## Verified merge and documentation synchronization
+
+[PR #148](https://github.com/iamramishka/acendra/pull/148) merged into `dev`
+on 2026-10-14 at 15:06:36 Asia/Colombo, commit
+`bd5a5c91dd4708a76d3443eabffa10c36bf965ad`.
+[Flutter baseline CI](https://github.com/iamramishka/acendra/actions/runs/38542456018)
+completed SUCCESS before merge: formatting, analysis, Flutter tests, release web
+build and tooling regression checks passed. This is documentation integration
+evidence, not real-environment operational acceptance.
+
+The owner subsequently requested document updates. CODEX root owns this merge
+record and the corresponding CSA-184–188 TASKS.md summary only. No open PR or
+overlapping documentation assignment was found at synchronization. Branch:
+`docs/csa-184-merge-record-update`; isolated worktree:
+`C:/Users/ramis/.codex/worktrees/csa-184-188-doc-sync/acendra`.
+Base: `bd5a5c9`. Verification: GitHub merge/check readback, scoped diff review and
+`git diff --check`. No runtime change or new operational test is required for
+this synchronization. Documentation status: merged and accepted; operational
+task status: IN_REVIEW, unchanged. Temporary note ownership ends at review/merge.
