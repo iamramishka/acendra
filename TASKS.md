@@ -1298,26 +1298,33 @@ CLAUDE
 
 ## CLAUDE - MARKETPLACE
 
-- [ ] CSA-082 [P1] [C]
+- [x] CSA-082 [P1] [C] [IN_REVIEW]
   Implement marketplace homepage.
+  PR: feat/csa-082-090-marketplace-phase4. MarketplaceScreen with search, category filter, course grid, empty/error states.
 
-- [ ] CSA-083 [P1] [C]
+- [x] CSA-083 [P1] [C] [IN_REVIEW]
   Implement responsive course grid.
+  PR: feat/csa-082-090-marketplace-phase4. CourseGrid with 1/2/3 columns at mobile/tablet/desktop breakpoints. Navigation to CourseDetailScreen wired.
 
-- [ ] CSA-084 [P1] [C]
+- [x] CSA-084 [P1] [C] [IN_REVIEW]
   Implement course search.
+  PR: feat/csa-082-090-marketplace-phase4. SearchBar + filteredCoursesProvider filtering by title and short description.
 
-- [ ] CSA-085 [P1] [C]
+- [x] CSA-085 [P1] [C] [IN_REVIEW]
   Implement category filtering.
+  PR: feat/csa-082-090-marketplace-phase4. CategoryFilter horizontal chip row, selectedCategoryProvider, combined with search.
 
-- [ ] CSA-086 [P1] [C]
+- [x] CSA-086 [P1] [C] [IN_REVIEW]
   Implement course details.
+  PR: feat/csa-082-090-marketplace-phase4. CourseDetailScreen with price, description, section/lesson stats, enrollment-aware CTA.
 
-- [ ] CSA-087 [P1] [C]
+- [x] CSA-087 [P1] [C] [IN_REVIEW]
   Implement curriculum preview.
+  PR: feat/csa-082-090-marketplace-phase4. CurriculumPreview with expandable sections, lesson type icons, preview badges.
 
-- [ ] CSA-088 [P1] [C]
+- [x] CSA-088 [P1] [C] [IN_REVIEW]
   Implement enrollment-aware UI.
+  PR: feat/csa-082-090-marketplace-phase4. isEnrolledProvider, Enrolled chip, Continue Learning / Enroll Now CTA.
 
 ## CODEX - COURSE MANAGEMENT BACKEND
 
@@ -1327,19 +1334,20 @@ CLAUDE
 
 ## TESTING
 
-- [ ] CSA-090 [P1] [C]
+- [x] CSA-090 [P1] [C] [IN_REVIEW]
   Test marketplace interactions.
+  PR: feat/csa-082-090-marketplace-phase4. 21 tests: loading, empty, error, search filter, category filter, navigation, enrollment states, curriculum — all pass.
 
 - [x] CSA-091 [P0] [X]
   Test unpublished course isolation.
 
 Integration Gate:
 
-- [ ] Course API contract verified.
-- [ ] Published courses visible.
-- [ ] Unpublished courses protected.
-- [ ] Marketplace responsive.
-- [ ] API and UI tests pass.
+- [x] Course API contract verified.
+- [x] Published courses visible.
+- [ ] Unpublished courses protected (Codex backend — CSA-091 done).
+- [x] Marketplace responsive.
+- [x] API and UI tests pass.
 
 ---
 
