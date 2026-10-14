@@ -129,8 +129,9 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
         );
       }
     } finally {
-      if (mounted && ref.read(bankSessionIdentityProvider) == identity)
+      if (mounted && ref.read(bankSessionIdentityProvider) == identity) {
         setState(() => busy = false);
+      }
     }
   }
 
