@@ -28,3 +28,11 @@ keys, so entered evidence and confirmation cannot transfer to another receipt or
 account on queue reorder. Decisions capture the requesting session and suppress
 success/error state from late completions after account changes. Added hosted
 regressions for late queue results, signout, reorder and late decision completion.
+
+Hosted SQL failed at the authorized finance queue assertion (read test line24):
+the PL/pgSQL order row variable o collided with the queue relation alias o.
+Follow-up migration20261014000200 renames the local row variable to order_row,
+retaining SQL ambiguity checking and the existing reviewed access predicates.
+The earlier shared migration is preserved. The existing authorized-queue and
+owner-status tests exercise both branches and are required to pass on hosted CI.
+No failure was suppressed and no local SQL/test execution was performed.
