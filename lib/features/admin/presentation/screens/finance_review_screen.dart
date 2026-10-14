@@ -20,6 +20,8 @@ class FinanceReviewScreen extends ConsumerWidget {
     body: ref
         .watch(financeQueueProvider)
         .when(
+          skipLoadingOnReload: false,
+          skipLoadingOnRefresh: false,
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, _) => const Center(
             child: Text(
@@ -31,7 +33,15 @@ class FinanceReviewScreen extends ConsumerWidget {
               : ListView(
                   padding: const EdgeInsets.all(16),
                   children: items
-                      .map((item) => _ReviewCard(item: item))
+                      .map(
+                        (item) => _ReviewCard(
+                          key: ValueKey((
+                            item['submission_id'],
+                            ref.watch(bankSessionWidgetKeyProvider),
+                          )),
+                          item: item,
+                        ),
+                      )
                       .toList(),
                 ),
         ),
@@ -39,7 +49,7 @@ class FinanceReviewScreen extends ConsumerWidget {
 }
 
 class _ReviewCard extends ConsumerStatefulWidget {
-  const _ReviewCard({required this.item});
+  const _ReviewCard({super.key, required this.item});
   final Map<String, dynamic> item;
   @override
   ConsumerState<_ReviewCard> createState() => _ReviewCardState();
@@ -62,6 +72,13 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
 
   Future<void> decide() async {
     if (busy) return;
+    final identity = ref.read(bankSessionIdentityProvider);
+    if (identity == null) {
+      setState(
+        () => message = 'Sign in with an authorized finance account and MFA.',
+      );
+      return;
+    }
     final item = widget.item;
     if (approve &&
         (!confirmed || fields.any((field) => field.text.trim().isEmpty))) {
@@ -98,20 +115,22 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
                   }
                 : null,
           );
-      if (!mounted) return;
+      if (!mounted || ref.read(bankSessionIdentityProvider) != identity) return;
       ref.invalidate(financeQueueProvider);
       setState(() {
         message = 'Decision recorded by the server.';
         reason.clear();
       });
     } catch (_) {
-      if (mounted)
+      if (mounted && ref.read(bankSessionIdentityProvider) == identity) {
         setState(
           () => message =
               'The decision was not confirmed. Your inputs are preserved. Refresh before retrying.',
         );
+      }
     } finally {
-      if (mounted) setState(() => busy = false);
+      if (mounted && ref.read(bankSessionIdentityProvider) == identity)
+        setState(() => busy = false);
     }
   }
 

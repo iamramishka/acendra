@@ -52,6 +52,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            bankSessionIdentityProvider.overrideWithValue('test-session'),
             bankTransferRepositoryProvider.overrideWithValue(repository),
           ],
           child: const MaterialApp(home: FinanceReviewScreen()),
