@@ -62,7 +62,12 @@ void main() {
       final listener = container.listen(financeQueueProvider, (_, _) {});
       addTearDown(listener.close);
       container.read(financeQueueProvider);
+      // Flush provider construction before switching identity so the controlled
+      // first request belongs to session-a, rather than the rebuilt session-b.
+      await container.pump();
+      expect(repository.reads, 1);
       container.read(identity.notifier).state = 'session-b';
+      await container.pump();
       expect(
         (await container.read(
           financeQueueProvider.future,
@@ -76,6 +81,7 @@ void main() {
         'new',
       );
       container.read(identity.notifier).state = null;
+      await container.pump();
       await expectLater(
         container.read(financeQueueProvider.future),
         throwsA(isA<BankTransferFailure>()),
