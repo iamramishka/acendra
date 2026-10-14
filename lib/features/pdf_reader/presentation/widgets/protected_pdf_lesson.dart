@@ -10,7 +10,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pdfx/pdfx.dart' as pdfx;
 
 String? pdfSessionIdentity(String? token) {
-  if (token == null) return null;
+  if (token == null) {
+    return null;
+  }
   try {
     final claims =
         jsonDecode(
@@ -31,8 +33,9 @@ class ProtectedPdfLesson extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(currentSessionProvider);
-    if (session == null)
+    if (session == null) {
       return const Center(child: Text('Sign in to access this PDF.'));
+    }
     return _AuthenticatedPdf(
       key: ValueKey((
         lessonId,
@@ -107,7 +110,9 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
         client,
       );
       final bytes = await repository.load(widget.lessonId, widget.bearer);
-      if (!mounted || generation != _generation) return;
+      if (!mounted || generation != _generation) {
+        return;
+      }
       if (bytes == null) {
         setState(() {
           _loading = false;
@@ -121,7 +126,9 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
       );
       setState(() => _loading = false);
     } catch (error) {
-      if (!mounted || generation != _generation) return;
+      if (!mounted || generation != _generation) {
+        return;
+      }
       setState(() {
         _loading = false;
         _message = error is ProtectedPdfFailure
@@ -133,8 +140,10 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
-    if (_message != null)
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_message != null) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -144,29 +153,36 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
           ],
         ),
       );
+    }
     final controller = _controller;
-    if (controller == null) return const SizedBox.shrink();
+    if (controller == null) {
+      return const SizedBox.shrink();
+    }
     return Column(
       children: [
         Expanded(
           child: pdfx.PdfView(
             controller: controller,
             onDocumentLoaded: (document) {
-              if (mounted)
+              if (mounted) {
                 setState(() {
                   _pages = document.pagesCount;
                   _page = 1;
                 });
+              }
             },
             onPageChanged: (page) {
-              if (mounted) setState(() => _page = page);
+              if (mounted) {
+                setState(() => _page = page);
+              }
             },
             onDocumentError: (_) {
-              if (mounted)
+              if (mounted) {
                 setState(
                   () => _message =
                       'This PDF could not be rendered. Please retry.',
                 );
+              }
             },
           ),
         ),

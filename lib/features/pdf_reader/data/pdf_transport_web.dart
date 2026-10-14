@@ -11,7 +11,9 @@ class _BrowserTransport implements PdfTransport {
   bool cancelled = false;
   @override
   Future<PdfTransportResponse> get(Uri url, String bearer) async {
-    if (cancelled) throw const ProtectedPdfFailure('PDF request cancelled.');
+    if (cancelled) {
+      throw const ProtectedPdfFailure('PDF request cancelled.');
+    }
     controller = web.AbortController();
     final deadline = Timer(const Duration(seconds: 30), cancel);
     try {
@@ -37,13 +39,17 @@ class _BrowserTransport implements PdfTransport {
         throw const ProtectedPdfFailure('PDF exceeds the supported size.');
       }
       final body = response.body;
-      if (body == null) throw const ProtectedPdfFailure('PDF delivery failed.');
+      if (body == null) {
+        throw const ProtectedPdfFailure('PDF delivery failed.');
+      }
       final reader = body.getReader() as web.ReadableStreamDefaultReader;
       final collected = BytesBuilder(copy: false);
       try {
         while (true) {
           final chunk = await reader.read().toDart;
-          if (chunk.done) break;
+          if (chunk.done) {
+            break;
+          }
           final bytes = (chunk.value as JSUint8Array).toDart;
           if (collected.length + bytes.length > 50 * 1024 * 1024) {
             cancel();

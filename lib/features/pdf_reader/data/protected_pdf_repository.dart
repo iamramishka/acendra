@@ -54,8 +54,9 @@ class ProtectedPdfRepository {
     }
     if (descriptor.status == 202 &&
         data['state'] == 'preparing' &&
-        data['resource_id'] == null)
+        data['resource_id'] == null) {
       return null;
+    }
     if (descriptor.status != 200 ||
         data['state'] != 'ready' ||
         data['resource_id'] is! String ||
@@ -83,7 +84,9 @@ class ProtectedPdfRepository {
   }
 
   static void _checkStatus(int status, {bool preparing = false}) {
-    if (status == 200 || (preparing && status == 202)) return;
+    if (status == 200 || (preparing && status == 202)) {
+      return;
+    }
     throw ProtectedPdfFailure(switch (status) {
       401 => 'Sign in again to access this PDF.',
       403 || 404 => 'You do not have access to this PDF.',
