@@ -43,7 +43,7 @@ PdfTransportResponse descriptor({
     ),
   ),
 );
-ProtectedPdfRepository repo(_Transport transport) => ProtectedPdfRepository(
+ProtectedPdfRepository _repo(_Transport transport) => ProtectedPdfRepository(
   Uri.parse('https://backend.example.test/functions/v1/pdf-content'),
   transport,
 );
@@ -54,7 +54,7 @@ void main() {
       descriptor(),
       PdfTransportResponse(200, 'application/pdf', bytes),
     ]);
-    expect(await repo(transport).load(lesson, 'current-token'), bytes);
+    expect(await _repo(transport).load(lesson, 'current-token'), bytes);
     expect(transport.urls.first.queryParameters, {'lesson_id': lesson});
     expect(transport.urls.last.queryParameters, {
       'lesson_id': lesson,
@@ -66,13 +66,13 @@ void main() {
     final transport = _Transport([
       descriptor(state: 'preparing', resourceId: null, status: 202),
     ]);
-    expect(await repo(transport).load(lesson, 'token'), isNull);
+    expect(await _repo(transport).load(lesson, 'token'), isNull);
     expect(transport.urls.length, 1);
   });
   test('mismatched lesson rejects descriptor before byte delivery', () async {
     final transport = _Transport([descriptor(id: resource)]);
     await expectLater(
-      repo(transport).load(lesson, 'token'),
+      _repo(transport).load(lesson, 'token'),
       throwsA(isA<ProtectedPdfFailure>()),
     );
     expect(transport.urls.length, 1);
@@ -83,7 +83,7 @@ void main() {
         PdfTransportResponse(status, 'application/json', Uint8List(0)),
       ]);
       await expectLater(
-        repo(transport).load(lesson, 'token'),
+        _repo(transport).load(lesson, 'token'),
         throwsA(isA<ProtectedPdfFailure>()),
       );
       expect(transport.urls.length, 1);
@@ -99,7 +99,7 @@ void main() {
       ),
     ]);
     await expectLater(
-      repo(transport).load(lesson, 'token'),
+      _repo(transport).load(lesson, 'token'),
       throwsA(isA<ProtectedPdfFailure>()),
     );
   });

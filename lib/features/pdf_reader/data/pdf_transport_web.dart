@@ -18,7 +18,7 @@ class _BrowserTransport implements PdfTransport {
     final deadline = Timer(const Duration(seconds: 30), cancel);
     try {
       final headers = web.Headers()..set('Authorization', 'Bearer $bearer');
-      final response = await web
+      final response = await web.window
           .fetch(
             url.toString().toJS,
             web.RequestInit(
