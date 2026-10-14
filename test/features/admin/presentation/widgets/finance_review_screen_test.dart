@@ -11,8 +11,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          financeQueueProvider.overrideWith(
-            (ref) async => throw Exception('503'),
+          bankSessionIdentityProvider.overrideWithValue('test-session'),
+          financeQueueRequestProvider.overrideWith(
+            (ref, _) async => throw Exception('503'),
           ),
         ],
         child: const MaterialApp(home: FinanceReviewScreen()),

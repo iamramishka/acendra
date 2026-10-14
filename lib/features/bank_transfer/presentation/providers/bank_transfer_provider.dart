@@ -45,7 +45,9 @@ class ReceiptUploadNotifier extends AsyncNotifier<void> {
       return;
     }
     state = result;
-    ref.invalidate(receiptSubmissionProvider(orderId));
+    if (identity != null) {
+      ref.invalidate(receiptSubmissionRequestProvider((identity, orderId)));
+    }
   }
 
   void reset() => state = const AsyncData(null);
@@ -95,7 +97,9 @@ class BankReviewNotifier extends AsyncNotifier<void> {
     }
     state = result;
     if (!state.hasError) {
-      ref.invalidate(financeQueueProvider);
+      if (identity != null) {
+        ref.invalidate(financeQueueRequestProvider(identity));
+      }
     }
   }
 
@@ -105,36 +109,50 @@ class BankReviewNotifier extends AsyncNotifier<void> {
 final bankReviewProvider = AsyncNotifierProvider<BankReviewNotifier, void>(
   BankReviewNotifier.new,
 );
-final receiptSubmissionProvider =
-    FutureProvider.family<ReceiptSubmission, String>((ref, orderId) async {
-      final identity = ref.watch(bankSessionIdentityProvider);
-      if (identity == null) {
-        throw const BankTransferFailure('Sign in to view transfer status.');
-      }
+final receiptSubmissionRequestProvider = FutureProvider.autoDispose
+    .family<ReceiptSubmission, (String, String)>((ref, key) async {
       final value = await ref
           .watch(bankTransferRepositoryProvider)
-          .status(orderId);
-      if (!ref.mounted || ref.read(bankSessionIdentityProvider) != identity) {
+          .status(key.$2);
+      if (!ref.mounted || ref.read(bankSessionIdentityProvider) != key.$1) {
         throw const BankTransferFailure(
           'Your session changed. Refresh transfer status.',
         );
       }
       return value;
-    }, retry: (_, _) => null);
-final financeQueueProvider = FutureProvider<List<Map<String, dynamic>>>((
+    }, retry: (retryCount, error) => null);
+final receiptSubmissionProvider =
+    Provider.family<AsyncValue<ReceiptSubmission>, String>((ref, orderId) {
+      final identity = ref.watch(bankSessionIdentityProvider);
+      if (identity == null) {
+        return AsyncError(
+          const BankTransferFailure('Sign in to view transfer status.'),
+          StackTrace.current,
+        );
+      }
+      return ref.watch(receiptSubmissionRequestProvider((identity, orderId)));
+    });
+final financeQueueRequestProvider = FutureProvider.autoDispose
+    .family<List<Map<String, dynamic>>, String>((ref, identity) async {
+      final value = await ref.watch(bankTransferRepositoryProvider).queue();
+      if (!ref.mounted || ref.read(bankSessionIdentityProvider) != identity) {
+        throw const BankTransferFailure(
+          'Your session changed. Refresh the finance queue.',
+        );
+      }
+      return value;
+    }, retry: (retryCount, error) => null);
+final financeQueueProvider = Provider<AsyncValue<List<Map<String, dynamic>>>>((
   ref,
-) async {
+) {
   final identity = ref.watch(bankSessionIdentityProvider);
   if (identity == null) {
-    throw const BankTransferFailure(
-      'Sign in with an authorized finance account and MFA.',
+    return AsyncError(
+      const BankTransferFailure(
+        'Sign in with an authorized finance account and MFA.',
+      ),
+      StackTrace.current,
     );
   }
-  final value = await ref.watch(bankTransferRepositoryProvider).queue();
-  if (!ref.mounted || ref.read(bankSessionIdentityProvider) != identity) {
-    throw const BankTransferFailure(
-      'Your session changed. Refresh the finance queue.',
-    );
-  }
-  return value;
-}, retry: (_, _) => null);
+  return ref.watch(financeQueueRequestProvider(identity));
+});

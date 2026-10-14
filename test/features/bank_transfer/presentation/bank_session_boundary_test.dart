@@ -70,7 +70,7 @@ void main() {
       await container.pump();
       expect(
         (await container.read(
-          financeQueueProvider.future,
+          financeQueueRequestProvider('session-b').future,
         )).single['submission_id'],
         'new',
       );
@@ -82,9 +82,9 @@ void main() {
       );
       container.read(identity.notifier).state = null;
       await container.pump();
-      await expectLater(
-        container.read(financeQueueProvider.future),
-        throwsA(isA<BankTransferFailure>()),
+      expect(
+        container.read(financeQueueProvider).error,
+        isA<BankTransferFailure>(),
       );
       expect(container.read(financeQueueProvider).value, isNull);
     },
@@ -97,7 +97,9 @@ void main() {
           bankSessionIdentityProvider.overrideWith(
             (ref) => ref.watch(identity),
           ),
-          financeQueueProvider.overrideWith((ref) async => ref.watch(rows)),
+          financeQueueRequestProvider.overrideWith(
+            (ref, _) async => ref.watch(rows),
+          ),
         ],
       );
       addTearDown(container.dispose);
@@ -127,7 +129,9 @@ void main() {
           bankSessionIdentityProvider.overrideWith(
             (ref) => ref.watch(identity),
           ),
-          financeQueueProvider.overrideWith((ref) async => [item('a')]),
+          financeQueueRequestProvider.overrideWith(
+            (ref, _) async => [item('a')],
+          ),
           bankTransferRepositoryProvider.overrideWithValue(repository),
         ],
       );

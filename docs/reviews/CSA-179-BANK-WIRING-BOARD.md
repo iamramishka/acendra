@@ -36,3 +36,11 @@ retaining SQL ambiguity checking and the existing reviewed access predicates.
 The earlier shared migration is preserved. The existing authorized-queue and
 owner-status tests exercise both branches and are required to pass on hosted CI.
 No failure was suppressed and no local SQL/test execution was performed.
+
+Hosted verification found Riverpod AsyncError retained previous account data
+following signout. Public bank read providers now expose synchronous AsyncValue
+facades over disposable session-keyed request families. Signout returns a new
+error without previous data; switching identity selects a separate request state.
+Automatic retries disabled; explicit Refresh invalidates the current inner family.
+Hosted tests retain the null-value signout privacy oracle and use request seams
+for asynchronous fixtures. No local tests were run.

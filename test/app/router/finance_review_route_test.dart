@@ -16,8 +16,9 @@ void main() {
   }) async {
     final container = ProviderContainer(
       overrides: [
-        financeQueueProvider.overrideWith(
-          (ref) async => throw Exception('Unavailable'),
+        bankSessionIdentityProvider.overrideWithValue('test-session'),
+        financeQueueRequestProvider.overrideWith(
+          (ref, _) async => throw Exception('Unavailable'),
         ),
         sessionRestoredProvider.overrideWithValue(true),
         isAuthenticatedProvider.overrideWithValue(authenticated),

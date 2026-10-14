@@ -37,6 +37,7 @@ class _LoadedCheckout extends CheckoutNotifier {
 
 Widget _scaffold(Widget child, {bool bankAvailable = true}) => ProviderScope(
   overrides: [
+    bankSessionIdentityProvider.overrideWithValue('test-session'),
     if (child is BankTransferScreen)
       checkoutProvider.overrideWith(
         () => _LoadedCheckout(
@@ -130,7 +131,11 @@ void main() {
         UncontrolledProviderScope(
           container: ProviderContainer(
             overrides: [
-              receiptSubmissionProvider('order-1').overrideWith(
+              bankSessionIdentityProvider.overrideWithValue('test-session'),
+              receiptSubmissionRequestProvider((
+                'test-session',
+                'order-1',
+              )).overrideWith(
                 (ref) async => const ReceiptSubmission(
                   orderId: 'order-1',
                   orderNumber: 'ORD-001',
@@ -158,7 +163,11 @@ void main() {
         UncontrolledProviderScope(
           container: ProviderContainer(
             overrides: [
-              receiptSubmissionProvider('order-2').overrideWith(
+              bankSessionIdentityProvider.overrideWithValue('test-session'),
+              receiptSubmissionRequestProvider((
+                'test-session',
+                'order-2',
+              )).overrideWith(
                 (ref) async => const ReceiptSubmission(
                   orderId: 'order-2',
                   orderNumber: 'ORD-002',
@@ -185,7 +194,11 @@ void main() {
         UncontrolledProviderScope(
           container: ProviderContainer(
             overrides: [
-              receiptSubmissionProvider('order-3').overrideWith(
+              bankSessionIdentityProvider.overrideWithValue('test-session'),
+              receiptSubmissionRequestProvider((
+                'test-session',
+                'order-3',
+              )).overrideWith(
                 (ref) async => const ReceiptSubmission(
                   orderId: 'order-3',
                   orderNumber: 'ORD-003',
@@ -214,7 +227,11 @@ void main() {
         UncontrolledProviderScope(
           container: ProviderContainer(
             overrides: [
-              receiptSubmissionProvider('order-4').overrideWith(
+              bankSessionIdentityProvider.overrideWithValue('test-session'),
+              receiptSubmissionRequestProvider((
+                'test-session',
+                'order-4',
+              )).overrideWith(
                 (ref) async => const ReceiptSubmission(
                   orderId: 'order-4',
                   orderNumber: 'ORD-004',
@@ -299,8 +316,9 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
-              financeQueueProvider.overrideWith(
-                (ref) async => throw Exception('Unavailable'),
+              bankSessionIdentityProvider.overrideWithValue('test-session'),
+              financeQueueRequestProvider.overrideWith(
+                (ref, _) async => throw Exception('Unavailable'),
               ),
             ],
             child: MaterialApp(
@@ -321,7 +339,10 @@ void main() {
     testWidgets('empty authorized queue renders empty state', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [financeQueueProvider.overrideWith((ref) async => [])],
+          overrides: [
+            bankSessionIdentityProvider.overrideWithValue('test-session'),
+            financeQueueRequestProvider.overrideWith((ref, _) async => []),
+          ],
           child: MaterialApp(
             theme: _theme(),
             home: const FinanceReviewScreen(),

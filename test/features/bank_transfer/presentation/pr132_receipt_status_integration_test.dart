@@ -44,7 +44,11 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
-              receiptSubmissionProvider('order-test').overrideWith(
+              bankSessionIdentityProvider.overrideWithValue('test-session'),
+              receiptSubmissionRequestProvider((
+                'test-session',
+                'order-test',
+              )).overrideWith(
                 (ref) async => ReceiptSubmission(
                   orderId: 'order-test',
                   orderNumber: 'ORD-TEST',

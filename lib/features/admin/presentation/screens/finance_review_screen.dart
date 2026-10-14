@@ -12,7 +12,12 @@ class FinanceReviewScreen extends ConsumerWidget {
       actions: [
         IconButton(
           tooltip: 'Refresh queue',
-          onPressed: () => ref.invalidate(financeQueueProvider),
+          onPressed: () {
+            final identity = ref.read(bankSessionIdentityProvider);
+            if (identity != null) {
+              ref.invalidate(financeQueueRequestProvider(identity));
+            }
+          },
           icon: const Icon(Icons.refresh),
         ),
       ],
@@ -120,7 +125,7 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
       if (!mounted || ref.read(bankSessionIdentityProvider) != identity) {
         return;
       }
-      ref.invalidate(financeQueueProvider);
+      ref.invalidate(financeQueueRequestProvider(identity));
       setState(() {
         message = 'Decision recorded by the server.';
         reason.clear();
