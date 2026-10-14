@@ -94,8 +94,9 @@ class _ReceiptResubmissionFormState
       if (!mounted ||
           widget.orderId != submittedOrder ||
           epoch != _identityEpoch ||
-          ref.read(checkoutActorProvider) != actor)
+          ref.read(checkoutActorProvider) != actor) {
         return;
+      }
       setState(() {
         _submitted = true;
         _file = null;
@@ -104,8 +105,9 @@ class _ReceiptResubmissionFormState
       if (!mounted ||
           widget.orderId != submittedOrder ||
           epoch != _identityEpoch ||
-          ref.read(checkoutActorProvider) != actor)
+          ref.read(checkoutActorProvider) != actor) {
         return;
+      }
       setState(
         () => _fileError = error is CheckoutFlowException
             ? error.message
@@ -129,8 +131,9 @@ class _ReceiptResubmissionFormState
           file == null ||
           widget.orderId != selectedOrder ||
           epoch != _identityEpoch ||
-          ref.read(checkoutActorProvider) != actor)
+          ref.read(checkoutActorProvider) != actor) {
         return;
+      }
       final error = receiptFileError(file.name, file.bytes.length);
       setState(() {
         _fileError = error;
@@ -144,8 +147,9 @@ class _ReceiptResubmissionFormState
       if (!mounted ||
           widget.orderId != selectedOrder ||
           epoch != _identityEpoch ||
-          ref.read(checkoutActorProvider) != actor)
+          ref.read(checkoutActorProvider) != actor) {
         return;
+      }
       setState(() {
         _fileName = null;
         _file = null;
@@ -155,8 +159,9 @@ class _ReceiptResubmissionFormState
       if (!mounted ||
           widget.orderId != selectedOrder ||
           epoch != _identityEpoch ||
-          ref.read(checkoutActorProvider) != actor)
+          ref.read(checkoutActorProvider) != actor) {
         return;
+      }
       setState(() {
         _file = null;
         _fileName = null;
