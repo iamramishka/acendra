@@ -16,3 +16,8 @@ Approval authority: project owner/security/operations; no release or merge claim
 Verification criteria: hosted notification timeout, stale lease and cross-event
 idempotency tests; existing database/Storage recovery suites; actual managed
 restore and provider reconciliation remain explicit gates.
+
+GitHub reconciliation: owner-scoped gh authentication successfully read issue129
+(OPEN, CODEX coordinated ownership) and open PR146, codex/test/csa-129-sample-acceptance.
+That PR is the parent's current hosted integration, not a conflicting independent
+owner. No GitHub records were modified by this worker.
