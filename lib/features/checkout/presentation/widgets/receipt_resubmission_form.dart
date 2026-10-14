@@ -3,6 +3,9 @@ import 'package:acendra/app/theme/app_theme_extension.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/feedback/status_badge.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:acendra/features/checkout/data/repositories/checkout_submission_repository.dart';
+import 'package:acendra/features/checkout/domain/entities/payment_handoff.dart';
 
 import '../services/receipt_file_picker.dart'
     if (dart.library.js_interop) '../services/receipt_file_picker_web.dart'
@@ -19,7 +22,7 @@ import '../services/receipt_file.dart';
 ///   rejectionReason: 'Reference ID not visible in the uploaded image.',
 /// )
 /// ```
-class ReceiptResubmissionForm extends StatefulWidget {
+class ReceiptResubmissionForm extends ConsumerStatefulWidget {
   const ReceiptResubmissionForm({
     super.key,
     required this.orderId,
@@ -37,17 +40,67 @@ class ReceiptResubmissionForm extends StatefulWidget {
   final ReceiptFilePicker? filePicker;
 
   @override
-  State<ReceiptResubmissionForm> createState() =>
+  ConsumerState<ReceiptResubmissionForm> createState() =>
       _ReceiptResubmissionFormState();
 }
 
-class _ReceiptResubmissionFormState extends State<ReceiptResubmissionForm> {
+class _ReceiptResubmissionFormState
+    extends ConsumerState<ReceiptResubmissionForm> {
   String? _fileName;
   String? _fileError;
   bool _isPicking = false;
+  bool _isSubmitting = false;
+  bool _submitted = false;
+  ReceiptFile? _file;
+  String? _submissionKey;
+
+  @override
+  void didUpdateWidget(covariant ReceiptResubmissionForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.orderId != widget.orderId) {
+      _file = null;
+      _fileName = null;
+      _fileError = null;
+      _submissionKey = null;
+      _submitted = false;
+    }
+  }
+
+  Future<void> _submit() async {
+    if (_isSubmitting || _file == null || _submitted) return;
+    setState(() {
+      _isSubmitting = true;
+      _fileError = null;
+    });
+    final submittedOrder = widget.orderId;
+    try {
+      await ref
+          .read(checkoutSubmissionRepositoryProvider)
+          .submitReceipt(
+            orderId: widget.orderId,
+            name: _file!.name,
+            bytes: _file!.bytes,
+            key: _submissionKey!,
+          );
+      if (!mounted || widget.orderId != submittedOrder) return;
+      setState(() {
+        _submitted = true;
+        _file = null;
+      });
+    } catch (error) {
+      if (!mounted || widget.orderId != submittedOrder) return;
+      setState(
+        () => _fileError = error is CheckoutFlowException
+            ? error.message
+            : 'Receipt submission could not be confirmed. Please retry.',
+      );
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
 
   Future<void> _pickFile() async {
-    if (_isPicking) return;
+    if (_isPicking || _isSubmitting || _submitted) return;
     setState(() => _isPicking = true);
     try {
       final file = await (widget.filePicker ?? picker.pickReceiptFile)();
@@ -56,18 +109,26 @@ class _ReceiptResubmissionFormState extends State<ReceiptResubmissionForm> {
       setState(() {
         _fileError = error;
         _fileName = error == null ? file.name : null;
+        _file = error == null ? file : null;
+        _submissionKey = error == null
+            ? 'receipt-${DateTime.now().microsecondsSinceEpoch}'
+            : null;
       });
     } on FormatException catch (error) {
       if (!mounted) return;
       setState(() {
         _fileName = null;
+        _file = null;
         _fileError = error.message;
       });
     } catch (_) {
       if (!mounted) return;
-      setState(
-        () => _fileError = 'Could not read the receipt. Please try again.',
-      );
+      setState(() {
+        _file = null;
+        _fileName = null;
+        _submissionKey = null;
+        _fileError = 'Could not read the receipt. Please try again.';
+      });
     } finally {
       if (mounted) setState(() => _isPicking = false);
     }
@@ -160,27 +221,31 @@ class _ReceiptResubmissionFormState extends State<ReceiptResubmissionForm> {
               fileError: _fileError,
               borderColor: borderColor,
               surfaceSecondary: surfaceSecondary,
-              onTap: _isPicking ? null : _pickFile,
+              onTap: _isPicking || _isSubmitting || _submitted
+                  ? null
+                  : _pickFile,
             ),
 
             const SizedBox(height: AppSpacing.md),
 
             Text(
-              'Online receipt submission is temporarily unavailable. '
-              'Selecting a file does not upload it. Please contact support '
-              'with your order number; do not email receipt attachments.',
+              _submitted
+                  ? 'Receipt submitted for verification. Course access remains pending until payment is independently verified.'
+                  : 'Selecting a file does not upload it. Submit it for secure inspection and payment verification. A receipt does not grant course access.',
               style: tt.bodyMedium,
             ),
             const SizedBox(height: AppSpacing.xl),
 
             // ── Submit button ─────────────────────────────────────────────────
-            const SizedBox(
+            SizedBox(
               width: double.infinity,
               child: AppButton(
-                label: 'Submit New Receipt',
+                label: _isSubmitting ? 'Submitting…' : 'Submit New Receipt',
                 variant: ButtonVariant.primary,
                 size: ButtonSize.large,
-                onPressed: null,
+                onPressed: _file == null || _isSubmitting || _submitted
+                    ? null
+                    : _submit,
               ),
             ),
           ],

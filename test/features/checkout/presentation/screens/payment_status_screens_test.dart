@@ -81,21 +81,26 @@ void main() {
       expect(find.text('Order #ORD-12345'), findsOneWidget);
     });
 
-    testWidgets('renders Payment Successful heading', (tester) async {
-      await tester.pumpWidget(
-        _wrap(
-          const PaymentSuccessScreen(
-            courseId: 'course-1',
-            courseTitle: 'Test Course',
-            orderNumber: 'ORD-001',
+    testWidgets(
+      'redirect displays verification pending without asserting payment',
+      (tester) async {
+        await tester.pumpWidget(
+          _wrap(
+            const PaymentSuccessScreen(
+              courseId: 'course-1',
+              courseTitle: 'Test Course',
+              orderNumber: 'ORD-001',
+            ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.text('Payment Successful!'), findsOneWidget);
-    });
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Payment verification pending'), findsOneWidget);
+        expect(find.text('Payment Successful!'), findsNothing);
+        expect(find.textContaining("You're enrolled"), findsNothing);
+      },
+    );
 
-    testWidgets('renders Start Learning and Browse More Courses buttons', (
+    testWidgets('renders Check My Courses and Browse More Courses buttons', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -108,7 +113,8 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Start Learning'), findsOneWidget);
+      expect(find.text('Check My Courses'), findsOneWidget);
+      expect(find.text('Start Learning'), findsNothing);
       expect(find.text('Browse More Courses'), findsOneWidget);
     });
   });
@@ -128,24 +134,27 @@ void main() {
       expect(find.text('Awaiting Verification'), findsOneWidget);
     });
 
-    testWidgets('renders bank info when bankName and accountNumber provided', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        _wrap(
-          const PaymentPendingScreen(
-            courseId: 'course-1',
-            courseTitle: 'Dart Deep Dive',
-            orderNumber: 'ORD-002',
-            bankName: 'BOC',
-            accountNumber: '1234567890',
+    testWidgets(
+      'route-provided bank account cannot become payment instructions',
+      (tester) async {
+        await tester.pumpWidget(
+          _wrap(
+            const PaymentPendingScreen(
+              courseId: 'course-1',
+              courseTitle: 'Dart Deep Dive',
+              orderNumber: 'ORD-002',
+              bankName: 'BOC',
+              accountNumber: '1234567890',
+            ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.text('Bank: BOC'), findsOneWidget);
-      expect(find.text('Account: 1234567890'), findsOneWidget);
-    });
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Bank: BOC'), findsNothing);
+        expect(find.text('Account: 1234567890'), findsNothing);
+        expect(find.textContaining('has not been confirmed'), findsOneWidget);
+        expect(find.textContaining('1–2 business days'), findsNothing);
+      },
+    );
 
     testWidgets('does not render bank info when bankName is null', (
       tester,

@@ -29,7 +29,7 @@ class PaymentPendingScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Payment Submitted'),
+        title: const Text('Payment Verification'),
         leading: const SizedBox.shrink(),
         automaticallyImplyLeading: false,
       ),
@@ -64,7 +64,7 @@ class PaymentPendingScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  "Your bank transfer receipt has been submitted. We'll verify your payment and activate your access within 1–2 business days.",
+                  'Payment has not been confirmed here. Check your account for the current order and receipt status. Access requires independently verified payment.',
                   style: tt.bodyMedium?.copyWith(color: ext.textSecondary),
                   textAlign: TextAlign.center,
                 ),
@@ -83,32 +83,6 @@ class PaymentPendingScreen extends StatelessWidget {
                     style: tt.bodySmall?.copyWith(color: ext.textSecondary),
                   ),
                 ),
-                if (bankName != null && accountNumber != null) ...[
-                  const SizedBox(height: AppSpacing.md),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    decoration: BoxDecoration(
-                      color: ext.surfaceSecondary,
-                      borderRadius: BorderRadius.circular(AppRadius.card),
-                      border: Border.all(color: ext.border),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Transfer Details',
-                          style: tt.labelMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.xs),
-                        Text('Bank: $bankName', style: tt.bodySmall),
-                        Text('Account: $accountNumber', style: tt.bodySmall),
-                      ],
-                    ),
-                  ),
-                ],
                 const SizedBox(height: AppSpacing.lg),
                 const Divider(),
                 const SizedBox(height: AppSpacing.md),
@@ -136,7 +110,7 @@ class PaymentPendingScreen extends StatelessWidget {
                 const SizedBox(height: AppSpacing.sm),
                 _NextStep(
                   icon: Icons.school_outlined,
-                  label: 'Your course access is activated',
+                  label: 'Access follows independent payment verification',
                   ext: ext,
                   tt: tt,
                 ),

@@ -8,10 +8,32 @@ import 'package:acendra/features/checkout/presentation/widgets/receipt_resubmiss
 import 'package:acendra/features/bank_transfer/presentation/screens/receipt_resubmission_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:acendra/features/checkout/data/repositories/checkout_submission_repository.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-Widget wrap(Widget child, {bool dark = false}) => MaterialApp(
-  theme: dark ? AppTheme.dark : AppTheme.light,
-  home: Scaffold(body: child),
+Widget wrap(
+  Widget child, {
+  bool dark = false,
+  CheckoutSubmissionRepository? repository,
+}) => ProviderScope(
+  overrides: [
+    checkoutSubmissionRepositoryProvider.overrideWithValue(
+      repository ??
+          CheckoutSubmissionRepository(
+            (name, headers, body) async => FunctionResponse(
+              status: 503,
+              data: {
+                'error': {'code': 'RECEIPT_UPLOAD_UNAVAILABLE'},
+              },
+            ),
+          ),
+    ),
+  ],
+  child: MaterialApp(
+    theme: dark ? AppTheme.dark : AppTheme.light,
+    home: Scaffold(body: child),
+  ),
 );
 Finder get submit => find.widgetWithText(AppButton, 'Submit New Receipt');
 Future<void> pick(WidgetTester tester) async {
@@ -27,13 +49,61 @@ Future<void> pick(WidgetTester tester) async {
 
 void main() {
   testWidgets(
-    'valid selection never enables unavailable submission or reports success',
+    'receipt timeout retries same key; acknowledged receipt stays pending and cannot resubmit',
+    (tester) async {
+      var calls = 0;
+      final keys = <String>[];
+      final repo = CheckoutSubmissionRepository((name, headers, body) async {
+        calls++;
+        keys.add(headers['Idempotency-Key']!);
+        if (calls == 1)
+          throw const FunctionException(status: 0, details: 'private timeout');
+        return const FunctionResponse(
+          status: 201,
+          data: {
+            'data': {
+              'order_id': '11111111-1111-4111-8111-111111111111',
+              'submission_id': '22222222-2222-4222-8222-222222222222',
+              'status': 'submitted',
+            },
+          },
+        );
+      });
+      await tester.pumpWidget(
+        wrap(
+          ReceiptResubmissionForm(
+            orderId: '11111111-1111-4111-8111-111111111111',
+            filePicker: () async =>
+                ReceiptFile(name: 'receipt.pdf', bytes: Uint8List(1)),
+          ),
+          repository: repo,
+        ),
+      );
+      await pick(tester);
+      await tester.ensureVisible(submit);
+      await tester.tap(submit);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('could not be confirmed'), findsOneWidget);
+      expect(find.textContaining('private timeout'), findsNothing);
+      await tester.tap(submit);
+      await tester.pumpAndSettle();
+      expect(keys[0], keys[1]);
+      expect(
+        find.textContaining('Receipt submitted for verification'),
+        findsOneWidget,
+      );
+      expect(tester.widget<AppButton>(submit).onPressed, isNull);
+      expect(find.textContaining('Payment Successful'), findsNothing);
+    },
+  );
+  testWidgets(
+    'valid receipt attempts server submission and gated failure never reports success',
     (tester) async {
       var calls = 0;
       await tester.pumpWidget(
         wrap(
           ReceiptResubmissionForm(
-            orderId: 'order-1',
+            orderId: '11111111-1111-4111-8111-111111111111',
             filePicker: () async {
               calls++;
               return ReceiptFile(
@@ -47,7 +117,7 @@ void main() {
       await pick(tester);
       expect(calls, 1);
       expect(find.text('receipt.jpg'), findsOneWidget);
-      expect(tester.widget<AppButton>(submit).onPressed, isNull);
+      expect(tester.widget<AppButton>(submit).onPressed, isNotNull);
       await tester.tap(submit);
       await tester.pump(const Duration(seconds: 2));
       expect(find.textContaining('submitted successfully'), findsNothing);

@@ -25,7 +25,7 @@ class PaymentSuccessScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Payment Successful'),
+        title: const Text('Payment Verification'),
         leading: const SizedBox.shrink(),
         automaticallyImplyLeading: false,
       ),
@@ -48,11 +48,11 @@ class PaymentSuccessScreen extends StatelessWidget {
                     color: ext.successContainer,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.check_circle, size: 80, color: ext.success),
+                  child: Icon(Icons.schedule, size: 80, color: ext.success),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Text(
-                  'Payment Successful!',
+                  'Payment verification pending',
                   style: tt.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -60,7 +60,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  "You're enrolled in:",
+                  'Check your account for confirmed access to:',
                   style: tt.bodyMedium?.copyWith(color: ext.textSecondary),
                   textAlign: TextAlign.center,
                 ),
@@ -89,10 +89,8 @@ class PaymentSuccessScreen extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: AppButton(
-                    label: 'Start Learning',
-                    onPressed: () => context.go(
-                      RouteNames.learn.replaceAll(':courseId', courseId),
-                    ),
+                    label: 'Check My Courses',
+                    onPressed: () => context.go(RouteNames.myCourses),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),

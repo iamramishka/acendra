@@ -8,6 +8,13 @@ import 'package:acendra/core/widgets/inputs/app_text_field.dart';
 import 'package:acendra/core/widgets/layout/responsive_container.dart';
 import 'package:acendra/features/checkout/domain/entities/checkout_order.dart';
 import 'package:acendra/features/checkout/domain/entities/payment_method.dart';
+import 'package:acendra/features/checkout/domain/entities/customer_info.dart';
+import 'package:acendra/features/checkout/domain/entities/payment_handoff.dart';
+import 'package:acendra/features/checkout/data/repositories/checkout_submission_repository.dart';
+import 'package:acendra/features/checkout/presentation/widgets/receipt_resubmission_form.dart';
+import 'package:acendra/features/checkout/presentation/services/payment_handoff.dart'
+    if (dart.library.js_interop) 'package:acendra/features/checkout/presentation/services/payment_handoff_web.dart'
+    as handoff;
 import 'package:acendra/features/checkout/presentation/providers/checkout_provider.dart';
 import 'package:acendra/features/checkout/presentation/widgets/payment_method_selector.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +44,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   String? _addressError;
   String? _cityError;
   String? _countryError;
+  bool _isPaying = false;
+  String? _paymentKey;
+  String? _paymentOrderId;
 
   @override
   void dispose() {
@@ -91,10 +101,50 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         .createOrder(courseId: widget.courseId, method: method);
   }
 
-  void _onPayNow() {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Online payment coming soon')));
+  Future<void> _onPayNow() async {
+    if (_isPaying || !_validate()) return;
+    final order = ref.read(checkoutProvider).value;
+    if (order == null ||
+        order.paymentMethod != PaymentMethod.online ||
+        order.status != 'pending_payment')
+      return;
+    if (_paymentOrderId != order.orderId) {
+      _paymentOrderId = order.orderId;
+      _paymentKey = 'online-${DateTime.now().microsecondsSinceEpoch}';
+    }
+    setState(() => _isPaying = true);
+    try {
+      final payment = await ref
+          .read(checkoutSubmissionRepositoryProvider)
+          .initialize(
+            orderId: order.orderId,
+            amountMinor: order.amountMinor,
+            key: _paymentKey!,
+            customer: CustomerInfo(
+              firstName: _firstNameController.text,
+              lastName: _lastNameController.text,
+              phone: _phoneController.text,
+              address: _addressController.text,
+              city: _cityController.text,
+              country: _countryController.text,
+            ),
+          );
+      if (!mounted) return;
+      await handoff.launchPayment(payment);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            error is CheckoutFlowException
+                ? error.message
+                : 'Online payment could not be started. Please retry.',
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isPaying = false);
+    }
   }
 
   @override
@@ -360,8 +410,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               )
             else if (order.paymentMethod == PaymentMethod.online)
               AppButton(
-                label: 'Pay Now',
-                onPressed: _onPayNow,
+                label: _isPaying ? 'Starting payment…' : 'Pay Now',
+                onPressed: _isPaying ? null : _onPayNow,
                 variant: ButtonVariant.primary,
                 size: ButtonSize.large,
               )
@@ -377,6 +427,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 variant: ButtonVariant.primary,
                 size: ButtonSize.large,
               ),
+            if (order != null &&
+                order.paymentMethod == PaymentMethod.bankTransfer)
+              ReceiptResubmissionForm(orderId: order.orderId),
 
             const SizedBox(height: AppSpacing.xl),
           ],
