@@ -9,6 +9,7 @@ import 'package:acendra/features/learning/presentation/providers/learning_provid
 import 'package:acendra/features/marketplace/domain/entities/curriculum_section.dart';
 import 'package:acendra/features/marketplace/domain/entities/lesson_item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart' show StateProvider;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -114,19 +115,16 @@ void main() {
   test(
     'account change recreates workspace without prior saved snapshots',
     () async {
-      final events = StreamController<AuthState>.broadcast();
+      final identity = StateProvider<Session?>((ref) => null);
       final progress = _Progress();
       final container = ProviderContainer(
         overrides: [
           learningRepositoryProvider.overrideWithValue(_Lessons()),
           learningProgressRepositoryProvider.overrideWithValue(progress),
-          authStreamProvider.overrideWith((ref) => events.stream),
+          currentSessionProvider.overrideWith((ref) => ref.watch(identity)),
         ],
       );
-      addTearDown(() async {
-        container.dispose();
-        await events.close();
-      });
+      addTearDown(container.dispose);
       final provider = learningWorkspaceProvider('course');
       container.listen(provider, (_, _) {});
       Session session(String id) => Session(
@@ -140,13 +138,21 @@ void main() {
           createdAt: '2026-10-14T00:00:00Z',
         ),
       );
-      events.add(AuthState(AuthChangeEvent.signedIn, session('A')));
-      await Future<void>.delayed(Duration.zero);
+      container.read(identity.notifier).state = session('A');
+      await container.pump();
+      final loaded = Completer<void>();
+      final subscription = container.listen(provider, (_, next) {
+        if (next.progressReady && !next.isLoading && !loaded.isCompleted) {
+          loaded.complete();
+        }
+      }, fireImmediately: true);
+      await loaded.future.timeout(const Duration(seconds: 5));
+      subscription.close();
       final previousNotifier = container.read(provider.notifier);
       expect(container.read(provider).progress['second'], isNotNull);
       progress.pendingRead = Completer<List<SavedLessonProgress>>();
-      events.add(AuthState(AuthChangeEvent.signedIn, session('B')));
-      await Future<void>.delayed(Duration.zero);
+      container.read(identity.notifier).state = session('B');
+      await container.pump();
       expect(container.read(provider.notifier), isNot(same(previousNotifier)));
       expect(container.read(provider).progress, isEmpty);
       await previousNotifier.setCompleted(true);
