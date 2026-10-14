@@ -1,7 +1,7 @@
 # PR133 finance route integration
 
 Owner: CODEX; project owner requested "check that and fix issue" on 2026-10-14.
-Issue: #143. Status: IN_REVIEW. Approval authority: project owner.
+Issue: #143. Status: DONE (bounded route remediation). Approval authority: project owner.
 Branch: fix/csa-111-route-integration.
 Worktree: C:/Users/ramis/Downloads/Acendra/pr133-route-integration.
 Base: PR133 76c50a9 merged with dev 7689e5f, preserving both histories.
@@ -27,9 +27,10 @@ and date text now wrap within the available card width.
 
 Acceptance: the actual route renders the admin screen, unauthenticated users go
 to login, and preview approval cannot change statuses or claim success. Check
-390/768/1440 widths in light and dark themes. Record the regression, focused and
-full checks before handing off. Update PR133 by non-force fast-forward only; no
-merge or backend activation is authorized by this request.
+390/768/1440 widths in light and dark themes. The original fix request authorized
+a non-force fast-forward to PR133; the owner subsequently explicitly authorized
+review and merge if no actionable findings remained. Backend activation was not
+authorized.
 
 Verification:
 - RED: corrected-theme route test found no admin FinanceReviewScreen before the import change.
@@ -40,6 +41,31 @@ Verification:
 - Full `flutter analyze --no-pub`: no issues.
 - `dart format --output=none --set-exit-if-changed lib test`: 174 files, 0 changes.
 - `git diff --check`: passed.
-- Full Flutter suite, release build and tooling verification are delegated to PR CI; no local full-suite/build success is claimed for this change.
+- Current-head [PR CI](https://github.com/iamramishka/acendra/actions/runs/38450292656) passed full formatting, analysis, Flutter tests with coverage, release web build and tooling checks at `f53afcf45f98a5f0405ecb417cd4022524e0ec63`. No local full-suite/build success is claimed for this change.
 
-Handoff: update existing PR133 by fast-forward, then wait for CI and maintainer review. No merge or financial activation performed. Finance-import ownership ends at this handoff; bank-transfer route ownership remains with issue142.
+## Merge and post-merge verification — 2026-10-14
+
+[PR #133](https://github.com/iamramishka/acendra/pull/133) merged into `dev` at
+`31630ddd00378f7695e9eae17417bfeaccebaede`. The owner requested review and merge
+if no findings remained. CODEX self-review found no new actionable findings;
+this is not independent human code review. Merge used an exact head-commit
+guard at `f53afcf` without an administrator bypass. Original CLAUDE and CODEX
+history was retained.
+
+[Post-merge CI](https://github.com/iamramishka/acendra/actions/runs/38509792565)
+completed successfully on the exact merge commit: formatting, full analysis,
+Flutter tests with coverage, release web build and tooling regression checks.
+The finance route now imports the admin screen. Bounded issue143 remediation
+is complete and temporary finance-import ownership is released; issue142's
+separate bank-transfer scope was not changed by this remediation.
+
+CSA-111's operational acceptance remains IN_REVIEW. The UI uses clearly
+labelled synthetic receipts; approval/rejection cannot record financial
+decisions or grant access, and receipt viewing remains unavailable. Trusted
+backend activation, real data and operational finance-role authorization are
+separate gates. No production deployment or backend activation was performed.
+
+Documentation reconciliation owner: CODEX. Branch `docs/csa-111-merge-evidence`,
+isolated worktree `C:/Users/ramis/Downloads/Acendra/pr133-docs`; scope limited to
+this record and TASKS.md's CSA-111 entry. Requested by the project owner on
+2026-10-14; verified against GitHub merge metadata and final CI result.
