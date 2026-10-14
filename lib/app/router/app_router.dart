@@ -13,7 +13,6 @@ import 'package:acendra/features/bank_transfer/presentation/screens/bank_transfe
 import 'package:acendra/features/bank_transfer/presentation/screens/finance_review_screen.dart';
 import 'package:acendra/features/bank_transfer/presentation/screens/receipt_resubmission_screen.dart';
 import 'package:acendra/features/bank_transfer/presentation/screens/receipt_status_screen.dart';
-import 'package:acendra/features/checkout/domain/entities/checkout_order.dart';
 import 'package:acendra/features/checkout/presentation/screens/checkout_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_failure_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_pending_screen.dart';
@@ -196,14 +195,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: RouteNames.bankTransfer,
             builder: (_, state) {
-              final extra = state.extra as Map<String, dynamic>? ?? {};
               return BankTransferScreen(
                 orderId: state.pathParameters['orderId']!,
-                orderNumber: extra['orderNumber'] as String? ?? '',
-                courseTitle: extra['courseTitle'] as String? ?? '',
-                formattedAmount: extra['formattedAmount'] as String? ?? '',
-                bankInstructions:
-                    extra['bankInstructions'] as BankInstructions?,
               );
             },
             routes: [

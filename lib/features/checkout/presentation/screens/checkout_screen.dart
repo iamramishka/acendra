@@ -1,3 +1,5 @@
+import 'package:acendra/app/router/route_names.dart';
+import 'package:go_router/go_router.dart';
 import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/feedback/app_skeleton.dart';
@@ -360,6 +362,18 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               AppButton(
                 label: 'Pay Now',
                 onPressed: _onPayNow,
+                variant: ButtonVariant.primary,
+                size: ButtonSize.large,
+              )
+            else if (order.paymentMethod == PaymentMethod.bankTransfer)
+              AppButton(
+                label: 'Continue Bank Transfer',
+                onPressed: () => context.push(
+                  RouteNames.bankTransfer.replaceFirst(
+                    ':orderId',
+                    order.orderId,
+                  ),
+                ),
                 variant: ButtonVariant.primary,
                 size: ButtonSize.large,
               ),

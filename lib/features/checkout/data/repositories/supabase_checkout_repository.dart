@@ -23,14 +23,11 @@ class SupabaseCheckoutRepository implements CheckoutRepository {
 
     final response = await _client.functions.invoke(
       'create-checkout-order',
-      body: {
-        'course_id': courseId,
-        'payment_method': paymentMethodValue,
-        'idempotency_key': idempotencyKey,
-      },
+      headers: {'Idempotency-Key': idempotencyKey},
+      body: {'course_id': courseId, 'payment_method': paymentMethodValue},
     );
 
-    if (response.status != 200) {
+    if (response.status != 200 && response.status != 201) {
       throw Exception(
         'Failed to create checkout order. Status: ${response.status}',
       );

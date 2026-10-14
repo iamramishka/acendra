@@ -4,6 +4,9 @@ import 'package:acendra/app/theme/app_theme_extension.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/features/checkout/domain/entities/checkout_order.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:acendra/features/checkout/presentation/providers/checkout_provider.dart';
+import 'package:acendra/features/checkout/domain/entities/payment_method.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,24 +15,53 @@ import 'package:go_router/go_router.dart';
 /// Shows step-by-step guidance for completing a bank transfer together with
 /// the account details from [BankInstructions]. The "I've made the transfer"
 /// CTA navigates the student to the receipt status screen.
-class BankTransferScreen extends StatelessWidget {
-  const BankTransferScreen({
-    super.key,
-    required this.orderId,
-    required this.orderNumber,
-    required this.courseTitle,
-    required this.formattedAmount,
-    this.bankInstructions,
-  });
+class BankTransferScreen extends ConsumerWidget {
+  const BankTransferScreen({super.key, required this.orderId});
 
   final String orderId;
-  final String orderNumber;
-  final String courseTitle;
-  final String formattedAmount;
-  final BankInstructions? bankInstructions;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final checkout = ref.watch(checkoutProvider);
+    final order = checkout.value;
+    final instructions = order?.bankInstructions;
+    if (checkout.isLoading) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Bank Transfer')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (checkout.hasError ||
+        order == null ||
+        order.orderId != orderId ||
+        order.paymentMethod != PaymentMethod.bankTransfer ||
+        order.status != 'pending_payment' ||
+        order.nextAction != 'show_bank_instructions' ||
+        order.orderNumber.trim().isEmpty ||
+        order.amountMinor <= 0 ||
+        instructions == null ||
+        instructions.bankName.trim().isEmpty ||
+        instructions.accountHolder.trim().isEmpty ||
+        instructions.accountNumber.trim().isEmpty ||
+        instructions.branch.trim().isEmpty ||
+        instructions.currency != order.currencyCode) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Bank Transfer')),
+        body: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Text(
+              'Payment instructions are unavailable. Please contact support before making a transfer.',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+    final orderNumber = order.orderNumber;
+    final courseTitle = order.courseTitle;
+    final formattedAmount = order.formattedAmount;
+    final bankInstructions = instructions;
     final ext = Theme.of(context).extension<AppThemeExtension>()!;
     final tt = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
@@ -118,9 +150,9 @@ class BankTransferScreen extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xl),
 
                 // ── Bank account details ──────────────────────────────────
-                if (bankInstructions != null) ...[
+                ...[
                   _BankDetailsCard(
-                    instructions: bankInstructions!,
+                    instructions: bankInstructions,
                     ext: ext,
                     tt: tt,
                     cs: cs,
@@ -146,8 +178,8 @@ class BankTransferScreen extends StatelessWidget {
                       Expanded(
                         child: Text(
                           'Course access is activated only after our finance team '
-                          'independently verifies the bank credit — typically within '
-                          '1–2 business days.',
+                          'independently verifies the bank credit. '
+                          'Contact support for review times after submitting your receipt.',
                           style: tt.bodySmall?.copyWith(
                             color: ext.textSecondary,
                           ),
