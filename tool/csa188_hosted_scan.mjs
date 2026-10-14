@@ -33,6 +33,6 @@ if (result.error || result.signal || result.status !== 0) {
 } else {
   console.log(JSON.stringify({ mode, passed: true,
     ...(mode === 'assets' ? { mainDartJsSha256: createHash('sha256').update(readFileSync(bundle)).digest('hex') } : {}),
-    coverage: mode === 'history' ? 'available local Git refs' : 'this build/web directory',
+    coverage: mode === 'history' ? 'available checkout refs; shallow checkout may omit earlier history' : 'this build/web directory',
     limitation: 'Pattern scan only; does not verify managed logs or a differently configured release.' }));
 }

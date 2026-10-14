@@ -26,6 +26,7 @@ test('CSA188 hosted history and release asset credential scan', { skip: !hosted,
       const metadata = JSON.parse(result.stdout.trim());
       assert.equal(metadata.passed, true);
       if (mode === 'assets') assert.match(metadata.mainDartJsSha256, /^[a-f0-9]{64}$/);
+      console.log(JSON.stringify(metadata));
     }
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
