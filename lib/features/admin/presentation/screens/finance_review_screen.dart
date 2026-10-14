@@ -71,7 +71,9 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
   }
 
   Future<void> decide() async {
-    if (busy) return;
+    if (busy) {
+      return;
+    }
     final identity = ref.read(bankSessionIdentityProvider);
     if (identity == null) {
       setState(
@@ -115,7 +117,9 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
                   }
                 : null,
           );
-      if (!mounted || ref.read(bankSessionIdentityProvider) != identity) return;
+      if (!mounted || ref.read(bankSessionIdentityProvider) != identity) {
+        return;
+      }
       ref.invalidate(financeQueueProvider);
       setState(() {
         message = 'Decision recorded by the server.';

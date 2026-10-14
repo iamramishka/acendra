@@ -26,7 +26,9 @@ class ReceiptUploadNotifier extends AsyncNotifier<void> {
     required List<int> bytes,
     required String idempotencyKey,
   }) async {
-    if (state.isLoading) return;
+    if (state.isLoading) {
+      return;
+    }
     final identity = ref.read(bankSessionIdentityProvider);
     state = const AsyncLoading();
     final result = await AsyncValue.guard(
@@ -39,8 +41,9 @@ class ReceiptUploadNotifier extends AsyncNotifier<void> {
             idempotencyKey: idempotencyKey,
           ),
     );
-    if (!ref.mounted || ref.read(bankSessionIdentityProvider) != identity)
+    if (!ref.mounted || ref.read(bankSessionIdentityProvider) != identity) {
       return;
+    }
     state = result;
     ref.invalidate(receiptSubmissionProvider(orderId));
   }
@@ -77,7 +80,9 @@ class BankReviewNotifier extends AsyncNotifier<void> {
     required String submissionId,
     required String rejectionReason,
   }) async {
-    if (state.isLoading) return;
+    if (state.isLoading) {
+      return;
+    }
     final identity = ref.read(bankSessionIdentityProvider);
     state = const AsyncLoading();
     final result = await AsyncValue.guard(
@@ -85,10 +90,13 @@ class BankReviewNotifier extends AsyncNotifier<void> {
           .read(bankTransferRepositoryProvider)
           .review(submissionId: submissionId, rejectionReason: rejectionReason),
     );
-    if (!ref.mounted || ref.read(bankSessionIdentityProvider) != identity)
+    if (!ref.mounted || ref.read(bankSessionIdentityProvider) != identity) {
       return;
+    }
     state = result;
-    if (!state.hasError) ref.invalidate(financeQueueProvider);
+    if (!state.hasError) {
+      ref.invalidate(financeQueueProvider);
+    }
   }
 
   void reset() => state = const AsyncData(null);
@@ -100,8 +108,9 @@ final bankReviewProvider = AsyncNotifierProvider<BankReviewNotifier, void>(
 final receiptSubmissionProvider =
     FutureProvider.family<ReceiptSubmission, String>((ref, orderId) async {
       final identity = ref.watch(bankSessionIdentityProvider);
-      if (identity == null)
+      if (identity == null) {
         throw const BankTransferFailure('Sign in to view transfer status.');
+      }
       final value = await ref
           .watch(bankTransferRepositoryProvider)
           .status(orderId);
@@ -116,10 +125,11 @@ final financeQueueProvider = FutureProvider<List<Map<String, dynamic>>>((
   ref,
 ) async {
   final identity = ref.watch(bankSessionIdentityProvider);
-  if (identity == null)
+  if (identity == null) {
     throw const BankTransferFailure(
       'Sign in with an authorized finance account and MFA.',
     );
+  }
   final value = await ref.watch(bankTransferRepositoryProvider).queue();
   if (!ref.mounted || ref.read(bankSessionIdentityProvider) != identity) {
     throw const BankTransferFailure(
