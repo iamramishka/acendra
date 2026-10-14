@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createHandler} from './handler.mjs';
 const actor='11111111-1111-4111-8111-111111111111',session='22222222-2222-4222-8222-222222222222',order='33333333-3333-4333-8333-333333333333';
 const token=(aal='aal2',sub=actor)=>'a.'+Buffer.from(JSON.stringify({sub,session_id:session,role:'authenticated',aal})).toString('base64url')+'.c';
-const env=name=>({SUPABASE_URL:'https://backend.test',SUPABASE_ANON_KEY:'public',SUPABASE_SERVICE_ROLE_KEY:'service',ALLOWED_ORIGINS:'https://app.test'})[name];
+const env=name=>({SUPABASE_URL:'https://backend.test',SUPABASE_ANON_KEY:'public',SUPABASE_SERVICE_ROLE_KEY:'service',ACENDRA_BANK_READ_ALLOWED_ORIGINS:'https://app.test'})[name];
 const req=(body,aal='aal2')=>new Request('https://edge.test',{method:'POST',headers:{Authorization:'Bearer '+token(aal),'Content-Type':'application/json',Origin:'https://app.test'},body:JSON.stringify(body)});
 test('read remains disabled and performs no downstream requests',async()=>{const handler=createHandler({env,fetch:()=>{throw Error('unexpected');}});assert.equal((await handler(req({order_id:order}))).status,503);});
 test('finance queue requires MFA before privileged SQL',async()=>{let calls=0;const handler=createHandler({env,enabled:true,fetch:async()=>{calls++;return Response.json({id:actor});}});assert.equal((await handler(req({queue:true},'aal1'))).status,403);assert.equal(calls,1);});
@@ -12,3 +12,8 @@ test('verified bearer supplies identity and safe response strips private fields'
 test('revoked current finance authorization is403 not empty queue',async()=>{const handler=createHandler({env,enabled:true,fetch:async url=>url.endsWith('/user')?Response.json({id:actor}):Response.json({code:'42501'},{status:403})});assert.equal((await handler(req({queue:true}))).status,403);});
 test('cross-user/nonexistent order is indistinguishable404',async()=>{const handler=createHandler({env,enabled:true,fetch:async url=>url.endsWith('/user')?Response.json({id:actor}):Response.json({code:'P0002'},{status:404})});assert.equal((await handler(req({order_id:order}))).status,404);});
 test('untrusted origins denied even while disabled',async()=>{const incoming=req({queue:true});incoming.headers.set('Origin','https://evil.test');assert.equal((await createHandler({env})(incoming)).status,403);});
+
+
+test('Auth verified user must match the exact bearer subject',async()=>{let calls=0;const handler=createHandler({env,enabled:true,fetch:async()=>{calls++;return Response.json({id:'44444444-4444-4444-8444-444444444444'});}});assert.equal((await handler(req({order_id:order}))).status,401);assert.equal(calls,1);});
+test('oversized request fails before privileged calls',async()=>{const handler=createHandler({env,enabled:true,fetch:()=>{throw Error('unexpected');}});assert.equal((await handler(req({order_id:order,padding:'a'.repeat(2048)}))).status,400);});
+test('queue response strips bank evidence and storage paths',async()=>{const handler=createHandler({env,enabled:true,fetch:async url=>url.endsWith('/user')?Response.json({id:actor}):Response.json({items:[{submission_id:session,order_id:order,status:'submitted',amount_minor:'12345',currency:'LKR',verified_credit:'SECRET',object_path:'SECRET'}]})});const response=await handler(req({queue:true}));assert.equal(response.status,200);assert.equal(JSON.stringify(await response.json()).includes('SECRET'),false);});

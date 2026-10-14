@@ -11,7 +11,7 @@ async function json(body, max) {
 }
 export function createHandler({env,fetch: request = globalThis.fetch,enabled = false}) {
   const config = {url:env('SUPABASE_URL'),key:env('SUPABASE_ANON_KEY'),service:env('SUPABASE_SERVICE_ROLE_KEY'),
-    origins:new Set((env('ALLOWED_ORIGINS') ?? '').split(',').map(v=>v.trim()).filter(Boolean))};
+    origins:new Set((env('ACENDRA_BANK_READ_ALLOWED_ORIGINS') ?? '').split(',').map(v=>v.trim()).filter(Boolean))};
   return async incoming => {
     const origin = incoming.headers.get('Origin');
     const respond = (status,code,data) => new Response(JSON.stringify(code ? {error:{code}} : {data}),
@@ -51,3 +51,4 @@ export function createHandler({env,fetch: request = globalThis.fetch,enabled = f
     } catch {return respond(503,'SERVICE_UNAVAILABLE');}
   };
 }
+

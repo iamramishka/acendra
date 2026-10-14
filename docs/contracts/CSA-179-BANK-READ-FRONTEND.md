@@ -20,3 +20,8 @@ create a second decision. UI never declares enrollment active from approval.
 All upload/review entrypoint release gates remain closed pending operational
 inspection, bank and financial acceptance. Neither contract implementation nor
 synthetic tests establishes real bank funds or production readiness.
+
+Read CORS uses ACENDRA_BANK_READ_ALLOWED_ORIGINS, an explicit comma-separated
+approved-origin allowlist. An unset allowlist denies all browser origins; it
+never defaults to a permissive production origin. Authenticated nonbrowser
+requests still pass authorization only under the explicit enabled test seam.
