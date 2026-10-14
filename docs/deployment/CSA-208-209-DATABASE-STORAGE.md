@@ -75,6 +75,14 @@ can proceed in parallel with hosting and secret preparation.
 | `supabase/migrations/20261013003500_csa178_deferred_financial_checks.sql` | Corrects deferred financial invariant checks after RPC definer context ends. Include it in approved ordering; do not grant direct financial mutation privileges as a workaround. |
 
 These are highlights, not a substitute for the entire reviewed migration chain.
+At preparation base `fe68c6b0047dc956b291fd43f6813d39cec56696`, the directory
+contains 31 SQL migrations: filename suffixes `001` through `025`, then `030`
+through `035`. The first is `20261011000100_csa059_profile_role_schema.sql`;
+the last is `20261013003500_csa178_deferred_financial_checks.sql`. Apply the
+actual filenames in ascending order after comparison with target history. The
+absent suffixes `026` through `029` are not evidence of unapplied migrations;
+do not create replacements or repair history based on numbering alone.
+
 Do not manually add duplicate dashboard policies. PDF MIME allowlisting is not
 content inspection, and private buckets alone do not prove entitlement delivery.
 The [PDF storage contract](../contracts/CSA-139-PDF-STORAGE.md) preserves authenticated
@@ -108,6 +116,39 @@ references/object hashes and replay deletion records before exposing restored
 data. Financial events require actual provider/bank reconciliation.
 
 ## Required completion record
+
+### Dummy refresh verification and handoff — 2026-10-14
+
+The isolated documentation branch `docs/csa-208-209-dummy-refresh` refreshed this
+existing preparation only. Local inspection again found `project_id =
+"acendra-local"` and no `supabase/.temp/project-ref` in the inspected checkout.
+Those facts identify local configuration; they cannot establish a managed target,
+remote migration history or deployed bucket state.
+
+Fresh command in the isolated worktree:
+
+```text
+node --test tool/csa200_storage_recovery.test.mjs tool/local_supabase.test.mjs
+```
+
+Result: 14 passed, zero failures or skips. These tests cover archive integrity,
+tombstone reconciliation, denial classification and local tooling isolation
+guards with local fixtures. They do not replay SQL, inspect a live database,
+prove Storage API denials or establish production restore readiness. No install,
+database replay, database reset, hosted request or configuration mutation ran.
+
+Operational blockers remain: actual staging/production identities and account
+access; approved release hash, operator and exclusive migration ownership;
+target drift/history inspection; staging upgrade and live access evidence;
+recoverable encrypted backups and accepted restore/RPO/RTO evidence; and
+outstanding Phase 8 security and journey acceptance. The latest integrated
+review retains those acceptance gaps. CSA-208/209 remain unchecked in TASKS.md.
+
+The next authorized operator must replace dummy target fields, collect the
+completion record below and execute the ordered release gates. CSA-208 applies
+the reviewed migration chain; CSA-209 then verifies resulting storage settings
+and access. No concurrent production migration/storage mutation is authorized
+by this refresh.
 
 Retain the real target/organization and approved release hash, reviewer/operator,
 migration history and drift review, staging upgrade results, backup/restore
