@@ -19,13 +19,18 @@ later approved build configuration; a public key still requires correct RLS.
 | --- | --- | --- |
 | `APP_ENV` | `production` | Public environment selector |
 | `SUPABASE_URL` | `https://supabase.example.invalid` | Public target; replace with verified production project URL |
-| `SUPABASE_PUBLISHABLE_KEY` | `DUMMY_PUBLIC_KEY_DO_NOT_BUILD` | Public publishable key; dummy deliberately fails key validation |
-| `SUPABASE_ANON_KEY` | `DUMMY_PUBLIC_KEY_DO_NOT_BUILD` | Legacy public fallback when publishable binding is absent |
+| `SUPABASE_PUBLISHABLE_KEY` | `DUMMY_PUBLIC_KEY_DO_NOT_BUILD` | Declared public binding; current bootstrap does not consume it |
+| `SUPABASE_ANON_KEY` | `DUMMY_PUBLIC_KEY_DO_NOT_BUILD` | Legacy public binding consumed directly by current bootstrap |
 
-The frontend validates hosted HTTPS URLs and rejects privileged key shapes;
-this does not prove that a key belongs to the intended project. Verify project
-identity separately. Never put service-role, PayHere, Mux private signing or
-SMTP credentials in Dart defines, browser files, source control or build logs.
+`PublicBackendConfig` provides hosted HTTPS and privileged-key-shape checks, but
+`lib/app/bootstrap.dart` currently passes `EnvConfig.supabaseAnonKey` directly to
+Supabase without invoking `EnvConfig.read()`. A publishable-only configuration
+does not initialize the backend through this bootstrap. Before release, require
+a reviewed bootstrap integration change and verification of public configuration
+validation and publishable-key handling. Verify project identity separately;
+the validator cannot establish that a key belongs to the intended project.
+Never put service-role, PayHere, Mux private signing or SMTP credentials in Dart
+defines, browser files, source control or build logs.
 
 ## Backend configuration inventory
 
@@ -136,12 +141,36 @@ callback/retrieval binding or fulfillment acceptance.
 - Obtain review of the concrete production binding/enablement change and
   retained release gates. Verify active merchant/plan, domain, callback reachability,
   Retrieval API access and isolated production credentials through authorized
-  account access.
+  account access. The CSA-100 adapter contract explicitly retains production IP
+  allowlisting as a release gate; confirm the approved production network before
+  declaring provider readiness.
 - Conduct owner-approved controlled live validation and notification acceptance
   under CSA-211; capture redacted provider/database evidence and reconciliation.
   Do not create real charges as part of this dummy worksheet.
 
-Preparation verification: source-reference inspection and `git diff --check`.
-No provider, database, browser, production configuration or rotation acceptance
-is claimed. Operational tasks move to DONE only after their actual acceptance
-and integration evidence is recorded.
+## Dummy refresh verification — 2026-10-14
+
+Source inspection reconfirmed the public compile-time bindings, backend-only
+configuration names, adapter properties and disabled deployed payment gates.
+No PayHere environment-to-object mapping exists in either payment entry point;
+adding secrets alone cannot enable online checkout or callback settlement.
+
+Fresh local verification ran in the isolated `docs/csa-207-210-dummy-refresh`
+worktree:
+
+```powershell
+node --test supabase/functions/_shared/payments/payhere.test.mjs supabase/functions/initialize-checkout/handler.test.mjs supabase/functions/payment-provider-webhook/handler.test.mjs supabase/functions/payment-provider-webhook/csa120_forgery.test.mjs
+```
+
+Result: exit 0; 94 tests passed, 0 failed, 0 skipped. Synthetic fixtures and
+injected network collaborators cover disabled gates without I/O, exact LKR
+amounts, callback forgery and mismatches, authenticated retrieval binding,
+unsigned-reference substitution, retry identities and safe failure responses.
+These checks do not exercise deployed Deno entry points, actual provider
+accounts, database transaction/concurrency behavior or entitlement fulfillment.
+
+Preparation verification also includes source-reference inspection and
+`git diff --check`. No provider, database, browser, production configuration or
+rotation acceptance is claimed. Preparation remains IN_REVIEW; CSA-207 and
+CSA-210 remain operationally pending until actual acceptance and integration
+evidence is recorded.
