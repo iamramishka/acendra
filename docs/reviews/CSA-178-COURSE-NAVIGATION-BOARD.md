@@ -1,0 +1,3 @@
+# Course enrollment navigation repair
+
+Owner CODEX navigation delegate; root integrates PR159 and verifies overlaps. Scope course_detail_screen.dart plus focused navigation tests only. Isolated phase8-course-enroll-navigation/acendra, branch codex/fix/csa-178-course-enroll-navigation, base origin/dev628f00a. Authorized full sandbox journey readiness: actual staging browser Enroll Now click has no effect because both CTAs use empty callbacks. Dependencies existing checkout/learn route contracts. Acceptance: resolved unenrolled state routes to checkout, enrolled state to learning, pending/failed enrollment does not pretend no access. No backend authorization changes. Hosted tests only, no local suite. Status IN_PROGRESS; approval authority project owner.

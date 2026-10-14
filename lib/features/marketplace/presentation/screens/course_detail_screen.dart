@@ -1,9 +1,11 @@
 import 'package:acendra/core/widgets/buttons/app_button.dart';
+import 'package:acendra/app/router/route_names.dart';
 import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:acendra/features/marketplace/presentation/providers/marketplace_provider.dart';
 import 'package:acendra/features/marketplace/presentation/widgets/curriculum_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class CourseDetailScreen extends ConsumerWidget {
   const CourseDetailScreen({super.key, required this.courseId});
@@ -98,10 +100,35 @@ class CourseDetailScreen extends ConsumerWidget {
                 SizedBox(
                   width: double.infinity,
                   child: AppButton(
-                    label: isEnrolled ? 'Continue Learning' : 'Enroll Now',
-                    onPressed: isEnrolled ? () {} : () {},
+                    label: enrollState.isLoading
+                        ? 'Checking enrollment…'
+                        : enrollState.hasError
+                        ? 'Enrollment status unavailable'
+                        : isEnrolled
+                        ? 'Continue Learning'
+                        : 'Enroll Now',
+                    onPressed:
+                        enrollState.isLoading ||
+                            enrollState.hasError ||
+                            !enrollState.hasValue
+                        ? null
+                        : () => context.go(
+                            (isEnrolled
+                                    ? RouteNames.learn
+                                    : RouteNames.checkout)
+                                .replaceAll(
+                                  ':courseId',
+                                  Uri.encodeComponent(courseId),
+                                ),
+                          ),
                   ),
                 ),
+                if (enrollState.hasError)
+                  TextButton(
+                    onPressed: () =>
+                        ref.invalidate(isEnrolledProvider(courseId)),
+                    child: const Text('Retry enrollment status'),
+                  ),
 
                 const SizedBox(height: 32),
 
