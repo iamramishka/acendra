@@ -94,3 +94,20 @@ Base: `bd5a5c9`. Verification: GitHub merge/check readback, scoped diff review a
 `git diff --check`. No runtime change or new operational test is required for
 this synchronization. Documentation status: merged and accepted; operational
 task status: IN_REVIEW, unchanged. Temporary note ownership ends at review/merge.
+
+## PR #149 synchronization accepted
+
+[PR #149](https://github.com/iamramishka/acendra/pull/149) merged into `dev`
+on 2026-10-14 at 17:16:36 Asia/Colombo, commit
+`6beaa8c8a7b5190163210b9044abf94d4d1ec42a`.
+[Flutter baseline CI](https://github.com/iamramishka/acendra/actions/runs/38544728331)
+completed SUCCESS before merge. The merge accepts the documentation update;
+CSA-184–188 remain IN_REVIEW and the real-environment checks remain deferred.
+CSA-201's separately reviewed changes are already merged through PR #123 and
+PR #146; its operational recovery acceptance also remains IN_REVIEW.
+
+Owner requested this follow-up document synchronization. CODEX root reuses the
+clean isolated documentation worktree above on `docs/csa-184-merge149-record`,
+based on origin/dev. Exclusive scope is this record and its TASKS.md summary;
+open PR inspection found none. GitHub merge/CI readback and git diff --check
+are the verification criteria. No implementation or acceptance status changes.
