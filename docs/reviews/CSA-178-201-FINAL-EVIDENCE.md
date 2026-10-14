@@ -141,3 +141,53 @@ but provider responses, bank credit and exact-PNG inspection are synthetic.
 The earlier successful hosted execution remains separate dated evidence; no
 fresh integrated-stack pass is claimed here. Completion requires the missing
 implementation dependencies and current end-to-end evidence described above.
+
+## Parallel acceptance review — 2026-10-14
+
+Project owner requested parallel review of CSA-178/179/180/184/185/186/187/188/201
+and merge with dev. Three read-only reviewers inspected source and criteria at
+`58bfccea9348bcc50372402591d705b36f73e773`; application source is unchanged from
+dev `10c8b54`. Root reconciled the findings below. All nine remain IN_REVIEW;
+merging this documentation does not complete their operational acceptance.
+
+| Tasks | Review outcome and remaining evidence |
+| --- | --- |
+| CSA-178/179/180 | The current-review gaps above remain. Additionally, the learning DTO does not parse lesson bodies and the learning notifier has no progress persistence integration. Receipt status is an awaiting-receipt stub. Approved provider/bank journeys and authorized content/progress UI integration remain required. |
+| CSA-184 | Backend role/session/MFA component boundaries pass. The router checks authentication only; finance UI role/MFA restrictions and the enabled operational workflow remain unverified. Current synthetic records do not establish private-data exposure. |
+| CSA-185 | Private receipt/PDF/media boundaries and negative transport safeguards are retained. Historical disposable Storage evidence remains distinct from this review; end-user authorized delivery and deployed policies require current acceptance evidence. |
+| CSA-186 | Receipt/admin upload boundary checks pass with injected collaborators. Entry points remain disabled without approved actual inspection, resource policy and integrated ingestion; synthetic exact-PNG inspection does not satisfy operational inspection. |
+| CSA-187 | Header evaluator checks pass. Current CI does not run the malicious-text DOM assertions in Chrome (finding below). Approved deployed headers, Flutter compatibility and authenticated stored-payload journeys remain unverified. |
+| CSA-188 | Historical history/default-build scans remain bounded evidence. No fresh secret scan ran. Configured release assets and managed log redaction, reader authorization and enforced retention require operational verification. No active AppLogger call site or current disclosure was established by the bounded review. |
+| CSA-201 | Fault/retry SQL and notification recovery source coverage is retained. Actual provider/bank/email reconciliation and client refresh remain unverified; notification and payment entry points remain gated. No fresh local database recovery drill ran. |
+
+### Actionable verification finding
+
+P2 — run CSA-187 malicious-text tests in Chrome in current CI.
+`.github/workflows/flutter-ci.yml:40` runs Flutter tests on the VM, where
+`test/security/csa187_dom_stub.dart:1` has a no-op DOM helper. The Chrome command
+at workflow line43 runs only `receipt_file_picker.browser.dart`. The tooling
+browser wrapper is opt-in and was skipped in this run. Add an explicit Chrome
+execution of `test/security/csa187_malicious_text_test.dart` and retain execution
+evidence before claiming current CI verifies DOM injection assertions. Historical
+hosted Chrome evidence does not mean this current workflow exercises them.
+No runtime exploit was demonstrated; this is a verification coverage gap.
+
+### Executed validation and limits
+
+Root ran `npm run tool:test`: 736 tests discovered, **727 passed, 9 skipped,
+0 failed or cancelled**. Skips cover opt-in real PostgreSQL/concurrency/progress,
+Chrome malicious-text, Gitleaks asset-scan and Linux watermark-supervisor checks;
+those skips are not acceptance passes.
+
+Reviewer targeted executions: journeys **353 passed**, finance/private
+files/uploads **227 passed**, web/recovery **55 passed**, each with zero failures
+or skips. Their test sets overlap each other and the full tooling run; counts
+must not be summed as distinct coverage. Tests use synthetic/injected collaborators.
+No browser, current disposable Supabase/Storage, actual inspector, configured
+release scan, deployed header/log probe or operational provider/recovery journey
+ran during this parallel review. Historical hosted results were read from the
+existing evidence, not freshly certified by this review.
+
+No new confirmed exploitable backend/storage defect was found in this bounded
+review. The documented implementation and operational gaps remain prerequisites
+for task acceptance; this is not an independent human security approval.

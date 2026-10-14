@@ -18,6 +18,15 @@ by this documentation request.
 
 ## Historical integration assignment
 
+Current assignment extension — 2026-10-14: project owner explicitly requested
+parallel review of CSA-178/179/180/184/185/186/187/188/201 and merge with dev.
+Three read-only reviewers cover journeys, finance/private files/uploads, and
+web security/recovery. Root retains exclusive documentation edits and PR145
+integration. Scope extends to those nine TASKS.md entries and the consolidated
+dated review evidence. Runtime changes and endpoint activation remain outside
+this documentation reconciliation. Merge authority: current project-owner
+request, after review and exact-head CI pass.
+
 Owner: CODEX root with three isolated workers; user explicitly requested remaining Phase8 tasks finished in parallel in one integration on 2026-10-13.
 Status: IN_PROGRESS
 
