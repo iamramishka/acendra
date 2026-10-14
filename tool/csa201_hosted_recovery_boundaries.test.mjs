@@ -8,7 +8,7 @@ const notice = {
   safe_payload: { order_id: 'synthetic-order-a' },
 };
 
-test('CSA201 late provider success after timeout cannot overwrite a reclaimed successful lease', async () => {
+test('CSA201 late provider success after timeout cannot add completion after successful retry', async () => {
   const deliveries = [], acknowledgements = [];
   let releaseLateDelivery;
   const lateDelivery = new Promise(resolve => { releaseLateDelivery = resolve; });
