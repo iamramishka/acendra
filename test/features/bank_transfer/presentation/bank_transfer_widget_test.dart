@@ -289,53 +289,43 @@ void main() {
   // ── CSA-111: FinanceReviewScreen ──────────────────────────────────────────────
 
   group('FinanceReviewScreen (CSA-111)', () {
-    testWidgets('renders pending submissions header', (tester) async {
-      await tester.pumpWidget(_scaffold(const FinanceReviewScreen()));
-
-      expect(find.text('Pending Bank Transfers'), findsOneWidget);
-    });
-
-    testWidgets('shows backend-disabled notice', (tester) async {
-      await tester.pumpWidget(_scaffold(const FinanceReviewScreen()));
-
-      expect(find.textContaining('not yet enabled'), findsOneWidget);
-    });
-
-    testWidgets('shows approve and reject buttons on stub card', (
-      tester,
-    ) async {
-      await tester.pumpWidget(_scaffold(const FinanceReviewScreen()));
-
-      expect(find.text('Approve'), findsOneWidget);
-      expect(find.text('Reject'), findsOneWidget);
-    });
-
-    testWidgets('shows rejection form when Reject tapped', (tester) async {
-      await tester.pumpWidget(_scaffold(const FinanceReviewScreen()));
-
-      await tester.ensureVisible(find.text('Reject'));
-      await tester.tap(find.text('Reject'));
-      await tester.pump();
-
-      expect(find.text('Confirm Reject'), findsOneWidget);
-      expect(find.text('Cancel'), findsOneWidget);
-    });
-
-    testWidgets('cancelling rejection form restores approve/reject buttons', (
-      tester,
-    ) async {
-      await tester.pumpWidget(_scaffold(const FinanceReviewScreen()));
-
-      await tester.ensureVisible(find.text('Reject'));
-      await tester.tap(find.text('Reject'));
-      await tester.pump();
-
-      await tester.ensureVisible(find.text('Cancel'));
-      await tester.tap(find.text('Cancel'), warnIfMissed: false);
-      await tester.pump();
-
-      expect(find.text('Approve'), findsOneWidget);
-      expect(find.text('Reject'), findsOneWidget);
+    testWidgets(
+      'queue unavailable never renders invented receipts or decisions',
+      (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              financeQueueProvider.overrideWith(
+                (ref) async => throw Exception('Unavailable'),
+              ),
+            ],
+            child: MaterialApp(
+              theme: _theme(),
+              home: const FinanceReviewScreen(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.textContaining('Finance review is unavailable'),
+          findsOneWidget,
+        );
+        expect(find.textContaining('Example Student'), findsNothing);
+        expect(find.text('Record approval'), findsNothing);
+      },
+    );
+    testWidgets('empty authorized queue renders empty state', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [financeQueueProvider.overrideWith((ref) async => [])],
+          child: MaterialApp(
+            theme: _theme(),
+            home: const FinanceReviewScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('No receipts to review'), findsOneWidget);
     });
   });
 }
