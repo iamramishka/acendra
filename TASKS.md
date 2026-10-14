@@ -1821,12 +1821,15 @@ Integration Gate:
 
 - [ ] CSA-178 [P0] [X]
   Test online purchase journey.
+  IN_REVIEW; full acceptance blocked. Review on 2026-10-14 at dev `10c8b54`: checkout's Pay Now remains a coming-soon message and deployed provider initialization is disabled. Requires approved sandbox payment through verified settlement, enrollment, My Courses and paid-lesson browser access. See [current review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#csa-178179180-current-review--2026-10-14).
 
 - [ ] CSA-179 [P0] [X]
   Test bank approval journey.
+  IN_REVIEW; full acceptance blocked. Receipt upload and finance decisions remain unavailable; finance review uses synthetic records. Requires approved inspection/storage, independent credit verification and browser coverage of pending denial, approval, rejection and resubmission. See [current review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#csa-178179180-current-review--2026-10-14).
 
 - [ ] CSA-180 [P0] [X]
   Test purchase-to-learning entitlement.
+  IN_REVIEW; full acceptance blocked. Learning now has routed UI, but fetches metadata without lesson bodies and uses video/PDF placeholders. Requires authorized content delivery and browser verification of settlement-to-access, pre-settlement denial, revocation and persistent progress. The backend smoke's synthetic settlement/progress checks do not close UI acceptance. See [current review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#csa-178179180-current-review--2026-10-14).
 
 - [ ] CSA-181 [P1] [C]
   Test admin course publishing journey.
@@ -1844,22 +1847,27 @@ Integration Gate:
 - [ ] CSA-184 [P0] [X] [IN_REVIEW]
   Test finance role restrictions.
   IN_REVIEW: fresh effective-role SQL and current component checks passed; operational finance workflow remains gated. See [continuation evidence](docs/reviews/CSA-184-186-ACCEPTANCE-EVIDENCE.md).
+  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
 
 - [ ] CSA-185 [P0] [X] [IN_REVIEW]
   Test private file policies.
   IN_REVIEW: fresh receipt/PDF Storage REST checks passed; new thumbnail/lesson-image transport checks extend the current private-file matrix. See [continuation evidence](docs/reviews/CSA-184-186-ACCEPTANCE-EVIDENCE.md).
+  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
 
 - [ ] CSA-186 [P0] [X] [IN_REVIEW]
   Test upload security.
   IN_REVIEW: current receipt/admin-media boundary tests and effective database checks passed; approved real inspection and enabled ingestion remain gated. See [continuation evidence](docs/reviews/CSA-184-186-ACCEPTANCE-EVIDENCE.md).
+  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
 
 - [ ] CSA-187 [P0] [X] [IN_REVIEW]
   Review XSS and security headers.
   IN_REVIEW: release-build reflected-route payload and header-checker regressions verified locally; deployed headers and backend-configured stored payloads remain unverified. See [web continuation](docs/reviews/CSA-187-188-ACCEPTANCE.md).
+  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
 
 - [ ] CSA-188 [P0] [X] [IN_REVIEW]
   Review secrets and logging.
   IN_REVIEW: dedicated history and default release-asset scans passed; configured release bundles and enforced operational log controls remain unverified. Retention baseline selected by owner delegation. See [web continuation](docs/reviews/CSA-187-188-ACCEPTANCE.md).
+  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
 
 - [x] CSA-189 [P0] [X] [DONE]
   Review dependency vulnerabilities.
@@ -1909,6 +1917,7 @@ Integration Gate:
 - [ ] CSA-201 [P0] [X]
   Test financial failure recovery.
   IN_REVIEW: merged Supabase/Flutter CI success reconciled; fresh 25 SQL fault/retry assertions and notification-loss tests passed. Live provider/client acceptance remains separate. See [continuation evidence](docs/tasks/CSA-200-201-ACCEPTANCE.md), issue #117.
+  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
 
 - [ ] CSA-202 [P0] [L]
   Coordinate critical security fixes.

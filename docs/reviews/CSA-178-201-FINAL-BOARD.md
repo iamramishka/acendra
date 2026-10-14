@@ -1,3 +1,32 @@
+## Documentation review assignment — 2026-10-14
+
+Owner: CODEX. Project owner requested review of CSA-178/179/180 and then
+"update document". Status: IN_REVIEW (documentation reconciliation).
+Base: dev `10c8b54d15c7e9b51e64a1db4aef4cf09c71e3c2`.
+Branch: `docs/csa-178-180-review-update`.
+Isolated clone: `C:/Users/ramis/Documents/Codex/2026-10-14/re/work/acendra-review`.
+Scope: this assignment, TASKS.md's CSA-178/179/180 entries and
+CSA-178-201-FINAL-EVIDENCE.md's dated review addendum. Temporary TASKS.md
+ownership is limited to those three entries. No open PRs were found; issue129
+retains the integrated acceptance scope and no listed active issue establishes
+a conflicting documentation owner. This is a local documentation assignment,
+not a new GitHub claim. Approval authority: project owner.
+Verification: compare current implementation with docs/TESTING.md journeys,
+record exact component results and their limits, review narrow diff and run
+`git diff --check`. No operational task completion or deployment is authorized
+by this documentation request.
+
+## Historical integration assignment
+
+Current assignment extension — 2026-10-14: project owner explicitly requested
+parallel review of CSA-178/179/180/184/185/186/187/188/201 and merge with dev.
+Three read-only reviewers cover journeys, finance/private files/uploads, and
+web security/recovery. Root retains exclusive documentation edits and PR145
+integration. Scope extends to those nine TASKS.md entries and the consolidated
+dated review evidence. Runtime changes and endpoint activation remain outside
+this documentation reconciliation. Merge authority: current project-owner
+request, after review and exact-head CI pass.
+
 Owner: CODEX root with three isolated workers; user explicitly requested remaining Phase8 tasks finished in parallel in one integration on 2026-10-13.
 Status: IN_PROGRESS
 
