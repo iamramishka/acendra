@@ -98,3 +98,46 @@ regressions for unavailable authenticated routes and unauthenticated login guard
 The earlier instruction to wait for PR134 is superseded by this bounded route
 availability correction under the owner's explicit fix-and-merge request.
 Required hosted checks on the corrected combined head must pass before merge.
+
+## CSA-178/179/180 current review — 2026-10-14
+
+Owner: CODEX; project owner requested review and documentation update.
+Reviewed dev `10c8b54d15c7e9b51e64a1db4aef4cf09c71e3c2` after PR144 merged.
+This dated addendum supersedes earlier placeholder descriptions for the current
+UI; the historical commands, failures and CI evidence above remain historical.
+All three tasks remain IN_REVIEW with full journey acceptance blocked.
+
+| Task | Current implementation and acceptance gap | Required acceptance evidence |
+| --- | --- | --- |
+| CSA-178 online purchase | Checkout creates an order, but `_onPayNow` only displays "Online payment coming soon". `initialize-checkout/index.ts` retains the default-disabled handler. The backend journey injects synthetic provider responses. | Approved provider sandbox payment through verified settlement, paid order, active enrollment, updated My Courses and paid lesson access in a browser. |
+| CSA-179 bank approval | ReceiptUploadNotifier throws an unavailable error. The routed admin finance screen uses labelled synthetic records; approve/reject cannot record decisions, and receipt viewing is unavailable. Bank-review deployment remains disabled. | Approved receipt inspection/storage and independent bank-credit verification; student upload/pending state, pre-approval access denial, authorized review, approval-to-access, rejection and resubmission browser coverage. |
+| CSA-180 purchase-to-learning | My Courses and learning screens are now routed. `getLessonContent` selects metadata only, without text/image bodies; video/PDF use coming-soon placeholders. Backend entitlement/progress assertions do not exercise content delivery or the Flutter journey. | Authorized content delivery after settlement, denial before settlement and after revocation, student isolation, and progress persistence across logout/login through the UI. |
+
+Source references at the reviewed revision:
+- `lib/features/checkout/presentation/screens/checkout_screen.dart:94`
+- `supabase/functions/initialize-checkout/index.ts:2`
+- `lib/features/bank_transfer/presentation/providers/bank_transfer_provider.dart:14`
+- `lib/features/admin/presentation/screens/finance_review_screen.dart`
+- `supabase/functions/admin-review-bank-transfer/index.ts:2`
+- `lib/features/learning/data/repositories/supabase_learning_repository.dart:33`
+- `lib/features/learning/presentation/screens/learning_workspace_screen.dart:283`
+
+Executed locally on 2026-10-14 with Node v24.15.0:
+
+```powershell
+node --test supabase/functions/create-checkout-order/*.test.mjs supabase/functions/_shared/payments/*.test.mjs supabase/functions/initialize-checkout/*.test.mjs supabase/functions/payment-provider-webhook/*.test.mjs supabase/functions/upload-bank-receipt/*.test.mjs supabase/functions/admin-review-bank-transfer/*.test.mjs supabase/functions/admin-entitlements/*.test.mjs supabase/functions/authorize-video/*.test.mjs supabase/functions/_shared/pdf/*.test.mjs supabase/functions/pdf-content/*.test.mjs tool/csa178_186_journey_smoke.test.mjs
+```
+
+Result: 353 tests passed; 0 failed, cancelled, skipped or todo. These are
+component tests with synthetic collaborators plus two journey-harness safeguard
+tests. This command does not execute `runJourneySmoke` against a live stack.
+No local Flutter/browser, disposable Supabase, provider sandbox or operational
+bank journey was run during this review.
+
+Static inspection of `tool/csa178_186_journey_smoke.mjs` confirms checks for
+pending/forged access denial, duplicate settlement and symmetric student progress.
+Its test-local HTTP handlers use disposable Auth/MFA/RPC/Storage when executed,
+but provider responses, bank credit and exact-PNG inspection are synthetic.
+The earlier successful hosted execution remains separate dated evidence; no
+fresh integrated-stack pass is claimed here. Completion requires the missing
+implementation dependencies and current end-to-end evidence described above.

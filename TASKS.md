@@ -1821,12 +1821,15 @@ Integration Gate:
 
 - [ ] CSA-178 [P0] [X]
   Test online purchase journey.
+  IN_REVIEW; full acceptance blocked. Review on 2026-10-14 at dev `10c8b54`: checkout's Pay Now remains a coming-soon message and deployed provider initialization is disabled. Requires approved sandbox payment through verified settlement, enrollment, My Courses and paid-lesson browser access. See [current review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#csa-178179180-current-review--2026-10-14).
 
 - [ ] CSA-179 [P0] [X]
   Test bank approval journey.
+  IN_REVIEW; full acceptance blocked. Receipt upload and finance decisions remain unavailable; finance review uses synthetic records. Requires approved inspection/storage, independent credit verification and browser coverage of pending denial, approval, rejection and resubmission. See [current review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#csa-178179180-current-review--2026-10-14).
 
 - [ ] CSA-180 [P0] [X]
   Test purchase-to-learning entitlement.
+  IN_REVIEW; full acceptance blocked. Learning now has routed UI, but fetches metadata without lesson bodies and uses video/PDF placeholders. Requires authorized content delivery and browser verification of settlement-to-access, pre-settlement denial, revocation and persistent progress. The backend smoke's synthetic settlement/progress checks do not close UI acceptance. See [current review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#csa-178179180-current-review--2026-10-14).
 
 - [ ] CSA-181 [P1] [C]
   Test admin course publishing journey.
