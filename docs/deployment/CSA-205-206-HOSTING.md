@@ -124,6 +124,43 @@ DONE solely from preparing this document.
 
 ## Preparation evidence and handoff
 
+### Dummy refresh readiness, 2026-10-14
+
+The owner reconfirmed dummy preparation. The current assignment and exclusive
+documentation scope are recorded in the refresh section of the
+[preparation board](../tasks/CSA-205-210-PREPARATION.md). Operational tasks remain
+pending; this refresh does not select a host or authorize live configuration.
+
+Repository inspection found only the tracked local
+[client example](../../config/client.example.json), with a loopback backend and
+replacement key. No tracked Vercel, Netlify, Firebase or Wrangler hosting
+configuration was found. Flutter CI verifies and builds without backend
+credentials; it has no deployment job. No concrete hosting account/project,
+controlled domain/DNS zone, certificate, production backend target or release
+operator is evidenced by these files. Ignored local files and external provider
+accounts were not inspected; this is repository readiness evidence only.
+
+One runtime prerequisite remains: [bootstrap](../../lib/app/bootstrap.dart)
+currently initializes Supabase only when `SUPABASE_URL` and `SUPABASE_ANON_KEY`
+are present, and does not call `EnvConfig.read()`. Consequently, the illustrative
+publishable-key-only JSON above does not initialize the backend today, and the
+configuration validator's HTTPS/key checks are not enforced by this entry point.
+A separately owned, reviewed runtime change must connect the validated public
+configuration before claiming production startup. Do not bypass this prerequisite
+by treating the example build command as verified deployment guidance.
+
+Next handoff: the owner/designated infrastructure maintainer supplies the selected
+provider, account/project, controlled canonical and staging origins, verified
+public backend target and release operator. Coordinate the bootstrap prerequisite
+with its runtime owner; then implement provider-specific fallback, headers and
+deployment/rollback configuration against the approved target. Domain/TLS and
+browser verification follow that configuration. No further provider-independent
+hosting implementation is claimed by this documentation refresh.
+
+Refresh verification: reviewed the referenced source, checked local Markdown link
+targets and ran `git diff --check`. No build, network/header request, DNS/TLS
+operation, deployment or production test was performed.
+
 Inspected: TASKS.md Phase 9, PLAN.md Phase 9, SECURITY.md Flutter Web requirements,
 CSA-012 environment/budget decision, EnvConfig, public client example, local
 configuration guidance, web index, Flutter CI and the existing header evaluator.
