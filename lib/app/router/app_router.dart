@@ -3,6 +3,7 @@ import 'package:acendra/core/widgets/navigation/admin_shell.dart';
 import 'package:acendra/core/widgets/navigation/learning_shell.dart';
 import 'package:acendra/core/widgets/navigation/public_shell.dart';
 import 'package:acendra/core/widgets/navigation/student_shell.dart';
+import 'package:acendra/features/admin/presentation/screens/finance_review_screen.dart';
 import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:acendra/features/authentication/presentation/screens/forgot_password_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/login_screen.dart';
@@ -10,7 +11,6 @@ import 'package:acendra/features/authentication/presentation/screens/register_sc
 import 'package:acendra/features/authentication/presentation/screens/reset_password_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/verify_email_screen.dart';
 import 'package:acendra/features/bank_transfer/presentation/screens/bank_transfer_screen.dart';
-import 'package:acendra/features/bank_transfer/presentation/screens/finance_review_screen.dart';
 import 'package:acendra/features/bank_transfer/presentation/screens/receipt_resubmission_screen.dart';
 import 'package:acendra/features/bank_transfer/presentation/screens/receipt_status_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/checkout_screen.dart';
