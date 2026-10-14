@@ -14,8 +14,10 @@ with explicit synthetic transport/store collaborators; no external email is sent
 
 Hosted command: npm run tool:test (discovers tool/*.test.mjs automatically).
 Focused hosted command: node --test tool/csa201_hosted_recovery_boundaries.test.mjs.
-Existing hosted db:test covers csa201_financial_failure_recovery.test.sql and
-runStorageRecoverySmoke from tool/csa200_storage_recovery.mjs. No runner,
+Existing hosted `npm run db:test` covers csa201_financial_failure_recovery.test.sql.
+The separate hosted command `node tool/supabase_smoke.mjs` invokes
+runStorageRecoverySmoke from tool/csa200_storage_recovery.mjs against the started
+disposable stacks; `db:test` alone does not execute Storage recovery. No runner,
 production handler, migration, dependency or workflow is changed in this scope.
 
 CSA-200 remains IN_REVIEW with release acceptance BLOCKED. The disposable
