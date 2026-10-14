@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:acendra/features/checkout/data/repositories/checkout_submission_repository.dart';
 import 'package:acendra/features/checkout/domain/entities/payment_handoff.dart';
+import 'package:acendra/features/checkout/presentation/providers/checkout_actor_provider.dart';
 
 import '../services/receipt_file_picker.dart'
     if (dart.library.js_interop) '../services/receipt_file_picker_web.dart'
@@ -53,21 +54,29 @@ class _ReceiptResubmissionFormState
   bool _submitted = false;
   ReceiptFile? _file;
   String? _submissionKey;
+  int _identityEpoch = 0;
+  void _clearSelection() {
+    _file = null;
+    _fileName = null;
+    _fileError = null;
+    _submissionKey = null;
+    _submitted = false;
+    _identityEpoch++;
+  }
 
   @override
   void didUpdateWidget(covariant ReceiptResubmissionForm oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.orderId != widget.orderId) {
-      _file = null;
-      _fileName = null;
-      _fileError = null;
-      _submissionKey = null;
-      _submitted = false;
+      _clearSelection();
     }
   }
 
   Future<void> _submit() async {
     if (_isSubmitting || _file == null || _submitted) return;
+    final actor = ref.read(checkoutActorProvider);
+    if (actor == null) return;
+    final epoch = _identityEpoch;
     setState(() {
       _isSubmitting = true;
       _fileError = null;
@@ -82,13 +91,21 @@ class _ReceiptResubmissionFormState
             bytes: _file!.bytes,
             key: _submissionKey!,
           );
-      if (!mounted || widget.orderId != submittedOrder) return;
+      if (!mounted ||
+          widget.orderId != submittedOrder ||
+          epoch != _identityEpoch ||
+          ref.read(checkoutActorProvider) != actor)
+        return;
       setState(() {
         _submitted = true;
         _file = null;
       });
     } catch (error) {
-      if (!mounted || widget.orderId != submittedOrder) return;
+      if (!mounted ||
+          widget.orderId != submittedOrder ||
+          epoch != _identityEpoch ||
+          ref.read(checkoutActorProvider) != actor)
+        return;
       setState(
         () => _fileError = error is CheckoutFlowException
             ? error.message
@@ -101,10 +118,19 @@ class _ReceiptResubmissionFormState
 
   Future<void> _pickFile() async {
     if (_isPicking || _isSubmitting || _submitted) return;
+    final actor = ref.read(checkoutActorProvider);
+    if (actor == null) return;
+    final selectedOrder = widget.orderId;
+    final epoch = _identityEpoch;
     setState(() => _isPicking = true);
     try {
       final file = await (widget.filePicker ?? picker.pickReceiptFile)();
-      if (!mounted || file == null) return;
+      if (!mounted ||
+          file == null ||
+          widget.orderId != selectedOrder ||
+          epoch != _identityEpoch ||
+          ref.read(checkoutActorProvider) != actor)
+        return;
       final error = receiptFileError(file.name, file.bytes.length);
       setState(() {
         _fileError = error;
@@ -115,14 +141,22 @@ class _ReceiptResubmissionFormState
             : null;
       });
     } on FormatException catch (error) {
-      if (!mounted) return;
+      if (!mounted ||
+          widget.orderId != selectedOrder ||
+          epoch != _identityEpoch ||
+          ref.read(checkoutActorProvider) != actor)
+        return;
       setState(() {
         _fileName = null;
         _file = null;
         _fileError = error.message;
       });
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted ||
+          widget.orderId != selectedOrder ||
+          epoch != _identityEpoch ||
+          ref.read(checkoutActorProvider) != actor)
+        return;
       setState(() {
         _file = null;
         _fileName = null;
@@ -140,6 +174,9 @@ class _ReceiptResubmissionFormState
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(checkoutActorProvider, (previous, next) {
+      if (previous != next) setState(_clearSelection);
+    });
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final ext = Theme.of(context).extension<AppThemeExtension>();

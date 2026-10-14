@@ -11,6 +11,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:acendra/features/checkout/data/repositories/checkout_submission_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_riverpod/legacy.dart' show StateProvider;
+import 'package:acendra/features/checkout/presentation/providers/checkout_actor_provider.dart';
 
 Widget wrap(
   Widget child, {
@@ -18,6 +20,7 @@ Widget wrap(
   CheckoutSubmissionRepository? repository,
 }) => ProviderScope(
   overrides: [
+    checkoutActorProvider.overrideWithValue('synthetic-student'),
     checkoutSubmissionRepositoryProvider.overrideWithValue(
       repository ??
           CheckoutSubmissionRepository(
@@ -48,6 +51,83 @@ Future<void> pick(WidgetTester tester) async {
 }
 
 void main() {
+  for (final change in ['order', 'actor']) {
+    testWidgets('pending picker discards receipt after $change switch', (
+      tester,
+    ) async {
+      final pending = Completer<ReceiptFile?>();
+      final actor = StateProvider<String?>((ref) => 'student-a');
+      final container = ProviderContainer(
+        overrides: [
+          checkoutActorProvider.overrideWith((ref) => ref.watch(actor)),
+        ],
+      );
+      addTearDown(container.dispose);
+      Widget screen(String order) => UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: AppTheme.light,
+          home: Scaffold(
+            body: ReceiptResubmissionForm(
+              orderId: order,
+              filePicker: () => pending.future,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpWidget(screen('order-a'));
+      await tester.tap(
+        find.byWidgetPredicate(
+          (w) => w is Semantics && w.properties.label == 'Select receipt file',
+        ),
+      );
+      await tester.pump();
+      if (change == 'actor') {
+        container.read(actor.notifier).state = 'student-b';
+        await tester.pump();
+      } else {
+        await tester.pumpWidget(screen('order-b'));
+      }
+      pending.complete(
+        ReceiptFile(name: 'previous-account.pdf', bytes: Uint8List(1)),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('previous-account.pdf'), findsNothing);
+      expect(tester.widget<AppButton>(submit).onPressed, isNull);
+    });
+  }
+  testWidgets('actor switch clears selected bytes and replay key', (
+    tester,
+  ) async {
+    final actor = StateProvider<String?>((ref) => 'student-a');
+    final container = ProviderContainer(
+      overrides: [
+        checkoutActorProvider.overrideWith((ref) => ref.watch(actor)),
+      ],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: AppTheme.light,
+          home: Scaffold(
+            body: ReceiptResubmissionForm(
+              orderId: 'order-a',
+              filePicker: () async =>
+                  ReceiptFile(name: 'private.pdf', bytes: Uint8List(1)),
+            ),
+          ),
+        ),
+      ),
+    );
+    await pick(tester);
+    expect(find.text('private.pdf'), findsOneWidget);
+    container.read(actor.notifier).state = null;
+    await tester.pumpAndSettle();
+    expect(find.text('private.pdf'), findsNothing);
+    expect(tester.widget<AppButton>(submit).onPressed, isNull);
+  });
   testWidgets(
     'receipt timeout retries same key; acknowledged receipt stays pending and cannot resubmit',
     (tester) async {

@@ -13,6 +13,7 @@ import 'package:acendra/features/checkout/domain/entities/payment_handoff.dart';
 import 'package:acendra/features/checkout/data/repositories/checkout_submission_repository.dart';
 import 'package:acendra/features/checkout/presentation/widgets/receipt_resubmission_form.dart';
 import 'package:acendra/features/checkout/presentation/providers/payment_launcher_provider.dart';
+import 'package:acendra/features/checkout/presentation/providers/checkout_actor_provider.dart';
 import 'package:acendra/features/checkout/presentation/providers/checkout_provider.dart';
 import 'package:acendra/features/checkout/presentation/widgets/payment_method_selector.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   bool _isPaying = false;
   String? _paymentKey;
   String? _paymentOrderId;
+  int _identityEpoch = 0;
 
   @override
   void dispose() {
@@ -101,6 +103,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
   Future<void> _onPayNow() async {
     if (_isPaying || !_validate()) return;
+    final actor = ref.read(checkoutActorProvider);
+    if (actor == null) return;
+    final epoch = _identityEpoch;
     final order = ref.read(checkoutProvider).value;
     if (order == null ||
         order.paymentMethod != PaymentMethod.online ||
@@ -127,10 +132,18 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               country: _countryController.text,
             ),
           );
-      if (!mounted) return;
+      if (!mounted ||
+          epoch != _identityEpoch ||
+          ref.read(checkoutActorProvider) != actor ||
+          ref.read(checkoutProvider).value?.orderId != order.orderId)
+        return;
       await ref.read(paymentLauncherProvider)(payment);
     } catch (error) {
-      if (!mounted) return;
+      if (!mounted ||
+          epoch != _identityEpoch ||
+          ref.read(checkoutActorProvider) != actor ||
+          ref.read(checkoutProvider).value?.orderId != order.orderId)
+        return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -147,6 +160,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(checkoutActorProvider, (previous, next) {
+      if (previous == next) return;
+      _identityEpoch++;
+      setState(() {
+        _paymentKey = null;
+        _paymentOrderId = null;
+      });
+    });
     final checkoutState = ref.watch(checkoutProvider);
     final selectedMethod = ref.watch(selectedPaymentMethodProvider);
 
