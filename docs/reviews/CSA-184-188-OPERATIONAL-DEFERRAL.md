@@ -139,3 +139,18 @@ local environment and private media smoke safeguards. No blocking finding
 was identified in this bounded review. Local `dev` was fast-forwarded to
 the verified merge commit. All five tasks remain IN_REVIEW with real-environment
 acceptance deferred; no production activation or DONE claim is made.
+
+## PR #150 integration review
+
+Owner requested review and merge of PR #150 on 2026-10-14. CODEX owns this
+bounded documentation reconciliation in `docs/csa-184-pr150-integration`,
+worktree `C:/Users/ramis/Downloads/Acendra/pr150-integration`, based on PR head
+`26cc67e` and current dev `f09d0fa`. Only PR #150 was open at review.
+The PR #149 merge evidence is retained in the existing final readback above;
+conflicting duplicate wording is consolidated without changing the current
+owner decision or deferred operational acceptance. Verification: GitHub
+merge/CI metadata, scoped diff review, whitespace check and updated-head CI.
+Temporary ownership ends on merge.
+
+CSA-201's separately reviewed changes are already merged through PR #123 and
+PR #146; its operational recovery acceptance also remains IN_REVIEW.
