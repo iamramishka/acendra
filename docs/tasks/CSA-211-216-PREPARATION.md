@@ -1,0 +1,74 @@
+# CSA-211–214 and CSA-216 parallel production readiness
+
+Date: 2026-10-15, Asia/Colombo. Base: 7916c6e on dev.
+Status: IN_REVIEW for completed dummy preparation; operational acceptance remains pending.
+
+The owner requested these five tasks together in parallel and instructed CODEX to
+discover context. Repository and GitHub inspection located the tasks. No matching
+open task issue was found. Open PR #153 changes checkout and finance flows and is
+outside this scope. This local assignment follows AGENTS.md section 8; it is not
+a GitHub task claim or production activation record.
+
+After inspecting the latest deployment records and asking for actual targets,
+the owner explicitly confirmed: "Prepare with dummy targets". This batch is
+authorized preparation with intentionally unusable placeholders, not live setup.
+
+| Tasks | Owner | Exclusive writable scope | Branch | Isolated checkout |
+| --- | --- | --- | --- | --- |
+| CSA-211 | CODEX payments agent | docs/deployment/CSA-211-PAYMENT-NOTIFICATIONS.md | docs/csa-211-payment-verification | ../csa211 |
+| CSA-212 | CODEX finance agent | docs/deployment/CSA-212-FINANCE-PERMISSIONS.md | docs/csa-212-finance-verification | ../csa212 |
+| CSA-213/214/216 | CODEX operations agent | docs/operations/CSA-213-MONITORING.md, CSA-214-BACKUPS.md, CSA-216-RECOVERY-RUNBOOK.md | docs/csa-213-216-operations | ../csa213-216 |
+| Integration | CODEX root | this board; five matching notes in TASKS.md; sequential integration of listed documents | docs/csa-211-216-production-readiness | ../acendra-production |
+
+Restricted: runtime code, migrations, workflows, environment configuration,
+secrets, shared specifications and other TASKS.md entries. Temporary shared-file
+ownership covers only the five task notes until review/handoff. Approval authority: project owner
+or designated maintainer. Existing deployment documents contain deliberately
+unusable dummy targets; they do not identify an accessible production environment.
+
+Dependencies: verified target access and release identity, Phase 8 acceptance,
+real payment sandbox acceptance, reviewed bank/payment runtime enablement,
+selected notification/monitoring/backup providers, operational contacts and
+managed restore evidence. Independent document preparation and offline
+regressions may proceed in parallel; production mutations remain dependency ordered.
+
+Verification criteria: inspect actual source references; run relevant local
+regressions in isolated checkouts; review integrated diff; validate relative
+document links and git diff --check. Keep all five operational task boxes
+unchecked until their real acceptance evidence exists. Mock tests do not prove
+production permissions, payment delivery, alert routing or recoverability.
+
+No request for purchases, messages to third parties, role changes or live
+financial transactions is inferred. Deliver concrete operator procedures and
+record the exact missing access/evidence instead of inventing completion.
+
+## Deliverables and local evidence
+
+- [Payment notification protocol](../deployment/CSA-211-PAYMENT-NOTIFICATIONS.md): provider callback and student email boundaries, acceptance matrix and restricted evidence template.
+- [Finance permission procedure](../deployment/CSA-212-FINANCE-PERMISSIONS.md): role/MFA/session/independence, storage/RPC denials, concurrency and audit acceptance.
+- [Monitoring plan](../operations/CSA-213-MONITORING.md): proposed thresholds, safe telemetry, escalation and delivery evidence.
+- [Backup specification](../operations/CSA-214-BACKUPS.md): accepted recovery baseline, proposed cadence and failure margin, encryption/key recovery and retention evidence.
+- [Recovery runbook](../operations/CSA-216-RECOVERY-RUNBOOK.md): containment, isolated restore, deletion replay, financial reconciliation and authorized reopening.
+
+Three agents prepared the five documents concurrently in isolated worktrees.
+Root sequentially integrated commits 4949c8e, 76d9b69 and 2700ff8, then aligned
+the finance deployment placeholders with the existing common dummy contract.
+Only these documents, this board and the five matching TASKS.md notes changed.
+
+Fresh isolated verification: payment suites 78 passed; finance HTTP suites 175
+passed; recovery Python safeguards 5 passed and Storage/notification Node
+safeguards 7 passed. All completed without failures; Node suites had zero skips.
+The notification recovery suite is included in both payment and operations
+commands: 265 passing test executions include two repeated tests, not 265
+distinct test cases. Exact commands and limits are recorded in the task documents.
+
+These are local/synthetic regressions. No production requests, provider charges,
+email delivery, alerts, secret injection, managed backup configuration or actual
+managed recovery drill occurred. SQL/live Auth/storage/permission acceptance,
+operational recipients, selected providers and target-specific runtime enablement
+remain pending. All five operational task boxes remain unchecked.
+
+Root validates integrated links and whitespace and reviews the full scoped diff
+before PR submission. Owner/designated maintainer reviews preparation, then
+authorizes later real target configuration under retained release requirements.
+Temporary shared-note ownership is released at this review handoff.

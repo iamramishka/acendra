@@ -1981,23 +1981,28 @@ authorized project approval.
 
 - [ ] CSA-211 [P0] [X]
   Verify production payment notifications.
+  Dummy verification protocol prepared in parallel; real provider callback and email delivery acceptance remain pending. See [payment notification preparation](docs/deployment/CSA-211-PAYMENT-NOTIFICATIONS.md).
 
 - [ ] CSA-212 [P0] [X]
   Verify finance approval permissions.
+  Dummy permission acceptance matrix prepared; deployed role/MFA/session checks and independent bank verification remain pending. See [finance permission preparation](docs/deployment/CSA-212-FINANCE-PERMISSIONS.md).
 
 ## OPERATIONS
 
 - [ ] CSA-213 [P0] [X]
   Configure monitoring and alerts.
+  Dummy monitoring matrix prepared; provider setup, approved thresholds and actual alert delivery remain pending. See [monitoring preparation](docs/operations/CSA-213-MONITORING.md).
 
 - [ ] CSA-214 [P0] [X]
   Configure backups.
+  Dummy backup specification prepared; managed database/object backups, protected keys and production restore evidence remain pending. See [backup preparation](docs/operations/CSA-214-BACKUPS.md).
 
 - [ ] CSA-215 [P0] [L]
   Finalize incident response contacts.
 
 - [ ] CSA-216 [P0] [X]
   Finalize recovery runbooks.
+  Recovery runbook draft prepared with dummy targets; named alternate, actual deployment commands and measured managed restore drill remain pending. See [recovery runbook](docs/operations/CSA-216-RECOVERY-RUNBOOK.md).
 
 - [ ] CSA-217 [P1] [L]
   Approve privacy and commercial policies.

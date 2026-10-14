@@ -4,7 +4,7 @@ Status: IN_REVIEW preparation; production acceptance pending. Owner: CODEX.
 Date: 2026-10-15 (Asia/Colombo). Coordination: `docs/tasks/CSA-211-216-PREPARATION.md` in the integration checkout. Exclusive scope: this document.
 Baseline: dev `7916c6eb69c2fa108df4d9a8511b9cf0503fa607`. Open PR #153 changes bank flows; recheck its final merge and the deployed revision before applying this procedure. This snapshot is not evidence of deployed behavior.
 
-The owner authorized preparation with dummy targets. Use `https://db.test` and `https://example.test/review` only as illustrative targets matching the existing HTTP fixtures; they are not configured services. Fixture strings `public` and `private` are dummy test values, never deployment credentials. No live target is selected by this document.
+The owner authorized preparation with dummy targets. The deployment worksheet uses `https://supabase.example.invalid`, `https://courses.example.invalid`, and `DUMMY_PRODUCTION_PROJECT_REF`, matching the existing [production preparation](../tasks/CSA-205-210-PREPARATION.md). These deliberately unusable values must not be used for network requests or deployments. The existing HTTP suites separately use illustrative `https://db.test` and `https://example.test/review` fixtures; fixture strings `public` and `private` are dummy test values, never deployment credentials. No live target is selected by this document.
 
 ## Current release boundary
 
