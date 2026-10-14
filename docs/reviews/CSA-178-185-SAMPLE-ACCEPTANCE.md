@@ -33,3 +33,5 @@ Docker CLI at C:/Program Files/Docker/Docker/resources/bin/docker.exe could not 
 Sample data in CSA-178-185-SAMPLE-DATA.json is an acceptance planning fixture, not an API payload, provider proof, bank statement, seeded database or operational credential. IDs and emails are synthetic. Expected outcomes describe checks to execute, not observed browser results. Existing tests use their own isolated fixtures.
 
 No task was marked DONE. Next step: make the isolated Linux Docker/Supabase runtime available for integrated sample execution, then supply approved operational staging/provider/inspection and test finance access for remaining acceptance. Production activation and independent-credit claims cannot be inferred from the sample-data authorization.
+
+Runtime follow-up: requested Docker Desktop startup with a hidden window and installed the pinned tooling using npm ci --no-audit --no-fund (8 packages installed). A subsequent Docker probe still failed on the absent docker_engine pipe; no Docker process was observed. No task-owned database was started or mutated. This runtime remains unavailable after the startup attempt.
