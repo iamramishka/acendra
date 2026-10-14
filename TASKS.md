@@ -1871,6 +1871,7 @@ Integration Gate:
 
 CSA-184–188 owner decision, 2026-10-14: reviewed changes are merged; use dummy
 details and defer real-environment acceptance until later configuration.
+PR #148 merged into dev at bd5a5c9 after successful Flutter baseline CI.
 All five tasks remain IN_REVIEW with unchecked boxes. See
 [review and operational deferral](docs/reviews/CSA-184-188-OPERATIONAL-DEFERRAL.md).
 
