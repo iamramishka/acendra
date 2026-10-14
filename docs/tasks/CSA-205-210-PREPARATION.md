@@ -73,3 +73,29 @@ The integrated diff contains only these four documentation files.
 `git diff origin/dev --check` passed. Local documentation link validation passed.
 No runtime or production checks were run for this documentation-only change.
 The preparation is submitted for review; all six operational tasks remain pending.
+
+## Parallel dummy refresh assignment — 2026-10-14
+
+Current owner request: perform CSA-205–210 together in parallel; on clarification,
+the owner confirmed dummy-only scope. This refresh prepares existing records,
+not live configuration. Base: `fe68c6b` (dev after PR #150). No open PR or matching
+open production issue was found at assignment. Prior preparation worktrees are
+preserved. This is a local documentation assignment under AGENTS.md section 8.
+
+| Tasks | Owner | Exclusive file | Branch | Worktree |
+| --- | --- | --- | --- | --- |
+| CSA-205/206 | CODEX hosting | docs/deployment/CSA-205-206-HOSTING.md | docs/csa-205-206-dummy-refresh | C:/Users/ramis/Downloads/Acendra/csa205-206-dummy-refresh |
+| CSA-207/210 | CODEX payments | docs/deployment/CSA-207-210-SECRETS-PAYMENTS.md | docs/csa-207-210-dummy-refresh | C:/Users/ramis/Downloads/Acendra/csa207-210-dummy-refresh |
+| CSA-208/209 | CODEX database | docs/deployment/CSA-208-209-DATABASE-STORAGE.md | docs/csa-208-209-dummy-refresh | C:/Users/ramis/Downloads/Acendra/csa208-209-dummy-refresh |
+| Integration | CODEX root | this board and CSA-205–210 notes in TASKS.md | docs/csa-205-210-dummy-refresh | C:/Users/ramis/Downloads/Acendra/csa205-210-dummy-refresh |
+
+Status: IN_PROGRESS for bounded documentation refresh. Temporary shared-file
+ownership covers this board and six task notes only until review/handoff.
+Approval authority: project owner. Dependencies: existing approved requirements
+and unchanged dummy target contract above. Restricted: runtime code, config,
+secrets, migrations, workflows and all other task notes. Verification criteria:
+actual source/reference review, focused offline checks where relevant, link and
+whitespace validation, integrated diff review. Keep operational task boxes
+unchecked; distinguish preparation from production acceptance. Database/storage
+mutation, DNS/provider setup, payment enablement and purchases are outside this
+dummy scope. Root integrates isolated commits sequentially and submits one PR.
