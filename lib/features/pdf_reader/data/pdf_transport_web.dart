@@ -34,7 +34,13 @@ class _BrowserTransport implements PdfTransport {
       final declared = int.tryParse(
         response.headers.get('content-length') ?? '',
       );
-      if (declared != null && declared > 50 * 1024 * 1024) {
+      final contentType = (response.headers.get('content-type') ?? '')
+          .split(';')
+          .first
+          .trim()
+          .toLowerCase();
+      final limit = contentType == 'application/json' ? 8192 : 50 * 1024 * 1024;
+      if (declared != null && declared > limit) {
         cancel();
         throw const ProtectedPdfFailure('PDF exceeds the supported size.');
       }
@@ -51,7 +57,7 @@ class _BrowserTransport implements PdfTransport {
             break;
           }
           final bytes = (chunk.value as JSUint8Array).toDart;
-          if (collected.length + bytes.length > 50 * 1024 * 1024) {
+          if (collected.length + bytes.length > limit) {
             cancel();
             throw const ProtectedPdfFailure('PDF exceeds the supported size.');
           }

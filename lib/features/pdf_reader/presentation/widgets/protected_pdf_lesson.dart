@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:acendra/core/config/env_config.dart';
 import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:acendra/features/pdf_reader/data/protected_pdf_repository.dart';
+import 'package:acendra/features/pdf_reader/data/pdf_document_lease.dart';
 import 'package:acendra/features/pdf_reader/data/pdf_transport.dart'
     if (dart.library.js_interop) 'package:acendra/features/pdf_reader/data/pdf_transport_web.dart'
     as transport;
@@ -62,10 +64,30 @@ class _AuthenticatedPdf extends StatefulWidget {
 class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
   PdfTransport? _transport;
   pdfx.PdfController? _controller;
+  PdfDocumentLease<pdfx.PdfDocument>? _document;
   String? _message;
   bool _loading = true;
   int _page = 1, _pages = 1;
   int _generation = 0;
+  void _releaseRenderer() {
+    _controller?.dispose();
+    _controller = null;
+    final document = _document;
+    _document = null;
+    if (document != null) {
+      unawaited(
+        document.release().catchError((Object _) {
+          // Release failure cannot restore the detached reader or content.
+          if (mounted) {
+            setState(
+              () => _message = 'The PDF reader could not close cleanly.',
+            );
+          }
+        }),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -76,15 +98,14 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
   void dispose() {
     _generation++;
     _transport?.cancel();
-    _controller?.dispose();
+    _releaseRenderer();
     super.dispose();
   }
 
   Future<void> _load() async {
     final generation = ++_generation;
     _transport?.cancel();
-    _controller?.dispose();
-    _controller = null;
+    _releaseRenderer();
     setState(() {
       _loading = true;
       _message = null;
@@ -121,9 +142,17 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
         });
         return;
       }
-      _controller = pdfx.PdfController(
-        document: pdfx.PdfDocument.openData(bytes),
+      final lease = PdfDocumentLease<pdfx.PdfDocument>(
+        pdfx.PdfDocument.openData(bytes),
+        (document) => document.close(),
       );
+      _document = lease;
+      final opened = await lease.document;
+      if (!mounted || generation != _generation) {
+        await lease.release();
+        return;
+      }
+      _controller = pdfx.PdfController(document: Future.value(opened));
       setState(() => _loading = false);
     } catch (error) {
       if (!mounted || generation != _generation) {
@@ -155,6 +184,7 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
       );
     }
     final controller = _controller;
+    final generation = _generation;
     if (controller == null) {
       return const SizedBox.shrink();
     }
@@ -164,7 +194,9 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
           child: pdfx.PdfView(
             controller: controller,
             onDocumentLoaded: (document) {
-              if (mounted) {
+              if (mounted &&
+                  generation == _generation &&
+                  _controller == controller) {
                 setState(() {
                   _pages = document.pagesCount;
                   _page = 1;
@@ -172,12 +204,16 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
               }
             },
             onPageChanged: (page) {
-              if (mounted) {
+              if (mounted &&
+                  generation == _generation &&
+                  _controller == controller) {
                 setState(() => _page = page);
               }
             },
             onDocumentError: (_) {
-              if (mounted) {
+              if (mounted &&
+                  generation == _generation &&
+                  _controller == controller) {
                 setState(
                   () => _message =
                       'This PDF could not be rendered. Please retry.',
