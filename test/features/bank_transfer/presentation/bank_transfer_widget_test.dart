@@ -248,9 +248,9 @@ void main() {
         _scaffold(const ReceiptResubmissionScreen(orderId: 'order-1')),
       );
 
-      expect(find.text('Submit a New Receipt'), findsOneWidget);
+      expect(find.text('Receipt Rejected'), findsOneWidget);
       expect(find.textContaining('temporarily unavailable'), findsOneWidget);
-      expect(find.text('Submit Receipt'), findsOneWidget);
+      expect(find.text('Submit New Receipt'), findsOneWidget);
     });
 
     testWidgets('shows rejection reason when provided', (tester) async {
@@ -271,14 +271,15 @@ void main() {
         _scaffold(const ReceiptResubmissionScreen(orderId: 'order-1')),
       );
 
-      expect(find.text('Submit Receipt'), findsOneWidget);
+      expect(find.text('Submit New Receipt'), findsOneWidget);
 
       // AppButton renders ElevatedButton; when onPressed=null the button is disabled.
       final btns = tester.widgetList<ElevatedButton>(
         find.byType(ElevatedButton),
       );
       final submitBtn = btns.firstWhere(
-        (b) => b.child is Text && (b.child as Text).data == 'Submit Receipt',
+        (b) =>
+            b.child is Text && (b.child as Text).data == 'Submit New Receipt',
         orElse: () => btns.last,
       );
       expect(submitBtn.onPressed, isNull);
