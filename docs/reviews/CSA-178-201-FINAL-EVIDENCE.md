@@ -156,21 +156,21 @@ merging this documentation does not complete their operational acceptance.
 | CSA-184 | Backend role/session/MFA component boundaries pass. The router checks authentication only; finance UI role/MFA restrictions and the enabled operational workflow remain unverified. Current synthetic records do not establish private-data exposure. |
 | CSA-185 | Private receipt/PDF/media boundaries and negative transport safeguards are retained. Historical disposable Storage evidence remains distinct from this review; end-user authorized delivery and deployed policies require current acceptance evidence. |
 | CSA-186 | Receipt/admin upload boundary checks pass with injected collaborators. Entry points remain disabled without approved actual inspection, resource policy and integrated ingestion; synthetic exact-PNG inspection does not satisfy operational inspection. |
-| CSA-187 | Header evaluator checks pass. Current CI does not run the malicious-text DOM assertions in Chrome (finding below). Approved deployed headers, Flutter compatibility and authenticated stored-payload journeys remain unverified. |
+| CSA-187 | Header evaluator checks pass. Hosted Flutter CI runs the malicious-text DOM assertions through the tooling wrapper (verification below). Approved deployed headers, Flutter compatibility and authenticated stored-payload journeys remain unverified. |
 | CSA-188 | Historical history/default-build scans remain bounded evidence. No fresh secret scan ran. Configured release assets and managed log redaction, reader authorization and enforced retention require operational verification. No active AppLogger call site or current disclosure was established by the bounded review. |
 | CSA-201 | Fault/retry SQL and notification recovery source coverage is retained. Actual provider/bank/email reconciliation and client refresh remain unverified; notification and payment entry points remain gated. No fresh local database recovery drill ran. |
 
-### Actionable verification finding
+### Browser CI verification
 
-P2 — run CSA-187 malicious-text tests in Chrome in current CI.
-`.github/workflows/flutter-ci.yml:40` runs Flutter tests on the VM, where
-`test/security/csa187_dom_stub.dart:1` has a no-op DOM helper. The Chrome command
-at workflow line43 runs only `receipt_file_picker.browser.dart`. The tooling
-browser wrapper is opt-in and was skipped in this run. Add an explicit Chrome
-execution of `test/security/csa187_malicious_text_test.dart` and retain execution
-evidence before claiming current CI verifies DOM injection assertions. Historical
-hosted Chrome evidence does not mean this current workflow exercises them.
-No runtime exploit was demonstrated; this is a verification coverage gap.
+Root verification corrected the initial delegate finding that Chrome DOM checks
+were absent from CI. Although the dedicated Chrome workflow step covers only the
+receipt picker, `npm run tool:test` discovers `tool/csa187_browser.test.mjs`.
+That wrapper runs automatically when `CI=true` on Linux with Flutter installed,
+executes the malicious-text file in Chrome and requires all six cases to pass.
+The local Windows tooling run skips it; that local skip does not imply hosted
+CI omits it. No current browser CI coverage defect is established. Exact-head
+hosted CI remains required; deployed headers and authenticated stored-payload
+acceptance are separate gates.
 
 ### Executed validation and limits
 
