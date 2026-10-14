@@ -1955,23 +1955,29 @@ authorized project approval.
 
 - [ ] CSA-205 [P1] [X]
   Configure production hosting.
+  Dummy preparation refreshed in parallel; hosting provider/account and deployment remain pending. See [preparation record](docs/tasks/CSA-205-210-PREPARATION.md).
 
 - [ ] CSA-206 [P0] [X]
   Configure HTTPS and domain.
+  Dummy domain/HTTPS preparation refreshed; owned domain, DNS and certificate verification remain pending. See [hosting preparation](docs/deployment/CSA-205-206-HOSTING.md).
 
 - [ ] CSA-207 [P0] [X]
   Configure production secrets.
+  Dummy secret inventory refreshed; no real secrets injected. See [secret/payment preparation](docs/deployment/CSA-207-210-SECRETS-PAYMENTS.md).
 
 - [ ] CSA-208 [P0] [X]
   Apply reviewed production migrations.
+  Dummy migration preparation refreshed; production application and target-specific replay remain pending. See [database/storage preparation](docs/deployment/CSA-208-209-DATABASE-STORAGE.md).
 
 - [ ] CSA-209 [P0] [X]
   Configure production storage policies.
+  Dummy storage preparation refreshed; live policy verification must follow CSA-208. See [database/storage preparation](docs/deployment/CSA-208-209-DATABASE-STORAGE.md).
 
 ## PAYMENT PRODUCTION
 
 - [ ] CSA-210 [P0] [X]
   Configure live payment provider.
+  Dummy payment preparation refreshed; online payment gates remain disabled and live acceptance pending. See [secret/payment preparation](docs/deployment/CSA-207-210-SECRETS-PAYMENTS.md).
 
 - [ ] CSA-211 [P0] [X]
   Verify production payment notifications.

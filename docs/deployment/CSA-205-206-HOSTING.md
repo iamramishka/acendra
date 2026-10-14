@@ -36,9 +36,12 @@ planning amounts are neither provider selection nor purchase authority.
    configurable response headers, deployment rollback and restricted administrator
    access. Record provider-specific setup after provider selection; no universal
    DNS record or deployment command is assumed here.
-3. Obtain verified public backend configuration. The current client reads precisely
-   `APP_ENV`, `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`; legacy
-   `SUPABASE_ANON_KEY` is a compatibility fallback. The project reference above is
+3. Obtain verified public backend configuration. `EnvConfig` declares compile-time
+   bindings for `APP_ENV`, `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`; legacy
+   `SUPABASE_ANON_KEY` is its compatibility fallback. Current bootstrap consumes
+   only the URL and legacy anon binding, without invoking the validator. Complete
+   the reviewed runtime prerequisite below before using production configuration.
+   The project reference above is
    an operator identity check, not a Flutter environment key. See
    [EnvConfig](../../lib/core/config/env_config.dart) and
    [local configuration guidance](../LOCAL_DEVELOPMENT.md).
@@ -61,13 +64,16 @@ The public configuration schema below is illustrative and intentionally invalid:
 }
 ```
 
-`EnvConfig` requires a non-loopback HTTPS backend in production and accepts only a
-publishable key or legacy anon key shape. The dummy key fails that check by design.
+`EnvConfig.read()` validates a non-loopback HTTPS backend in production and accepts
+only a publishable key or legacy anon key shape. The dummy key would fail that
+validator by design, but current bootstrap does not invoke it. The illustrative
+JSON is therefore not sufficient for current backend initialization.
 Never put service-role, payment, SMTP or video signing credentials in this JSON,
 Dart defines or browser assets. After replacement with verified public values,
 the existing build pattern is `flutter build web --release
 --dart-define-from-file=config/production.local.json`; keep that local file ignored.
-This command has not been executed for this preparation. Current
+This command has not been executed for this preparation and does not establish
+runtime backend initialization. Current
 [Flutter CI](../../.github/workflows/flutter-ci.yml) builds without backend
 credentials and contains no deployment job; its successful build would not prove
 production configuration.
@@ -123,6 +129,43 @@ follow the reviewed backend and runtime enablement dependencies. No task becomes
 DONE solely from preparing this document.
 
 ## Preparation evidence and handoff
+
+### Dummy refresh readiness, 2026-10-14
+
+The owner reconfirmed dummy preparation. The current assignment and exclusive
+documentation scope are recorded in the refresh section of the
+[preparation board](../tasks/CSA-205-210-PREPARATION.md). Operational tasks remain
+pending; this refresh does not select a host or authorize live configuration.
+
+Repository inspection found only the tracked local
+[client example](../../config/client.example.json), with a loopback backend and
+replacement key. No tracked Vercel, Netlify, Firebase or Wrangler hosting
+configuration was found. Flutter CI verifies and builds without backend
+credentials; it has no deployment job. No concrete hosting account/project,
+controlled domain/DNS zone, certificate, production backend target or release
+operator is evidenced by these files. Ignored local files and external provider
+accounts were not inspected; this is repository readiness evidence only.
+
+One runtime prerequisite remains: [bootstrap](../../lib/app/bootstrap.dart)
+currently initializes Supabase only when `SUPABASE_URL` and `SUPABASE_ANON_KEY`
+are present, and does not call `EnvConfig.read()`. Consequently, the illustrative
+publishable-key-only JSON above does not initialize the backend today, and the
+configuration validator's HTTPS/key checks are not enforced by this entry point.
+A separately owned, reviewed runtime change must connect the validated public
+configuration before claiming production startup. Do not bypass this prerequisite
+by treating the example build command as verified deployment guidance.
+
+Next handoff: the owner/designated infrastructure maintainer supplies the selected
+provider, account/project, controlled canonical and staging origins, verified
+public backend target and release operator. Coordinate the bootstrap prerequisite
+with its runtime owner; then implement provider-specific fallback, headers and
+deployment/rollback configuration against the approved target. Domain/TLS and
+browser verification follow that configuration. No further provider-independent
+hosting implementation is claimed by this documentation refresh.
+
+Refresh verification: reviewed the referenced source, checked local Markdown link
+targets and ran `git diff --check`. No build, network/header request, DNS/TLS
+operation, deployment or production test was performed.
 
 Inspected: TASKS.md Phase 9, PLAN.md Phase 9, SECURITY.md Flutter Web requirements,
 CSA-012 environment/budget decision, EnvConfig, public client example, local
