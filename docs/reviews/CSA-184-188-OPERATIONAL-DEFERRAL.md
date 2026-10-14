@@ -94,3 +94,25 @@ Base: `bd5a5c9`. Verification: GitHub merge/check readback, scoped diff review a
 `git diff --check`. No runtime change or new operational test is required for
 this synchronization. Documentation status: merged and accepted; operational
 task status: IN_REVIEW, unchanged. Temporary note ownership ends at review/merge.
+
+## Final dev merge readback
+
+Owner request, 2026-10-14: update the documents and deliver merged `dev`.
+CODEX owns this bounded follow-up and the corresponding TASKS.md summary;
+no open PR overlap was found. Related issue: #129. Branch:
+`docs/csa-184-final-merge-record`; isolated worktree:
+`C:/Users/ramis/Downloads/Acendra/csa184-final-docs`. Base: `6beaa8c`.
+Authority: project owner. Verification: exact GitHub merge/CI readback,
+document reference review and `git diff --check`; ownership ends on merge.
+
+[PR #149](https://github.com/iamramishka/acendra/pull/149) merged into `dev`
+on 2026-10-14 at 17:16:36 Asia/Colombo, commit
+`6beaa8c8a7b5190163210b9044abf94d4d1ec42a`.
+[Exact-head Flutter baseline CI](https://github.com/iamramishka/acendra/actions/runs/38544728331)
+passed at `78d56157e330b643d30e48edea9b1ccd25d20d1a`.
+Independent focused rerun at that head: 249 Node tests passed, exit 0,
+covering finance/role/entitlement, receipt/admin media, PDF/video, headers,
+local environment and private media smoke safeguards. No blocking finding
+was identified in this bounded review. Local `dev` was fast-forwarded to
+the verified merge commit. All five tasks remain IN_REVIEW with real-environment
+acceptance deferred; no production activation or DONE claim is made.
