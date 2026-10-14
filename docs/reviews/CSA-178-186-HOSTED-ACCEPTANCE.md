@@ -58,6 +58,24 @@ learning repository/DTO/notifier, initialize-checkout/upload-bank-receipt/
 admin-review-bank-transfer/admin-create-media-upload entry points, the hosted
 workflow, journey safeguards and TASKS.md Phase 8 acceptance requirements.
 
+Source anchors at the reviewed revision:
+
+- `lib/features/checkout/presentation/screens/checkout_screen.dart:97`: Pay Now message.
+- `lib/features/bank_transfer/presentation/providers/bank_transfer_provider.dart:22`,
+  `:51`, `:63`: unavailable upload/approve/reject operations.
+- `lib/features/admin/presentation/screens/finance_review_screen.dart:128`, `:195`:
+  synthetic preview and no recorded decision.
+- `lib/features/learning/data/repositories/supabase_learning_repository.dart:37`:
+  metadata-only select; `lib/features/learning/data/models/lesson_content_dto.dart:14`:
+  metadata DTO; `lib/features/learning/presentation/providers/learning_provider.dart:88`:
+  lesson selection without progress persistence.
+- `tool/supabase_smoke.mjs:10`–`:14`: Storage and journey harness imports.
+- `tool/csa178_186_journey_smoke.mjs:83`: injected synthetic receipt inspector;
+  `:154`–`:157`: synthetic bank-credit input; `:169`–`:172`: generated provider
+  callback; `:186`: explicitly bounded real-backend/synthetic-provider summary.
+- Deployed initialize-checkout/upload-bank-receipt/admin-review-bank-transfer/
+  admin-create-media-upload `index.ts:1`: default dependency-free handler setup.
+
 ## Evidence needed for closure
 
 For each task retain its implementation PR, accepted contract, hosted run URL
