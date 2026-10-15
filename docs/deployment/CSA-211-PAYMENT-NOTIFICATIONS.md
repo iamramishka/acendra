@@ -9,7 +9,37 @@ providers or creating charges. CSA-211 remains unchecked until actual target
 evidence and required financial/release acceptance are recorded. The active
 PR #153 application flow is outside this document's scope.
 
-## Two distinct notification boundaries
+## Current existing-service/free-only handoff — 2026-10-15
+
+CSA-211 operational status: **BLOCKED**. Coordination: issue #160 and
+[worker scope](../tasks/CSA-PHASE9-FREE-SECURITY-BOARD.md). PR #153/#159 are merged.
+The historical environment-only webhook description below is superseded:
+`payment-provider-webhook/index.ts` now uses the exact-target staging sandbox
+binding from PR #159. Sandbox settlement may run on the approved staging
+project/origin with valid sandbox settings. Production settlement remains
+disabled. `payment-notifications/index.ts` still returns 503
+`NOTIFICATIONS_UNAVAILABLE`; its importable worker is not a configured provider
+or scheduler. Secret injection alone cannot activate email or live settlement.
+
+Root read-only inventory found sandbox setting names, no live payment/email
+setting names. Auth site/redirects point to `https://acendra.vercel.app`, email
+authentication is enabled and custom SMTP is not configured. Email Auth being
+enabled does not configure the application's payment-notification worker.
+Existing approved sender, email adapter, authenticated scheduler
+and included delivery quota are unverified. Do not select a new mail service,
+upgrade a plan, send a test email or create a live charge in this assignment.
+Free work is source/configuration comparison and the acceptance matrices below.
+Existing outbox/provider evidence may be reviewed read-only with redaction;
+historical Phase 8 acceptance is not production delivery evidence.
+
+Resume only when existing approved sender/provider capacity is free, reviewed
+scheduler/adapter wiring and production callback binding exist, and a recipient
+and validation transaction are explicitly authorized. Otherwise retain the hold.
+No emails, callback replays, financial edits or local tests ran for this update.
+Old test results are historical only. Root verified included Actions capacity
+and controls the bounded hosted CI dispatch.
+
+## Two distinct notification boundaries — historical preparation
 
 The PayHere server callback authenticates a settlement before fulfillment.
 Student email delivers a notice after financial state has committed. An email,

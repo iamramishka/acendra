@@ -6,7 +6,43 @@ Assignment: [parallel preparation record](../tasks/CSA-205-210-PREPARATION.md).
 This document prepares later configuration with dummy details. No database,
 storage, deployment, secret or payment configuration was changed.
 
-## Dummy target
+## Current existing-service/free-only handoff — 2026-10-15
+
+CSA-208 and CSA-209 operational status: **BLOCKED**. Coordination: issue #160 and
+[worker scope](../tasks/CSA-PHASE9-FREE-SECURITY-BOARD.md). No production target is
+approved; the existing project is staging. Do not create a service, enable paid
+backups, alter policies or apply migrations to remove this hold.
+
+Merged PR #153 added `20261014000100_csa179_bank_reads.sql` and
+`20261014000200_csa179_bank_read_alias_fix.sql`; the reviewed release now contains
+**33 migrations**. The 31-file count below is historical. Earlier staging work
+recorded all 33 applied, all 34 application tables with RLS and restricted
+finance RPCs. That is staging evidence, not production migration acceptance.
+Compare all actual versions and drift at the reviewed release revision. Root's
+2026-10-15 read-only inventory reconfirmed 33 applied migrations, latest
+`20261014000200`, all 34 application tables with RLS and all three protected
+buckets private. No production designation, managed backup listing entries or
+PITR were observed. This is a deployment inventory, not a restore test or
+positive protected-delivery acceptance.
+
+[`tool/phase9_security_inventory.sql`](../../tool/phase9_security_inventory.sql)
+is a no-install, transaction-read-only metadata preflight for the authorized
+existing SQL console. Confirm console project identity before execution. It
+lists migration versions, application RLS, protected bucket settings, policy
+metadata and finance RPC EXECUTE grants. It does not list objects, read receipts,
+create signed URLs or modify records. **Not executed** by this worker; root owns
+hosted inspection. Missing rows are missing evidence, never PASS. Confirm all
+protected buckets exist/private, expected limits/MIME settings, and trusted
+finance RPCs deny anon/authenticated EXECUTE while allowing service_role.
+
+Policy names/RLS flags do not prove safe predicates or actual Storage API
+isolation. CSA-208 resumes only with an existing approved isolated production
+target, reviewed release, recovery evidence and migration authorization.
+CSA-209 then requires actual anonymous/student/cross-user and authorized delivery
+checks after application. No local test suites or hosted mutation ran. Root
+verified included Actions capacity and controls the bounded hosted CI dispatch.
+
+## Historical dummy target
 
 | Field | Intentionally unusable value |
 | --- | --- |

@@ -5,6 +5,44 @@ CSA-207 and CSA-210 operational configuration remains pending.
 Owner: CODEX secrets/payment agent. Assignment and exclusive scope:
 [preparation board](../tasks/CSA-205-210-PREPARATION.md).
 
+## Current existing-service/free-only handoff — 2026-10-15
+
+CSA-207 and CSA-210 operational status: **BLOCKED**. This section supersedes
+obsolete source descriptions in the historical worksheet below. Coordination:
+issue #160 and [worker handoff](../tasks/CSA-PHASE9-FREE-SECURITY-BOARD.md).
+
+Existing Supabase `worrsweluwjmppwsygre` and `https://acendra.vercel.app` are
+approved staging. Root read-only inventory reports a healthy project, Vercel
+Hobby, platform secrets and sandbox setting names; no live-provider or email
+setting names were present. No secret values are recorded here.
+
+Merged PR #159 changed order/initialize/webhook indexes to
+`_shared/payments/staging-entrypoints.mjs` and `staging-sandbox.mjs`. Enablement
+requires APP_ENV=staging, PAYHERE_ENVIRONMENT=sandbox, the exact existing staging
+project URL and `https://acendra.vercel.app` checkout origin, plus valid
+`PAYHERE_SANDBOX_MERCHANT_ID`, `PAYHERE_SANDBOX_MERCHANT_SECRET`,
+`PAYHERE_SANDBOX_APP_ID` and `PAYHERE_SANDBOX_APP_SECRET`. Production remains
+disabled; no generic/live credential fallback exists. Statements below that no
+environment mapping exists describe the earlier preparation revision only.
+
+`vinyup.com` is Active in Sandbox; that does not establish app hosting on that
+domain or live merchant readiness. Moving the app there requires reviewed
+binding changes and fresh acceptance, not a secret substitution alone.
+
+| Task | Hold and exact resume condition |
+| --- | --- |
+| CSA-207 | Existing isolated production target, verified free capacity, release approval and secure production credential versions are absent. Do not relabel staging or create a project. |
+| CSA-210 | Existing active live merchant, matching domain secret, Retrieval API/network permissions, reviewed production binding and explicitly approved live validation are absent. No paid plan or real charge is authorized. |
+
+Free preparation delivered: source/configuration inventory and metadata preflight
+[`tool/phase9_security_inventory.sql`](../../tool/phase9_security_inventory.sql).
+It reads no credentials or financial payloads and was **not executed**. No new
+service, secret injection, production activation or local test suite ran for
+this update. Historical test results below retain their original dates. Root
+verified included Actions capacity and controls the bounded hosted CI dispatch.
+
+## Historical dummy worksheet
+
 This is a dummy configuration worksheet. No secrets were injected, endpoints
 enabled, provider requests sent or production targets configured. All values
 below are intentionally unusable; never execute a deployment with them.

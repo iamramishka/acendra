@@ -6,7 +6,33 @@ Baseline: dev `7916c6eb69c2fa108df4d9a8511b9cf0503fa607`. Open PR #153 changes b
 
 The owner authorized preparation with dummy targets. The deployment worksheet uses `https://supabase.example.invalid`, `https://courses.example.invalid`, and `DUMMY_PRODUCTION_PROJECT_REF`, matching the existing [production preparation](../tasks/CSA-205-210-PREPARATION.md). These deliberately unusable values must not be used for network requests or deployments. The existing HTTP suites separately use illustrative `https://db.test` and `https://example.test/review` fixtures; fixture strings `public` and `private` are dummy test values, never deployment credentials. No live target is selected by this document.
 
-## Current release boundary
+## Current existing-service/free-only handoff — 2026-10-15
+
+CSA-212 operational status: **BLOCKED** independently of owner-accepted Phase 8
+staging checks. Coordination: issue #160 and
+[worker scope](../tasks/CSA-PHASE9-FREE-SECURITY-BOARD.md). PR #153/#159 are merged;
+the open-PR references below are historical. PR #153 connected finance UI to the
+trusted queue/review contracts; it is no longer merely a synthetic preview.
+The deployed review and bank-read indexes still default to disabled. Frontend
+wiring does not activate either operational boundary.
+
+Production target/accounts/AAL2 sessions, independent production bank evidence
+and enabled production review/read boundaries are not established by current
+repository evidence. The existing Supabase project is staging. No role, MFA,
+receipt visibility or financial state is changed here.
+
+Free work: compare existing grants, RLS and bucket metadata using
+[`phase9_security_inventory.sql`](../../tool/phase9_security_inventory.sql) through
+the authorized existing SQL console. It was **not executed** by this worker and
+reads no users, receipts or bank evidence. Metadata cannot prove real MFA,
+reviewer independence, revocation or positive approval; retain the full matrix.
+Resume only with approved existing target/accounts, free capacity and reviewed
+release enablement. State-changing acceptance requires its explicit authorized
+operational scope. Do not weaken checks or add a service to avoid the hold.
+No local tests ran; old results remain historical. Root verified included
+Actions capacity and controls the bounded hosted CI dispatch.
+
+## Historical release boundary
 
 [`admin-review-bank-transfer/index.ts`](../../supabase/functions/admin-review-bank-transfer/index.ts) does not enable `bankReviewEnabled`. The [handler](../../supabase/functions/admin-review-bank-transfer/handler.mjs) returns HTTP 503 `BANK_REVIEW_UNAVAILABLE` before I/O by default; no environment flag enables it. The finance screen remains a synthetic preview. A disabled endpoint proves fail-closed behavior, but cannot satisfy positive operational finance acceptance. Enabling review, queue/receipt access and live UI integration require reviewed implementation and release evidence.
 
