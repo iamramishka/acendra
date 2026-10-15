@@ -1819,9 +1819,9 @@ Integration Gate:
 - [ ] CSA-177 [P1] [C]
   Test registration journey.
 
-- [ ] CSA-178 [P0] [X]
+- [x] CSA-178 [P0] [X]
   Test online purchase journey.
-  IN_REVIEW; implementation merged through PR #153 into dev befe7a9 with successful exact-head hosted Flutter/Supabase CI. Pay Now now invokes trusted initialization and a validated provider handoff; redirects do not grant access. Full acceptance still requires actual approved sandbox settlement and the complete purchase-to-paid-content browser journey; deployed provider initialization remains gated. See [verified merge record](docs/reviews/CSA-178-PR153-MERGE-RECORD.md).
+  DONE — project owner confirmed successful manual verification and task completion on2026-10-15 and explicitly requested this status update. Acceptance source is the owner's manual result; CODEX's earlier provider rejection remains historical and is not relabelled as a successful automated test. Implementation merged through PR #153; staging-only checkout/navigation continuation is recorded in PR #159, whose merge status is separate. Other Phase8 tasks and production release gates remain unchanged. See [owner acceptance record](docs/reviews/CSA-178-SANDBOX-STAGING-BOARD.md#current-status-done--owner-confirmed-manual-acceptance).
 
 - [ ] CSA-179 [P0] [X]
   Test bank approval journey.
