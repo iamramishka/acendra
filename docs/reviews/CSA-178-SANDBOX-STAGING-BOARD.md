@@ -1,5 +1,9 @@
 # CSA-178 actual sandbox staging coordination
 
+## Sandbox domain registration attempt — 2026-10-15
+
+Owner granted access to the signed-in PayHere Sandbox portal and explicitly approved saving a Domain integration for acendra.vercel.app. Existing integration is type App, name acendra, Active; its secret matches the previously supplied configuration. CODEX submitted the prepared Domain entry for acendra.vercel.app. PayHere rejected it with "Sub Domains not allowed or Invalid Domain name"; no new domain integration was saved and no server secret was replaced. Vercel's project-domain inventory contains only verified acendra.vercel.app, with no configured custom domain. Next requires an owner-controlled top-level custom domain accepted by PayHere, or PayHere support approval of this hosted subdomain. Never register vercel.app as though the owner controls that shared platform domain. Existing owner-confirmed task status is retained; this newly observed staging blocker remains recorded separately.
+
 ## Current status: DONE — owner-confirmed manual acceptance
 
 On2026-10-15 the project owner reported that the PayHere flow was already working in their manual verification, confirmed the task was complete on their side and explicitly requested the DONE update. CODEX records this as owner-confirmed manual acceptance of CSA-178, superseding the earlier pending acceptance status below. No provider payment ID, callback payload or independent retrieval trace was supplied to this chat; CODEX does not represent the owner's manual result as an agent-observed successful payment or invent those artifacts. Earlier failed attempts remain historical evidence. Other Phase8 tasks and production release gates are unaffected.
