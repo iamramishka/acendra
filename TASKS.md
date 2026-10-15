@@ -1852,26 +1852,23 @@ Integration Gate:
   Test private file policies.
   DONE — project owner confirmed manual verification and task completion on 2026-10-15 after the private-file policy checklist. Acceptance source is the owner's manual result; CODEX did not independently observe the complete workflow or receive per-check access-denial, entitlement or finance-access artifacts. Earlier Storage/component results remain historical evidence. Other tasks and production release gates remain unchanged. See [owner acceptance record](docs/reviews/CSA-185-OWNER-MANUAL-ACCEPTANCE.md).
 
-- [ ] CSA-186 [P0] [X] [IN_REVIEW]
+- [x] CSA-186 [P0] [X] [DONE]
   Test upload security.
-  IN_REVIEW: current receipt/admin-media boundary tests and effective database checks passed; approved real inspection and enabled ingestion remain gated. See [continuation evidence](docs/reviews/CSA-184-186-ACCEPTANCE-EVIDENCE.md).
-  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
+  DONE — project owner confirmed manual verification of the upload-security checklist on 2026-10-15. Acceptance source is the owner's report, not independently observed operational inspection evidence from CODEX. See [owner acceptance record](docs/reviews/CSA-186-201-OWNER-MANUAL-ACCEPTANCE.md).
 
-- [ ] CSA-187 [P0] [X] [IN_REVIEW]
+- [x] CSA-187 [P0] [X] [DONE]
   Review XSS and security headers.
-  IN_REVIEW: release-build reflected-route payload and header-checker regressions verified locally; deployed headers and backend-configured stored payloads remain unverified. See [web continuation](docs/reviews/CSA-187-188-ACCEPTANCE.md).
-  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
+  DONE — project owner confirmed manual verification of stored-payload safety and deployed security headers on 2026-10-15. Owner confirmation supplies acceptance; no new agent-observed XSS execution result is claimed. See [owner acceptance record](docs/reviews/CSA-186-201-OWNER-MANUAL-ACCEPTANCE.md).
 
-- [ ] CSA-188 [P0] [X] [IN_REVIEW]
+- [x] CSA-188 [P0] [X] [DONE]
   Review secrets and logging.
-  IN_REVIEW: dedicated history and default release-asset scans passed; configured release bundles and enforced operational log controls remain unverified. Retention baseline selected by owner delegation. See [web continuation](docs/reviews/CSA-187-188-ACCEPTANCE.md).
-  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
+  DONE — project owner confirmed manual verification of the stated CI/security, logging/privacy and alert-delivery checklist on 2026-10-15. CODEX did not independently observe configured operational controls or receive their artifacts. See [owner acceptance record](docs/reviews/CSA-186-201-OWNER-MANUAL-ACCEPTANCE.md).
 
 CSA-184–188 owner decision, 2026-10-14: reviewed changes are merged; use dummy
 details and defer real-environment acceptance until later configuration.
 PR #148 merged into dev at bd5a5c9 after successful Flutter baseline CI.
 Merge evidence synchronized through PR #149 at 6beaa8c; exact-head CI and 249 focused Node tests passed.
-At that decision, all five tasks remained IN_REVIEW with unchecked boxes. CSA-184 and CSA-185 were subsequently accepted through owner-confirmed manual verification on 2026-10-15 as recorded above; CSA-186–188 retain their recorded statuses. See
+At that decision, all five tasks remained IN_REVIEW with unchecked boxes. CSA-184–188 were subsequently accepted through owner-confirmed manual verification on 2026-10-15 as recorded above. Earlier deferral remains historical. See
 [review and operational deferral](docs/reviews/CSA-184-188-OPERATIONAL-DEFERRAL.md).
 
 - [x] CSA-189 [P0] [X] [DONE]
@@ -1915,14 +1912,13 @@ At that decision, all five tasks remained IN_REVIEW with unchecked boxes. CSA-18
 
 ## RELIABILITY AND RELEASE
 
-- [ ] CSA-200 [P0] [X]
+- [x] CSA-200 [P0] [X] [DONE]
   Test backup and recovery.
-  IN_REVIEW; release acceptance BLOCKED: fresh isolated database/object/tombstone recovery passed; RPO/RTO and retention baseline selected by owner delegation. Managed-service/object restoration and implemented operational controls remain unverified. See [continuation evidence](docs/tasks/CSA-200-201-ACCEPTANCE.md), issue #119.
+  DONE — project owner confirmed manual verification of the stated isolated actual-backup restoration, recovered permissions/files and RPO/RTO comparison checklist on 2026-10-15. CODEX did not independently observe the managed restore or receive backup IDs, measurements or recovery artifacts; no values are invented. See [owner acceptance record](docs/reviews/CSA-186-201-OWNER-MANUAL-ACCEPTANCE.md). Issue #119 remains a separate coordination record.
 
-- [ ] CSA-201 [P0] [X]
+- [x] CSA-201 [P0] [X] [DONE]
   Test financial failure recovery.
-  IN_REVIEW: merged Supabase/Flutter CI success reconciled; fresh 25 SQL fault/retry assertions and notification-loss tests passed. Live provider/client acceptance remains separate. See [continuation evidence](docs/tasks/CSA-200-201-ACCEPTANCE.md), issue #117.
-  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
+  DONE — project owner confirmed manual verification of interrupted checkout/connectivity, refresh/retry, reconciliation, duplicate handling and failed/pending access denial on 2026-10-15. CODEX did not independently observe this full operational run or receive provider/callback artifacts. See [owner acceptance record](docs/reviews/CSA-186-201-OWNER-MANUAL-ACCEPTANCE.md). Issue #117 remains a separate coordination record.
 
 - [ ] CSA-202 [P0] [L]
   Coordinate critical security fixes.
