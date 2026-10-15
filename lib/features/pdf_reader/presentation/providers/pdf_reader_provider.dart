@@ -168,7 +168,7 @@ class PdfReaderNotifier extends StateNotifier<PdfReaderState> {
   }
 
   double _zoomForPreset(PdfZoomPreset preset) => switch (preset) {
-    PdfZoomPreset.fitPage => 1.0,
+    PdfZoomPreset.fitPage => 0.75,
     PdfZoomPreset.fitWidth => 1.0,
     PdfZoomPreset.zoom100 => 1.0,
     PdfZoomPreset.zoom150 => 1.5,

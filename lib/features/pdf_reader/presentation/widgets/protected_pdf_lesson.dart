@@ -4,6 +4,7 @@ import 'package:acendra/core/config/env_config.dart';
 import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:acendra/features/pdf_reader/data/protected_pdf_repository.dart';
 import 'package:acendra/features/pdf_reader/data/pdf_document_lease.dart';
+import 'package:acendra/features/pdf_reader/data/pdf_progress_local.dart';
 import 'package:acendra/features/pdf_reader/data/pdf_transport.dart'
     if (dart.library.js_interop) 'package:acendra/features/pdf_reader/data/pdf_transport_web.dart'
     as transport;
@@ -201,6 +202,20 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
                   _pages = document.pagesCount;
                   _page = 1;
                 });
+                final saved =
+                    PdfProgressLocal.loadPage(widget.lessonId);
+                if (saved != null &&
+                    saved > 1 &&
+                    saved <= document.pagesCount) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted &&
+                        generation == _generation &&
+                        _controller == controller) {
+                      controller.jumpToPage(saved);
+                      setState(() => _page = saved);
+                    }
+                  });
+                }
               }
             },
             onPageChanged: (page) {
@@ -208,6 +223,7 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
                   generation == _generation &&
                   _controller == controller) {
                 setState(() => _page = page);
+                PdfProgressLocal.savePage(widget.lessonId, page);
               }
             },
             onDocumentError: (_) {

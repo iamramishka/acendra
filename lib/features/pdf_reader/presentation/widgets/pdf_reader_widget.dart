@@ -27,18 +27,37 @@ class PdfReaderWidget extends ConsumerStatefulWidget {
 }
 
 class _PdfReaderWidgetState extends ConsumerState<PdfReaderWidget> {
+  late final TransformationController _zoomController;
+
   @override
   void initState() {
     super.initState();
+    _zoomController = TransformationController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(pdfReaderProvider.notifier).open(widget.document.url);
     });
   }
 
   @override
+  void dispose() {
+    _zoomController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final state = ref.watch(pdfReaderProvider);
     final notifier = ref.read(pdfReaderProvider.notifier);
+
+    ref.listen<double>(
+      pdfReaderProvider.select((s) => s.zoom),
+      (_, next) {
+        final currentScale = _zoomController.value.getMaxScaleOnAxis();
+        if ((currentScale - next).abs() > 0.001) {
+          _zoomController.value = Matrix4.diagonal3Values(next, next, next);
+        }
+      },
+    );
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -49,18 +68,21 @@ class _PdfReaderWidgetState extends ConsumerState<PdfReaderWidget> {
             state: state,
             notifier: notifier,
             documentUrl: widget.document.url,
+            transformController: _zoomController,
           );
         } else if (width < AppBreakpoints.medium) {
           return _MediumLayout(
             state: state,
             notifier: notifier,
             documentUrl: widget.document.url,
+            transformController: _zoomController,
           );
         } else {
           return _ExpandedLayout(
             state: state,
             notifier: notifier,
             documentUrl: widget.document.url,
+            transformController: _zoomController,
           );
         }
       },
@@ -75,24 +97,27 @@ class _CompactLayout extends ConsumerWidget {
     required this.state,
     required this.notifier,
     required this.documentUrl,
+    required this.transformController,
   });
 
   final PdfReaderState state;
   final PdfReaderNotifier notifier;
   final String documentUrl;
+  final TransformationController transformController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(pdfControllerProvider);
+    final pdfController = ref.watch(pdfControllerProvider);
 
     return Column(
       children: [
         Expanded(
           child: _PdfViewArea(
             state: state,
-            controller: controller,
+            pdfController: pdfController,
             notifier: notifier,
             documentUrl: documentUrl,
+            transformController: transformController,
           ),
         ),
         _BottomToolbar(state: state, notifier: notifier),
@@ -108,15 +133,17 @@ class _MediumLayout extends ConsumerWidget {
     required this.state,
     required this.notifier,
     required this.documentUrl,
+    required this.transformController,
   });
 
   final PdfReaderState state;
   final PdfReaderNotifier notifier;
   final String documentUrl;
+  final TransformationController transformController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(pdfControllerProvider);
+    final pdfController = ref.watch(pdfControllerProvider);
     final ext = Theme.of(context).extension<AppThemeExtension>()!;
 
     return Column(
@@ -127,9 +154,10 @@ class _MediumLayout extends ConsumerWidget {
               Expanded(
                 child: _PdfViewArea(
                   state: state,
-                  controller: controller,
+                  pdfController: pdfController,
                   notifier: notifier,
                   documentUrl: documentUrl,
+                  transformController: transformController,
                 ),
               ),
               Container(
@@ -192,15 +220,17 @@ class _ExpandedLayout extends ConsumerWidget {
     required this.state,
     required this.notifier,
     required this.documentUrl,
+    required this.transformController,
   });
 
   final PdfReaderState state;
   final PdfReaderNotifier notifier;
   final String documentUrl;
+  final TransformationController transformController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(pdfControllerProvider);
+    final pdfController = ref.watch(pdfControllerProvider);
 
     return Column(
       children: [
@@ -210,9 +240,10 @@ class _ExpandedLayout extends ConsumerWidget {
               constraints: const BoxConstraints(maxWidth: 900),
               child: _PdfViewArea(
                 state: state,
-                controller: controller,
+                pdfController: pdfController,
                 notifier: notifier,
                 documentUrl: documentUrl,
+                transformController: transformController,
               ),
             ),
           ),
@@ -228,15 +259,17 @@ class _ExpandedLayout extends ConsumerWidget {
 class _PdfViewArea extends StatelessWidget {
   const _PdfViewArea({
     required this.state,
-    required this.controller,
+    required this.pdfController,
     required this.notifier,
     required this.documentUrl,
+    required this.transformController,
   });
 
   final PdfReaderState state;
-  final pdfx.PdfController? controller;
+  final pdfx.PdfController? pdfController;
   final PdfReaderNotifier notifier;
   final String documentUrl;
+  final TransformationController transformController;
 
   @override
   Widget build(BuildContext context) {
@@ -250,15 +283,21 @@ class _PdfViewArea extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        if (controller != null)
-          pdfx.PdfView(
-            controller: controller!,
-            onDocumentLoaded: (doc) =>
-                notifier.onDocumentLoaded(doc.pagesCount),
-            onDocumentError: notifier.onDocumentError,
-            onPageChanged: notifier.onPageChanged,
+        if (pdfController != null)
+          InteractiveViewer(
+            transformationController: transformController,
+            minScale: 0.25,
+            maxScale: 4.0,
+            constrained: false,
+            child: pdfx.PdfView(
+              controller: pdfController!,
+              onDocumentLoaded: (doc) =>
+                  notifier.onDocumentLoaded(doc.pagesCount),
+              onDocumentError: notifier.onDocumentError,
+              onPageChanged: notifier.onPageChanged,
+            ),
           ),
-        if (state.status == PdfReaderStatus.loading || controller == null)
+        if (state.status == PdfReaderStatus.loading || pdfController == null)
           const PdfLoadingState(),
       ],
     );
