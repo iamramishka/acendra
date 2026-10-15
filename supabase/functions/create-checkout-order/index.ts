@@ -1,3 +1,3 @@
-import { createHandler } from './handler.mjs';
+import { createStagingPaymentHandler } from '../_shared/payments/staging-entrypoints.mjs';
 
-Deno.serve(createHandler({ env: (name: string) => Deno.env.get(name) }));
+Deno.serve(createStagingPaymentHandler('order', { env: (name: string) => Deno.env.get(name) }));

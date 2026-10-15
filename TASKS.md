@@ -1859,17 +1859,17 @@ Integration Gate:
 - [ ] CSA-177 [P1] [C]
   Test registration journey.
 
-- [ ] CSA-178 [P0] [X]
+- [x] CSA-178 [P0] [X]
   Test online purchase journey.
-  IN_REVIEW; implementation merged through PR #153 into dev befe7a9 with successful exact-head hosted Flutter/Supabase CI. Pay Now now invokes trusted initialization and a validated provider handoff; redirects do not grant access. Full acceptance still requires actual approved sandbox settlement and the complete purchase-to-paid-content browser journey; deployed provider initialization remains gated. See [verified merge record](docs/reviews/CSA-178-PR153-MERGE-RECORD.md).
+  DONE — project owner confirmed successful manual verification and task completion on2026-10-15 and explicitly requested this status update. Acceptance source is the owner's manual result; CODEX's earlier provider rejection remains historical and is not relabelled as a successful automated test. Implementation merged through PR #153; staging-only checkout/navigation continuation is recorded in PR #159, whose merge status is separate. Other Phase8 tasks and production release gates remain unchanged. See [owner acceptance record](docs/reviews/CSA-178-SANDBOX-STAGING-BOARD.md#current-status-done--owner-confirmed-manual-acceptance).
 
-- [ ] CSA-179 [P0] [X]
+- [x] CSA-179 [P0] [X]
   Test bank approval journey.
-  IN_REVIEW; full acceptance blocked. Receipt upload and finance decisions remain unavailable; finance review uses synthetic records. Requires approved inspection/storage, independent credit verification and browser coverage of pending denial, approval, rejection and resubmission. See [current review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#csa-178179180-current-review--2026-10-14).
+  DONE — project owner confirmed completion of the bank approval journey through manual verification on 2026-10-15, following the stated acceptance checklist. Acceptance source is the owner's confirmation; CODEX did not independently observe the manual workflow or receive its bank-credit/approval artifacts. Earlier blocked agent checks remain historical evidence. Other task statuses and production release gates remain unchanged. See [owner acceptance record](docs/reviews/CSA-179-OWNER-MANUAL-ACCEPTANCE.md).
 
-- [ ] CSA-180 [P0] [X]
+- [x] CSA-180 [P0] [X]
   Test purchase-to-learning entitlement.
-  IN_REVIEW; full acceptance blocked. Learning now has routed UI, but fetches metadata without lesson bodies and uses video/PDF placeholders. Requires authorized content delivery and browser verification of settlement-to-access, pre-settlement denial, revocation and persistent progress. The backend smoke's synthetic settlement/progress checks do not close UI acceptance. See [current review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#csa-178179180-current-review--2026-10-14).
+  DONE — project owner confirmed successful manual verification and task completion on 2026-10-15 after the CSA-180 stepwise guidance. Acceptance source is the owner's manual result; CODEX did not independently observe completion of the full journey or receive per-check payment/content/progress/revocation artifacts. Earlier agent observations remain historical evidence. Other tasks and production release gates remain unchanged. See [owner acceptance record](docs/reviews/CSA-180-OWNER-MANUAL-ACCEPTANCE.md).
 
 - [ ] CSA-181 [P1] [C]
   Test admin course publishing journey.
@@ -1884,36 +1884,31 @@ Integration Gate:
   Test cross-student data isolation.
   DONE for current repository isolation tests: symmetric entitled-student progress and effective authenticated-role profile/order/enrollment/content denials passed in real Supabase SQL/API checks. See docs/reviews/CSA-178-201-FINAL-EVIDENCE.md. Full purchase/browser/provider journey acceptance remains separately tracked.
 
-- [ ] CSA-184 [P0] [X] [IN_REVIEW]
+- [x] CSA-184 [P0] [X] [DONE]
   Test finance role restrictions.
-  IN_REVIEW: fresh effective-role SQL and current component checks passed; operational finance workflow remains gated. See [continuation evidence](docs/reviews/CSA-184-186-ACCEPTANCE-EVIDENCE.md).
-  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
+  DONE — project owner confirmed successful manual verification on 2026-10-15 after the finance-role restriction checklist. Acceptance source is the owner's manual result; CODEX did not independently observe the operational checks or receive per-check MFA, authorization or audit artifacts. Earlier agent evidence remains historical. Other tasks and production release gates remain unchanged. See [owner acceptance record](docs/reviews/CSA-184-OWNER-MANUAL-ACCEPTANCE.md).
 
-- [ ] CSA-185 [P0] [X] [IN_REVIEW]
+- [x] CSA-185 [P0] [X] [DONE]
   Test private file policies.
-  IN_REVIEW: fresh receipt/PDF Storage REST checks passed; new thumbnail/lesson-image transport checks extend the current private-file matrix. See [continuation evidence](docs/reviews/CSA-184-186-ACCEPTANCE-EVIDENCE.md).
-  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
+  DONE — project owner confirmed manual verification and task completion on 2026-10-15 after the private-file policy checklist. Acceptance source is the owner's manual result; CODEX did not independently observe the complete workflow or receive per-check access-denial, entitlement or finance-access artifacts. Earlier Storage/component results remain historical evidence. Other tasks and production release gates remain unchanged. See [owner acceptance record](docs/reviews/CSA-185-OWNER-MANUAL-ACCEPTANCE.md).
 
-- [ ] CSA-186 [P0] [X] [IN_REVIEW]
+- [x] CSA-186 [P0] [X] [DONE]
   Test upload security.
-  IN_REVIEW: current receipt/admin-media boundary tests and effective database checks passed; approved real inspection and enabled ingestion remain gated. See [continuation evidence](docs/reviews/CSA-184-186-ACCEPTANCE-EVIDENCE.md).
-  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
+  DONE — project owner confirmed manual verification of the upload-security checklist on 2026-10-15. Acceptance source is the owner's report, not independently observed operational inspection evidence from CODEX. See [owner acceptance record](docs/reviews/CSA-186-201-OWNER-MANUAL-ACCEPTANCE.md).
 
-- [ ] CSA-187 [P0] [X] [IN_REVIEW]
+- [x] CSA-187 [P0] [X] [DONE]
   Review XSS and security headers.
-  IN_REVIEW: release-build reflected-route payload and header-checker regressions verified locally; deployed headers and backend-configured stored payloads remain unverified. See [web continuation](docs/reviews/CSA-187-188-ACCEPTANCE.md).
-  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
+  DONE — project owner confirmed manual verification of stored-payload safety and deployed security headers on 2026-10-15. Owner confirmation supplies acceptance; no new agent-observed XSS execution result is claimed. See [owner acceptance record](docs/reviews/CSA-186-201-OWNER-MANUAL-ACCEPTANCE.md).
 
-- [ ] CSA-188 [P0] [X] [IN_REVIEW]
+- [x] CSA-188 [P0] [X] [DONE]
   Review secrets and logging.
-  IN_REVIEW: dedicated history and default release-asset scans passed; configured release bundles and enforced operational log controls remain unverified. Retention baseline selected by owner delegation. See [web continuation](docs/reviews/CSA-187-188-ACCEPTANCE.md).
-  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
+  DONE — project owner confirmed manual verification of the stated CI/security, logging/privacy and alert-delivery checklist on 2026-10-15. CODEX did not independently observe configured operational controls or receive their artifacts. See [owner acceptance record](docs/reviews/CSA-186-201-OWNER-MANUAL-ACCEPTANCE.md).
 
 CSA-184–188 owner decision, 2026-10-14: reviewed changes are merged; use dummy
 details and defer real-environment acceptance until later configuration.
 PR #148 merged into dev at bd5a5c9 after successful Flutter baseline CI.
 Merge evidence synchronized through PR #149 at 6beaa8c; exact-head CI and 249 focused Node tests passed.
-All five tasks remain IN_REVIEW with unchecked boxes. See
+At that decision, all five tasks remained IN_REVIEW with unchecked boxes. CSA-184–188 were subsequently accepted through owner-confirmed manual verification on 2026-10-15 as recorded above. Earlier deferral remains historical. See
 [review and operational deferral](docs/reviews/CSA-184-188-OPERATIONAL-DEFERRAL.md).
 
 - [x] CSA-189 [P0] [X] [DONE]
@@ -1957,14 +1952,13 @@ All five tasks remain IN_REVIEW with unchecked boxes. See
 
 ## RELIABILITY AND RELEASE
 
-- [ ] CSA-200 [P0] [X]
+- [x] CSA-200 [P0] [X] [DONE]
   Test backup and recovery.
-  IN_REVIEW; release acceptance BLOCKED: fresh isolated database/object/tombstone recovery passed; RPO/RTO and retention baseline selected by owner delegation. Managed-service/object restoration and implemented operational controls remain unverified. See [continuation evidence](docs/tasks/CSA-200-201-ACCEPTANCE.md), issue #119.
+  DONE — project owner confirmed manual verification of the stated isolated actual-backup restoration, recovered permissions/files and RPO/RTO comparison checklist on 2026-10-15. CODEX did not independently observe the managed restore or receive backup IDs, measurements or recovery artifacts; no values are invented. See [owner acceptance record](docs/reviews/CSA-186-201-OWNER-MANUAL-ACCEPTANCE.md). Issue #119 remains a separate coordination record.
 
-- [ ] CSA-201 [P0] [X]
+- [x] CSA-201 [P0] [X] [DONE]
   Test financial failure recovery.
-  IN_REVIEW: merged Supabase/Flutter CI success reconciled; fresh 25 SQL fault/retry assertions and notification-loss tests passed. Live provider/client acceptance remains separate. See [continuation evidence](docs/tasks/CSA-200-201-ACCEPTANCE.md), issue #117.
-  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
+  DONE — project owner confirmed manual verification of interrupted checkout/connectivity, refresh/retry, reconciliation, duplicate handling and failed/pending access denial on 2026-10-15. CODEX did not independently observe this full operational run or receive provider/callback artifacts. See [owner acceptance record](docs/reviews/CSA-186-201-OWNER-MANUAL-ACCEPTANCE.md). Issue #117 remains a separate coordination record.
 
 - [ ] CSA-202 [P0] [L]
   Coordinate critical security fixes.

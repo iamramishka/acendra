@@ -32,7 +32,8 @@ async function boundedText(body, limit) {
 }
 
 // Explicit enablement is dependency injection for synthetic tests only. The
-// deployed entry point passes no enablement; environment variables cannot opt in.
+// Default construction is disabled. The reviewed entrypoint supplies enablement
+// only through the exact-project, exact-origin staging sandbox gate.
 export function createHandler({ env, fetch: request = globalThis.fetch, providerConfig, onlinePaymentsEnabled = false }) {
   // Do not let caller mutation across asynchronous body/database reads change
   // merchant credentials or provider environment for this handler instance.

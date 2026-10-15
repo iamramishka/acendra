@@ -39,7 +39,10 @@ Extra/late verified settlements are preserved for reconciliation without repeate
 or revived access. Service credentials never reach clients. Provider calls occur
 outside SQL transactions. Application roles cannot invoke these mutations.
 
-Both deployed entry points remain hard disabled with no environment enable flag.
-Test-only injected enablement verifies underlying behavior. Real sandbox checkout,
-callback/retrieval and merchant readiness are release/acceptance gates; CSA100
-remains blocked. No production enablement is authorized by these task assignments.
+Default and production entry points remain disabled. The owner-authorized staging
+continuation on 2026-10-15 supplies enablement only for the exact approved project
+and origin, APP_ENV=staging, PAYHERE_ENVIRONMENT=sandbox and complete sandbox-scoped
+server credentials; see CSA-178-SANDBOX-ENTRYPOINT-BOARD.md in docs/reviews.
+Real sandbox checkout, callback/retrieval and merchant readiness remain acceptance
+gates. Configuration is not provider acceptance, and production enablement remains
+unauthorized. Existing independent retrieval and atomic settlement checks remain.
