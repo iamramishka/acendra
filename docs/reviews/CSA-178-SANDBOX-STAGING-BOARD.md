@@ -1,5 +1,9 @@
 # CSA-178 actual sandbox staging coordination
 
+## Approved custom sandbox domain — 2026-10-15
+
+Owner explicitly requested vinyup.com after the hosted-subdomain rejection. CODEX saved a PayHere Sandbox Domain integration for vinyup.com; the portal reported "Domain added successfully." After reload, the persisted vinyup.com Domain row is Active. The existing acendra App integration was retained. No DNS/Vercel alias, checkout-origin/return URL, frontend or server-secret change was made in this step. Checkout still runs on acendra.vercel.app; adopting vinyup.com requires separately coordinated hosting/configuration and its domain-specific secret before retrying payment. Merchant secrets are omitted from this record and the saved screenshot is redacted.
+
 ## Sandbox domain registration attempt — 2026-10-15
 
 Owner granted access to the signed-in PayHere Sandbox portal and explicitly approved saving a Domain integration for acendra.vercel.app. Existing integration is type App, name acendra, Active; its secret matches the previously supplied configuration. CODEX submitted the prepared Domain entry for acendra.vercel.app. PayHere rejected it with "Sub Domains not allowed or Invalid Domain name"; no new domain integration was saved and no server secret was replaced. Vercel's project-domain inventory contains only verified acendra.vercel.app, with no configured custom domain. Next requires an owner-controlled top-level custom domain accepted by PayHere, or PayHere support approval of this hosted subdomain. Never register vercel.app as though the owner controls that shared platform domain. Existing owner-confirmed task status is retained; this newly observed staging blocker remains recorded separately.
