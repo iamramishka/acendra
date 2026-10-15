@@ -1844,10 +1844,9 @@ Integration Gate:
   Test cross-student data isolation.
   DONE for current repository isolation tests: symmetric entitled-student progress and effective authenticated-role profile/order/enrollment/content denials passed in real Supabase SQL/API checks. See docs/reviews/CSA-178-201-FINAL-EVIDENCE.md. Full purchase/browser/provider journey acceptance remains separately tracked.
 
-- [ ] CSA-184 [P0] [X] [IN_REVIEW]
+- [x] CSA-184 [P0] [X] [DONE]
   Test finance role restrictions.
-  IN_REVIEW: fresh effective-role SQL and current component checks passed; operational finance workflow remains gated. See [continuation evidence](docs/reviews/CSA-184-186-ACCEPTANCE-EVIDENCE.md).
-  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
+  DONE — project owner confirmed successful manual verification on 2026-10-15 after the finance-role restriction checklist. Acceptance source is the owner's manual result; CODEX did not independently observe the operational checks or receive per-check MFA, authorization or audit artifacts. Earlier agent evidence remains historical. Other tasks and production release gates remain unchanged. See [owner acceptance record](docs/reviews/CSA-184-OWNER-MANUAL-ACCEPTANCE.md).
 
 - [ ] CSA-185 [P0] [X] [IN_REVIEW]
   Test private file policies.
@@ -1873,7 +1872,7 @@ CSA-184–188 owner decision, 2026-10-14: reviewed changes are merged; use dummy
 details and defer real-environment acceptance until later configuration.
 PR #148 merged into dev at bd5a5c9 after successful Flutter baseline CI.
 Merge evidence synchronized through PR #149 at 6beaa8c; exact-head CI and 249 focused Node tests passed.
-All five tasks remain IN_REVIEW with unchecked boxes. See
+At that decision, all five tasks remained IN_REVIEW with unchecked boxes. CSA-184 was subsequently accepted through owner-confirmed manual verification on 2026-10-15 as recorded above; CSA-185–188 retain their recorded statuses. See
 [review and operational deferral](docs/reviews/CSA-184-188-OPERATIONAL-DEFERRAL.md).
 
 - [x] CSA-189 [P0] [X] [DONE]
