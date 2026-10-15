@@ -199,3 +199,44 @@ approved email provider/sender, stable-key deduplication, authenticated schedule
 and live delivery verification. Deployed payment/email entry points remain disabled.
 This result supersedes the earlier no-actionable-defects summary for CSA-101;
 that earlier bounded review is retained as historical evidence.
+
+## Claude workstream review — 2026-10-15
+
+Owner: CLAUDE. User-authorized owner review of all Phase 5 Claude UI tasks.
+Reviewer: project owner (wishwanath@zettab.io / ramishka.madhushan@zettab.io).
+
+All 7 Claude Phase 5 tasks reviewed and accepted as DONE:
+
+- CSA-097 (checkout interface): Riverpod async state, form validation, loading
+  skeletons, responsive layout. Online payment gated (snackbar stub). Commit 79aaff4.
+- CSA-099 (payment method selector): Clean PaymentMethod enum, animated accessible
+  cards. Commit 79aaff4.
+- CSA-106 (payment status screens): Success/pending/failure screens; no back-button
+  on terminal screens; fail-closed. Commit 79aaff4.
+- CSA-107 (bank transfer instructions): Fail-closed — blank or mismatched order
+  fields show unavailable message, never fabricate bank details. Commit 83e6434.
+- CSA-110 (receipt status UI): All 5 ReceiptStatus states; reject→resubmit,
+  approved→course navigation. Commit 31630dd.
+- CSA-111 (finance review UI): Queue-based via re-export shim to admin screen;
+  'Finance review is unavailable' on error; 'No receipts to review' on empty queue;
+  FilledButton busy state blocks duplicates; fail-closed. Commit 31630dd.
+  Note: a rebase conflict during credential fix had incorrectly replaced the
+  re-export shim with a standalone stub — restored to correct shim (commit 78d0032).
+- CSA-115 (receipt resubmission UI): File picker JPG/PDF max 5 MB, validation,
+  submit disabled until backend gates satisfied. Commit 29498b0.
+
+Verification commands run:
+
+```
+flutter test test/features/bank_transfer/   # 26/26 passed
+flutter test test/features/checkout/        # 66/66 passed
+flutter analyze                             # exit 0 (clean)
+```
+
+TASKS.md updated: all 7 tasks marked DONE. PLAN.md Claude workstream updated.
+Pushed to origin/dev at 78d0032. Operational/backend gates remain on CODEX tasks.
+
+Current Phase 5 summary:
+- Claude: 7/7 DONE
+- Codex: 21 DONE, 6 IN_REVIEW (CSA-101–105, CSA-119), 1 BLOCKED (CSA-100)
+- Integration/release exit gates: not yet verified (see Phase 5 Exit Gate in PLAN.md)

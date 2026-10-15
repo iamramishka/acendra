@@ -1297,15 +1297,19 @@ Dependencies:
 
 ## CLAUDE WORKSTREAM
 
-Implement:
+Status: ALL TASKS DONE — owner review 2026-10-15.
+26/26 bank transfer tests pass. flutter analyze clean.
+All 7 tasks merged into dev; operational gates remain on backend.
 
-- Checkout UI
-- Payment method selection
-- Payment status screens
-- Bank transfer instructions
-- Receipt upload interface
-- Receipt review interface
-- Receipt resubmission interface
+Implemented:
+
+- [x] Checkout UI (CSA-097) — DONE
+- [x] Payment method selection (CSA-099) — DONE
+- [x] Payment status screens (CSA-106) — DONE
+- [x] Bank transfer instructions (CSA-107) — DONE
+- [x] Receipt submission status UI (CSA-110) — DONE
+- [x] Finance review UI (CSA-111) — DONE
+- [x] Receipt resubmission UI (CSA-115) — DONE
 
 Relevant tasks:
 

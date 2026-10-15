@@ -59,11 +59,12 @@ The finance route now imports the admin screen. Bounded issue143 remediation
 is complete and temporary finance-import ownership is released; issue142's
 separate bank-transfer scope was not changed by this remediation.
 
-CSA-111's operational acceptance remains IN_REVIEW. The UI uses clearly
-labelled synthetic receipts; approval/rejection cannot record financial
-decisions or grant access, and receipt viewing remains unavailable. Trusted
-backend activation, real data and operational finance-role authorization are
-separate gates. No production deployment or backend activation was performed.
+CSA-111's operational acceptance was IN_REVIEW at the time of this write-up.
+Owner review on 2026-10-15 accepted CSA-111 as DONE (bounded UI implementation).
+The UI uses clearly labelled synthetic receipts; approval/rejection cannot record
+financial decisions or grant access, and receipt viewing remains unavailable.
+Trusted backend activation, real data and operational finance-role authorization
+are separate gates. No production deployment or backend activation was performed.
 
 Documentation reconciliation owner: CODEX. Branch `docs/csa-111-merge-evidence`,
 isolated worktree `C:/Users/ramis/Downloads/Acendra/pr133-docs`; scope limited to
