@@ -103,3 +103,10 @@ Use this decision sequence in the existing account:
 **Hold:** CSA-214 remains IN_REVIEW for specification; operational backup configuration
 is BLOCKED on the conditions above. Free-only scope does not waive recovery targets.
 Source checked 2026-10-15; no upgrade, new service or backup data transfer performed.
+
+Root read-only inventory reported 2026-10-15 for the existing staging project:
+backup-list API returned zero available sets, `pitr_enabled: false`,
+`walg_enabled: true` and empty physical backup metadata. This does not establish
+an accessible managed backup or a complete restorable set; internal WAL capability
+is not evidence of paid entitlement or tested recovery. No backup was downloaded
+or restored. Keep the backup activation and measured restore gates on HOLD.
