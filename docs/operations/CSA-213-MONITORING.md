@@ -42,3 +42,55 @@ observed result; unresolved issue; approver. Store private evidence in restricte
 operations storage; repository summaries contain no credentials or personal data.
 
 This document configures no external service and proves no operational alert delivery.
+
+## Existing-service, zero-spend execution (2026-10-15)
+
+The current user instruction permits existing services only, with missing features
+held. Assignment: [free operations board](CSA-PHASE9-FREE-OPERATIONS-BOARD.md),
+GitHub issue #160. Current authorized application targets are **staging**:
+Supabase `worrsweluwjmppwsygre` and `https://acendra.vercel.app`.
+They are not approved production targets. The plan and actual enabled capabilities
+must be verified in their existing dashboards before use; no upgrade is authorized.
+
+The following procedure uses existing consoles without adding a monitor or recipient:
+
+1. In the existing Vercel project, inspect the deployment matching the accepted
+   release SHA. Record deployment state, UTC inspection time and safe deployment ID.
+   This Flutter static application has no Vercel runtime function merely because
+   its frontend is deployed there. Deployment/build success is not backend health.
+2. In [Supabase Logs](https://supabase.com/dashboard/project/worrsweluwjmppwsygre/logs/explorer),
+   select a recent bounded interval and the relevant API/Auth/Edge Function source.
+   Inspect aggregate failures and request IDs, never export raw receipt/callback
+   bodies, Authorization headers or session credentials into GitHub artifacts.
+3. Correlate an existing synthetic staging request with function and database audit
+   evidence. Record expected access denials separately from unexpected server errors.
+   Missing data means unknown. Do not repeatedly poll or generate keepalive traffic
+   to prevent free-plan pausing.
+4. Review [repository Actions](https://github.com/iamramishka/acendra/actions) for the
+   exact release SHA and named Flutter/Supabase jobs. CI notifications are evidence
+   of CI outcomes only, not production availability or payment failure alerts.
+5. Record the result using the evidence template below. If there is no configured
+   alert route with a named responder and receipt evidence, keep alert activation
+   on hold. Do not add a paid drain, external service or scheduled automation.
+
+| Requirement | Available free work | Operational hold |
+|---|---|---|
+| Failure diagnosis | Inspect existing bounded console logs and deployment/CI state | No demonstrated independent uptime or missing-telemetry detection |
+| Sensitive log handling | Apply allowlisted summary fields and restricted console access | Actual retention, exports and access review require deployment evidence |
+| Alert delivery | Document signal, responder and test criteria | No recipient/channel activation or delivery test performed |
+| Production acceptance | Reuse this checklist once production is designated | Staging evidence cannot close CSA-213 production acceptance |
+
+Evidence template (no private payloads): `inspection UTC; environment; release SHA;
+source; interval; aggregate count; safe request ID; expected/observed outcome;
+alert configuration ID or absent; recipient role; delivery evidence or not tested;
+reviewer; follow-up`.
+
+Capability references checked 2026-10-15: [Supabase Logs in Studio](https://supabase.com/docs/guides/observability/logs)
+provides console diagnosis; [Vercel runtime logs](https://vercel.com/docs/logs/runtime)
+describes runtime request/function logs. Console visibility alone does not implement
+this plan's automated rules. Retention and entitlements can change; inspect the
+existing account rather than assuming a paid tier or a fixed free retention period.
+
+**Hold:** CSA-213 remains IN_REVIEW for preparation; production alert activation is
+BLOCKED pending production designation, existing eligible telemetry capabilities,
+named responders and observed delivery. No service was added or charged.
