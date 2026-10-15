@@ -1813,38 +1813,49 @@ CODEX
 
 ## CLAUDE - ADMIN UI
 
-- [ ] CSA-157 [P1] [C]
+- [x] CSA-157 [P1] [C]
   Implement admin dashboard.
+  Status: DONE; branch feat/csa-157-171-admin-ui.
 
-- [ ] CSA-159 [P1] [C]
+- [x] CSA-159 [P1] [C]
   Implement payment queue summary UI.
+  Status: DONE; branch feat/csa-157-171-admin-ui.
 
-- [ ] CSA-160 [P1] [C]
+- [x] CSA-160 [P1] [C]
   Implement course management list.
+  Status: DONE; branch feat/csa-157-171-admin-ui.
 
-- [ ] CSA-161 [P1] [C]
+- [x] CSA-161 [P1] [C]
   Implement course editor.
+  Status: DONE; branch feat/csa-157-171-admin-ui.
 
-- [ ] CSA-162 [P1] [C]
+- [x] CSA-162 [P1] [C]
   Implement curriculum builder.
+  Status: DONE; branch feat/csa-157-171-admin-ui.
 
-- [ ] CSA-163 [P1] [C]
+- [x] CSA-163 [P1] [C]
   Implement lesson editor.
+  Status: DONE; branch feat/csa-157-171-admin-ui.
 
-- [ ] CSA-166 [P1] [C]
+- [x] CSA-166 [P1] [C]
   Implement student management list.
+  Status: DONE; branch feat/csa-157-171-admin-ui.
 
-- [ ] CSA-167 [P1] [C]
+- [x] CSA-167 [P1] [C]
   Implement student enrollment details UI.
+  Status: DONE; branch feat/csa-157-171-admin-ui.
 
-- [ ] CSA-169 [P1] [C]
+- [x] CSA-169 [P1] [C]
   Complete finance review dashboard.
+  Status: DONE; branch feat/csa-157-171-admin-ui.
 
-- [ ] CSA-170 [P1] [C]
+- [x] CSA-170 [P1] [C]
   Implement payment search/filter UI.
+  Status: DONE; branch feat/csa-157-171-admin-ui.
 
-- [ ] CSA-171 [P1] [C]
+- [x] CSA-171 [P1] [C]
   Implement receipt review history UI.
+  Status: DONE; branch feat/csa-157-171-admin-ui.
 
 ## CODEX - ADMIN BACKEND
 

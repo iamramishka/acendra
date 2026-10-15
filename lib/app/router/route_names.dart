@@ -25,4 +25,14 @@ abstract final class RouteNames {
 
   // Finance admin (CSA-111)
   static const String financeReview = '/admin/finance-review';
+
+  // Admin course management (CSA-157)
+  static const String adminCourses = '/admin/courses';
+  static const String adminCourseEdit = '/admin/courses/:courseId/edit';
+  static const String adminCurriculumBuilder = '/admin/courses/:courseId/curriculum';
+  static const String adminLessonEditor = '/admin/courses/:courseId/curriculum/:lessonId/edit';
+  static const String adminStudents = '/admin/students';
+  static const String adminStudentDetail = '/admin/students/:studentId';
+  static const String adminPayments = '/admin/payments';
+  static const String adminPaymentHistory = '/admin/payments/history';
 }

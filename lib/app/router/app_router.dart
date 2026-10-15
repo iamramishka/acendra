@@ -3,7 +3,16 @@ import 'package:acendra/core/widgets/navigation/admin_shell.dart';
 import 'package:acendra/core/widgets/navigation/learning_shell.dart';
 import 'package:acendra/core/widgets/navigation/public_shell.dart';
 import 'package:acendra/core/widgets/navigation/student_shell.dart';
+import 'package:acendra/features/admin/presentation/screens/admin_courses_screen.dart';
+import 'package:acendra/features/admin/presentation/screens/admin_dashboard_screen.dart';
+import 'package:acendra/features/admin/presentation/screens/admin_payments_screen.dart';
+import 'package:acendra/features/admin/presentation/screens/admin_students_screen.dart';
+import 'package:acendra/features/admin/presentation/screens/course_editor_screen.dart';
+import 'package:acendra/features/admin/presentation/screens/curriculum_builder_screen.dart';
 import 'package:acendra/features/admin/presentation/screens/finance_review_screen.dart';
+import 'package:acendra/features/admin/presentation/screens/lesson_editor_screen.dart';
+import 'package:acendra/features/admin/presentation/screens/receipt_review_history_screen.dart';
+import 'package:acendra/features/admin/presentation/screens/student_enrollment_details_screen.dart';
 import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:acendra/features/authentication/presentation/screens/forgot_password_screen.dart';
 import 'package:acendra/features/authentication/presentation/screens/login_screen.dart';
@@ -240,12 +249,61 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: RouteNames.admin,
-            builder: (_, _) => const _PlaceholderScreen(title: 'Admin'),
+            builder: (_, _) => const AdminDashboardScreen(),
           ),
           // Finance review — CSA-111 (finance_admin / super_admin only)
           GoRoute(
             path: RouteNames.financeReview,
             builder: (_, _) => const FinanceReviewScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.adminCourses,
+            builder: (_, _) => const AdminCoursesScreen(),
+            routes: [
+              GoRoute(
+                path: ':courseId/edit',
+                builder: (_, state) => CourseEditorScreen(
+                  courseId: state.pathParameters['courseId']!,
+                ),
+              ),
+              GoRoute(
+                path: ':courseId/curriculum',
+                builder: (_, state) => CurriculumBuilderScreen(
+                  courseId: state.pathParameters['courseId']!,
+                ),
+                routes: [
+                  GoRoute(
+                    path: ':lessonId/edit',
+                    builder: (_, state) => LessonEditorScreen(
+                      courseId: state.pathParameters['courseId']!,
+                      lessonId: state.pathParameters['lessonId']!,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          GoRoute(
+            path: RouteNames.adminStudents,
+            builder: (_, _) => const AdminStudentsScreen(),
+            routes: [
+              GoRoute(
+                path: ':studentId',
+                builder: (_, state) => StudentEnrollmentDetailsScreen(
+                  studentId: state.pathParameters['studentId']!,
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: RouteNames.adminPayments,
+            builder: (_, _) => const AdminPaymentsScreen(),
+            routes: [
+              GoRoute(
+                path: 'history',
+                builder: (_, _) => const ReceiptReviewHistoryScreen(),
+              ),
+            ],
           ),
         ],
       ),
