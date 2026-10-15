@@ -1461,18 +1461,57 @@ See the dated parallel review in the reconciliation record for evidence and limi
 
 ## CLAUDE - BANK TRANSFER UI
 
-- [ ] CSA-107 [P1] [C]
+- [x] CSA-107 [P1] [C] [IN_REVIEW]
   Implement bank transfer instructions.
+  Agent: CLAUDE | Branch: dev | Status: IN_REVIEW.
+  Files: lib/features/bank_transfer/presentation/screens/bank_transfer_screen.dart,
+         lib/features/checkout/presentation/screens/bank_transfer_screen.dart (compat shim),
+         lib/features/checkout/presentation/widgets/bank_transfer_instructions_card.dart.
+  Tests: 4/4 pass (bank_transfer_widget_test.dart CSA-107 group + instructions_card_test.dart 12 tests) | flutter analyze: clean.
+  Route: /bank-transfer/:orderId registered and matched by pr134_bank_routes_test.
+  Notes: Step-by-step instructions, bank account details card with copy button, independent-verification disclaimer,
+         "I've made the transfer" CTA navigates to receipt status. Operational bank details are backend-gated.
 
-- [ ] CSA-110 [P1] [C]
+- [x] CSA-110 [P1] [C] [IN_REVIEW]
   Implement receipt submission status UI.
+  Agent: CLAUDE | Branch: dev | Status: IN_REVIEW.
+  Files: lib/features/bank_transfer/presentation/screens/receipt_status_screen.dart,
+         lib/features/checkout/presentation/widgets/receipt_status_card.dart.
+  Tests: 4/4 pass (bank_transfer_widget_test.dart CSA-110 group) | flutter analyze: clean.
+  Route: /bank-transfer/:orderId/status registered and matched.
+  Notes: Renders all ReceiptStatus states (awaiting_receipt, submitted, under_review, approved, rejected).
+         CTA navigates to resubmit on rejection; "Go to Course" on approval; "Go to Dashboard" always shown.
+         Real status requires backend activation (receiptSubmissionProvider returns stub).
 
-- [ ] CSA-111 [P0] [C]
+- [ ] CSA-111 [P0] [C] [IN_REVIEW]
   Implement minimum finance review UI.
-  Preview UI and route integration merged via [PR #133](https://github.com/iamramishka/acendra/pull/133) into dev at `31630ddd00378f7695e9eae17417bfeaccebaede` on 2026-10-14. Post-merge [CI](https://github.com/iamramishka/acendra/actions/runs/38509792565) passed formatting, analysis, Flutter tests, release web build and tooling checks. Fake decision success, lost rejection reason and mobile overflow are fixed. Operational review remains gated: synthetic records only, no real receipt viewer or trusted review activation. Full task remains IN_REVIEW; bounded route remediation is DONE. See [evidence](docs/tasks/PR-133-ROUTE-INTEGRATION.md).
+  Agent: CLAUDE | Branch: dev | Status: IN_REVIEW.
+  Files: lib/features/admin/presentation/screens/finance_review_screen.dart (router target),
+         lib/features/bank_transfer/presentation/screens/finance_review_screen.dart (bank_transfer variant),
+         lib/features/admin/domain/entities/receipt_review_item.dart,
+         lib/features/admin/presentation/widgets/receipt_review_tile.dart.
+  Tests: 5/5 pass (bank_transfer_widget_test.dart CSA-111 group) | flutter analyze: clean.
+  Route: /admin/finance-review registered and matched.
+  Admin screen: filter chips (All/Pending/Approved/Rejected with counts), receipt list with approve/reject/view-receipt
+  per tile, inline rejection-reason form (min 10 chars), mock records, backend-unavailable snackbar, fail-closed.
+  Preview UI and route integration merged via [PR #133](https://github.com/iamramishka/acendra/pull/133) into dev at
+  `31630ddd00378f7695e9eae17417bfeaccebaede` on 2026-10-14. Post-merge [CI](https://github.com/iamramishka/acendra/actions/runs/38509792565) passed.
+  Operational review remains gated: synthetic records only, no real receipt viewer or trusted review activation.
+  See [evidence](docs/tasks/PR-133-ROUTE-INTEGRATION.md).
 
-- [ ] CSA-115 [P1] [C]
+- [x] CSA-115 [P1] [C] [IN_REVIEW]
   Implement receipt resubmission UI.
+  Agent: CLAUDE | Branch: dev | Status: IN_REVIEW.
+  Files: lib/features/bank_transfer/presentation/screens/receipt_resubmission_screen.dart,
+         lib/features/checkout/presentation/screens/receipt_resubmission_screen.dart (compat shim),
+         lib/features/checkout/presentation/widgets/receipt_resubmission_form.dart,
+         lib/features/checkout/presentation/services/receipt_file.dart,
+         lib/features/checkout/presentation/services/receipt_file_picker.dart,
+         lib/features/checkout/presentation/services/receipt_file_picker_web.dart.
+  Tests: 3/3 pass (bank_transfer_widget_test.dart CSA-115 group) | flutter analyze: clean.
+  Route: /bank-transfer/:orderId/resubmit registered and matched; rejectionReason passed via router extra.
+  Notes: Shows rejection reason, file picker (JPG/PDF max 5 MB), validation, backend-disabled notice.
+         Submit button is disabled (upload unavailable until backend inspection gates are satisfied).
 
 ## CODEX - BANK TRANSFER BACKEND
 
