@@ -1848,10 +1848,9 @@ Integration Gate:
   Test finance role restrictions.
   DONE — project owner confirmed successful manual verification on 2026-10-15 after the finance-role restriction checklist. Acceptance source is the owner's manual result; CODEX did not independently observe the operational checks or receive per-check MFA, authorization or audit artifacts. Earlier agent evidence remains historical. Other tasks and production release gates remain unchanged. See [owner acceptance record](docs/reviews/CSA-184-OWNER-MANUAL-ACCEPTANCE.md).
 
-- [ ] CSA-185 [P0] [X] [IN_REVIEW]
+- [x] CSA-185 [P0] [X] [DONE]
   Test private file policies.
-  IN_REVIEW: fresh receipt/PDF Storage REST checks passed; new thumbnail/lesson-image transport checks extend the current private-file matrix. See [continuation evidence](docs/reviews/CSA-184-186-ACCEPTANCE-EVIDENCE.md).
-  Parallel review on 2026-10-14 retains IN_REVIEW and records current evidence limits and acceptance gaps. See [parallel review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#parallel-acceptance-review--2026-10-14).
+  DONE — project owner confirmed manual verification and task completion on 2026-10-15 after the private-file policy checklist. Acceptance source is the owner's manual result; CODEX did not independently observe the complete workflow or receive per-check access-denial, entitlement or finance-access artifacts. Earlier Storage/component results remain historical evidence. Other tasks and production release gates remain unchanged. See [owner acceptance record](docs/reviews/CSA-185-OWNER-MANUAL-ACCEPTANCE.md).
 
 - [ ] CSA-186 [P0] [X] [IN_REVIEW]
   Test upload security.
@@ -1872,7 +1871,7 @@ CSA-184–188 owner decision, 2026-10-14: reviewed changes are merged; use dummy
 details and defer real-environment acceptance until later configuration.
 PR #148 merged into dev at bd5a5c9 after successful Flutter baseline CI.
 Merge evidence synchronized through PR #149 at 6beaa8c; exact-head CI and 249 focused Node tests passed.
-At that decision, all five tasks remained IN_REVIEW with unchecked boxes. CSA-184 was subsequently accepted through owner-confirmed manual verification on 2026-10-15 as recorded above; CSA-185–188 retain their recorded statuses. See
+At that decision, all five tasks remained IN_REVIEW with unchecked boxes. CSA-184 and CSA-185 were subsequently accepted through owner-confirmed manual verification on 2026-10-15 as recorded above; CSA-186–188 retain their recorded statuses. See
 [review and operational deferral](docs/reviews/CSA-184-188-OPERATIONAL-DEFERRAL.md).
 
 - [x] CSA-189 [P0] [X] [DONE]
