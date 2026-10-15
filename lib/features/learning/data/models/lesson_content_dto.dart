@@ -18,6 +18,8 @@ class LessonContentDto extends LessonContent {
       lessonType: json['lesson_type'] as String,
       position: json['position'] as int,
       sectionId: json['section_id'] as String,
+      contentText: json['content_text'] as String?,
+      contentImageUrl: json['content_image_url'] as String?,
     );
   }
 }

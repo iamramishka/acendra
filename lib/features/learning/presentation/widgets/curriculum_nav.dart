@@ -14,11 +14,13 @@ class CurriculumNav extends StatelessWidget {
     required this.sections,
     required this.onLessonTap,
     this.currentLessonId,
+    this.scrollController,
   });
 
   final List<CurriculumSection> sections;
   final String? currentLessonId;
   final void Function(String lessonId) onLessonTap;
+  final ScrollController? scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +35,13 @@ class CurriculumNav extends StatelessWidget {
     }
 
     return ListView.builder(
+      controller: scrollController,
       itemCount: sections.length,
       itemBuilder: (context, index) {
         final section = sections[index];
         final isExpanded = section.lessons.any((l) => l.id == currentLessonId);
         return _SectionTile(
+          key: ValueKey('${section.id}_$isExpanded'),
           section: section,
           initiallyExpanded: isExpanded,
           currentLessonId: currentLessonId,
@@ -50,6 +54,7 @@ class CurriculumNav extends StatelessWidget {
 
 class _SectionTile extends StatelessWidget {
   const _SectionTile({
+    super.key,
     required this.section,
     required this.initiallyExpanded,
     required this.onLessonTap,

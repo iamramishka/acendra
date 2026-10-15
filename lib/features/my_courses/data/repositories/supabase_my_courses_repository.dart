@@ -11,7 +11,8 @@ class SupabaseMyCoursesRepository implements MyCoursesRepository {
 
   @override
   Future<List<EnrolledCourse>> listEnrolled() async {
-    final rows = await _client
+    final user = _client.auth.currentUser;
+    var query = _client
         .from('enrollments')
         .select(
           'id, course_id, status, created_at, '
@@ -19,8 +20,11 @@ class SupabaseMyCoursesRepository implements MyCoursesRepository {
           // Keep the card placeholder until authorized thumbnail delivery exists.
           'courses(id, title, short_description)',
         )
-        .eq('status', 'active')
-        .order('created_at', ascending: false);
+        .eq('status', 'active');
+    // Defense-in-depth: add explicit user filter when session is available;
+    // RLS enforces user_id = auth.uid() at the database level regardless.
+    if (user != null) query = query.eq('user_id', user.id);
+    final rows = await query.order('created_at', ascending: false);
     return (rows as List<dynamic>)
         .map(
           (r) =>

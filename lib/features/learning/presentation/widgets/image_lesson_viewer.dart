@@ -8,18 +8,26 @@ class ImageLessonViewer extends StatelessWidget {
     required this.title,
     required this.imageUrl,
     this.caption,
+    this.semanticLabel,
     this.onNext,
     this.onPrevious,
   });
 
   final String title;
+
+  /// Must be a pre-authorized signed URL obtained from the trusted backend.
+  /// Never pass a permanently public storage URL.
   final String imageUrl;
   final String? caption;
+
+  /// Accessible description of the image content. Falls back to [title].
+  final String? semanticLabel;
   final VoidCallback? onNext;
   final VoidCallback? onPrevious;
 
   @override
   Widget build(BuildContext context) {
+    assert(imageUrl.isNotEmpty, 'imageUrl must not be empty');
     final tt = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
 
@@ -38,9 +46,9 @@ class ImageLessonViewer extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 480),
+            constraints: const BoxConstraints(minHeight: 120, maxHeight: 480),
             child: Semantics(
-              label: title,
+              label: semanticLabel ?? title,
               image: true,
               child: Image.network(
                 imageUrl,

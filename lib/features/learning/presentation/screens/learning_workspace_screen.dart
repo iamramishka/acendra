@@ -3,6 +3,7 @@ import 'package:acendra/core/widgets/feedback/app_skeleton.dart';
 import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:acendra/features/learning/domain/entities/lesson_content.dart';
 import 'package:acendra/features/learning/presentation/providers/learning_provider.dart';
+import 'package:acendra/features/marketplace/domain/entities/curriculum_section.dart';
 import 'package:acendra/features/learning/presentation/widgets/curriculum_nav.dart';
 import 'package:acendra/features/learning/presentation/widgets/image_lesson_viewer.dart';
 import 'package:acendra/features/learning/presentation/widgets/text_lesson_viewer.dart';
@@ -149,7 +150,9 @@ class LearningWorkspaceScreen extends ConsumerWidget {
                   tooltip: 'Course curriculum',
                   onPressed: () => _showCurriculumDrawer(
                     context: context,
-                    curriculumNav: curriculumNav,
+                    sections: state.sections,
+                    currentLessonId: state.currentLessonId,
+                    onLessonTap: (lessonId) => notifier.selectLesson(lessonId),
                   ),
                   child: const Icon(Icons.list),
                 ),
@@ -163,7 +166,9 @@ class LearningWorkspaceScreen extends ConsumerWidget {
 
   void _showCurriculumDrawer({
     required BuildContext context,
-    required Widget curriculumNav,
+    required List<CurriculumSection> sections,
+    required String? currentLessonId,
+    required void Function(String) onLessonTap,
   }) {
     showModalBottomSheet<void>(
       context: context,
@@ -202,7 +207,14 @@ class LearningWorkspaceScreen extends ConsumerWidget {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
-            Expanded(child: curriculumNav),
+            Expanded(
+              child: CurriculumNav(
+                sections: sections,
+                currentLessonId: currentLessonId,
+                onLessonTap: onLessonTap,
+                scrollController: scrollController,
+              ),
+            ),
           ],
         ),
       ),

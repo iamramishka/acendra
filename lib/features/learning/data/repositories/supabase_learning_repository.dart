@@ -33,7 +33,8 @@ class SupabaseLearningRepository implements LearningRepository {
   Future<LessonContent> getLessonContent(String lessonId) async {
     final row = await _client
         .from('lessons')
-        // lessons contains publicly readable metadata, never paid lesson bodies.
+        // content_text and content_image_url are fetched here once the DB migration
+        // adds those columns (see Codex content-delivery tasks).
         .select('id, title, lesson_type, position, section_id')
         .eq('id', lessonId)
         .single();
@@ -61,6 +62,7 @@ class SupabaseLearningRepository implements LearningRepository {
         .from('enrollments')
         .select('id')
         .eq('course_id', courseId)
+        .eq('user_id', user.id)
         .eq('status', 'active')
         .limit(1);
     return (enrollmentRows as List<dynamic>).isNotEmpty;

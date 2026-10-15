@@ -178,6 +178,15 @@ class LearningNotifier extends StateNotifier<LearningState> {
     );
     try {
       final repo = _ref.read(learningRepositoryProvider);
+      final allowed = await repo.isEnrolledOrPreview(state.courseId, lessonId);
+      if (!mounted || requestId != _requestId) return;
+      if (!allowed) {
+        state = state.copyWith(
+          isLoading: false,
+          error: 'You are not enrolled in this course.',
+        );
+        return;
+      }
       final content = await repo.getLessonContent(lessonId);
       if (!mounted || requestId != _requestId) return;
       state = state.copyWith(currentContent: content, isLoading: false);
