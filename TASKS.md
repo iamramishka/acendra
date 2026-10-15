@@ -1827,9 +1827,9 @@ Integration Gate:
   Test bank approval journey.
   DONE — project owner confirmed completion of the bank approval journey through manual verification on 2026-10-15, following the stated acceptance checklist. Acceptance source is the owner's confirmation; CODEX did not independently observe the manual workflow or receive its bank-credit/approval artifacts. Earlier blocked agent checks remain historical evidence. Other task statuses and production release gates remain unchanged. See [owner acceptance record](docs/reviews/CSA-179-OWNER-MANUAL-ACCEPTANCE.md).
 
-- [ ] CSA-180 [P0] [X]
+- [x] CSA-180 [P0] [X]
   Test purchase-to-learning entitlement.
-  IN_REVIEW; full acceptance blocked. Learning now has routed UI, but fetches metadata without lesson bodies and uses video/PDF placeholders. Requires authorized content delivery and browser verification of settlement-to-access, pre-settlement denial, revocation and persistent progress. The backend smoke's synthetic settlement/progress checks do not close UI acceptance. See [current review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#csa-178179180-current-review--2026-10-14).
+  DONE — project owner confirmed successful manual verification and task completion on 2026-10-15 after the CSA-180 stepwise guidance. Acceptance source is the owner's manual result; CODEX did not independently observe completion of the full journey or receive per-check payment/content/progress/revocation artifacts. Earlier agent observations remain historical evidence. Other tasks and production release gates remain unchanged. See [owner acceptance record](docs/reviews/CSA-180-OWNER-MANUAL-ACCEPTANCE.md).
 
 - [ ] CSA-181 [P1] [C]
   Test admin course publishing journey.
