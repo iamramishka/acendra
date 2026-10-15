@@ -37,7 +37,9 @@ Future<ReceiptFile?> pickReceiptFile() async {
   }).toJS;
   input.addEventListener('change', change);
   input.addEventListener('cancel', cancel);
-  web.document.body!.appendChild(input);
+  final body = web.document.body;
+  if (body == null) return null;
+  body.appendChild(input);
   try {
     input.click();
     return await result.future;
