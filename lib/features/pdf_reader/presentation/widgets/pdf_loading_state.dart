@@ -12,21 +12,25 @@ class PdfLoadingState extends StatelessWidget {
         Theme.of(context).extension<AppThemeExtension>()?.textSecondary ??
         cs.onSurfaceVariant;
 
-    return ColoredBox(
-      color: cs.surface,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              'Loading document…',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: textColor),
-            ),
-          ],
+    return Semantics(
+      liveRegion: true,
+      label: 'Loading PDF document',
+      child: ColoredBox(
+        color: cs.surface,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                'Loading document…',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: textColor),
+              ),
+            ],
+          ),
         ),
       ),
     );

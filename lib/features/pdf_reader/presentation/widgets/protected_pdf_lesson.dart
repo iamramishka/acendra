@@ -8,6 +8,8 @@ import 'package:acendra/features/pdf_reader/data/pdf_progress_local.dart';
 import 'package:acendra/features/pdf_reader/data/pdf_transport.dart'
     if (dart.library.js_interop) 'package:acendra/features/pdf_reader/data/pdf_transport_web.dart'
     as transport;
+import 'package:acendra/features/pdf_reader/presentation/widgets/pdf_error_state.dart';
+import 'package:acendra/features/pdf_reader/presentation/widgets/pdf_loading_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pdfx/pdfx.dart' as pdfx;
@@ -66,7 +68,7 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
   PdfTransport? _transport;
   pdfx.PdfController? _controller;
   PdfDocumentLease<pdfx.PdfDocument>? _document;
-  String? _message;
+  String? _error;
   bool _loading = true;
   int _page = 1, _pages = 1;
   int _generation = 0;
@@ -80,9 +82,7 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
         document.release().catchError((Object _) {
           // Release failure cannot restore the detached reader or content.
           if (mounted) {
-            setState(
-              () => _message = 'The PDF reader could not close cleanly.',
-            );
+            setState(() => _error = 'The PDF reader could not close cleanly.');
           }
         }),
       );
@@ -109,7 +109,7 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
     _releaseRenderer();
     setState(() {
       _loading = true;
-      _message = null;
+      _error = null;
     });
     try {
       final base = Uri.tryParse(EnvConfig.supabaseUrl);
@@ -138,8 +138,7 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
       if (bytes == null) {
         setState(() {
           _loading = false;
-          _message =
-              'Your personalized PDF is preparing. Please retry shortly.';
+          _error = 'Your personalized PDF is preparing. Please retry shortly.';
         });
         return;
       }
@@ -161,7 +160,7 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
       }
       setState(() {
         _loading = false;
-        _message = error is ProtectedPdfFailure
+        _error = error is ProtectedPdfFailure
             ? error.message
             : 'PDF delivery could not be confirmed. Please retry.';
       });
@@ -171,18 +170,10 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const PdfLoadingState();
     }
-    if (_message != null) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(_message!),
-            TextButton(onPressed: _load, child: const Text('Retry PDF')),
-          ],
-        ),
-      );
+    if (_error != null) {
+      return PdfErrorState(errorMessage: _error!, onRetry: _load);
     }
     final controller = _controller;
     final generation = _generation;
@@ -202,8 +193,7 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
                   _pages = document.pagesCount;
                   _page = 1;
                 });
-                final saved =
-                    PdfProgressLocal.loadPage(widget.lessonId);
+                final saved = PdfProgressLocal.loadPage(widget.lessonId);
                 if (saved != null &&
                     saved > 1 &&
                     saved <= document.pagesCount) {
@@ -231,8 +221,8 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
                   generation == _generation &&
                   _controller == controller) {
                 setState(
-                  () => _message =
-                      'This PDF could not be rendered. Please retry.',
+                  () =>
+                      _error = 'This PDF could not be rendered. Please retry.',
                 );
               }
             },

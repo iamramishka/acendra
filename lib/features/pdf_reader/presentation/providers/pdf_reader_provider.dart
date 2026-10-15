@@ -1,3 +1,4 @@
+import 'package:acendra/features/pdf_reader/domain/entities/pdf_bookmark.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +19,9 @@ class PdfReaderState {
     required this.zoom,
     required this.zoomPreset,
     this.errorMessage,
+    this.bookmarks = const [],
+    this.showBookmarks = false,
+    this.searchQuery = '',
   });
 
   final PdfReaderStatus status;
@@ -31,7 +35,19 @@ class PdfReaderState {
   final PdfZoomPreset zoomPreset;
   final String? errorMessage;
 
+  /// List of bookmarks added by the user.
+  final List<PdfBookmark> bookmarks;
+
+  /// Whether the bookmarks panel is visible.
+  final bool showBookmarks;
+
+  /// Current page-number search query.
+  final String searchQuery;
+
   double get progress => totalPages > 0 ? currentPage / totalPages : 0.0;
+
+  /// Returns true if [page] has a bookmark.
+  bool isBookmarked(int page) => bookmarks.any((b) => b.page == page);
 
   PdfReaderState copyWith({
     PdfReaderStatus? status,
@@ -41,6 +57,9 @@ class PdfReaderState {
     PdfZoomPreset? zoomPreset,
     String? errorMessage,
     bool clearErrorMessage = false,
+    List<PdfBookmark>? bookmarks,
+    bool? showBookmarks,
+    String? searchQuery,
   }) => PdfReaderState(
     status: status ?? this.status,
     currentPage: currentPage ?? this.currentPage,
@@ -50,6 +69,9 @@ class PdfReaderState {
     errorMessage: clearErrorMessage
         ? null
         : (errorMessage ?? this.errorMessage),
+    bookmarks: bookmarks ?? this.bookmarks,
+    showBookmarks: showBookmarks ?? this.showBookmarks,
+    searchQuery: searchQuery ?? this.searchQuery,
   );
 
   @override
@@ -62,7 +84,10 @@ class PdfReaderState {
           totalPages == other.totalPages &&
           zoom == other.zoom &&
           zoomPreset == other.zoomPreset &&
-          errorMessage == other.errorMessage;
+          errorMessage == other.errorMessage &&
+          listEquals(bookmarks, other.bookmarks) &&
+          showBookmarks == other.showBookmarks &&
+          searchQuery == other.searchQuery;
 
   @override
   int get hashCode => Object.hash(
@@ -72,6 +97,9 @@ class PdfReaderState {
     zoom,
     zoomPreset,
     errorMessage,
+    Object.hashAll(bookmarks),
+    showBookmarks,
+    searchQuery,
   );
 }
 
@@ -165,6 +193,29 @@ class PdfReaderNotifier extends StateNotifier<PdfReaderState> {
 
   void setZoomPreset(PdfZoomPreset preset) {
     state = state.copyWith(zoomPreset: preset, zoom: _zoomForPreset(preset));
+  }
+
+  /// Toggles a bookmark on [page]: adds if absent, removes if present.
+  void toggleBookmark(int page) {
+    final existing = List<PdfBookmark>.from(state.bookmarks);
+    final index = existing.indexWhere((b) => b.page == page);
+    if (index >= 0) {
+      existing.removeAt(index);
+    } else {
+      existing.add(PdfBookmark(page: page, label: 'Page $page'));
+      existing.sort((a, b) => a.page.compareTo(b.page));
+    }
+    state = state.copyWith(bookmarks: existing);
+  }
+
+  /// Shows or hides the bookmarks panel.
+  void toggleBookmarksPanel() {
+    state = state.copyWith(showBookmarks: !state.showBookmarks);
+  }
+
+  /// Updates the search query (used for page-number navigation).
+  void setSearchQuery(String query) {
+    state = state.copyWith(searchQuery: query);
   }
 
   double _zoomForPreset(PdfZoomPreset preset) => switch (preset) {

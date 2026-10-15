@@ -49,12 +49,15 @@ class PdfZoomControls extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.xs),
-        SizedBox(
-          width: 56,
-          child: Text(
-            _zoomLabel,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall,
+        Semantics(
+          label: '${(currentZoom * 100).round()} percent zoom',
+          child: SizedBox(
+            width: 56,
+            child: Text(
+              _zoomLabel,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ),
         ),
         const SizedBox(width: AppSpacing.xs),
@@ -69,24 +72,28 @@ class PdfZoomControls extends StatelessWidget {
         ),
         const SizedBox(width: AppSpacing.sm),
         if (onPresetSelected != null)
-          DropdownButton<PdfZoomPreset>(
-            value: currentPreset,
-            underline: const SizedBox.shrink(),
-            isDense: true,
-            items: PdfZoomPreset.values
-                .map(
-                  (p) => DropdownMenuItem(
-                    value: p,
-                    child: Text(
-                      _presetLabel(p),
-                      style: Theme.of(context).textTheme.bodySmall,
+          Semantics(
+            label: 'Zoom preset selector',
+            explicitChildNodes: false,
+            child: DropdownButton<PdfZoomPreset>(
+              value: currentPreset,
+              underline: const SizedBox.shrink(),
+              isDense: true,
+              items: PdfZoomPreset.values
+                  .map(
+                    (p) => DropdownMenuItem(
+                      value: p,
+                      child: Text(
+                        _presetLabel(p),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ),
-                  ),
-                )
-                .toList(),
-            onChanged: (p) {
-              if (p != null) onPresetSelected!(p);
-            },
+                  )
+                  .toList(),
+              onChanged: (p) {
+                if (p != null) onPresetSelected!(p);
+              },
+            ),
           ),
       ],
     );
