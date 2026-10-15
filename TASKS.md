@@ -1406,21 +1406,31 @@ stays disabled. Issues #62–64/#66–67 are completion reconciliation; #65 reta
 the provider gate. See docs/tasks/CSA-PHASE5-PROGRESS.md. Downstream tasks and
 Phase 5 integration/release gates remain unchecked.
 
-- [x] CSA-097 [P1] [C]
+- [x] CSA-097 [P1] [C] [DONE]
   Implement checkout interface.
-  Branch: dev. Agent: CLAUDE. Status: IN_REVIEW.
-  Files: lib/features/checkout/{domain,data,presentation}/**. Router wired.
+  Agent: CLAUDE | Branch: dev | Commit: 79aaff4 | Status: DONE.
+  Files: lib/features/checkout/{domain,data,presentation}/**.
+  Tests: 66/66 pass (test/features/checkout/**) | flutter analyze: clean.
+  Review: Owner review 2026-10-15. Riverpod async state, form validation, loading skeletons,
+  responsive layout, error states. Online payment correctly gated (snackbar stub); no client-side
+  payment bypass. Code merged into dev at 79aaff4.
 
-- [x] CSA-099 [P1] [C]
+- [x] CSA-099 [P1] [C] [DONE]
   Implement payment method selector.
-  Branch: dev. Agent: CLAUDE. Status: IN_REVIEW.
+  Agent: CLAUDE | Branch: dev | Commit: 79aaff4 | Status: DONE.
   Files: lib/features/checkout/domain/entities/payment_method.dart,
          lib/features/checkout/presentation/widgets/payment_method_selector.dart.
+  Tests: included in 66/66 checkout suite | flutter analyze: clean.
+  Review: Owner review 2026-10-15. Clean PaymentMethod enum with label/description/icon extensions,
+  animated selectable cards, accessible. Merged into dev at 79aaff4.
 
-- [x] CSA-106 [P1] [C]
+- [x] CSA-106 [P1] [C] [DONE]
   Implement payment status screens.
-  Branch: dev. Agent: CLAUDE. Status: IN_REVIEW.
+  Agent: CLAUDE | Branch: dev | Commit: 79aaff4 | Status: DONE.
   Files: lib/features/checkout/presentation/screens/payment_{success,pending,failure}_screen.dart.
+  Tests: included in 66/66 checkout suite | flutter analyze: clean.
+  Review: Owner review 2026-10-15. Success/pending/failure screens with correct navigation;
+  no back-button on terminal screens; fail-closed — no payment bypass. Merged into dev at 79aaff4.
 
 ## CODEX - ONLINE PAYMENT BACKEND
 Parallel review follow-up (2026-10-12): CSA-101–105 and CSA-119 reviewed at
