@@ -36,6 +36,11 @@ abstract class LearningProgressRepository {
     bool completed,
     SavedLessonProgress? previous,
   );
+  Future<SavedLessonProgress> saveVideoPosition(
+    String lessonId,
+    int videoSeconds,
+    SavedLessonProgress? previous,
+  );
 }
 
 class SupabaseLearningProgressRepository implements LearningProgressRepository {
@@ -51,6 +56,25 @@ class SupabaseLearningProgressRepository implements LearningProgressRepository {
     return (data as List<dynamic>)
         .map((row) => SavedLessonProgress.fromJson(row as Map<String, dynamic>))
         .toList();
+  }
+
+  @override
+  Future<SavedLessonProgress> saveVideoPosition(
+    String lessonId,
+    int videoSeconds,
+    SavedLessonProgress? previous,
+  ) async {
+    final data = await client.rpc(
+      'csa133_save_progress',
+      params: {
+        'p_lesson': lessonId,
+        'p_completed': previous?.completed ?? false,
+        'p_pdf_page': previous?.pdfPage,
+        'p_pdf_position': previous?.pdfPosition,
+        'p_video_seconds': videoSeconds,
+      },
+    );
+    return SavedLessonProgress.fromJson(data as Map<String, dynamic>);
   }
 
   @override

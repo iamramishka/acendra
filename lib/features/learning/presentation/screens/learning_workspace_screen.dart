@@ -105,6 +105,12 @@ class LearningWorkspaceScreen extends ConsumerWidget {
             onNext: currentIndex >= 0 && currentIndex < flat.length - 1
                 ? onNext
                 : null,
+            initialVideoSeconds:
+                state.progress[state.currentLessonId]?.videoSeconds,
+            onVideoSeconds: state.currentLessonId != null
+                ? (seconds) => notifier.saveVideoPosition(
+                    state.currentLessonId!, seconds)
+                : null,
           ),
         ),
       ],
@@ -232,12 +238,16 @@ class _LessonContentArea extends StatelessWidget {
     required this.isLoading,
     this.onPrevious,
     this.onNext,
+    this.initialVideoSeconds,
+    this.onVideoSeconds,
   });
 
   final LessonContent? content;
   final bool isLoading;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
+  final int? initialVideoSeconds;
+  final ValueChanged<int>? onVideoSeconds;
 
   @override
   Widget build(BuildContext context) {
@@ -270,6 +280,8 @@ class _LessonContentArea extends StatelessWidget {
             child: AuthorizedVideoWidget(
               lessonId: content!.id,
               title: content!.title,
+              initialVideoSeconds: initialVideoSeconds,
+              onVideoSeconds: onVideoSeconds,
             ),
           ),
           _LessonNavBar(onPrevious: onPrevious, onNext: onNext),

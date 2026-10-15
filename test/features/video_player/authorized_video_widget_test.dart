@@ -54,7 +54,7 @@ void main() {
       expect(calls, 1);
       expect(find.textContaining('temporarily unavailable'), findsOneWidget);
       expect(find.textContaining('private signed token'), findsNothing);
-      await tester.tap(find.text('Request video access'));
+      await tester.tap(find.text('Retry'));
       await tester.pumpAndSettle();
       expect(calls, 2);
     },

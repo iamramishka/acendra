@@ -87,6 +87,24 @@ class _Progress implements LearningProgressRepository {
       pdfPosition: snapshot?.pdfPosition,
     );
   }
+
+  @override
+  Future<SavedLessonProgress> saveVideoPosition(
+    String lesson,
+    int videoSeconds,
+    SavedLessonProgress? snapshot,
+  ) async {
+    writes++;
+    previous = snapshot;
+    if (failSave) throw StateError('private database detail');
+    return SavedLessonProgress(
+      lessonId: lesson,
+      completed: snapshot?.completed ?? false,
+      pdfPage: snapshot?.pdfPage,
+      pdfPosition: snapshot?.pdfPosition,
+      videoSeconds: videoSeconds,
+    );
+  }
 }
 
 void main() {

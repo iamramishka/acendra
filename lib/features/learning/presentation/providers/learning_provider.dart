@@ -167,6 +167,24 @@ class LearningNotifier extends StateNotifier<LearningState> {
     }
   }
 
+  Future<void> saveVideoPosition(String lessonId, int seconds) async {
+    if (!mounted) return;
+    if (!state.progressReady || state.progressError != null) return;
+    try {
+      final saved = await _ref
+          .read(learningProgressRepositoryProvider)
+          .saveVideoPosition(lessonId, seconds, state.progress[lessonId]);
+      if (!mounted) return;
+      if (saved.lessonId == lessonId) {
+        state = state.copyWith(
+          progress: {...state.progress, lessonId: saved},
+        );
+      }
+    } catch (_) {
+      // Best-effort: a missed periodic position save is non-fatal.
+    }
+  }
+
   Future<void> selectLesson(String lessonId) async {
     if (!mounted) return;
     final requestId = ++_requestId;

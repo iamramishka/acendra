@@ -1665,18 +1665,27 @@ CLAUDE
 
 ## VIDEO
 
-- [ ] CSA-135 [P1] [C]
+- [x] CSA-135 [P1] [C] IN_REVIEW
   Implement video player interface.
+  Agent: CLAUDE | Branch: dev
+  Files: lib/features/video_player/presentation/widgets/authorized_video_widget.dart
+  Summary: Replaced stub UI with tap-to-show VideoControls, VideoPlayer in 16:9 AspectRatio, controls auto-hide timer.
 
 - [ ] CSA-136 [P0] [X] [IN_REVIEW]
   Implement playback authorization.
   CODEX implementation in stacked PR #102; signed Mux authorization added. Combined verification in progress; real provider readiness retained.
 
-- [ ] CSA-137 [P1] [C]
+- [x] CSA-137 [P1] [C] IN_REVIEW
   Implement video error/loading states.
+  Agent: CLAUDE | Branch: dev
+  Files: lib/features/video_player/presentation/widgets/authorized_video_widget.dart
+  Summary: Wired VideoLoadingState (auth loading + buffering) and VideoErrorState (auth errors + playback errors) with Retry button into AuthorizedVideoWidget.
 
-- [ ] CSA-138 [P1] [C]
+- [x] CSA-138 [P1] [C] IN_REVIEW
   Implement playback progress integration.
+  Agent: CLAUDE | Branch: dev
+  Files: authorized_video_widget.dart, learning_progress_repository.dart, learning_provider.dart, learning_workspace_screen.dart
+  Summary: initialVideoSeconds seeks to resume position on load; 5-second periodic timer calls onVideoSeconds while playing; saveVideoPosition RPC method added to repository and notifier.
 
 ## CODEX - PROTECTED PDF BACKEND
 
