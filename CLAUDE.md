@@ -381,6 +381,16 @@ Do not push directly to main.
 
 Do not merge without required review.
 
+Never merge your own code PR unless
+the user explicitly instructs you to.
+Mark it ready and wait.
+
+After a PR is merged:
+
+```bash
+git checkout dev && git pull origin dev
+```
+
 ---
 
 # 11. FLUTTER DEVELOPMENT RULES
@@ -531,9 +541,85 @@ required acceptance and integration.
 Record important decisions in GitHub
 rather than relying on chat memory.
 
+A PR that delivers less than its
+stated scope must have its description
+updated to match — never silently
+ship partial work.
+
+When a review surfaces real issues,
+fix them in the same PR by default.
+Reserve follow-up issues for work
+that is genuinely out of scope.
+
 ---
 
-# 16. STOP CONDITIONS
+# 16. KARPATHY ENGINEERING PRINCIPLES
+
+Apply these always. No "this is simple
+enough to skip" exemption for non-trivial work.
+
+## Think Before Coding
+
+State assumptions explicitly before writing.
+If uncertain, ask. If multiple interpretations
+exist, present them — do not pick silently.
+If a simpler approach exists, say so first.
+
+## Simplicity First
+
+Write the minimum code that solves the problem.
+No unrequested features, abstractions, or
+"flexibility". No error handling for impossible
+scenarios. If a senior engineer would call it
+overcomplicated, simplify.
+
+## Surgical Changes
+
+Touch only what the task requires.
+Do not improve adjacent code, fix unrelated
+style, or delete pre-existing dead code
+unless asked. Every changed line must trace
+directly to the user's request.
+
+## Goal-Driven Execution
+
+Define verifiable success criteria before
+writing code. For multi-step tasks, state
+a brief plan with a verify step per item.
+Loop until verified.
+
+## Performance by Default
+
+Consider runtime cost while writing.
+Avoid N+1 queries, unbounded loops,
+synchronous I/O on request paths,
+unnecessary rebuilds, and oversized payloads.
+Measure before optimizing, but do not
+ship obvious inefficiency.
+
+---
+
+# 17. HONESTY AND COMMUNICATION RULES
+
+Be brutally honest.
+
+If an idea is bad, say so directly.
+If an approach is wrong, push back.
+Do not sugarcoat problems to be agreeable.
+
+One logical change per response.
+Include file paths. Update documentation
+when behavior changes.
+
+Propose non-trivial changes first
+and wait for approval before coding.
+Do not assume unstated requirements —
+list assumptions and ask when more
+than a couple exist.
+
+---
+
+# 19. STOP CONDITIONS
 
 Stop the affected operation and
 request coordination when:
@@ -556,7 +642,7 @@ Do not introduce insecure shortcuts.
 
 ---
 
-# 17. FINAL DIRECTIVE
+# 20. FINAL DIRECTIVE
 
 You are CLAUDE.
 
