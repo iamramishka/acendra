@@ -1823,9 +1823,9 @@ Integration Gate:
   Test online purchase journey.
   DONE — project owner confirmed successful manual verification and task completion on2026-10-15 and explicitly requested this status update. Acceptance source is the owner's manual result; CODEX's earlier provider rejection remains historical and is not relabelled as a successful automated test. Implementation merged through PR #153; staging-only checkout/navigation continuation is recorded in PR #159, whose merge status is separate. Other Phase8 tasks and production release gates remain unchanged. See [owner acceptance record](docs/reviews/CSA-178-SANDBOX-STAGING-BOARD.md#current-status-done--owner-confirmed-manual-acceptance).
 
-- [ ] CSA-179 [P0] [X]
+- [x] CSA-179 [P0] [X]
   Test bank approval journey.
-  IN_REVIEW; full acceptance blocked. Receipt upload and finance decisions remain unavailable; finance review uses synthetic records. Requires approved inspection/storage, independent credit verification and browser coverage of pending denial, approval, rejection and resubmission. See [current review](docs/reviews/CSA-178-201-FINAL-EVIDENCE.md#csa-178179180-current-review--2026-10-14).
+  DONE — project owner confirmed completion of the bank approval journey through manual verification on 2026-10-15, following the stated acceptance checklist. Acceptance source is the owner's confirmation; CODEX did not independently observe the manual workflow or receive its bank-credit/approval artifacts. Earlier blocked agent checks remain historical evidence. Other task statuses and production release gates remain unchanged. See [owner acceptance record](docs/reviews/CSA-179-OWNER-MANUAL-ACCEPTANCE.md).
 
 - [ ] CSA-180 [P0] [X]
   Test purchase-to-learning entitlement.
