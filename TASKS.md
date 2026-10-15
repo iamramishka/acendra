@@ -1701,23 +1701,38 @@ CLAUDE
 
 ## CLAUDE - PDF READER
 
-- [ ] CSA-142 [P1] [C]
+- [x] CSA-142 [P1] [C] DONE
   Integrate evaluated PDF library.
+  Agent: CLAUDE | Branch: dev
+  Summary: pdfx library integrated via CSA-180 Codex work; ProtectedPdfLesson wires authenticated bytes to PdfReaderWidget.
 
-- [ ] CSA-143 [P1] [C]
+- [x] CSA-143 [P1] [C] DONE
   Implement responsive reader interface.
+  Agent: CLAUDE | Branch: dev
+  Files: lib/features/pdf_reader/presentation/widgets/pdf_reader_widget.dart
+  Summary: 3-breakpoint layout (compact <600 / medium 600–1023 / expanded ≥1024) with SafeArea, bookmarks overlay, search bar integration. Commit f9445ce.
 
-- [ ] CSA-144 [P1] [C]
+- [x] CSA-144 [P1] [C] DONE
   Implement page navigation.
+  Agent: CLAUDE | Branch: dev
+  Files: lib/features/pdf_reader/presentation/widgets/pdf_page_navigation.dart
+  Summary: PdfPageNavigation widget in dev; wired in PdfReaderWidget for all breakpoints.
 
-- [ ] CSA-145 [P1] [C]
+- [x] CSA-145 [P1] [C] DONE
   Implement zoom controls.
+  Agent: CLAUDE | Branch: dev
+  Files: lib/features/pdf_reader/presentation/widgets/pdf_zoom_controls.dart
+  Summary: Zoom in/out/reset controls with preset tracking. Commit 0915186.
 
-- [ ] CSA-146 [P1] [C]
+- [x] CSA-146 [P1] [C] DONE
   Implement fit-to-width and expanded view.
+  Agent: CLAUDE | Branch: dev
+  Summary: PdfZoomPreset.fitWidth wired through TransformationController. Commit 0915186.
 
-- [ ] CSA-147 [P1] [C]
+- [x] CSA-147 [P1] [C] DONE
   Implement reading position persistence UI.
+  Agent: CLAUDE | Branch: dev
+  Summary: PdfProgressLocal reads/writes last page; PdfReaderWidget seeks on open. Commit 0915186.
 
 ## WATERMARK STRATEGY
 
@@ -1730,14 +1745,23 @@ CLAUDE
 
 ## CLAUDE - READER QUALITY
 
-- [ ] CSA-149 [P1] [C]
+- [x] CSA-149 [P1] [C] DONE
   Implement PDF loading/error states.
+  Agent: CLAUDE | Branch: dev
+  Files: pdf_error_state.dart, pdf_loading_state.dart
+  Summary: PdfLoadingState with Semantics liveRegion + label; PdfErrorState with Semantics liveRegion + Retry OutlinedButton. Commit f9445ce.
 
-- [ ] CSA-150 [P1] [C]
+- [x] CSA-150 [P1] [C] DONE
   Verify readability and accessibility.
+  Agent: CLAUDE | Branch: dev
+  Files: pdf_reader_widget.dart
+  Summary: Semantic labels, live regions, accessible toolbar controls, SafeArea across all breakpoints. flutter analyze: no issues. Commit f9445ce.
 
-- [ ] CSA-151 [P2] [C]
+- [x] CSA-151 [P2] [C] DONE
   Add bookmarks/search where supported.
+  Agent: CLAUDE | Branch: dev
+  Files: pdf_bookmark.dart, pdf_bookmarks_panel.dart, pdf_search_bar.dart, pdf_reader_provider.dart
+  Summary: PdfBookmark immutable entity; PdfBookmarksPanel with go-to-page; PdfSearchBar (page-number go-to); toggleBookmark/toggleBookmarksPanel/setSearchQuery in notifier. Commit f9445ce.
 
 ## SECURITY AND INTEGRATION TESTS
 
@@ -1757,8 +1781,11 @@ CLAUDE
   IN_REVIEW, CODEX: issue #101; tests prepared/verified against committed dependency snapshots; merged integration pending.
   Test learning progress persistence.
 
-- [ ] CSA-156 [P1] [C]
+- [x] CSA-156 [P1] [C] DONE
   Test PDF rendering across devices.
+  Agent: CLAUDE | Branch: dev
+  Files: test/features/pdf_reader/pdf_reader_responsive_test.dart
+  Summary: 20/20 tests — bookmark logic, search, responsive layout at 390/768/1440 px in light and dark themes. Commit f9445ce.
 
 Integration Gate:
 
