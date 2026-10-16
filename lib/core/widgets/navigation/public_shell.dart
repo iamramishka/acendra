@@ -4,6 +4,8 @@ import 'package:acendra/app/theme/app_theme_extension.dart';
 import 'package:acendra/core/accessibility/semantics_labels.dart';
 import 'package:acendra/core/widgets/buttons/theme_toggle_button.dart';
 import 'package:acendra/core/widgets/layout/responsive_container.dart';
+import 'package:acendra/core/widgets/navigation/student_shell.dart';
+import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +17,7 @@ class PublicShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (ref.watch(isAuthenticatedProvider)) return StudentShell(child: child);
     final width = MediaQuery.sizeOf(context).width;
     final isMobile = width < AppBreakpoints.compact;
     final ext = Theme.of(context).extension<AppThemeExtension>();
