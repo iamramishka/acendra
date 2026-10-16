@@ -415,7 +415,7 @@ void main() {
       await tester.pumpWidget(_app(const StudentShell(child: SizedBox())));
       // Nav link labels must not appear inside the AppBar (they appear in the
       // bottom NavigationBar instead).
-      final inAppBar = (String label) =>
+      Finder inAppBar(String label) =>
           find.descendant(of: find.byType(AppBar), matching: find.text(label));
       expect(inAppBar('My Courses'), findsNothing);
       expect(inAppBar('Explore'), findsNothing);

@@ -63,7 +63,7 @@ class _FakeAdminCourseRepository implements AdminCourseRepository {
 
   static Map<String, List<AdminCurriculumSection>> _defaultCurriculum() => {
     'course-1': [
-      AdminCurriculumSection(
+      const AdminCurriculumSection(
         id: 's1',
         courseId: 'course-1',
         title: 'Getting Started',

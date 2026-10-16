@@ -426,7 +426,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             appBar: AppBar(
               title: Text(
@@ -435,7 +435,7 @@ void main() {
                 maxLines: 1,
               ),
             ),
-            body: const SizedBox.expand(),
+            body: SizedBox.expand(),
           ),
         ),
       );
@@ -449,7 +449,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: SizedBox(
               width: 320,
@@ -479,7 +479,7 @@ void main() {
               body: Column(
                 children: [
                   // Simulate a constrained header with a long title.
-                  SizedBox(
+                  const SizedBox(
                     width: 320,
                     child: Text(
                       longTitle,

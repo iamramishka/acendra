@@ -216,8 +216,9 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
                       keyboardType: TextInputType.number,
                       errorText: _priceError,
                       onChanged: (_) {
-                        if (_priceError != null)
+                        if (_priceError != null) {
                           setState(() => _priceError = null);
+                        }
                       },
                     ),
                   ),
