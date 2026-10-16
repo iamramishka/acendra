@@ -19,108 +19,115 @@ class FinanceReviewScreen extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return Padding(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      child: ref
-          .watch(financeQueueProvider)
-          .when(
-            skipLoadingOnReload: false,
-            skipLoadingOnRefresh: false,
-            loading: () => _LoadingSkeleton(),
-            error: (_, _) => AppErrorState(
-              message:
-                  'Finance review is unavailable. Sign in with an authorized finance account and MFA, or try again later.',
-              actionLabel: 'Retry',
-              onRetry: () {
-                final identity = ref.read(bankSessionIdentityProvider);
-                if (identity != null) {
-                  ref.invalidate(financeQueueRequestProvider(identity));
-                }
-              },
-            ),
-            data: (items) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Finance Review',
-                            style: tt.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w700,
+    return Material(
+      color: Colors.transparent,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: ref
+            .watch(financeQueueProvider)
+            .when(
+              skipLoadingOnReload: false,
+              skipLoadingOnRefresh: false,
+              loading: () => _LoadingSkeleton(),
+              error: (_, _) => AppErrorState(
+                message:
+                    'Finance review is unavailable. Sign in with an authorized finance account and MFA, or try again later.',
+                actionLabel: 'Retry',
+                onRetry: () {
+                  final identity = ref.read(bankSessionIdentityProvider);
+                  if (identity != null) {
+                    ref.invalidate(financeQueueRequestProvider(identity));
+                  }
+                },
+              ),
+              data: (items) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Finance Review',
+                              style: tt.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: AppSpacing.xs),
-                          Text(
-                            items.isEmpty
-                                ? 'No pending receipts'
-                                : '${items.length} pending receipt${items.length == 1 ? '' : 's'}',
-                            style: tt.bodyMedium?.copyWith(
-                              color: cs.onSurfaceVariant,
+                            const SizedBox(height: AppSpacing.xs),
+                            Text(
+                              items.isEmpty
+                                  ? 'No pending receipts'
+                                  : '${items.length} pending receipt${items.length == 1 ? '' : 's'}',
+                              style: tt.bodyMedium?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      tooltip: 'Refresh queue',
-                      onPressed: () {
-                        final identity = ref.read(bankSessionIdentityProvider);
-                        if (identity != null) {
-                          ref.invalidate(financeQueueRequestProvider(identity));
-                        }
-                      },
-                      icon: const Icon(Icons.refresh_outlined),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Row(
-                  children: [
-                    AppButton(
-                      label: 'View Payment History',
-                      onPressed: () => context.go('/admin/payments/history'),
-                      variant: ButtonVariant.secondary,
-                      size: ButtonSize.small,
-                      icon: const Icon(Icons.history_outlined, size: 16),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    AppButton(
-                      label: 'All Payments',
-                      onPressed: () => context.go('/admin/payments'),
-                      variant: ButtonVariant.outlined,
-                      size: ButtonSize.small,
-                      icon: const Icon(Icons.payments_outlined, size: 16),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                if (items.isEmpty)
-                  const Expanded(
-                    child: AppEmptyState(message: 'No receipts to review'),
-                  )
-                else
-                  Expanded(
-                    child: ListView.separated(
-                      itemCount: items.length,
-                      separatorBuilder: (_, _) =>
-                          const SizedBox(height: AppSpacing.md),
-                      itemBuilder: (context, index) => _ReviewCard(
-                        key: ValueKey((
-                          items[index]['submission_id'],
-                          ref.watch(bankSessionWidgetKeyProvider),
-                        )),
-                        item: items[index],
+                      IconButton(
+                        tooltip: 'Refresh queue',
+                        onPressed: () {
+                          final identity = ref.read(
+                            bankSessionIdentityProvider,
+                          );
+                          if (identity != null) {
+                            ref.invalidate(
+                              financeQueueRequestProvider(identity),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.refresh_outlined),
                       ),
-                    ),
+                    ],
                   ),
-              ],
+                  const SizedBox(height: AppSpacing.md),
+                  Row(
+                    children: [
+                      AppButton(
+                        label: 'View Payment History',
+                        onPressed: () => context.go('/admin/payments/history'),
+                        variant: ButtonVariant.secondary,
+                        size: ButtonSize.small,
+                        icon: const Icon(Icons.history_outlined, size: 16),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      AppButton(
+                        label: 'All Payments',
+                        onPressed: () => context.go('/admin/payments'),
+                        variant: ButtonVariant.outlined,
+                        size: ButtonSize.small,
+                        icon: const Icon(Icons.payments_outlined, size: 16),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  if (items.isEmpty)
+                    const Expanded(
+                      child: AppEmptyState(message: 'No receipts to review'),
+                    )
+                  else
+                    Expanded(
+                      child: ListView.separated(
+                        itemCount: items.length,
+                        separatorBuilder: (_, _) =>
+                            const SizedBox(height: AppSpacing.md),
+                        itemBuilder: (context, index) => _ReviewCard(
+                          key: ValueKey((
+                            items[index]['submission_id'],
+                            ref.watch(bankSessionWidgetKeyProvider),
+                          )),
+                          item: items[index],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
+      ),
     );
   }
 }
@@ -273,12 +280,13 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
       'Stored order reference',
     ];
 
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.surface,
+    return Material(
+      color: cs.surface,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: ext?.border ?? cs.outlineVariant),
+        side: BorderSide(color: ext?.border ?? cs.outlineVariant),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(

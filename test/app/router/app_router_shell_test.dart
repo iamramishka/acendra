@@ -1,3 +1,6 @@
+@TestOn('browser')
+library;
+
 import 'package:acendra/app/router/app_router.dart';
 import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

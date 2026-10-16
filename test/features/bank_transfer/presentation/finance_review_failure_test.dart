@@ -55,7 +55,7 @@ void main() {
             bankSessionIdentityProvider.overrideWithValue('test-session'),
             bankTransferRepositoryProvider.overrideWithValue(repository),
           ],
-          child: const MaterialApp(home: FinanceReviewScreen()),
+          child: const MaterialApp(home: Scaffold(body: FinanceReviewScreen())),
         ),
       );
       await tester.pumpAndSettle();
@@ -68,9 +68,13 @@ void main() {
       expect(repository.calls, 1);
       expect(repository.reason, 'Amount does not match.');
       expect(tester.widget<TextField>(find.byType(TextField)).enabled, isFalse);
+      // AppButton renders ElevatedButton; only the busy action button is disabled.
       expect(
-        tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
-        isNull,
+        tester
+            .widgetList<ElevatedButton>(find.byType(ElevatedButton))
+            .where((b) => b.onPressed == null)
+            .length,
+        1,
       );
       repository.completion.completeError(Exception('Unavailable'));
       await tester.pumpAndSettle();
