@@ -110,7 +110,9 @@ void main() {
 
     testWidgets('primary meets textContrastGuideline', (tester) async {
       await tester.pumpWidget(
-        _wrap(child: AppButton(label: 'Continue', onPressed: () {})),
+        _wrap(
+          child: AppButton(label: 'Continue', onPressed: () {}),
+        ),
       );
       await tester.pump();
       await expectLater(tester, meetsGuideline(textContrastGuideline));
@@ -153,9 +155,7 @@ void main() {
 
   group('AppTextField – light theme', () {
     testWidgets('renders without errors', (tester) async {
-      await tester.pumpWidget(
-        _wrap(child: const AppTextField(label: 'Email')),
-      );
+      await tester.pumpWidget(_wrap(child: const AppTextField(label: 'Email')));
       await tester.pump();
       expect(tester.takeException(), isNull);
     });
@@ -163,10 +163,7 @@ void main() {
     testWidgets('with error text renders without errors', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          child: const AppTextField(
-            label: 'Email',
-            errorText: 'Invalid email',
-          ),
+          child: const AppTextField(label: 'Email', errorText: 'Invalid email'),
         ),
       );
       await tester.pump();
@@ -190,10 +187,7 @@ void main() {
     testWidgets('with error text renders without errors', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          child: const AppTextField(
-            label: 'Email',
-            errorText: 'Invalid email',
-          ),
+          child: const AppTextField(label: 'Email', errorText: 'Invalid email'),
           themeMode: ThemeMode.dark,
         ),
       );
@@ -211,7 +205,9 @@ void main() {
     for (final variant in BadgeVariant.values) {
       testWidgets('${variant.name} renders without errors', (tester) async {
         await tester.pumpWidget(
-          _wrap(child: StatusBadge(label: 'Active', variant: variant)),
+          _wrap(
+            child: StatusBadge(label: 'Active', variant: variant),
+          ),
         );
         await tester.pump();
         expect(tester.takeException(), isNull);
@@ -489,22 +485,28 @@ void main() {
       expect((warnL - bgL).abs(), greaterThan(0.05));
     });
 
-    test('light text primary meets WCAG AA contrast against light background', () {
-      final textL = AppColors.light.textPrimary.computeLuminance();
-      final bgL = AppColors.light.background.computeLuminance();
-      final lighter = textL > bgL ? textL : bgL;
-      final darker = textL > bgL ? bgL : textL;
-      final ratio = (lighter + 0.05) / (darker + 0.05);
-      expect(ratio, greaterThan(4.5));
-    });
+    test(
+      'light text primary meets WCAG AA contrast against light background',
+      () {
+        final textL = AppColors.light.textPrimary.computeLuminance();
+        final bgL = AppColors.light.background.computeLuminance();
+        final lighter = textL > bgL ? textL : bgL;
+        final darker = textL > bgL ? bgL : textL;
+        final ratio = (lighter + 0.05) / (darker + 0.05);
+        expect(ratio, greaterThan(4.5));
+      },
+    );
 
-    test('dark text primary meets WCAG AA contrast against dark background', () {
-      final textL = AppColors.dark.textPrimary.computeLuminance();
-      final bgL = AppColors.dark.background.computeLuminance();
-      final lighter = textL > bgL ? textL : bgL;
-      final darker = textL > bgL ? bgL : textL;
-      final ratio = (lighter + 0.05) / (darker + 0.05);
-      expect(ratio, greaterThan(4.5));
-    });
+    test(
+      'dark text primary meets WCAG AA contrast against dark background',
+      () {
+        final textL = AppColors.dark.textPrimary.computeLuminance();
+        final bgL = AppColors.dark.background.computeLuminance();
+        final lighter = textL > bgL ? textL : bgL;
+        final darker = textL > bgL ? bgL : textL;
+        final ratio = (lighter + 0.05) / (darker + 0.05);
+        expect(ratio, greaterThan(4.5));
+      },
+    );
   });
 }

@@ -252,7 +252,9 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SizedBox(height: 1200, child: CourseGrid(courses: courses)),
+            // SingleChildScrollView gives the grid unconstrained height so
+            // GridView.builder eagerly builds all items, not just visible ones.
+            body: SingleChildScrollView(child: CourseGrid(courses: courses)),
           ),
         ),
       );
@@ -269,7 +271,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SizedBox(height: 1200, child: CourseGrid(courses: courses)),
+            body: SingleChildScrollView(child: CourseGrid(courses: courses)),
           ),
         ),
       );
@@ -283,7 +285,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SizedBox(height: 1200, child: CourseGrid(courses: courses)),
+            body: SingleChildScrollView(child: CourseGrid(courses: courses)),
           ),
         ),
       );
@@ -411,8 +413,14 @@ void main() {
     testWidgets('mobile 390: hides AppBar nav links', (tester) async {
       _setViewport(tester, _mobile.$1, _mobile.$2);
       await tester.pumpWidget(_app(const StudentShell(child: SizedBox())));
-      expect(find.text('My Courses'), findsNothing);
-      expect(find.text('Explore'), findsNothing);
+      // Nav link labels must not appear inside the AppBar (they appear in the
+      // bottom NavigationBar instead).
+      final inAppBar = (String label) => find.descendant(
+        of: find.byType(AppBar),
+        matching: find.text(label),
+      );
+      expect(inAppBar('My Courses'), findsNothing);
+      expect(inAppBar('Explore'), findsNothing);
     });
 
     testWidgets(

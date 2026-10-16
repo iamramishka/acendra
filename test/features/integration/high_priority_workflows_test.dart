@@ -3,6 +3,11 @@
 // These widget-level integration tests exercise the three most critical
 // end-to-end user paths against fake repositories (no real Supabase needed).
 //
+// Imports app_router which depends on dart:js_interop (via package:web).
+// Run on Chrome only:
+//   flutter test --platform chrome test/features/integration/high_priority_workflows_test.dart
+@TestOn('chrome')
+library;
 // Workflow 1: Student enrollment + course access
 //   Marketplace → course card tap → checkout screen loads with course info
 //   and payment method selector.
@@ -22,7 +27,6 @@ import 'package:acendra/features/authentication/presentation/providers/auth_stat
 import 'package:acendra/features/authentication/presentation/providers/logout_provider.dart';
 import 'package:acendra/features/bank_transfer/data/bank_transfer_repository.dart';
 import 'package:acendra/features/bank_transfer/domain/entities/receipt_submission.dart';
-import 'package:acendra/features/checkout/data/repositories/supabase_checkout_repository.dart';
 import 'package:acendra/features/checkout/domain/entities/checkout_order.dart';
 import 'package:acendra/features/checkout/domain/entities/payment_method.dart';
 import 'package:acendra/features/checkout/domain/repositories/checkout_repository.dart';
@@ -34,14 +38,13 @@ import 'package:acendra/features/marketplace/domain/entities/category.dart';
 import 'package:acendra/features/marketplace/domain/entities/course_detail.dart';
 import 'package:acendra/features/marketplace/domain/entities/course_summary.dart';
 import 'package:acendra/features/marketplace/domain/repositories/course_repository.dart';
-import 'package:acendra/features/marketplace/presentation/providers/marketplace_provider.dart';
 import 'package:acendra/features/my_courses/data/repositories/supabase_my_courses_repository.dart';
 import 'package:acendra/features/my_courses/domain/entities/enrolled_course.dart';
 import 'package:acendra/features/my_courses/domain/repositories/my_courses_repository.dart';
-import 'package:acendra/features/my_courses/presentation/providers/my_courses_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:riverpod/riverpod.dart' show Override;
 
 // ---------------------------------------------------------------------------
 // Fake repositories

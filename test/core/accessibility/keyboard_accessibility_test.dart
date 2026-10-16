@@ -41,7 +41,9 @@ void main() {
       addTearDown(focusNode.dispose);
 
       await tester.pumpWidget(
-        _wrap(child: AppTextField(label: 'Email', focusNode: focusNode)),
+        _wrap(
+          child: AppTextField(label: 'Email', focusNode: focusNode),
+        ),
       );
 
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
@@ -54,7 +56,9 @@ void main() {
       );
     });
 
-    testWidgets('Tab transfers focus from one field to the next', (tester) async {
+    testWidgets('Tab transfers focus from one field to the next', (
+      tester,
+    ) async {
       final firstNode = FocusNode(debugLabel: 'first');
       final secondNode = FocusNode(debugLabel: 'second');
       addTearDown(firstNode.dispose);
@@ -148,7 +152,9 @@ void main() {
   group('AppButton keyboard accessibility', () {
     testWidgets('is reachable via Tab', (tester) async {
       await tester.pumpWidget(
-        _wrap(child: AppButton(label: 'Continue', onPressed: () {})),
+        _wrap(
+          child: AppButton(label: 'Continue', onPressed: () {}),
+        ),
       );
 
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
@@ -196,7 +202,9 @@ void main() {
 
     testWidgets('has button semantic role', (tester) async {
       await tester.pumpWidget(
-        _wrap(child: AppButton(label: 'Continue', onPressed: () {})),
+        _wrap(
+          child: AppButton(label: 'Continue', onPressed: () {}),
+        ),
       );
 
       final semantics = tester.getSemantics(find.byType(AppButton));
@@ -211,7 +219,9 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        _wrap(child: AppButton(label: 'Create account', onPressed: () {})),
+        _wrap(
+          child: AppButton(label: 'Create account', onPressed: () {}),
+        ),
       );
 
       expect(
@@ -231,14 +241,8 @@ void main() {
         _wrap(
           child: Column(
             children: [
-              AppButton(
-                label: 'First',
-                onPressed: () => firstPressed = true,
-              ),
-              AppButton(
-                label: 'Second',
-                onPressed: () => secondPressed = true,
-              ),
+              AppButton(label: 'First', onPressed: () => firstPressed = true),
+              AppButton(label: 'Second', onPressed: () => secondPressed = true),
             ],
           ),
         ),
@@ -268,16 +272,14 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
-            builder:
-                (ctx) => TextButton(
-                  onPressed:
-                      () => AppDialog.show(
-                        ctx,
-                        title: 'Delete',
-                        body: 'Cannot be undone.',
-                      ),
-                  child: const Text('Open'),
-                ),
+            builder: (ctx) => TextButton(
+              onPressed: () => AppDialog.show(
+                ctx,
+                title: 'Delete',
+                body: 'Cannot be undone.',
+              ),
+              child: const Text('Open'),
+            ),
           ),
         ),
       );
@@ -297,18 +299,16 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
-            builder:
-                (ctx) => TextButton(
-                  onPressed:
-                      () => AppDialog.show(
-                        ctx,
-                        title: 'Confirm',
-                        body: 'Proceed?',
-                        cancelLabel: 'Cancel',
-                        confirmLabel: 'OK',
-                      ),
-                  child: const Text('Open'),
-                ),
+            builder: (ctx) => TextButton(
+              onPressed: () => AppDialog.show(
+                ctx,
+                title: 'Confirm',
+                body: 'Proceed?',
+                cancelLabel: 'Cancel',
+                confirmLabel: 'OK',
+              ),
+              child: const Text('Open'),
+            ),
           ),
         ),
       );
@@ -343,19 +343,18 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
-            builder:
-                (ctx) => TextButton(
-                  onPressed: () async {
-                    result = await AppDialog.show(
-                      ctx,
-                      title: 'Confirm',
-                      body: 'Proceed?',
-                      cancelLabel: 'Cancel',
-                      confirmLabel: 'OK',
-                    );
-                  },
-                  child: const Text('Open'),
-                ),
+            builder: (ctx) => TextButton(
+              onPressed: () async {
+                result = await AppDialog.show(
+                  ctx,
+                  title: 'Confirm',
+                  body: 'Proceed?',
+                  cancelLabel: 'Cancel',
+                  confirmLabel: 'OK',
+                );
+              },
+              child: const Text('Open'),
+            ),
           ),
         ),
       );
@@ -387,19 +386,18 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
-            builder:
-                (ctx) => TextButton(
-                  onPressed: () async {
-                    result = await AppDialog.show(
-                      ctx,
-                      title: 'Confirm',
-                      body: 'Proceed?',
-                      cancelLabel: 'Cancel',
-                      confirmLabel: 'Delete',
-                    );
-                  },
-                  child: const Text('Open'),
-                ),
+            builder: (ctx) => TextButton(
+              onPressed: () async {
+                result = await AppDialog.show(
+                  ctx,
+                  title: 'Confirm',
+                  body: 'Proceed?',
+                  cancelLabel: 'Cancel',
+                  confirmLabel: 'Delete',
+                );
+              },
+              child: const Text('Open'),
+            ),
           ),
         ),
       );
@@ -423,18 +421,16 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
-            builder:
-                (ctx) => TextButton(
-                  onPressed:
-                      () => AppDialog.show(
-                        ctx,
-                        title: 'Delete course',
-                        body: 'This action cannot be undone.',
-                        cancelLabel: 'Cancel',
-                        confirmLabel: 'Delete',
-                      ),
-                  child: const Text('Open'),
-                ),
+            builder: (ctx) => TextButton(
+              onPressed: () => AppDialog.show(
+                ctx,
+                title: 'Delete course',
+                body: 'This action cannot be undone.',
+                cancelLabel: 'Cancel',
+                confirmLabel: 'Delete',
+              ),
+              child: const Text('Open'),
+            ),
           ),
         ),
       );
@@ -455,70 +451,69 @@ void main() {
   // LoginScreen is a ConsumerStatefulWidget requiring Supabase / go_router stubs.
   // ------------------------------------------------------------------ //
   group('Login form tab order', () {
-    testWidgets(
-      'Tab traverses email → password → submit in document order',
-      (tester) async {
-        final emailNode = FocusNode(debugLabel: 'login-email');
-        final passwordNode = FocusNode(debugLabel: 'login-password');
-        addTearDown(emailNode.dispose);
-        addTearDown(passwordNode.dispose);
+    testWidgets('Tab traverses email → password → submit in document order', (
+      tester,
+    ) async {
+      final emailNode = FocusNode(debugLabel: 'login-email');
+      final passwordNode = FocusNode(debugLabel: 'login-password');
+      addTearDown(emailNode.dispose);
+      addTearDown(passwordNode.dispose);
 
-        await tester.pumpWidget(
-          _wrap(
-            child: Column(
-              children: [
-                AppTextField(
-                  label: 'Email',
-                  focusNode: emailNode,
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                ),
-                AppPasswordField(
-                  label: 'Password',
-                  focusNode: passwordNode,
-                  textInputAction: TextInputAction.done,
-                ),
-                AppButton(label: 'Sign in', onPressed: () {}),
-              ],
-            ),
+      await tester.pumpWidget(
+        _wrap(
+          child: Column(
+            children: [
+              AppTextField(
+                label: 'Email',
+                focusNode: emailNode,
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+              ),
+              AppPasswordField(
+                label: 'Password',
+                focusNode: passwordNode,
+                textInputAction: TextInputAction.done,
+              ),
+              AppButton(label: 'Sign in', onPressed: () {}),
+            ],
           ),
-        );
+        ),
+      );
 
-        // Step 1 – Email field
-        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-        await tester.pump();
-        expect(
-          emailNode.hasFocus,
-          isTrue,
-          reason: 'Email should be first tab stop in login form',
-        );
+      // Step 1 – Email field
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      expect(
+        emailNode.hasFocus,
+        isTrue,
+        reason: 'Email should be first tab stop in login form',
+      );
 
-        // Step 2 – Password field
-        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-        await tester.pump();
-        expect(emailNode.hasFocus, isFalse);
-        expect(
-          passwordNode.hasFocus,
-          isTrue,
-          reason: 'Password should follow Email',
-        );
+      // Step 2 – Password field
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      expect(emailNode.hasFocus, isFalse);
+      expect(
+        passwordNode.hasFocus,
+        isTrue,
+        reason: 'Password should follow Email',
+      );
 
-        // Step 3 – Password visibility toggle (intermediate tab stop)
-        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-        await tester.pump();
-        expect(passwordNode.hasFocus, isFalse);
+      // Step 3 – Password visibility toggle (intermediate tab stop)
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      expect(passwordNode.hasFocus, isFalse);
 
-        // Step 4 – Submit button
-        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-        await tester.pump();
-        expect(
-          FocusManager.instance.primaryFocus?.context
-              ?.findAncestorWidgetOfExactType<ElevatedButton>(),
-          isNotNull,
-          reason: 'Submit button should be the final tab stop in login form',
-        );
-      },
-    );
+      // Step 4 – Submit button
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      expect(
+        FocusManager.instance.primaryFocus?.context
+            ?.findAncestorWidgetOfExactType<ElevatedButton>(),
+        isNotNull,
+        reason: 'Submit button should be the final tab stop in login form',
+      );
+    });
 
     testWidgets('email field accepts typed input when focused', (tester) async {
       final controller = TextEditingController();
@@ -706,43 +701,42 @@ void main() {
   // Focus order – general traversal guarantee
   // ------------------------------------------------------------------ //
   group('Focus traversal', () {
-    testWidgets(
-      'Shift+Tab moves focus backward through form fields',
-      (tester) async {
-        final firstNode = FocusNode(debugLabel: 'backward-first');
-        final secondNode = FocusNode(debugLabel: 'backward-second');
-        addTearDown(firstNode.dispose);
-        addTearDown(secondNode.dispose);
+    testWidgets('Shift+Tab moves focus backward through form fields', (
+      tester,
+    ) async {
+      final firstNode = FocusNode(debugLabel: 'backward-first');
+      final secondNode = FocusNode(debugLabel: 'backward-second');
+      addTearDown(firstNode.dispose);
+      addTearDown(secondNode.dispose);
 
-        await tester.pumpWidget(
-          _wrap(
-            child: Column(
-              children: [
-                AppTextField(label: 'First', focusNode: firstNode),
-                AppTextField(label: 'Second', focusNode: secondNode),
-              ],
-            ),
+      await tester.pumpWidget(
+        _wrap(
+          child: Column(
+            children: [
+              AppTextField(label: 'First', focusNode: firstNode),
+              AppTextField(label: 'Second', focusNode: secondNode),
+            ],
           ),
-        );
+        ),
+      );
 
-        // Focus second field directly
-        secondNode.requestFocus();
-        await tester.pump();
-        expect(secondNode.hasFocus, isTrue);
+      // Focus second field directly
+      secondNode.requestFocus();
+      await tester.pump();
+      expect(secondNode.hasFocus, isTrue);
 
-        // Shift+Tab should move focus back to first
-        await tester.sendKeyDownEvent(LogicalKeyboardKey.shift);
-        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-        await tester.sendKeyUpEvent(LogicalKeyboardKey.shift);
-        await tester.pump();
+      // Shift+Tab should move focus back to first
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shift);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shift);
+      await tester.pump();
 
-        expect(secondNode.hasFocus, isFalse);
-        expect(
-          firstNode.hasFocus,
-          isTrue,
-          reason: 'Shift+Tab should move focus to the previous field',
-        );
-      },
-    );
+      expect(secondNode.hasFocus, isFalse);
+      expect(
+        firstNode.hasFocus,
+        isTrue,
+        reason: 'Shift+Tab should move focus to the previous field',
+      );
+    });
   });
 }

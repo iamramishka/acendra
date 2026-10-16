@@ -1,6 +1,12 @@
 // CSA-177 — Registration journey integration tests.
 // Full end-to-end widget tests for the registration flow against fake
 // repositories (no real Supabase).
+//
+// These tests import app_router which depends on dart:js_interop (via
+// pdf_progress_local.dart → package:web). Run on Chrome only:
+//   flutter test --platform chrome test/features/authentication/integration/registration_journey_test.dart
+@TestOn('chrome')
+library;
 
 import 'package:acendra/app/router/app_router.dart';
 import 'package:acendra/features/authentication/data/auth_repository.dart';
@@ -19,7 +25,10 @@ class _SuccessAuthRepository extends AuthRepository {
   _SuccessAuthRepository() : super.forTesting();
 
   @override
-  Future<void> signIn({required String email, required String password}) async {}
+  Future<void> signIn({
+    required String email,
+    required String password,
+  }) async {}
 
   @override
   Future<void> signUp({
@@ -53,7 +62,10 @@ class _SignUpFailRepository extends AuthRepository {
   }
 
   @override
-  Future<void> signIn({required String email, required String password}) async {}
+  Future<void> signIn({
+    required String email,
+    required String password,
+  }) async {}
 
   @override
   Future<void> resendVerification({required String email}) async {}
@@ -78,7 +90,10 @@ class _ResendFailRepository extends AuthRepository {
   }) async {}
 
   @override
-  Future<void> signIn({required String email, required String password}) async {}
+  Future<void> signIn({
+    required String email,
+    required String password,
+  }) async {}
 
   @override
   Future<void> resendVerification({required String email}) async {
@@ -156,39 +171,35 @@ void main() {
       },
     );
 
-    testWidgets(
-      'verify-email screen shows the registered email address',
-      (tester) async {
-        await tester.pumpWidget(_app(repo: _SuccessAuthRepository()));
-        await tester.pumpAndSettle();
-        await _goToRegister(tester);
+    testWidgets('verify-email screen shows the registered email address', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app(repo: _SuccessAuthRepository()));
+      await tester.pumpAndSettle();
+      await _goToRegister(tester);
 
-        await _fillRegisterForm(tester, email: 'unique@example.com');
-        await tester.tap(find.text('Create account'));
-        await tester.pumpAndSettle();
+      await _fillRegisterForm(tester, email: 'unique@example.com');
+      await tester.tap(find.text('Create account'));
+      await tester.pumpAndSettle();
 
-        expect(find.textContaining('unique@example.com'), findsOneWidget);
-      },
-    );
+      expect(find.textContaining('unique@example.com'), findsOneWidget);
+    });
 
-    testWidgets(
-      'resend verification shows success snackbar',
-      (tester) async {
-        await tester.pumpWidget(_app(repo: _SuccessAuthRepository()));
-        await tester.pumpAndSettle();
-        await _goToRegister(tester);
+    testWidgets('resend verification shows success snackbar', (tester) async {
+      await tester.pumpWidget(_app(repo: _SuccessAuthRepository()));
+      await tester.pumpAndSettle();
+      await _goToRegister(tester);
 
-        await _fillRegisterForm(tester);
-        await tester.tap(find.text('Create account'));
-        await tester.pumpAndSettle();
+      await _fillRegisterForm(tester);
+      await tester.tap(find.text('Create account'));
+      await tester.pumpAndSettle();
 
-        expect(find.text('Resend email'), findsOneWidget);
-        await tester.tap(find.text('Resend email'));
-        await tester.pumpAndSettle();
+      expect(find.text('Resend email'), findsOneWidget);
+      await tester.tap(find.text('Resend email'));
+      await tester.pumpAndSettle();
 
-        expect(find.text('Verification email sent.'), findsOneWidget);
-      },
-    );
+      expect(find.text('Verification email sent.'), findsOneWidget);
+    });
   });
 
   group('Registration — validation errors', () {
@@ -309,10 +320,7 @@ void main() {
         await tester.tap(find.text('Create account'));
         await tester.pumpAndSettle();
 
-        expect(
-          find.text(const NetworkError().message),
-          findsOneWidget,
-        );
+        expect(find.text(const NetworkError().message), findsOneWidget);
         expect(find.text('Verify your email'), findsNothing);
       },
     );
@@ -332,10 +340,7 @@ void main() {
         await tester.tap(find.text('Create account'));
         await tester.pumpAndSettle();
 
-        expect(
-          find.text(const EmailAlreadyInUse().message),
-          findsOneWidget,
-        );
+        expect(find.text(const EmailAlreadyInUse().message), findsOneWidget);
         expect(find.text('Create your account'), findsOneWidget);
         expect(find.text('Verify your email'), findsNothing);
       },
@@ -343,51 +348,43 @@ void main() {
   });
 
   group('Verify-email screen', () {
-    testWidgets(
-      'resend failure shows error snackbar',
-      (tester) async {
-        await tester.pumpWidget(
-          _app(
-            repo: _ResendFailRepository(
-              const NetworkError(),
-            ),
-          ),
-        );
-        await tester.pumpAndSettle();
-        await _goToRegister(tester);
+    testWidgets('resend failure shows error snackbar', (tester) async {
+      await tester.pumpWidget(
+        _app(repo: _ResendFailRepository(const NetworkError())),
+      );
+      await tester.pumpAndSettle();
+      await _goToRegister(tester);
 
-        await _fillRegisterForm(tester);
-        await tester.tap(find.text('Create account'));
-        await tester.pumpAndSettle();
+      await _fillRegisterForm(tester);
+      await tester.tap(find.text('Create account'));
+      await tester.pumpAndSettle();
 
-        expect(find.text('Resend email'), findsOneWidget);
-        await tester.tap(find.text('Resend email'));
-        await tester.pumpAndSettle();
+      expect(find.text('Resend email'), findsOneWidget);
+      await tester.tap(find.text('Resend email'));
+      await tester.pumpAndSettle();
 
-        expect(find.text(const NetworkError().message), findsOneWidget);
-        expect(find.text('Verify your email'), findsOneWidget);
-      },
-    );
+      expect(find.text(const NetworkError().message), findsOneWidget);
+      expect(find.text('Verify your email'), findsOneWidget);
+    });
 
-    testWidgets(
-      'tapping Back to sign in navigates to login screen',
-      (tester) async {
-        await tester.pumpWidget(_app(repo: _SuccessAuthRepository()));
-        await tester.pumpAndSettle();
-        await _goToRegister(tester);
+    testWidgets('tapping Back to sign in navigates to login screen', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app(repo: _SuccessAuthRepository()));
+      await tester.pumpAndSettle();
+      await _goToRegister(tester);
 
-        await _fillRegisterForm(tester);
-        await tester.tap(find.text('Create account'));
-        await tester.pumpAndSettle();
+      await _fillRegisterForm(tester);
+      await tester.tap(find.text('Create account'));
+      await tester.pumpAndSettle();
 
-        expect(find.text('Verify your email'), findsOneWidget);
+      expect(find.text('Verify your email'), findsOneWidget);
 
-        await tester.tap(find.text('Back to sign in'));
-        await tester.pumpAndSettle();
+      await tester.tap(find.text('Back to sign in'));
+      await tester.pumpAndSettle();
 
-        expect(find.text('Sign in'), findsWidgets);
-        expect(find.text('Verify your email'), findsNothing);
-      },
-    );
+      expect(find.text('Sign in'), findsWidgets);
+      expect(find.text('Verify your email'), findsNothing);
+    });
   });
 }

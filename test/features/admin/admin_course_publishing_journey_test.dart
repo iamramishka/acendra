@@ -2,11 +2,12 @@
 // Widget-level integration tests covering the full admin course publishing flow
 // against fake repositories (no real Supabase needed).
 
+import 'dart:async';
+
 import 'package:acendra/features/admin/data/repositories/admin_course_repository.dart';
 import 'package:acendra/features/admin/domain/entities/admin_course.dart';
 import 'package:acendra/features/admin/domain/entities/admin_lesson.dart';
 import 'package:acendra/features/admin/domain/entities/curriculum_section.dart';
-import 'package:acendra/features/admin/presentation/providers/admin_courses_provider.dart';
 import 'package:acendra/features/admin/presentation/screens/admin_courses_screen.dart';
 import 'package:acendra/features/admin/presentation/screens/course_editor_screen.dart';
 import 'package:acendra/features/admin/presentation/screens/curriculum_builder_screen.dart';
@@ -86,8 +87,7 @@ class _FakeAdminCourseRepository implements AdminCourseRepository {
   };
 
   @override
-  Future<List<AdminCourse>> listCourses() async =>
-      List.unmodifiable(_courses);
+  Future<List<AdminCourse>> listCourses() async => List.unmodifiable(_courses);
 
   @override
   Future<AdminCourse> getCourse(String courseId) async =>
@@ -192,6 +192,12 @@ class _FakeAdminCourseRepository implements AdminCourseRepository {
   }
 }
 
+// Returns a Future that never completes — keeps providers in loading state.
+class _NeverLoadingRepository extends _FakeAdminCourseRepository {
+  @override
+  Future<List<AdminCourse>> listCourses() => Completer<List<AdminCourse>>().future;
+}
+
 // Throws on write operations to simulate server errors.
 class _FailSaveAdminCourseRepository extends _FakeAdminCourseRepository {
   @override
@@ -214,7 +220,7 @@ Widget _wrap(Widget screen, AdminCourseRepository repo) {
   final router = GoRouter(
     initialLocation: '/test',
     routes: [
-      GoRoute(path: '/test', builder: (_, _) => screen),
+      GoRoute(path: '/test', builder: (_, _) => Scaffold(body: screen)),
       GoRoute(
         path: '/admin/courses',
         builder: (_, _) => const Scaffold(body: Text('Admin Courses')),
@@ -244,7 +250,10 @@ Widget _wrap(Widget screen, AdminCourseRepository repo) {
 
   return ProviderScope(
     overrides: [adminCourseRepositoryProvider.overrideWithValue(repo)],
-    child: MaterialApp.router(routerConfig: router),
+    child: MaterialApp.router(
+      theme: ThemeData(useMaterial3: true),
+      routerConfig: router,
+    ),
   );
 }
 
@@ -260,17 +269,16 @@ void main() {
     testWidgets('shows skeleton loading state before courses load', (
       tester,
     ) async {
-      final repo = _FakeAdminCourseRepository();
+      // Use a repo whose Future never resolves so the provider stays loading.
+      final repo = _NeverLoadingRepository();
       await tester.pumpWidget(_wrap(const AdminCoursesScreen(), repo));
 
-      // First pump: provider is in AsyncLoading → skeleton widgets appear.
+      // After the first frame the provider is AsyncLoading → skeleton appears.
       await tester.pump();
       expect(find.byType(AppSkeleton), findsWidgets);
     });
 
-    testWidgets('shows course titles after loading completes', (
-      tester,
-    ) async {
+    testWidgets('shows course titles after loading completes', (tester) async {
       final repo = _FakeAdminCourseRepository();
       await tester.pumpWidget(_wrap(const AdminCoursesScreen(), repo));
       await tester.pumpAndSettle();
@@ -330,6 +338,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Leave title empty; tap Save.
+      await tester.ensureVisible(find.text('Save'));
       await tester.tap(find.text('Save'));
       await tester.pump();
 
@@ -348,6 +357,7 @@ void main() {
       // Fill title, leave price empty.
       // TextFields order: Title(0), Description(1), Price(2), Thumbnail(3).
       await tester.enterText(find.byType(TextField).at(0), 'My Course');
+      await tester.ensureVisible(find.text('Save'));
       await tester.tap(find.text('Save'));
       await tester.pump();
 
@@ -367,6 +377,7 @@ void main() {
       final fields = find.byType(TextField);
       await tester.enterText(fields.at(0), 'New Test Course');
       await tester.enterText(fields.at(2), '4999');
+      await tester.ensureVisible(find.text('Save'));
       await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
 
@@ -447,10 +458,7 @@ void main() {
       await tester.tap(find.text('Add Section'));
       await tester.pump();
 
-      await tester.enterText(
-        find.byType(TextField),
-        'Module 1: Foundations',
-      );
+      await tester.enterText(find.byType(TextField), 'Module 1: Foundations');
       await tester.tap(find.text('Add'));
       await tester.pumpAndSettle();
 
@@ -504,6 +512,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      await tester.ensureVisible(find.text('Save'));
       await tester.tap(find.text('Save'));
       await tester.pump();
 
@@ -525,6 +534,7 @@ void main() {
         find.byType(TextField).first,
         'Introduction Video',
       );
+      await tester.ensureVisible(find.text('Save'));
       await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
 
@@ -572,6 +582,7 @@ void main() {
         await tester.tap(publishSwitch);
         await tester.pump();
 
+        await tester.ensureVisible(find.text('Save'));
         await tester.tap(find.text('Save'));
         await tester.pumpAndSettle();
 
@@ -596,6 +607,7 @@ void main() {
         final fields = find.byType(TextField);
         await tester.enterText(fields.at(0), 'Test Course');
         await tester.enterText(fields.at(2), '1000');
+        await tester.ensureVisible(find.text('Save'));
         await tester.tap(find.text('Save'));
         await tester.pumpAndSettle();
 
