@@ -2060,56 +2060,56 @@ authorized project approval.
 
 ## INFRASTRUCTURE
 
-- [ ] CSA-205 [P1] [X]
+- [ ] CSA-205 [P1] [X] [BLOCKED]
   Configure production hosting.
-  Dummy preparation refreshed in parallel; hosting provider/account and deployment remain pending. See [preparation record](docs/tasks/CSA-205-210-PREPARATION.md).
+  BLOCKED under existing-services/free-only scope: Vercel Hobby commercial eligibility and an approved isolated production target/operator are missing. Actual staging inventory and release/rollback checklist prepared; no production deployment. See [current readiness](docs/tasks/CSA-PHASE9-FREE-READINESS.md).
 
-- [ ] CSA-206 [P0] [X]
+- [ ] CSA-206 [P0] [X] [BLOCKED]
   Configure HTTPS and domain.
-  Dummy domain/HTTPS preparation refreshed; owned domain, DNS and certificate verification remain pending. See [hosting preparation](docs/deployment/CSA-205-206-HOSTING.md).
+  BLOCKED: only acendra.vercel.app is mapped in Vercel; vinyup.com sandbox registration does not establish hosting, DNS control or TLS. Concrete domain/configuration checklist prepared; no DNS changes. See [hosting readiness](docs/deployment/CSA-205-206-HOSTING.md).
 
-- [ ] CSA-207 [P0] [X]
+- [ ] CSA-207 [P0] [X] [BLOCKED]
   Configure production secrets.
-  Dummy secret inventory refreshed; no real secrets injected. See [secret/payment preparation](docs/deployment/CSA-207-210-SECRETS-PAYMENTS.md).
+  BLOCKED: approved production target and production secret versions absent. Current staging/sandbox setting inventory and public/server boundary reviewed; no production secrets injected. See [secret/payment readiness](docs/deployment/CSA-207-210-SECRETS-PAYMENTS.md).
 
-- [ ] CSA-208 [P0] [X]
+- [ ] CSA-208 [P0] [X] [BLOCKED]
   Apply reviewed production migrations.
-  Dummy migration preparation refreshed; production application and target-specific replay remain pending. See [database/storage preparation](docs/deployment/CSA-208-209-DATABASE-STORAGE.md).
+  BLOCKED: approved production database, recovery evidence and application authorization absent. Existing staging ledger and read-only metadata preflight verified; no production migration applied. See [database/storage readiness](docs/deployment/CSA-208-209-DATABASE-STORAGE.md).
 
-- [ ] CSA-209 [P0] [X]
+- [ ] CSA-209 [P0] [X] [BLOCKED]
   Configure production storage policies.
-  Dummy storage preparation refreshed; live policy verification must follow CSA-208. See [database/storage preparation](docs/deployment/CSA-208-209-DATABASE-STORAGE.md).
+  BLOCKED by CSA-208 and actual production authorization tests. Staging34-table RLS/private-bucket metadata verified; no production policy changed. See [database/storage readiness](docs/deployment/CSA-208-209-DATABASE-STORAGE.md).
 
 ## PAYMENT PRODUCTION
 
-- [ ] CSA-210 [P0] [X]
+- [ ] CSA-210 [P0] [X] [BLOCKED]
   Configure live payment provider.
-  Dummy payment preparation refreshed; online payment gates remain disabled and live acceptance pending. See [secret/payment preparation](docs/deployment/CSA-207-210-SECRETS-PAYMENTS.md).
+  BLOCKED: live merchant/domain, retrieval/network access, reviewed production binding and controlled live validation missing. Exact-target sandbox mapping reviewed; production stays disabled, no real charge. See [secret/payment readiness](docs/deployment/CSA-207-210-SECRETS-PAYMENTS.md).
 
-- [ ] CSA-211 [P0] [X]
+- [ ] CSA-211 [P0] [X] [BLOCKED]
   Verify production payment notifications.
-  Dummy verification protocol prepared in parallel; real provider callback and email delivery acceptance remain pending. See [payment notification preparation](docs/deployment/CSA-211-PAYMENT-NOTIFICATIONS.md).
+  BLOCKED by CSA-210 and actual notification delivery evidence; current staging custom SMTP is absent. Callback/email acceptance protocol prepared; no new email service or messages sent. See [notification readiness](docs/deployment/CSA-211-PAYMENT-NOTIFICATIONS.md).
 
-- [ ] CSA-212 [P0] [X]
+- [ ] CSA-212 [P0] [X] [BLOCKED]
   Verify finance approval permissions.
-  Dummy permission acceptance matrix prepared; deployed role/MFA/session checks and independent bank verification remain pending. See [finance permission preparation](docs/deployment/CSA-212-FINANCE-PERMISSIONS.md).
+  BLOCKED: approved production role/session/MFA accounts, independent bank evidence and operational acceptance missing. Staging finance RPC service-only grants verified read-only; no permissions changed. See [finance readiness](docs/deployment/CSA-212-FINANCE-PERMISSIONS.md).
 
 ## OPERATIONS
 
-- [ ] CSA-213 [P0] [X]
+- [ ] CSA-213 [P0] [X] [BLOCKED]
   Configure monitoring and alerts.
-  Dummy monitoring matrix prepared; provider setup, approved thresholds and actual alert delivery remain pending. See [monitoring preparation](docs/operations/CSA-213-MONITORING.md).
+  BLOCKED: production target, existing eligible alert route/responders and delivered alert evidence missing. Existing-console diagnosis and private evidence template prepared; no monitor/service/schedule added. See [monitoring readiness](docs/operations/CSA-213-MONITORING.md).
 
-- [ ] CSA-214 [P0] [X]
+- [ ] CSA-214 [P0] [X] [BLOCKED]
   Configure backups.
-  Dummy backup specification prepared; managed database/object backups, protected keys and production restore evidence remain pending. See [backup preparation](docs/operations/CSA-214-BACKUPS.md).
+  BLOCKED: no backups listed/PITR disabled in current staging inventory; existing independent encrypted destination, complete database/object set, key recovery and isolated restore evidence absent. No paid backup or transfer enabled. See [backup readiness](docs/operations/CSA-214-BACKUPS.md).
 
 - [ ] CSA-215 [P0] [L]
   Finalize incident response contacts.
 
-- [ ] CSA-216 [P0] [X]
+- [ ] CSA-216 [P0] [X] [BLOCKED]
   Finalize recovery runbooks.
-  Recovery runbook draft prepared with dummy targets; named alternate, actual deployment commands and measured managed restore drill remain pending. See [recovery runbook](docs/operations/CSA-216-RECOVERY-RUNBOOK.md).
+  BLOCKED: production target, named alternate, existing complete backup set/isolated destination and measured RPO/RTO drill missing. Concrete staging triage and safe read-only CI/source commands prepared. See [recovery runbook](docs/operations/CSA-216-RECOVERY-RUNBOOK.md).
 
 - [ ] CSA-217 [P1] [L]
   Approve privacy and commercial policies.

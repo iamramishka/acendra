@@ -136,3 +136,59 @@ notification disposition; observed data loss; full elapsed time; RPO/RTO result;
 exceptions; cleanup and reviewers/approval. Keep secret values and personal records
 outside repository reports. Final runbook acceptance requires a successful reviewed
 tabletop and actual managed database/Auth/private-object recovery exercise.
+
+## Existing-target incident entry points and free-only holds (2026-10-15)
+
+This section supersedes any implication that placeholder production targets are
+usable. Current approved targets are **staging only**:
+
+| Purpose | Existing target / procedure | Boundary |
+|---|---|---|
+| Frontend diagnosis | `https://acendra.vercel.app`; existing Vercel project `acendra` deployment history | Do not promote, move aliases or relabel staging as production |
+| Backend diagnosis | Supabase project `worrsweluwjmppwsygre`; Dashboard Logs and Database Backups | Inspect only; no restore/reset or privilege changes |
+| Accepted source | `iamramishka/acendra`, `dev`; record actual accepted merge SHA | Do not assume current working checkout is the deployed revision |
+| Hosting rollback candidate | Identify previous known healthy deployment ID and matching source SHA | Selection is read-only; traffic switch requires incident/release authorization |
+| Financial reconciliation | Existing PayHere **sandbox** integration and original callback/retrieval evidence | Sandbox evidence cannot reconcile live settlement; never fabricate payment rows |
+
+Safe source/CI inventory commands (read-only; existing authorized GitHub login):
+
+```powershell
+git rev-parse HEAD
+git status --short
+gh pr list --repo iamramishka/acendra --base dev --state open --json number,title,headRefName
+gh run list --repo iamramishka/acendra --branch dev --limit 10 --json databaseId,headSha,status,conclusion,workflowName
+```
+
+Record the selected SHA and inspect its exact run before relying on a result:
+
+```powershell
+gh run view <actual-run-id> --repo iamramishka/acendra --json headSha,status,conclusion,jobs
+```
+
+Replace `<actual-run-id>` only with an observed run ID. Do not paste credentials or
+raw logs into an incident issue; retain private diagnostics in restricted existing
+storage. Neither command changes releases or validates private data restoration.
+
+Before attempting recovery, use the hold checklist:
+
+- Name the owner lead and alternate and approved contact locations; do not invent
+  personal contacts or send alert messages to students.
+- Confirm actual affected environment and authorized isolated recovery target.
+  An additional project/account is not authorized under existing-services-only.
+- Identify an existing complete protected backup set and independent decryption
+  capability. No set/destination means recovery is held, not successful.
+- Use the existing provider dashboard to verify available recovery controls. If it
+  requires an upgrade, stop at HOLD; do not purchase a plan or enable PITR.
+- Assign finance to compare original trusted provider/bank evidence over the gap;
+  do not replay a live transaction in sandbox or reuse synthetic acceptance results.
+- Require the accepted RPO24h/RTO4h and all access/deletion checks before reopening.
+  Record breached or unmeasurable targets explicitly.
+
+The earlier local-test commands are historical/optional guidance, **not instructions
+for this execution**. The user's current no-local-test constraint remains in force.
+Only source/document review was performed here; no test suite, scheduler, restore,
+private backup export or new service ran. Hosted CI remains the integration check.
+
+**Hold:** CSA-216 operational acceptance remains pending. This concrete staging
+triage path is prepared; production designation, named alternate, existing complete
+backup set, isolated destination and measured managed recovery are still required.

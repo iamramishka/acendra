@@ -1,177 +1,127 @@
-# CSA-205/206: hosting, domain and HTTPS preparation
+# CSA-205/206: existing hosting and domain readiness
 
-Date: 2026-10-14 (Asia/Colombo). Owner: CODEX hosting agent.
-Status: IN_REVIEW for documentation; CSA-205 and CSA-206 remain pending.
-Assignment: [CSA-205–210 preparation board](../tasks/CSA-205-210-PREPARATION.md).
-The user requested dummy details now and live configuration later. This document
-provides a preparation sequence; it records no deployment or operational acceptance.
+Date: 2026-10-15 (Asia/Colombo). Owner: CODEX hosting worker.
+Documentation: IN_REVIEW. Operational CSA-205 and CSA-206: BLOCKED (held).
+Assignment: [Issue #160](https://github.com/iamramishka/acendra/issues/160) and
+[exclusive ownership](../tasks/CSA-205-206-FREE-HOSTING-OWNERSHIP.md).
 
-## Target worksheet
+The owner requested parallel progress using existing services only, with no new
+services or spending. Missing requirements are held. This replaces the current
+dummy-only worksheet; the [earlier preparation](../tasks/CSA-205-210-PREPARATION.md)
+remains historical. It does not authorize production release or move staging data.
+The earlier [budget baseline](../decisions/CSA-012-ENVIRONMENTS-BUDGET.md) is planning
+context, not permission to spend under the current free-only constraint.
 
-| Field | Documentation-only value | Evidence needed before use |
+## Existing targets and evidence boundaries
+
+| Field | Existing staging value | Production gap |
 | --- | --- | --- |
-| Hosting provider | UNSELECTED | Owner-approved provider and plan |
-| Hosting account | DUMMY_HOST_ACCOUNT | Authorized account, payer and administrator access |
-| Hosting project | DUMMY_HOST_PROJECT | Environment-isolated project and deployment permissions |
-| Canonical origin | https://courses.example.invalid | Domain ownership and controlled DNS zone |
-| Staging origin | https://staging.courses.example.invalid | Separate deployment and origin allowlists |
-| Backend URL | https://supabase.example.invalid | Verified production Supabase URL |
-| Backend project reference | DUMMY_PRODUCTION_PROJECT_REF | Verified target identity |
-| Release revision | DUMMY_RELEASE_COMMIT | Reviewed immutable commit and successful required CI |
-| Release operator | DUMMY_RELEASE_OPERATOR | Designated maintainer and concrete release authorization |
+| Hosting | Vercel project `acendra`, Hobby | Commercial production eligibility not established |
+| Account/project identity | Team `team_EtrnsK9YUu6vKAJ92xpWe88T`; project `prj_xWYJdw35hJGS6caNi8fiQdnxenh2` | Approved environment-isolated production target and operator absent |
+| Verified hosting domain | `https://acendra.vercel.app` | No approved production canonical hostname |
+| Git production branch | `dev` in Vercel provider settings | Provider naming is not production authorization |
+| Backend | `https://worrsweluwjmppwsygre.supabase.co`, project `worrsweluwjmppwsygre` | Explicitly authorized as staging, not production |
+| Additional domain | `vinyup.com` registered Active in PayHere Sandbox, as reported in prior acceptance work | Does not establish DNS control, Vercel mapping, TLS or live merchant approval |
+| Release | Phase 8 merged in PR #159; this worker started from `e494d9a` | Production release revision, rollback evidence and approval absent |
 
-All values are intentionally unusable. Do not resolve these URLs, build a release,
-configure DNS, or run deployment commands using this worksheet. Choosing a provider,
-buying a domain or starting paid service remains a later approved decision.
-[CSA-012](../decisions/CSA-012-ENVIRONMENTS-BUDGET.md) reserves USD 5/month for
-production static hosting and USD 2/month amortized for domain renewal; these
-planning amounts are neither provider selection nor purchase authority.
+The root's 2026-10-15 read-only Vercel inventory confirms the Hobby project,
+`dev` production-branch label and only `acendra.vercel.app` verified domain.
+This worker did not read credentials, call provider APIs or repeat deployment
+probes. Prior staging deployment and browser checks belong to Phase 8 evidence;
+they do not verify today's production state. Root owns any consolidated remote
+inventory and must retain its timestamp and exact scope separately.
 
-## CSA-205 preparation sequence
+## Free-only decision and holds
 
-1. Freeze the reviewed release revision and identify the operator, provider account,
-   project, plan and permitted deployment surface. Record actual hosting quotes and
-   recurring/one-time costs against the approved budget. Keep staging separate.
-2. Confirm the host supports Flutter static output, deep-link fallback, HTTPS,
-   configurable response headers, deployment rollback and restricted administrator
-   access. Record provider-specific setup after provider selection; no universal
-   DNS record or deployment command is assumed here.
-3. Obtain verified public backend configuration. `EnvConfig` declares compile-time
-   bindings for `APP_ENV`, `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`; legacy
-   `SUPABASE_ANON_KEY` is its compatibility fallback. Current bootstrap consumes
-   only the URL and legacy anon binding, without invoking the validator. Complete
-   the reviewed runtime prerequisite below before using production configuration.
-   The project reference above is
-   an operator identity check, not a Flutter environment key. See
-   [EnvConfig](../../lib/core/config/env_config.dart) and
-   [local configuration guidance](../LOCAL_DEVELOPMENT.md).
-4. Build the approved revision with public production defines, scan the resulting
-   browser assets for privileged material, and record the artifact hash and build
-   evidence. Upload only the verified `build/web` artifact through the approved
-   deployment process. Configure fallback for client routes while preserving real
-   static asset errors; verify direct navigation, refresh and browser history.
-5. Record deployment identifier, release revision, artifact digest, operator,
-   timestamp, rollback destination and deployment access controls. Exercise rollback
-   in the approved environment before relying on it for production recovery.
+[Vercel's Hobby documentation](https://vercel.com/docs/plans/hobby) and
+[fair-use guidelines](https://vercel.com/docs/limits/fair-use-guidelines) restrict
+Hobby use to personal, noncommercial projects (consulted 2026-10-15).
+A commercial course-selling launch therefore cannot be certified eligible on the
+known plan. Sandbox behavior does not establish a live commercial exception.
+Do not purchase an upgrade, open another hosting service, use a trial that can
+incur charges, or relabel staging as production to clear this hold.
 
-The public configuration schema below is illustrative and intentionally invalid:
+| Task | Status | Free work prepared | Hold release condition |
+| --- | --- | --- | --- |
+| CSA-205 production hosting | BLOCKED | Existing target inventory, runtime prerequisite, build/release and rollback checklist | Existing host eligibility for intended commercial use, approved isolated production target and release operator; otherwise retain hold under free-only scope |
+| CSA-206 HTTPS/domain | BLOCKED | Domain evidence boundary, exact configuration dependencies and HTTPS checklist | Verified owner-controlled hostname/DNS scope, approved hosting target and domain mapping; verified certificate and redirects |
 
-```json
-{
-  "APP_ENV": "production",
-  "SUPABASE_URL": "https://supabase.example.invalid",
-  "SUPABASE_PUBLISHABLE_KEY": "DUMMY_PUBLIC_KEY_REPLACE_BEFORE_BUILD"
-}
-```
+Do not request new services merely to finish the checklist. Current work remains
+preparation until these prerequisites exist within the owner's constraints.
 
-`EnvConfig.read()` validates a non-loopback HTTPS backend in production and accepts
-only a publishable key or legacy anon key shape. The dummy key would fail that
-validator by design, but current bootstrap does not invoke it. The illustrative
-JSON is therefore not sufficient for current backend initialization.
-Never put service-role, payment, SMTP or video signing credentials in this JSON,
-Dart defines or browser assets. After replacement with verified public values,
-the existing build pattern is `flutter build web --release
---dart-define-from-file=config/production.local.json`; keep that local file ignored.
-This command has not been executed for this preparation and does not establish
-runtime backend initialization. Current
-[Flutter CI](../../.github/workflows/flutter-ci.yml) builds without backend
-credentials and contains no deployment job; its successful build would not prove
-production configuration.
+## Runtime prerequisite before a production artifact
 
-## CSA-206 preparation sequence
+[EnvConfig](../../lib/core/config/env_config.dart) declares `APP_ENV`,
+`SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`; legacy `SUPABASE_ANON_KEY` is a
+compatibility fallback. Its `read()` method validates environment, URL and public
+key shape. However, [bootstrap](../../lib/app/bootstrap.dart) currently reads only
+the URL and legacy anon binding and does not invoke that validator.
+A publishable-key-only define therefore does not initialize the backend today.
+This worker does not own runtime/shared configuration; root must assign a separate
+reviewed change before claiming validated production initialization.
 
-CSA-206 depends on the selected CSA-205 hosting target. After concrete approval:
+Only public browser configuration belongs in Dart defines. Never include database
+passwords, Supabase service-role/secret keys, payment merchant/app secrets, SMTP
+credentials or video signing keys. A successful unconfigured Flutter CI build does
+not prove backend initialization. Configuration files and generated artifacts used
+in earlier staging acceptance are ignored local material, not a tracked deploy job.
 
-1. Verify registrar/DNS ownership, existing records and allowed change scope.
-   Record provider-generated DNS requirements, canonical host and certificate
-   validation method. Preserve unrelated records; choose aliases only when approved.
-2. Configure the verified hostname and certificate through the selected host.
-   Verify trusted certificate chain, hostname match, expiration and renewal ownership.
-   Confirm HTTP-to-HTTPS and any approved hostname redirects end at the canonical
-   application; test both redirect responses and the final successful response.
-3. Coordinate exact Auth redirect URLs, API CORS origins, media authorization origins
-   and payment callback URLs with their task owners. Keep staging and production
-   distinct; do not substitute unrestricted wildcard origins.
-4. Configure and test enforced CSP, HSTS, `X-Content-Type-Options: nosniff`, restrictive
-   referrer policy, camera/microphone permissions and frame restrictions against
-   [SECURITY.md](../../SECURITY.md). Decide HSTS duration/subdomain coverage from
-   verified domain scope before enabling it; do not infer authority over all subdomains.
-5. Run `node tool/csa187_headers.mjs <verified-final-https-url>` from the approved
-   revision and retain status/findings without cookies or secret values. The existing
-   [header evaluator](../../tool/csa187_headers.mjs) errors on redirects, so evaluate
-   the final URL explicitly and inspect redirect behavior separately.
+## CSA-205 release sequence after holds clear
 
-A CSP template cannot be considered operational here: [web/index.html](../../web/index.html)
-loads Google Fonts and Flutter bootstrap, and the approved backend/media integrations
-need concrete allowed endpoints. Configure the narrow policy against the actual
-release and inspect browser violations. A header-tool pass alone does not establish
-Flutter functionality or stored/reflected XSS resistance.
+1. Confirm the eligible existing account/plan, approved production target, operator
+   and immutable release revision. Recheck cost and usage restrictions without
+   buying or enabling paid features. Keep staging separate.
+2. Obtain reviewed public backend configuration for that target, complete the
+   bootstrap prerequisite and required hosted checks within verified included quota.
+   Do not dispatch CI while its zero-cost execution cannot be established.
+3. Compile only the reviewed revision using an ignored public configuration file
+   after approval. Scan generated browser assets for privileged material and record
+   artifact digest and CI/build evidence. A generic command or template is not proof.
+4. Deploy only the verified artifact through the authorized process. Preserve static
+   asset 404 responses; verify client deep links, refresh and browser history.
+5. Record deployment ID, release SHA, artifact digest, timestamp, operator and last
+   known good deployment. Exercise rollback in the approved isolated environment;
+   hosting rollback must not imply database migration rollback or financial deletion.
 
-## Verification and retained completion gates
+## CSA-206 verification after target/domain approval
 
-Collect actual evidence for the following after authorized live configuration:
+1. Verify registrar/DNS ownership and current records. Use the selected host's exact
+   domain verification and DNS instructions. Preserve mail and unrelated records;
+   do not infer authority over all subdomains from one payment integration.
+2. Verify domain mapping and trusted certificate hostname/chain, expiration, renewal
+   owner, HTTP-to-HTTPS and canonical redirects. Do not treat a sandbox Active badge
+   as evidence for any of these checks.
+3. Coordinate exact Supabase Auth redirects, API CORS origins, payment return/cancel
+   and callback addresses, and media origins with the assigned owners. Staging is
+   currently explicitly bound in payment code; changing a host is a reviewed runtime
+   change, not merely a DNS edit. Keep live activation gates closed.
+4. Verify enforced CSP, HSTS, nosniff, restrictive referrer policy, permissions and
+   frame restrictions against [SECURITY.md](../../SECURITY.md). Choose HSTS coverage
+   from verified domain authority; confirm the referrer policy permits the approved
+   provider integration without exposing full user URLs.
+5. When authorized, use the existing read-only header checker against the final
+   approved HTTPS URL: `node tool/csa187_headers.mjs <verified-final-https-url>`.
+   The [checker](../../tool/csa187_headers.mjs) rejects redirects; inspect redirect
+   behavior separately. No checker was run by this documentation task.
 
-- Effective HTTPS/security headers at the canonical origin and representative assets;
-  certificate validity/renewal and HTTP/canonical redirects.
-- Browser startup with the intended production backend, no mixed content or blocked
-  required resources; loading, error and session states.
-- Direct links, refresh, browser back/forward, authentication redirects and logout;
-  responsive operation at 390, 768 and 1440 logical pixels plus narrow/intermediate
-  widths; keyboard and accessibility checks.
-- Authorized checkout and protected content journeys after the separate backend,
-  payment and entitlement gates are satisfied; failed authorization remains denied.
-- Reviewed release/CI, public artifact secret scan, least-privilege host access,
-  monitoring and backup/recovery readiness, tested rollback and production smoke tests.
+A header pass does not prove safe stored content, working authentication or a
+complete purchase-to-learning journey. Verify browser startup without mixed
+content or blocked required resources; session/error states; direct links and
+logout; accessibility and responsive widths; then approved checkout and protected
+content journeys after their separate backend and entitlement gates are satisfied.
 
-Hosting/domain worksheets can be prepared in parallel with secrets and database
-planning. Domain activation follows provider selection; production behavior checks
-follow the reviewed backend and runtime enablement dependencies. No task becomes
-DONE solely from preparing this document.
+## Handoff and verification
 
-## Preparation evidence and handoff
+Completed: source/requirements review, explicit existing staging worksheet,
+commercial/free-plan eligibility hold, production/domain prerequisites and bounded
+release/rollback instructions. No deployment, DNS/TLS change, production migration,
+secret injection, provider purchase, CI dispatch or local test suite was performed.
+Verification: source/reference review, local Markdown target existence and
+`git diff --check`. Hosted CI remains subject to root's free-quota check.
 
-### Dummy refresh readiness, 2026-10-14
-
-The owner reconfirmed dummy preparation. The current assignment and exclusive
-documentation scope are recorded in the refresh section of the
-[preparation board](../tasks/CSA-205-210-PREPARATION.md). Operational tasks remain
-pending; this refresh does not select a host or authorize live configuration.
-
-Repository inspection found only the tracked local
-[client example](../../config/client.example.json), with a loopback backend and
-replacement key. No tracked Vercel, Netlify, Firebase or Wrangler hosting
-configuration was found. Flutter CI verifies and builds without backend
-credentials; it has no deployment job. No concrete hosting account/project,
-controlled domain/DNS zone, certificate, production backend target or release
-operator is evidenced by these files. Ignored local files and external provider
-accounts were not inspected; this is repository readiness evidence only.
-
-One runtime prerequisite remains: [bootstrap](../../lib/app/bootstrap.dart)
-currently initializes Supabase only when `SUPABASE_URL` and `SUPABASE_ANON_KEY`
-are present, and does not call `EnvConfig.read()`. Consequently, the illustrative
-publishable-key-only JSON above does not initialize the backend today, and the
-configuration validator's HTTPS/key checks are not enforced by this entry point.
-A separately owned, reviewed runtime change must connect the validated public
-configuration before claiming production startup. Do not bypass this prerequisite
-by treating the example build command as verified deployment guidance.
-
-Next handoff: the owner/designated infrastructure maintainer supplies the selected
-provider, account/project, controlled canonical and staging origins, verified
-public backend target and release operator. Coordinate the bootstrap prerequisite
-with its runtime owner; then implement provider-specific fallback, headers and
-deployment/rollback configuration against the approved target. Domain/TLS and
-browser verification follow that configuration. No further provider-independent
-hosting implementation is claimed by this documentation refresh.
-
-Refresh verification: reviewed the referenced source, checked local Markdown link
-targets and ran `git diff --check`. No build, network/header request, DNS/TLS
-operation, deployment or production test was performed.
-
-Inspected: TASKS.md Phase 9, PLAN.md Phase 9, SECURITY.md Flutter Web requirements,
-CSA-012 environment/budget decision, EnvConfig, public client example, local
-configuration guidance, web index, Flutter CI and the existing header evaluator.
-Preparation verification is reference review and `git diff --check` only.
-No Flutter build, browser/header test, DNS request, certificate issuance, deployment,
-provider purchase, credential injection or production smoke test was performed.
-Root integrates this single scoped document; project owner/designated maintainer
-accepts preparation and authorizes later concrete configuration.
+Inspected: AGENTS.md; Issue #160; TASKS.md CSA-205/206; PLAN.md Phase 9;
+CSA-012 environment/budget decision; earlier preparation board; EnvConfig;
+bootstrap; existing header-checker entry point; root's read-only inventory report.
+Next owner: CODEX root integrates these exclusive documentation files, reconciles
+TASKS.md and retains both operational holds. Project owner/designated maintainer
+controls production target, domain and release authorization.
