@@ -1,3 +1,7 @@
+// Requires browser platform (transitively uses dart:js_interop).
+@TestOn('browser')
+library;
+
 import 'package:acendra/core/widgets/feedback/app_skeleton.dart';
 import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:acendra/features/learning/domain/entities/lesson_content.dart';

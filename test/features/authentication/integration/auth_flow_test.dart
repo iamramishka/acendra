@@ -1,4 +1,7 @@
 // CSA-076 — Complete authentication flow tests.
+// Requires browser platform (transitively uses dart:js_interop via go_router).
+@TestOn('browser')
+library;
 // These widget-level integration tests exercise the full auth UI flows
 // end-to-end against fake repositories (no real Supabase needed).
 

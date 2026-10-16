@@ -1,3 +1,7 @@
+// Requires browser platform (uses app_router which pulls in dart:js_interop).
+@TestOn('browser')
+library;
+
 import 'package:acendra/app/router/app_router.dart';
 import 'package:acendra/app/theme/app_colors.dart';
 import 'package:acendra/app/theme/app_theme_extension.dart';

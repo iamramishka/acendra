@@ -126,7 +126,8 @@ class FinanceReviewScreen extends ConsumerWidget {
 class _LoadingSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return SingleChildScrollView(
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppSkeleton(width: 200, height: 28, borderRadius: BorderRadius.circular(AppRadius.sm)),
@@ -145,6 +146,7 @@ class _LoadingSkeleton extends StatelessWidget {
           ),
         ),
       ],
+      ),
     );
   }
 }
