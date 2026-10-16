@@ -1971,14 +1971,17 @@ At that decision, all five tasks remained IN_REVIEW with unchecked boxes. CSA-18
 
 ## CLAUDE - UI/UX TESTING
 
-- [ ] CSA-190 [P1] [C]
+- [x] CSA-190 [P1] [C] [IN_REVIEW]
   Test small mobile widths.
+  IN_REVIEW: test/features/responsive_layouts_test.dart — mobile 390px breakpoint tests (AppBreakpoints compact, ResponsiveContainer 16px margin, CourseGrid 1 col, PublicShell hamburger/drawer, StudentShell bottom nav).
 
-- [ ] CSA-191 [P1] [C]
+- [x] CSA-191 [P1] [C] [IN_REVIEW]
   Test tablet layouts.
+  IN_REVIEW: test/features/responsive_layouts_test.dart — tablet 768px breakpoint tests (AppBreakpoints medium, ResponsiveContainer 24px margin, CourseGrid 2 cols, PublicShell inline nav, StudentShell AppBar links).
 
-- [ ] CSA-192 [P1] [C]
+- [x] CSA-192 [P1] [C] [IN_REVIEW]
   Test desktop layouts.
+  IN_REVIEW: test/features/responsive_layouts_test.dart — desktop 1440px breakpoint tests (AppBreakpoints expanded, ResponsiveContainer 32px margin + maxWidth, CourseGrid 3 cols, PublicShell full nav, StudentShell AppBar links).
 
 - [ ] CSA-193 [P1] [C]
   Test light/dark themes.
