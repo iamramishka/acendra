@@ -103,7 +103,7 @@ jobs:
         run: |
           echo "Waiting for Nginx to settle ..."
           sleep 5
-          STATUS=$(curl -sk -o /dev/null -w "%{http_code}" https://${{ secrets.DEPLOY_HOST }})
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.DEPLOY_HOST }})
           echo "HTTP status: $STATUS"
           if [ "$STATUS" != "200" ]; then
             echo "::error::Smoke test failed — HTTP $STATUS"
