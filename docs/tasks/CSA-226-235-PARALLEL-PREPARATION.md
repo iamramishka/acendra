@@ -45,3 +45,9 @@ All three read-only workers returned findings, integrated into `docs/requirement
 Verification: local link targets checked; document scope and proposal status reviewed; staged diff whitespace check recorded with the preparation commit. Runtime checks are not applicable to these documentation-only changes and were not run. GitHub access failure prevents remote ownership reconciliation and PR creation; no PR or independent approval is claimed.
 
 Next owner: project owner reviews the proposal and resolves task-specific decisions; CODEX can then reconcile GitHub ownership and prepare implementation contracts. Preparation remains IN_REVIEW until accepted; the six feature tasks are not completed.
+
+## Owner-authorized dev integration — 2026-10-16
+
+The project owner requested “review and merge with dev.” CODEX reviewed both documents and checked the stated dashboard fixtures, course repository stubs, one-course order/grant constraint and lifetime paid grant constraint against local source. Local Markdown links resolve and whitespace checks pass. No blocking documentation findings were identified. This is implementation-owner self-review, not independent review.
+
+The owner authorizes local integration of these preparation documents into `dev`. This instruction supersedes the earlier preparation-only merge restriction for these two files. It does not select unresolved business rules, approve feature implementation contracts or complete any of the six backlog features. Proposal status remains IN_REVIEW for those decisions. Remote PR/CI verification is not claimed; existing unrelated local modifications must remain intact.
