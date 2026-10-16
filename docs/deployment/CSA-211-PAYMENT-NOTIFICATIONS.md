@@ -46,8 +46,14 @@ Student email delivers a notice after financial state has committed. An email,
 browser return redirect or receipt upload must never grant course access.
 
 [Webhook entry point](../../supabase/functions/payment-provider-webhook/index.ts)
-injects only environment access; its handler defaults to disabled and returns
-503 `ONLINE_PAYMENTS_UNAVAILABLE`. No environment enable flag overrides this.
+now routes through `_shared/payments/staging-entrypoints.mjs`; the gate opens
+only for the known staging project URL and origin with sandbox credentials
+(`APP_ENV === 'staging'`). A production deployment (`APP_ENV === 'production'`)
+does not satisfy the staging guard, so the handler remains disabled and returns
+503 `ONLINE_PAYMENTS_UNAVAILABLE`. No environment flag enables it in production;
+a separately reviewed runtime change is required. See the
+[payment readiness worksheet](CSA-207-210-SECRETS-PAYMENTS.md) PayHere code gate
+section for the full gate logic.
 [Email entry point](../../supabase/functions/payment-notifications/index.ts)
 always returns 503 `NOTIFICATIONS_UNAVAILABLE`. Configuring secrets alone cannot
 activate either boundary. Retain both gates during preparation.

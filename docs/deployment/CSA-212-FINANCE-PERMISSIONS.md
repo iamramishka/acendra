@@ -38,6 +38,8 @@ Actions capacity and controls the bounded hosted CI dispatch.
 
 The [bank workflow migration](../../supabase/migrations/20261011001700_csa108_113_bank_workflow.sql) checks live account/session, AAL2 and current finance_admin/super_admin authority under locks, denies own review before replay, and exposes the trusted review RPC only to service_role. Browser metadata supplies no privileges. Independent bank credit evidence must match the order; receipt upload alone does not verify credit.
 
+A new Edge Function [`bank-transfer-read`](../../supabase/functions/bank-transfer-read/index.ts) is now deployed (CSA-179). Its entry point passes only `env` to the handler; the handler comment states "no environment flag enables reads" and operational acceptance is required before it is considered available. The function exposes `csa179_read_bank_transfer` for student own-order status and the finance-team pending queue (both `service_role`-only). Include it in the deployed-function/grant comparison in step 1 of the verification procedure and add the finance-queue denial boundary (student cannot call the queue path) to matrix row "Browser RPC and DML". Regression coverage: `supabase/tests/database/csa179_bank_reads.test.sql` and `tool/csa179_bank_read.test.mjs`.
+
 ## Acceptance matrix
 
 Execute state-changing probes only against isolated synthetic fixtures in a staging environment matching the deployment. Record both HTTP results and trusted state observations; SQL errors below describe the RPC boundary, not every gateway response.

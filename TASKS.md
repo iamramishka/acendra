@@ -2314,6 +2314,63 @@ completed before scaling concurrent work.
 
 ---
 
+# 26A. PHASE 10 - ORACLE CLOUD ARM DEPLOYMENT
+
+Status: READY - owner-approved 2026-10-16.
+Plan: [Phase 10 Oracle ARM plan](docs/deployment/PHASE-10-ORACLE-ARM-PLAN.md), PLAN.md section 25A.
+Provisioning note: OCI console tasks (CSA-254, CSA-255) are driven by the owner in
+their browser; Claude can assist interactively via Claude in Chrome once signed in.
+
+- [ ] CSA-253 [P0] [L]
+  Oracle provider ADR and owner approval.
+  Owner: Project owner. Depends: CSA-205.
+
+- [ ] CSA-254 [P0] [L]
+  OCI tenancy, region, IAM, MFA, staging/prod compartments.
+  Owner: Project owner. Depends: CSA-253.
+
+- [ ] CSA-255 [P0] [L]
+  Provision A1 VM, VCN, security list (SSH restricted, 80/443 open).
+  Owner: CODEX. Depends: CSA-254. Scope: infra/oracle/**
+
+- [ ] CSA-256 [P0] [L]
+  VM hardening: SSH keys only, firewall, auto security updates, fail2ban, non-root deploy user.
+  Owner: CODEX. Depends: CSA-255. Scope: infra/oracle/**
+
+- [ ] CSA-257 [P1] [L]
+  Nginx config: SPA fallback, cache and security headers, compression.
+  Owner: CLAUDE. Depends: CSA-255. Scope: infra/oracle/nginx/**
+
+- [ ] CSA-258 [P0] [L]
+  Reserved public IP, sslip.io hostname, Let's Encrypt TLS with auto-renew test.
+  Owner: CODEX. Depends: CSA-257.
+
+- [ ] CSA-259 [P1] [L]
+  VM rebuild script (cloud-init or Terraform OCI provider).
+  Owner: CODEX. Depends: CSA-256. Scope: infra/oracle/**
+
+- [ ] CSA-260 [P0] [L]
+  GitHub Actions deploy: web build with public defines only, artifact secret scan, versioned release, atomic switch.
+  Owner: CLAUDE. Depends: CSA-257. Shared file: .github/workflows/** (lock required).
+
+- [ ] CSA-261 [P0] [L]
+  Rollback to previous release, rehearsed in staging.
+  Owner: CLAUDE. Depends: CSA-260. Scope: infra/oracle/scripts/**
+
+- [ ] CSA-262 [P1] [L]
+  Monitoring: uptime, TLS expiry, disk/CPU alerts, idle-reclaim review.
+  Owner: CODEX. Depends: CSA-213, CSA-258.
+
+- [ ] CSA-263 [P0] [L]
+  Staging release and smoke tests (deep links, auth redirects, PDF reader, checkout on staging Supabase).
+  Owner: CLAUDE. Depends: CSA-260.
+
+- [ ] CSA-264 [P0] [L]
+  Production go-live checklist and owner release approval.
+  Owner: Project owner. Depends: CSA-261, CSA-262, CSA-263.
+
+---
+
 # 27. ACTIVE TASK ALLOCATION BOARD
 
 This section summarizes active work.

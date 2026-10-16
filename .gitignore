@@ -47,6 +47,11 @@ app.*.map.json
 # Superpowers SDD scratch workspace (git-ignored; recover from git log)
 .superpowers/
 
+# SSH keys — never commit
+sshkeys/
+*.key
+*.pem
+
 # Local environment secrets — never commit
 .env
 .env.*

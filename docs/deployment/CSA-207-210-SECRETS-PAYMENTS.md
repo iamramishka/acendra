@@ -103,16 +103,19 @@ PayHere and LKR are approved selections under
 [CSA-004](../requirements/CSA-004-PAYMENT-DECISION.md). Live merchant activation,
 approved domain, plan and retrieval access have not been verified.
 
-`supabase/functions/initialize-checkout/index.ts` injects only `env` into its
-handler. `initialize-checkout/handler.mjs` defaults `onlineCheckoutEnabled` to
-`false` and returns HTTP 503 `ONLINE_CHECKOUT_UNAVAILABLE` for online checkout.
-It receives `paymentConfig` through dependency injection, not environment reads.
-
-`supabase/functions/payment-provider-webhook/index.ts` also injects only `env`.
-Its handler defaults `onlinePaymentsEnabled` to `false` and returns HTTP 503
-`ONLINE_PAYMENTS_UNAVAILABLE`; `providerConfig` is injected separately.
-No environment variable can enable these deployed entry points. Secret injection
-alone cannot complete CSA-210. Keep these gates intact during dummy preparation.
+As of the current dev tip, all three payment entry points
+(`create-checkout-order`, `initialize-checkout`, `payment-provider-webhook`)
+route through `_shared/payments/staging-entrypoints.mjs`. The shim calls
+`stagingSandboxConfiguration(env)`, which returns a live sandbox adapter only
+when all four conditions are met simultaneously: `APP_ENV === 'staging'`,
+`PAYHERE_ENVIRONMENT === 'sandbox'`, `SUPABASE_URL` equals the known staging
+project URL, and `ACENDRA_CHECKOUT_ALLOWED_ORIGINS` equals the known staging
+app origin. When any condition is absent the function returns `undefined` and
+the handler gate remains closed (`onlineCheckoutEnabled` / `onlinePaymentsEnabled`
+is `false`). A production deployment with `APP_ENV === 'production'` will not
+satisfy the staging guard, so the gate stays closed. Secret injection alone
+cannot complete CSA-210. A separately reviewed production runtime enablement
+change with an accountable financial owner is required after provider acceptance.
 
 `_shared/payments/payhere.mjs` consumes the following object properties. These
 are **adapter properties, not implemented production environment bindings**:

@@ -109,15 +109,18 @@ can proceed in parallel with hosting and secret preparation.
 | `supabase/migrations/20261012003100_csa164_media_uploads.sql` | Creates private `course-media` and trusted upload operations. Bucket insertion has no conflict clause: an existing bucket requires drift review before application, rather than blind replay. |
 | `supabase/migrations/20261013003400_csa165_private_image_readiness.sql` | Publication readiness checks private media/PDF configuration. |
 | `supabase/migrations/20261013003500_csa178_deferred_financial_checks.sql` | Corrects deferred financial invariant checks after RPC definer context ends. Include it in approved ordering; do not grant direct financial mutation privileges as a workaround. |
+| `supabase/migrations/20261014000100_csa179_bank_reads.sql` | Adds `public.csa179_read_bank_transfer` (security definer, `service_role`-only): trusted read of a buyer's own bank transfer status or the finance-team pending queue. Verify session/AAL and privilege grants; confirms no direct client access. |
+| `supabase/migrations/20261014000200_csa179_bank_read_alias_fix.sql` | Replaces the function above (`create or replace`) to rename the PL/pgSQL row variable from `o` to `order_row`, eliminating a column-alias collision in the queue branch. Apply immediately after `000100`; no schema structure change. |
 
 These are highlights, not a substitute for the entire reviewed migration chain.
-At preparation base `fe68c6b0047dc956b291fd43f6813d39cec56696`, the directory
-contains 31 SQL migrations: filename suffixes `001` through `025`, then `030`
-through `035`. The first is `20261011000100_csa059_profile_role_schema.sql`;
-the last is `20261013003500_csa178_deferred_financial_checks.sql`. Apply the
-actual filenames in ascending order after comparison with target history. The
-absent suffixes `026` through `029` are not evidence of unapplied migrations;
-do not create replacements or repair history based on numbering alone.
+At the current dev tip, the directory contains 33 SQL migrations: filename
+suffixes `001` through `025`, then `030` through `035`, then `000100` and
+`000200` under the `20261014` prefix. The first is
+`20261011000100_csa059_profile_role_schema.sql`; the last is
+`20261014000200_csa179_bank_read_alias_fix.sql`. Apply the actual filenames in
+ascending order after comparison with target history. The absent suffixes `026`
+through `029` are not evidence of unapplied migrations; do not create
+replacements or repair history based on numbering alone.
 
 Do not manually add duplicate dashboard policies. PDF MIME allowlisting is not
 content inspection, and private buckets alone do not prove entitlement delivery.
@@ -152,6 +155,15 @@ references/object hashes and replay deletion records before exposing restored
 data. Financial events require actual provider/bank reconciliation.
 
 ## Required completion record
+
+### Migration chain update — 2026-10-16
+
+Two migrations added after the 2026-10-14 dummy refresh:
+`20261014000100_csa179_bank_reads.sql` and
+`20261014000200_csa179_bank_read_alias_fix.sql`. Both are `service_role`-only
+trusted read functions on existing tables; no schema structure, bucket or RLS
+policy changes. The migration table above and chain count updated to 33.
+No other preparation fields change; operational blockers listed below remain.
 
 ### Dummy refresh verification and handoff — 2026-10-14
 

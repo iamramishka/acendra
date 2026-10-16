@@ -19,8 +19,14 @@ Dummy deployment targets are not real recovery destinations.
 2. Preserve minimal restricted audit/provider evidence. Identify last trustworthy
    transactions and objects, suspected compromise and affected credentials.
 3. Obtain authorized containment actions: restrict affected payment/approval/content
-   entry points and pause workers as necessary. Preserve pending outcomes and durable
-   retry evidence. Do not disable RLS or grant entitlements to resolve an outage.
+   entry points and pause workers as necessary. Affected entry points include the
+   three payment functions (`create-checkout-order`, `initialize-checkout`,
+   `payment-provider-webhook` — each now routed through the staging shim; disabling
+   them does not require changing the shim logic, only restricting function invocation
+   at the provider level), `admin-review-bank-transfer`, and `bank-transfer-read`
+   (trusted student/finance read, `service_role`-only). Preserve pending outcomes
+   and durable retry evidence. Do not disable RLS or grant entitlements to resolve
+   an outage.
 4. Freeze conflicting releases and record one incident implementation owner.
    For compromised keys, contain/rotate through approved provider procedure; ensure
    restored configuration cannot reintroduce exposed keys or unsafe signed access.
@@ -55,6 +61,8 @@ Dummy deployment targets are not real recovery destinations.
 11. Check Auth identity/revocation/session behavior; force approved reauthentication
     where necessary. Verify anonymous/student/finance/admin boundaries, including
     direct API/RPC/Storage requests and cross-user denial, before enabling traffic.
+    Include `bank-transfer-read`: verify a student cannot call the finance-queue
+    path and cannot read another student's order status through this function.
 12. Finance reconciles recovered orders, events, settlements, grants, enrollments,
     audit and outbox with authentic provider/bank credit evidence. Enumerate every
     backup-to-cutover event and unresolved discrepancy. Use approved idempotent
@@ -91,11 +99,12 @@ Run these from an isolated repository checkout with Python and Node available:
 
 ```powershell
 python tool/csa200_recovery_test.py
-node --test tool/csa200_storage_recovery.test.mjs tool/csa201_notification_recovery.test.mjs
+node --test tool/csa200_storage_recovery.test.mjs tool/csa201_notification_recovery.test.mjs tool/csa179_bank_read.test.mjs
 ```
 
 These test environment sanitization, reserved ports, synthetic object boundaries,
-tombstones, archive integrity/identity/denial safeguards and notification retries.
+tombstones, archive integrity/identity/denial safeguards, notification retries
+and trusted bank-read identity/isolation boundaries.
 They do not access production and do not prove deployed backup or email capability.
 
 Optional native disposable drill requires PostgreSQL17 binaries, a free coordinated
@@ -192,3 +201,24 @@ private backup export or new service ran. Hosted CI remains the integration chec
 **Hold:** CSA-216 operational acceptance remains pending. This concrete staging
 triage path is prepared; production designation, named alternate, existing complete
 backup set, isolated destination and measured managed recovery are still required.
+
+## Source-fact refresh — 2026-10-16
+
+Dev tip moved from `7916c6e` to `422362f` after initial preparation. Three
+source-visible changes updated this runbook:
+
+- **Payment entry-point architecture**: `create-checkout-order`,
+  `initialize-checkout` and `payment-provider-webhook` now route through
+  `_shared/payments/staging-entrypoints.mjs`. The staging gate opens only for
+  `APP_ENV=staging` plus three matching staging identifiers; production remains
+  closed. Containment step 3 updated to name all relevant entry points and
+  clarify that function invocation is restricted at the provider level, not by
+  changing the shim.
+- **New `bank-transfer-read` Edge Function** (CSA-179): trusted student/finance
+  read, `service_role`-only, no env enable flag. Added to containment step 3 and
+  boundary-verification step 11. Offline tooling command extended with
+  `tool/csa179_bank_read.test.mjs`.
+- **New migrations** (`20261014000100/000200_csa179_bank_reads.sql`): covered in
+  the database/storage preparation doc; no runbook procedure change required.
+
+No operational blockers changed. CSA-216 remains unchecked.

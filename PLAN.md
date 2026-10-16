@@ -1752,6 +1752,77 @@ without explicit authorization.
 
 ---
 
+# 25A. PHASE 10
+# ORACLE CLOUD ARM DEPLOYMENT
+
+Status:
+READY - Owner-approved 2026-10-16
+
+Main Task Range:
+CSA-253 through CSA-264
+
+Detailed plan:
+docs/deployment/PHASE-10-ORACLE-ARM-PLAN.md
+
+Provisioning note:
+OCI console steps (CSA-254, CSA-255) are
+performed by the project owner in their
+browser. Claude can drive the OCI console
+interactively through Claude in Chrome once
+the owner is signed in; Claude cannot enter
+credentials or create the Oracle account.
+
+Dependencies:
+
+- Phase 9 preparation (CSA-205, CSA-213)
+- Owner signed into their OCI tenancy
+
+Hosting Model:
+
+- Flutter Web static build on an OCI
+  Always Free Ampere A1 VM behind Nginx
+- Supabase remains on Supabase Cloud
+- No purchased domain: free sslip.io
+  hostname on the reserved public IP
+- HTTPS via Let's Encrypt (mandatory;
+  bare http://<IP> not allowed in production)
+- Target cost: USD 0/month
+
+## CODEX WORKSTREAM
+
+- VM, network and security list provisioning
+- VM hardening
+- Reserved IP, sslip.io hostname and TLS
+- Rebuild script (infrastructure as code)
+- Monitoring and alerts
+
+## CLAUDE WORKSTREAM
+
+- Nginx config (SPA fallback, security headers)
+- GitHub Actions deploy with artifact secret scan
+- Versioned releases and rollback
+- Staging smoke tests
+
+## PROJECT LEAD
+
+- Provider ADR approval
+- OCI tenancy, region and IAM setup
+- Acceptance of Supabase free tier limits
+- Production go-live approval
+
+## Phase 10 Exit Gate
+
+- [ ] Oracle provider ADR approved.
+- [ ] VM rebuilt from script at least once.
+- [ ] HTTPS active on sslip.io hostname.
+- [ ] Deep-link refresh works.
+- [ ] Deploy and rollback rehearsed in staging.
+- [ ] Artifact secret scan passes.
+- [ ] Monitoring alerts tested.
+- [ ] Owner release approval recorded.
+
+---
+
 # 26. PARALLEL DEVELOPMENT WAVES
 
 The execution plan groups

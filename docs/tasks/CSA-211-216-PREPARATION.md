@@ -74,3 +74,30 @@ clean. Root reviewed the scoped diff, and an independent agent found no concrete
 source-fact, unsafe-procedure, link or scope defects. Owner/designated maintainer reviews preparation, then
 authorizes later real target configuration under retained release requirements.
 Temporary shared-note ownership is released at this review handoff.
+
+## Source-fact refresh — 2026-10-16
+
+Dev tip moved from `7916c6e` to `422362f` after the initial preparation.
+Three source-visible changes affect the prep documents; CSA-213 and CSA-214
+operations docs are unaffected (no monitoring/backup source files changed).
+
+**Payment entry-point architecture** (`CSA-207-210`, `CSA-211`): All three
+payment functions now route through `_shared/payments/staging-entrypoints.mjs`.
+The shim opens the gate only when `APP_ENV=staging` plus three matching staging
+identifiers are present simultaneously. A production deployment
+(`APP_ENV=production`) does not satisfy the guard; the gate remains closed.
+A separately reviewed production runtime enablement change is still required
+after provider acceptance. Updated: `CSA-207-210-SECRETS-PAYMENTS.md` PayHere
+code gate section; `CSA-211-PAYMENT-NOTIFICATIONS.md` webhook description.
+
+**New `bank-transfer-read` Edge Function** (`CSA-212`): CSA-179 added a new
+function exposing `csa179_read_bank_transfer` (student own-order and
+finance-team queue, `service_role`-only, no env enable flag). Added to the
+`CSA-212-FINANCE-PERMISSIONS.md` release boundary section with its regression
+references (`csa179_bank_reads.test.sql`, `csa179_bank_read.test.mjs`).
+
+**New migrations** (`CSA-208/209`, updated separately 2026-10-16):
+`20261014000100/000200_csa179_bank_reads.sql` — covered in the database/storage
+preparation doc update recorded there.
+
+No operational blockers changed. All five task boxes remain unchecked.
