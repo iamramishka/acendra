@@ -12,11 +12,13 @@ void main() {
   late SupabaseClient client;
   late Map<String, dynamic> payload;
   late List<Map<String, dynamic>> requests;
+  List<Map<String, dynamic>>? pages;
   var status = 200;
   setUp(() async {
     status = 200;
     payload = {'items': [], 'next_after_id': null};
     requests = [];
+    pages = null;
     server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
     client = SupabaseClient('http://127.0.0.1:${server.port}', 'synthetic-key');
     server.listen((request) async {
@@ -27,7 +29,9 @@ void main() {
       );
       request.response.headers.contentType = ContentType.json;
       request.response.statusCode = status;
-      request.response.write(jsonEncode({'data': payload}));
+      request.response.write(
+        jsonEncode({'data': pages == null ? payload : pages!.removeAt(0)}),
+      );
       await request.response.close();
     });
   });
@@ -43,6 +47,39 @@ void main() {
     );
     expect(requests.map((r) => r['resource']), ['courses', 'students']);
   });
+  test(
+    'directory follows cursors and preserves all returned records',
+    () async {
+      pages = [
+        {
+          'items': [
+            {'id': 'first'},
+          ],
+          'next_after_id': 'next',
+        },
+        {
+          'items': [
+            {'id': 'second'},
+          ],
+          'next_after_id': null,
+        },
+      ];
+      final rows = await AdminDirectoryClient(client).read('courses');
+      expect(rows.map((row) => row['id']), ['first', 'second']);
+      expect(requests.map((request) => request['after_id']), [null, 'next']);
+    },
+  );
+  test(
+    'repeated cursor fails instead of looping or presenting partial data',
+    () async {
+      payload = {'items': [], 'next_after_id': 'repeated'};
+      await expectLater(
+        AdminDirectoryClient(client).read('courses'),
+        throwsA(isA<AdminDataException>()),
+      );
+      expect(requests.length, 2);
+    },
+  );
   test(
     'student data uses server records and unavailable payment totals',
     () async {

@@ -22,4 +22,3 @@ Completion evidence (2026-10-17):
 - Scoped flutter analyze over navigation code, role provider and added tests: PASS, no issues.
 - dart format --output=none --set-exit-if-changed over all six Dart changes: PASS, no changes.
 - Pending: root integration, combined checks and PR review. No deployment or merge performed.
-

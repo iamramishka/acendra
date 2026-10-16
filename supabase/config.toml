@@ -457,3 +457,8 @@ verify_jwt = true
 [functions.admin-enrollments]
 enabled = true
 verify_jwt = true
+
+# Issue164 read-only admin directory; JWT and database authorization are required.
+[functions.admin-directory]
+enabled = true
+verify_jwt = true
