@@ -1526,19 +1526,19 @@ See the dated parallel review in the reconciliation record for evidence and limi
 
 - [x] CSA-108 [P0] [X] [DONE]
   Implement private receipt upload.
-  IN_REVIEW, CODEX: implemented and locally tested; issue #81; Storage/CI and operational acceptance pending.
+  DONE for accepted development scope: PR #84 merged into dev (a19fd048); hosted Flutter/Supabase CI and private Storage lifecycle passed. Production inspection/banking operational gates remain. See docs/tasks/CSA-FINANCIAL-ISSUE-RECONCILIATION.md.
 
 - [x] CSA-109 [P0] [X] [DONE]
   Validate receipt type and ownership.
-  IN_REVIEW, CODEX: implemented and locally tested; issue #81; Storage/CI and operational acceptance pending.
+  DONE for accepted development scope: PR #84 merged into dev (a19fd048); hosted Flutter/Supabase CI and private Storage lifecycle passed. Production inspection/banking operational gates remain. See docs/tasks/CSA-FINANCIAL-ISSUE-RECONCILIATION.md.
 
 - [x] CSA-112 [P0] [X] [DONE]
   Implement authorized bank approval.
-  IN_REVIEW, CODEX: implemented and locally tested; issue #81; Storage/CI and operational acceptance pending.
+  DONE for accepted development scope: PR #84 merged into dev (a19fd048); hosted Flutter/Supabase CI and private Storage lifecycle passed. Production inspection/banking operational gates remain. See docs/tasks/CSA-FINANCIAL-ISSUE-RECONCILIATION.md.
 
 - [x] CSA-113 [P0] [X] [DONE]
   Implement bank rejection processing.
-  IN_REVIEW, CODEX: implemented and locally tested; issue #81; Storage/CI and operational acceptance pending.
+  DONE for accepted development scope: PR #84 merged into dev (a19fd048); hosted Flutter/Supabase CI and private Storage lifecycle passed. Production inspection/banking operational gates remain. See docs/tasks/CSA-FINANCIAL-ISSUE-RECONCILIATION.md.
 
 - [x] CSA-114 [P0] [X] [DONE]
   Implement concurrency-safe approvals.

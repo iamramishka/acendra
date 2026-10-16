@@ -1,7 +1,7 @@
 # CSA-114/116–120 backend contract
 
-Owner CODEX. Date 2026-10-12 (Asia/Colombo). Issue #85. IN_REVIEW.
-Stacked on draft PR #84; its production payment/receipt gates remain intact.
+Owner CODEX. Original date 2026-10-12 (Asia/Colombo). Issue #85. Status reconciled 2026-10-16: CSA-114/116/117/118/120 development scope accepted via merged PR #86; CSA-119 operational delivery IN_REVIEW.
+Originally stacked on PR #84; both PR #84 and PR #86 are now merged into dev. Production payment/receipt and live email gates remain intact. This status update changes no RPC or worker contract.
 
 ## Access verification
 
