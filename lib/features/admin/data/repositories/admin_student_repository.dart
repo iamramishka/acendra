@@ -1,3 +1,4 @@
+import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:acendra/features/admin/data/repositories/admin_directory_client.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:acendra/features/admin/domain/entities/admin_student.dart';
@@ -65,5 +66,9 @@ class SupabaseAdminStudentRepository implements AdminStudentRepository {
 }
 
 final adminStudentRepositoryProvider = Provider<AdminStudentRepository>((ref) {
+  final session = ref.watch(currentSessionProvider);
+  if (session == null) {
+    throw const AdminDataException('Your session expired. Sign in again.');
+  }
   return SupabaseAdminStudentRepository(Supabase.instance.client);
 });

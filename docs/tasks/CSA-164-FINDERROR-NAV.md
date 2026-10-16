@@ -22,3 +22,8 @@ Completion evidence (2026-10-17):
 - Scoped flutter analyze over navigation code, role provider and added tests: PASS, no issues.
 - dart format --output=none --set-exit-if-changed over all six Dart changes: PASS, no changes.
 - Pending: root integration, combined checks and PR review. No deployment or merge performed.
+
+
+Scope addendum (root assignment, 2026-10-17): CODEX navigation owns session-bound invalidation for admin course/student repository and list/detail/curriculum/lesson providers plus focused account-switch/in-flight regression tests. Dependency: d5ac8d6f directory implementation, cherry-picked locally as 040f639. Root integrates only new follow-up commit. Status: IN_PROGRESS. Required: clear prior-session directory data and prevent old asynchronous search results restoring PII after auth changes. No backend contract, deployment or financial changes.
+
+Session-bound directory follow-up evidence: 30 focused tests passed (session regression, directory repository and course publishing journey suites). New regressions cover logout/account switch for cached students/details/courses and late initial-load/search/refresh completion after account switch. Scoped analysis passed, no issues. Status: IN_REVIEW; root integration pending.

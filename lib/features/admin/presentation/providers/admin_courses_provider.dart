@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class AdminCoursesNotifier extends AsyncNotifier<List<AdminCourse>> {
   @override
   Future<List<AdminCourse>> build() async {
-    return ref.read(adminCourseRepositoryProvider).listCourses();
+    return ref.watch(adminCourseRepositoryProvider).listCourses();
   }
 
   Future<void> refresh() async {
@@ -38,12 +38,12 @@ final adminCoursesProvider =
 
 final adminCourseDetailProvider = FutureProvider.autoDispose
     .family<AdminCourse, String>((ref, courseId) {
-      return ref.read(adminCourseRepositoryProvider).getCourse(courseId);
+      return ref.watch(adminCourseRepositoryProvider).getCourse(courseId);
     });
 
 final adminCurriculumProvider = FutureProvider.autoDispose
     .family<List<AdminCurriculumSection>, String>((ref, courseId) {
-      return ref.read(adminCourseRepositoryProvider).getCurriculum(courseId);
+      return ref.watch(adminCourseRepositoryProvider).getCurriculum(courseId);
     });
 
 final adminLessonDetailProvider = FutureProvider.autoDispose
@@ -53,7 +53,7 @@ final adminLessonDetailProvider = FutureProvider.autoDispose
     ) async {
       if (args.lessonId == 'new') return null;
       final sections = await ref
-          .read(adminCourseRepositoryProvider)
+          .watch(adminCourseRepositoryProvider)
           .getCurriculum(args.courseId);
       for (final section in sections) {
         for (final lesson in section.lessons) {
