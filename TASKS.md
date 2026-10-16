@@ -1021,26 +1021,33 @@ Phase 0 approved baseline.
 
 ## CLAUDE - FLUTTER FOUNDATIONS
 
-- [ ] CSA-018 [P1] [C]
+- [x] CSA-018 [P1] [C] [DONE]
   Initialize Flutter application.
+  DONE: Flutter web project initialized with MaterialApp.router, bootstrap entry point, and web assets at commit 6fb5f31/5b5665b (Phase 0).
 
-- [ ] CSA-019 [P1] [C]
+- [x] CSA-019 [P1] [C] [DONE]
   Pin Flutter/Dart SDK versions.
+  DONE: Flutter/Dart SDK versions and dependency constraints pinned; lint rules configured at commit cd46798 (Phase 0).
 
-- [ ] CSA-020 [P1] [C]
+- [x] CSA-020 [P1] [C] [DONE]
   Create feature-first Flutter structure.
+  DONE: Feature-first Clean Architecture directory layout (features/<feature>/presentation/domain/data/) created at commit 6fb5f31 (Phase 0).
 
-- [ ] CSA-021 [P1] [C]
+- [x] CSA-021 [P1] [C] [DONE]
   Configure Riverpod.
+  DONE: flutter_riverpod configured; ProviderScope at app root; ThemeModeNotifier and AppConfig providers wired at commit 5b5665b (Phase 0).
 
-- [ ] CSA-022 [P1] [C]
+- [x] CSA-022 [P1] [C] [DONE]
   Configure go_router.
+  DONE: go_router configured with placeholder routes and MaterialApp.router integration at commit a7db6cb (Phase 0).
 
-- [ ] CSA-023 [P1] [C]
+- [x] CSA-023 [P1] [C] [DONE]
   Configure Dart analysis and lint rules.
+  DONE: analysis_options.yaml with flutter_lints and strict rules configured at commit cd46798 (Phase 0).
 
-- [ ] CSA-024 [P1] [C]
+- [x] CSA-024 [P1] [C] [DONE]
   Implement application error foundations.
+  DONE: AppFailure sealed hierarchy, AppException types, AppLogger, and env config implemented at commit 5b52fcf (Phase 0).
 
 ## LEAD - REPOSITORY GOVERNANCE
 
@@ -1160,8 +1167,9 @@ CLAUDE
 - [x] CSA-055 [P1] [C] [DONE]
   Build admin navigation shell. AdminShell 248px sidebar on desktop / drawer on mobile.
 
-- [ ] CSA-056 [P1] [C]
+- [x] CSA-056 [P1] [C] [DONE]
   Implement accessibility foundations.
+  DONE: Semantic labels (SemanticsLabels), accessible controls, focus management, and keyboard navigation foundations implemented at commit 93e757c; extended and reviewed in PR #105 (commit 4bdf495). Keyboard accessibility widget tests added in CSA-194 (commit 54e9fbf).
 
 - [x] CSA-057 [P1] [C] [DONE]
   Test responsive layouts. ResponsiveContainer widget tests at breakpoint boundaries.
@@ -1184,7 +1192,7 @@ Phase 2 Exit:
 - [x] Reusable components exist. AppButton, AppTextField, CourseCard, AppSkeleton, feedback widgets.
 - [x] Navigation shells function. All 5 shells wired into ShellRoute; 159 tests pass.
 - [x] Mobile/tablet/desktop checked. Breakpoint tests at 599/600/1023/1024px.
-- [ ] Accessibility reviewed. CSA-056 pending.
+- [x] Accessibility reviewed. CSA-056 DONE — semantic labels, keyboard nav, focus management implemented (PR #105). CSA-194 keyboard accessibility tests pass.
 - [x] Relevant tests pass. 159/159 pass, flutter analyze clean, web build ✓.
 
 Phase 2 Status: DONE (CSA-056 accessibility foundations deferred to Phase 3 sprint).
