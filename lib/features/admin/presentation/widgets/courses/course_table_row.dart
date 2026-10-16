@@ -3,6 +3,7 @@ import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/feedback/status_badge.dart';
 import 'package:acendra/features/admin/domain/entities/admin_course.dart';
 import 'package:flutter/material.dart';
+import 'package:acendra/core/widgets/cards/course_thumbnail.dart';
 
 class CourseTableRow extends StatelessWidget {
   const CourseTableRow({
@@ -33,7 +34,17 @@ class CourseTableRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _ThumbnailPlaceholder(thumbnailUrl: course.thumbnailUrl),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+            child: SizedBox(
+              width: 56,
+              height: 40,
+              child: CourseThumbnail(
+                title: course.title,
+                imageUrl: course.thumbnailUrl,
+              ),
+            ),
+          ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             flex: 3,
@@ -97,37 +108,6 @@ class CourseTableRow extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _ThumbnailPlaceholder extends StatelessWidget {
-  const _ThumbnailPlaceholder({this.thumbnailUrl});
-  final String? thumbnailUrl;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AppRadius.sm),
-      child: thumbnailUrl != null
-          ? Image.network(
-              thumbnailUrl!,
-              width: 56,
-              height: 40,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => _placeholder(cs),
-            )
-          : _placeholder(cs),
-    );
-  }
-
-  Widget _placeholder(ColorScheme cs) {
-    return Container(
-      width: 56,
-      height: 40,
-      color: cs.surfaceContainerHighest,
-      child: Icon(Icons.image_outlined, size: 20, color: cs.onSurfaceVariant),
     );
   }
 }

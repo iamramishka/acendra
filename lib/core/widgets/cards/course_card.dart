@@ -1,5 +1,6 @@
 import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
+import 'course_thumbnail.dart';
 
 class CourseCard extends StatelessWidget {
   const CourseCard({
@@ -41,18 +42,7 @@ class CourseCard extends StatelessWidget {
             children: [
               AspectRatio(
                 aspectRatio: 16 / 9,
-                child: imageUrl != null
-                    ? Image.network(imageUrl!, fit: BoxFit.cover)
-                    : ColoredBox(
-                        color: cs.primaryContainer,
-                        child: ExcludeSemantics(
-                          child: Icon(
-                            Icons.play_circle_outline,
-                            size: 48,
-                            color: cs.onPrimaryContainer,
-                          ),
-                        ),
-                      ),
+                child: CourseThumbnail(title: title, imageUrl: imageUrl),
               ),
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),
