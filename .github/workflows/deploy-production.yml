@@ -18,8 +18,8 @@ jobs:
     #   DEPLOY_SSH_PRIVATE_KEY  — ed25519 private key for ubuntu@3.25.99.105
     #   DEPLOY_HOST             — 3.25.99.105
     #   DEPLOY_USER             — deploy
-    #   SUPABASE_URL            — https://<project>.supabase.co
-    #   SUPABASE_ANON_KEY       — publishable/anon key only (never service-role)
+    #   SUPABASE_URL               — https://<project>.supabase.co
+    #   SUPABASE_PUBLISHABLE_KEY   — publishable/anon key only (never service-role)
 
     steps:
       - name: Checkout
@@ -44,7 +44,7 @@ jobs:
         run: |
           flutter build web --release \
             --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
-            --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+            --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
 
       # Security gate: reject the build if any service-role key pattern
       # appears in the output. A service-role JWT starts with a specific
