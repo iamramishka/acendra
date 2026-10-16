@@ -1,3 +1,4 @@
+import 'package:acendra/features/admin/data/repositories/admin_directory_client.dart';
 import 'package:acendra/app/theme/app_breakpoints.dart';
 import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
@@ -118,7 +119,7 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
       if (context.mounted) {
         AppSnackbar.show(
           context,
-          'Failed to save course.',
+          adminDataError(e, 'Failed to save course.'),
           variant: SnackbarVariant.error,
         );
       }
@@ -138,7 +139,7 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
     return courseAsync.when(
       loading: () => _buildFormSkeleton(),
       error: (e, _) => AppErrorState(
-        message: e.toString(),
+        message: adminDataError(e, 'Unable to load courses. Retry.'),
         actionLabel: 'Retry',
         onRetry: () =>
             ref.invalidate(adminCourseDetailProvider(widget.courseId)),

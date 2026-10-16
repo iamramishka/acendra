@@ -1,0 +1,34 @@
+begin;
+select '1..1';
+do $$
+declare adm uuid:=gen_random_uuid(); student uuid:=gen_random_uuid(); manager uuid:=gen_random_uuid(); finance uuid:=gen_random_uuid();
+ ads uuid:=gen_random_uuid(); ss uuid:=gen_random_uuid(); ms uuid:=gen_random_uuid(); fs uuid:=gen_random_uuid();
+ owned uuid:=gen_random_uuid(); other_course uuid:=gen_random_uuid(); result jsonb;
+begin
+ insert into auth.users(id,email) values(adm,'admin@synthetic.test'),(student,'real-record@synthetic.test'),(manager,'manager@synthetic.test'),(finance,'finance@synthetic.test');
+ insert into auth.sessions(id,user_id,aal,not_after) values(ads,adm,'aal2',now()+interval '1 day'),(ss,student,'aal1',now()+interval '1 day'),(ms,manager,'aal1',now()+interval '1 day'),(fs,finance,'aal2',now()+interval '1 day');
+ insert into public.user_roles(user_id,role_id) select adm,id from public.roles where code='super_admin';
+ insert into public.user_roles(user_id,role_id) select manager,id from public.roles where code='content_manager';
+ insert into public.user_roles(user_id,role_id) select finance,id from public.roles where code='finance_admin';
+ insert into public.courses(id,slug,title,price_minor,status,thumbnail_path) values(owned,'directory-'||owned,'Sandbox directory course',15000,'draft','PRIVATE/SECRET'),(other_course,'directory-'||other_course,'Other course',0,'draft',null);
+ insert into public.course_staff(course_id,user_id,staff_role,assigned_by) values(owned,manager,'owner',adm);
+ result:=public.csa164_admin_directory(manager,ms,'aal1','courses',null,'',null,50);
+ if jsonb_array_length(result->'items')<>1 or result->'items'->0->>'id'<>owned::text then raise exception 'assignment scope'; end if;
+ if result::text like '%SECRET%' then raise exception 'private thumbnail leaked'; end if;
+ result:=public.csa164_admin_directory(adm,ads,'aal2','courses',owned,'',null,50);
+ if result->'items'->0->>'title'<>'Sandbox directory course' then raise exception 'sandbox missing'; end if;
+ result:=public.csa164_admin_directory(adm,ads,'aal2','students',student,'real-record',null,1);
+ if jsonb_array_length(result->'items')<>1 or result->'items'->0->>'email'<>'real-record@synthetic.test' or result->'items'->0->>'total_paid_minor' is not null then raise exception 'student mapping'; end if;
+ if jsonb_array_length(public.csa164_admin_directory(adm,ads,'aal2','students',student,'',student,1)->'items')<>0 then raise exception 'cursor repeated'; end if;
+ begin perform public.csa164_admin_directory(student,ss,'aal1','courses',null,'',null,50); raise exception 'student authority'; exception when insufficient_privilege then null; end;
+ begin perform public.csa164_admin_directory(manager,ms,'aal1','students',null,'',null,50); raise exception 'manager PII'; exception when insufficient_privilege then null; end;
+ begin perform public.csa164_admin_directory(finance,fs,'aal2','students',null,'',null,50); raise exception 'finance PII'; exception when insufficient_privilege then null; end;
+ begin perform public.csa164_admin_directory(adm,ads,'aal1','students',null,'',null,50); raise exception 'MFA'; exception when insufficient_privilege then null; end;
+ begin perform public.csa164_admin_directory(adm,ss,'aal2','students',null,'',null,50); raise exception 'foreign session'; exception when insufficient_privilege then null; end;
+ begin perform public.csa164_admin_directory(adm,ads,'aal2','students',null,'',null,51); raise exception 'unbounded'; exception when invalid_parameter_value then null; end;
+ if has_function_privilege('authenticated','public.csa164_admin_directory(uuid,uuid,text,text,uuid,text,uuid,integer)','EXECUTE') or has_function_privilege('anon','public.csa164_admin_directory(uuid,uuid,text,text,uuid,text,uuid,integer)','EXECUTE') then raise exception 'direct client RPC'; end if;
+ update public.user_roles set revoked_at=clock_timestamp() where user_id=adm;
+ begin perform public.csa164_admin_directory(adm,ads,'aal2','students',null,'',null,50); raise exception 'revoked admin'; exception when insufficient_privilege then null; end;
+end; $$;
+select 'ok 1 - issue 164 authorized live directory';
+rollback;
