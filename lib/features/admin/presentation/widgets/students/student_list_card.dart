@@ -16,7 +16,10 @@ class StudentListCard extends StatelessWidget {
 
   String _initials(AdminStudent s) {
     final name = s.displayName ?? s.email;
-    final parts = name.split(RegExp(r'[\s@]+')).where((p) => p.isNotEmpty).toList();
+    final parts = name
+        .split(RegExp(r'[\s@]+'))
+        .where((p) => p.isNotEmpty)
+        .toList();
     if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     if (parts.isNotEmpty) return parts[0][0].toUpperCase();
     return '?';
@@ -55,9 +58,7 @@ class StudentListCard extends StatelessWidget {
                     ),
                   Text(
                     student.email,
-                    style: tt.bodySmall?.copyWith(
-                      color: cs.onSurfaceVariant,
-                    ),
+                    style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: AppSpacing.sm),
@@ -114,10 +115,7 @@ class _InfoChip extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: cs.onSurfaceVariant),
         const SizedBox(width: 3),
-        Text(
-          label,
-          style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-        ),
+        Text(label, style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
       ],
     );
   }

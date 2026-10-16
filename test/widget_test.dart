@@ -2,6 +2,7 @@
 // Requires browser platform (transitively uses dart:js_interop via go_router).
 @TestOn('browser')
 library;
+
 import 'package:acendra/app/app.dart';
 import 'package:acendra/core/widgets/navigation/auth_shell.dart';
 import 'package:flutter/material.dart';

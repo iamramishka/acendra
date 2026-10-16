@@ -167,9 +167,7 @@ class _FakeBankTransferRepository implements BankTransferRepository {
 // App builder helpers
 // ---------------------------------------------------------------------------
 
-Widget _authenticatedApp({
-  List<Override> extraOverrides = const [],
-}) {
+Widget _authenticatedApp({List<Override> extraOverrides = const []}) {
   return ProviderScope(
     overrides: [
       authStreamProvider.overrideWith((ref) => const Stream.empty()),
@@ -198,9 +196,7 @@ void main() {
       await tester.pumpWidget(
         _authenticatedApp(
           extraOverrides: [
-            courseRepositoryProvider.overrideWithValue(
-              _FakeCourseRepository(),
-            ),
+            courseRepositoryProvider.overrideWithValue(_FakeCourseRepository()),
           ],
         ),
       );
@@ -216,14 +212,45 @@ void main() {
       expect(find.text(_kCourseTitle), findsWidgets);
     });
 
-    testWidgets('tapping a course navigates to checkout with payment selector',
-        (tester) async {
+    testWidgets(
+      'tapping a course navigates to checkout with payment selector',
+      (tester) async {
+        await tester.pumpWidget(
+          _authenticatedApp(
+            extraOverrides: [
+              courseRepositoryProvider.overrideWithValue(
+                _FakeCourseRepository(),
+              ),
+              checkoutRepositoryProvider.overrideWithValue(
+                const _FakeCheckoutRepository(),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Navigate directly to checkout (simulating the tap path).
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(Consumer)),
+        );
+        container
+            .read(appRouterProvider)
+            .go(RouteNames.checkout.replaceFirst(':courseId', _kCourseId));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Checkout'), findsWidgets);
+        expect(find.text('Payment Method'), findsOneWidget);
+        expect(find.text('Proceed to Payment'), findsOneWidget);
+      },
+    );
+
+    testWidgets('checkout shows order summary after order is created', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _authenticatedApp(
           extraOverrides: [
-            courseRepositoryProvider.overrideWithValue(
-              _FakeCourseRepository(),
-            ),
+            courseRepositoryProvider.overrideWithValue(_FakeCourseRepository()),
             checkoutRepositoryProvider.overrideWithValue(
               const _FakeCheckoutRepository(),
             ),
@@ -232,42 +259,12 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Navigate directly to checkout (simulating the tap path).
       final container = ProviderScope.containerOf(
         tester.element(find.byType(Consumer)),
       );
-      container.read(appRouterProvider).go(
-        RouteNames.checkout.replaceFirst(':courseId', _kCourseId),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('Checkout'), findsWidgets);
-      expect(find.text('Payment Method'), findsOneWidget);
-      expect(find.text('Proceed to Payment'), findsOneWidget);
-    });
-
-    testWidgets('checkout shows order summary after order is created',
-        (tester) async {
-      await tester.pumpWidget(
-        _authenticatedApp(
-          extraOverrides: [
-            courseRepositoryProvider.overrideWithValue(
-              _FakeCourseRepository(),
-            ),
-            checkoutRepositoryProvider.overrideWithValue(
-              const _FakeCheckoutRepository(),
-            ),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      final container = ProviderScope.containerOf(
-        tester.element(find.byType(Consumer)),
-      );
-      container.read(appRouterProvider).go(
-        RouteNames.checkout.replaceFirst(':courseId', _kCourseId),
-      );
+      container
+          .read(appRouterProvider)
+          .go(RouteNames.checkout.replaceFirst(':courseId', _kCourseId));
       await tester.pumpAndSettle();
 
       // Trigger order creation by pressing "Proceed to Payment" after filling
@@ -300,31 +297,34 @@ void main() {
   // ---------------------------------------------------------------------------
 
   group('Workflow 2: Dashboard → My Courses → Continue Learning', () {
-    testWidgets('authenticated student sees enrolled courses on My Courses screen',
-        (tester) async {
-      await tester.pumpWidget(
-        _authenticatedApp(
-          extraOverrides: [
-            myCoursesRepositoryProvider.overrideWithValue(
-              _FakeMyCoursesRepository(),
-            ),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'authenticated student sees enrolled courses on My Courses screen',
+      (tester) async {
+        await tester.pumpWidget(
+          _authenticatedApp(
+            extraOverrides: [
+              myCoursesRepositoryProvider.overrideWithValue(
+                _FakeMyCoursesRepository(),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      final container = ProviderScope.containerOf(
-        tester.element(find.byType(Consumer)),
-      );
-      container.read(appRouterProvider).go(RouteNames.myCourses);
-      await tester.pumpAndSettle();
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(Consumer)),
+        );
+        container.read(appRouterProvider).go(RouteNames.myCourses);
+        await tester.pumpAndSettle();
 
-      expect(find.text('My Courses'), findsWidgets);
-      expect(find.text(_kCourseTitle), findsOneWidget);
-    });
+        expect(find.text('My Courses'), findsWidgets);
+        expect(find.text(_kCourseTitle), findsOneWidget);
+      },
+    );
 
-    testWidgets('tapping enrolled course card navigates to /learn/:courseId',
-        (tester) async {
+    testWidgets('tapping enrolled course card navigates to /learn/:courseId', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _authenticatedApp(
           extraOverrides: [
@@ -348,15 +348,18 @@ void main() {
 
       // The learn screen URL should now contain the courseId.
       // The router is the source of truth; verify the destination rendered.
-      final location = container.read(appRouterProvider).routerDelegate
+      final location = container
+          .read(appRouterProvider)
+          .routerDelegate
           .currentConfiguration
           .uri
           .toString();
       expect(location, contains(_kCourseId));
     });
 
-    testWidgets('My Courses screen shows empty state when no enrollments',
-        (tester) async {
+    testWidgets('My Courses screen shows empty state when no enrollments', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _authenticatedApp(
           extraOverrides: [
@@ -374,7 +377,10 @@ void main() {
       container.read(appRouterProvider).go(RouteNames.myCourses);
       await tester.pumpAndSettle();
 
-      expect(find.text('You have not enrolled in any courses yet.'), findsOneWidget);
+      expect(
+        find.text('You have not enrolled in any courses yet.'),
+        findsOneWidget,
+      );
     });
   });
 
@@ -383,92 +389,96 @@ void main() {
   // ---------------------------------------------------------------------------
 
   group('Workflow 3: Checkout → bank transfer → receipt status', () {
-    testWidgets('bank transfer screen shows step-by-step instructions when order is valid',
-        (tester) async {
-      await tester.pumpWidget(
-        _authenticatedApp(
-          extraOverrides: [
-            checkoutRepositoryProvider.overrideWithValue(
-              const _FakeCheckoutRepository(
-                paymentMethod: PaymentMethod.bankTransfer,
+    testWidgets(
+      'bank transfer screen shows step-by-step instructions when order is valid',
+      (tester) async {
+        await tester.pumpWidget(
+          _authenticatedApp(
+            extraOverrides: [
+              checkoutRepositoryProvider.overrideWithValue(
+                const _FakeCheckoutRepository(
+                  paymentMethod: PaymentMethod.bankTransfer,
+                ),
               ),
-            ),
-            checkoutProvider.overrideWith(() => _PreloadedCheckoutNotifier()),
-            bankTransferRepositoryProvider.overrideWithValue(
-              _FakeBankTransferRepository(),
-            ),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+              checkoutProvider.overrideWith(() => _PreloadedCheckoutNotifier()),
+              bankTransferRepositoryProvider.overrideWithValue(
+                _FakeBankTransferRepository(),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      final container = ProviderScope.containerOf(
-        tester.element(find.byType(Consumer)),
-      );
-      container.read(appRouterProvider).go(
-        RouteNames.bankTransfer.replaceFirst(':orderId', _kOrderId),
-      );
-      await tester.pumpAndSettle();
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(Consumer)),
+        );
+        container
+            .read(appRouterProvider)
+            .go(RouteNames.bankTransfer.replaceFirst(':orderId', _kOrderId));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Bank Transfer'), findsWidgets);
-      expect(find.text('Log in to your bank'), findsOneWidget);
-      expect(find.text("I've made the transfer"), findsOneWidget);
-    });
-
-    testWidgets(
-        '"I\'ve made the transfer" navigates to receipt status screen',
-        (tester) async {
-      await tester.pumpWidget(
-        _authenticatedApp(
-          extraOverrides: [
-            checkoutProvider.overrideWith(() => _PreloadedCheckoutNotifier()),
-            bankTransferRepositoryProvider.overrideWithValue(
-              _FakeBankTransferRepository(),
-            ),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      final container = ProviderScope.containerOf(
-        tester.element(find.byType(Consumer)),
-      );
-      container.read(appRouterProvider).go(
-        RouteNames.bankTransfer.replaceFirst(':orderId', _kOrderId),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text("I've made the transfer"));
-      await tester.pumpAndSettle();
-
-      // Receipt status screen should now be visible.
-      expect(find.text('Transfer Status'), findsWidgets);
-    });
+        expect(find.text('Bank Transfer'), findsWidgets);
+        expect(find.text('Log in to your bank'), findsOneWidget);
+        expect(find.text("I've made the transfer"), findsOneWidget);
+      },
+    );
 
     testWidgets(
-        'receipt status screen shows awaiting-receipt state when no receipt uploaded',
-        (tester) async {
-      await tester.pumpWidget(
-        _authenticatedApp(
-          extraOverrides: [
-            bankTransferRepositoryProvider.overrideWithValue(
-              _FakeBankTransferRepository(),
-            ),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+      '"I\'ve made the transfer" navigates to receipt status screen',
+      (tester) async {
+        await tester.pumpWidget(
+          _authenticatedApp(
+            extraOverrides: [
+              checkoutProvider.overrideWith(() => _PreloadedCheckoutNotifier()),
+              bankTransferRepositoryProvider.overrideWithValue(
+                _FakeBankTransferRepository(),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      final container = ProviderScope.containerOf(
-        tester.element(find.byType(Consumer)),
-      );
-      container.read(appRouterProvider).go(
-        RouteNames.receiptStatus.replaceFirst(':orderId', _kOrderId),
-      );
-      await tester.pumpAndSettle();
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(Consumer)),
+        );
+        container
+            .read(appRouterProvider)
+            .go(RouteNames.bankTransfer.replaceFirst(':orderId', _kOrderId));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Transfer Status'), findsWidgets);
-    });
+        await tester.tap(find.text("I've made the transfer"));
+        await tester.pumpAndSettle();
+
+        // Receipt status screen should now be visible.
+        expect(find.text('Transfer Status'), findsWidgets);
+      },
+    );
+
+    testWidgets(
+      'receipt status screen shows awaiting-receipt state when no receipt uploaded',
+      (tester) async {
+        await tester.pumpWidget(
+          _authenticatedApp(
+            extraOverrides: [
+              bankTransferRepositoryProvider.overrideWithValue(
+                _FakeBankTransferRepository(),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(Consumer)),
+        );
+        container
+            .read(appRouterProvider)
+            .go(RouteNames.receiptStatus.replaceFirst(':orderId', _kOrderId));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Transfer Status'), findsWidgets);
+      },
+    );
   });
 }
 

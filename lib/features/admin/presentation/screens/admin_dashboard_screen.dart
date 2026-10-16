@@ -42,9 +42,7 @@ class AdminDashboardScreen extends ConsumerWidget {
           Text('Dashboard', style: theme.textTheme.titleLarge),
           const SizedBox(height: AppSpacing.lg),
           isCompact
-              ? Column(
-                  children: _buildStatCards(context, stats),
-                )
+              ? Column(children: _buildStatCards(context, stats))
               : GridView.count(
                   crossAxisCount: 2,
                   shrinkWrap: true,
@@ -194,9 +192,7 @@ class _StatCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(AppSpacing.sm),
               decoration: BoxDecoration(
-                color: isAlert
-                    ? cs.errorContainer
-                    : cs.primaryContainer,
+                color: isAlert ? cs.errorContainer : cs.primaryContainer,
                 borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
               child: Icon(

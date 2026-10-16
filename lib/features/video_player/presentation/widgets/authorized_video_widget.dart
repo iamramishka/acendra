@@ -128,8 +128,8 @@ class _VideoLeaseState extends ConsumerState<_VideoLease> {
 
     final buffered = value.buffered.isNotEmpty
         ? (value.buffered.last.end.inMilliseconds /
-                value.duration.inMilliseconds.toDouble())
-            .clamp(0.0, 1.0)
+                  value.duration.inMilliseconds.toDouble())
+              .clamp(0.0, 1.0)
         : 0.0;
 
     VideoPlayerStatus status;
@@ -305,8 +305,8 @@ class _VideoLeaseState extends ConsumerState<_VideoLease> {
           label: _loading
               ? 'Loading…'
               : _progress.status == VideoPlayerStatus.buffering
-                  ? 'Buffering…'
-                  : 'Loading…',
+              ? 'Buffering…'
+              : 'Loading…',
         ),
       );
     }

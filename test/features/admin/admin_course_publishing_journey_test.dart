@@ -195,7 +195,8 @@ class _FakeAdminCourseRepository implements AdminCourseRepository {
 // Returns a Future that never completes — keeps providers in loading state.
 class _NeverLoadingRepository extends _FakeAdminCourseRepository {
   @override
-  Future<List<AdminCourse>> listCourses() => Completer<List<AdminCourse>>().future;
+  Future<List<AdminCourse>> listCourses() =>
+      Completer<List<AdminCourse>>().future;
 }
 
 // Throws on write operations to simulate server errors.
@@ -220,7 +221,10 @@ Widget _wrap(Widget screen, AdminCourseRepository repo) {
   final router = GoRouter(
     initialLocation: '/test',
     routes: [
-      GoRoute(path: '/test', builder: (_, _) => Scaffold(body: screen)),
+      GoRoute(
+        path: '/test',
+        builder: (_, _) => Scaffold(body: screen),
+      ),
       GoRoute(
         path: '/admin/courses',
         builder: (_, _) => const Scaffold(body: Text('Admin Courses')),

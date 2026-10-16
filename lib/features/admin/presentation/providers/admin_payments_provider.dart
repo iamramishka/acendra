@@ -117,7 +117,9 @@ class AdminPaymentsNotifier extends AsyncNotifier<AdminPaymentsState> {
       pageSize: _pageSize,
     );
 
-    final pendingCount = await repo.countPayments(status: PaymentStatus.pending);
+    final pendingCount = await repo.countPayments(
+      status: PaymentStatus.pending,
+    );
     final approvedCount = await repo.countPayments(
       status: PaymentStatus.approved,
     );
@@ -186,17 +188,18 @@ final receiptHistoryProvider = FutureProvider.autoDispose
         toDate: filter.toDate,
         pageSize: 100,
       );
-      final reviewed = all
-          .where(
-            (r) =>
-                r.status == PaymentStatus.approved ||
-                r.status == PaymentStatus.rejected,
-          )
-          .toList()
-        ..sort((a, b) {
-          final aTime = a.processedAt ?? a.createdAt;
-          final bTime = b.processedAt ?? b.createdAt;
-          return bTime.compareTo(aTime);
-        });
+      final reviewed =
+          all
+              .where(
+                (r) =>
+                    r.status == PaymentStatus.approved ||
+                    r.status == PaymentStatus.rejected,
+              )
+              .toList()
+            ..sort((a, b) {
+              final aTime = a.processedAt ?? a.createdAt;
+              final bTime = b.processedAt ?? b.createdAt;
+              return bTime.compareTo(aTime);
+            });
       return reviewed;
     });

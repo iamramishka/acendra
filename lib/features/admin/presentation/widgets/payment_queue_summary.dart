@@ -38,10 +38,7 @@ class PaymentQueueSummary extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text(
-                  'Pending Payments',
-                  style: theme.textTheme.titleMedium,
-                ),
+                Text('Pending Payments', style: theme.textTheme.titleMedium),
                 const SizedBox(width: AppSpacing.sm),
                 if (!isLoading)
                   Container(
@@ -124,8 +121,18 @@ class _PaymentQueueRow extends StatelessWidget {
   final PaymentQueueItem item;
 
   static const _months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
 
   String _formatDate(DateTime dt) =>

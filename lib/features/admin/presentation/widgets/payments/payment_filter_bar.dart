@@ -37,19 +37,13 @@ class _PaymentFilterBarState extends State<PaymentFilterBar> {
 
   void _onStatusTap(PaymentStatus? status) {
     widget.onFilterChanged(
-      widget.filter.copyWith(
-        status: status,
-        clearStatus: status == null,
-      ),
+      widget.filter.copyWith(status: status, clearStatus: status == null),
     );
   }
 
   void _onMethodTap(PaymentMethod? method) {
     widget.onFilterChanged(
-      widget.filter.copyWith(
-        method: method,
-        clearMethod: method == null,
-      ),
+      widget.filter.copyWith(method: method, clearMethod: method == null),
     );
   }
 
@@ -67,9 +61,7 @@ class _PaymentFilterBarState extends State<PaymentFilterBar> {
           controller: _searchController,
           prefixIcon: const Icon(Icons.search_outlined, size: 20),
           onChanged: (value) {
-            widget.onFilterChanged(
-              widget.filter.copyWith(searchQuery: value),
-            );
+            widget.onFilterChanged(widget.filter.copyWith(searchQuery: value));
           },
         ),
         const SizedBox(height: AppSpacing.md),
@@ -208,9 +200,7 @@ class _FilterChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? cs.primary : cs.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(AppRadius.chip),
-          border: Border.all(
-            color: selected ? cs.primary : cs.outlineVariant,
-          ),
+          border: Border.all(color: selected ? cs.primary : cs.outlineVariant),
         ),
         child: Text(
           label,

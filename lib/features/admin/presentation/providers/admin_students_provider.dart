@@ -50,7 +50,5 @@ final studentEnrollmentsProvider =
       ref,
       studentId,
     ) async {
-      return ref
-          .read(adminStudentRepositoryProvider)
-          .getEnrollments(studentId);
+      return ref.read(adminStudentRepositoryProvider).getEnrollments(studentId);
     });

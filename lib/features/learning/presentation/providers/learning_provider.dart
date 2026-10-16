@@ -176,9 +176,7 @@ class LearningNotifier extends StateNotifier<LearningState> {
           .saveVideoPosition(lessonId, seconds, state.progress[lessonId]);
       if (!mounted) return;
       if (saved.lessonId == lessonId) {
-        state = state.copyWith(
-          progress: {...state.progress, lessonId: saved},
-        );
+        state = state.copyWith(progress: {...state.progress, lessonId: saved});
       }
     } catch (_) {
       // Best-effort: a missed periodic position save is non-fatal.

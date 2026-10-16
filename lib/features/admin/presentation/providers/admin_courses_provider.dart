@@ -36,8 +36,8 @@ final adminCoursesProvider =
       AdminCoursesNotifier.new,
     );
 
-final adminCourseDetailProvider =
-    FutureProvider.autoDispose.family<AdminCourse, String>((ref, courseId) {
+final adminCourseDetailProvider = FutureProvider.autoDispose
+    .family<AdminCourse, String>((ref, courseId) {
       return ref.read(adminCourseRepositoryProvider).getCourse(courseId);
     });
 
@@ -47,7 +47,10 @@ final adminCurriculumProvider = FutureProvider.autoDispose
     });
 
 final adminLessonDetailProvider = FutureProvider.autoDispose
-    .family<AdminLesson?, ({String courseId, String lessonId})>((ref, args) async {
+    .family<AdminLesson?, ({String courseId, String lessonId})>((
+      ref,
+      args,
+    ) async {
       if (args.lessonId == 'new') return null;
       final sections = await ref
           .read(adminCourseRepositoryProvider)

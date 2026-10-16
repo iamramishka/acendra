@@ -65,7 +65,9 @@ class CourseTableRow extends StatelessWidget {
           const SizedBox(width: AppSpacing.md),
           StatusBadge(
             label: course.isPublished ? 'Published' : 'Draft',
-            variant: course.isPublished ? BadgeVariant.success : BadgeVariant.warning,
+            variant: course.isPublished
+                ? BadgeVariant.success
+                : BadgeVariant.warning,
           ),
           const SizedBox(width: AppSpacing.md),
           Row(

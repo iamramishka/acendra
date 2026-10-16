@@ -21,104 +21,106 @@ class FinanceReviewScreen extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      child: ref.watch(financeQueueProvider).when(
-        skipLoadingOnReload: false,
-        skipLoadingOnRefresh: false,
-        loading: () => _LoadingSkeleton(),
-        error: (_, _) => AppErrorState(
-          message:
-              'Finance review is unavailable. Sign in with an authorized finance account and MFA, or try again later.',
-          actionLabel: 'Retry',
-          onRetry: () {
-            final identity = ref.read(bankSessionIdentityProvider);
-            if (identity != null) {
-              ref.invalidate(financeQueueRequestProvider(identity));
-            }
-          },
-        ),
-        data: (items) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      child: ref
+          .watch(financeQueueProvider)
+          .when(
+            skipLoadingOnReload: false,
+            skipLoadingOnRefresh: false,
+            loading: () => _LoadingSkeleton(),
+            error: (_, _) => AppErrorState(
+              message:
+                  'Finance review is unavailable. Sign in with an authorized finance account and MFA, or try again later.',
+              actionLabel: 'Retry',
+              onRetry: () {
+                final identity = ref.read(bankSessionIdentityProvider);
+                if (identity != null) {
+                  ref.invalidate(financeQueueRequestProvider(identity));
+                }
+              },
+            ),
+            data: (items) => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Finance Review',
-                        style: tt.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Finance Review',
+                            style: tt.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            items.isEmpty
+                                ? 'No pending receipts'
+                                : '${items.length} pending receipt${items.length == 1 ? '' : 's'}',
+                            style: tt.bodyMedium?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        items.isEmpty
-                            ? 'No pending receipts'
-                            : '${items.length} pending receipt${items.length == 1 ? '' : 's'}',
-                        style: tt.bodyMedium?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
+                    ),
+                    IconButton(
+                      tooltip: 'Refresh queue',
+                      onPressed: () {
+                        final identity = ref.read(bankSessionIdentityProvider);
+                        if (identity != null) {
+                          ref.invalidate(financeQueueRequestProvider(identity));
+                        }
+                      },
+                      icon: const Icon(Icons.refresh_outlined),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  children: [
+                    AppButton(
+                      label: 'View Payment History',
+                      onPressed: () => context.go('/admin/payments/history'),
+                      variant: ButtonVariant.secondary,
+                      size: ButtonSize.small,
+                      icon: const Icon(Icons.history_outlined, size: 16),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    AppButton(
+                      label: 'All Payments',
+                      onPressed: () => context.go('/admin/payments'),
+                      variant: ButtonVariant.outlined,
+                      size: ButtonSize.small,
+                      icon: const Icon(Icons.payments_outlined, size: 16),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                if (items.isEmpty)
+                  const Expanded(
+                    child: AppEmptyState(message: 'No receipts to review'),
+                  )
+                else
+                  Expanded(
+                    child: ListView.separated(
+                      itemCount: items.length,
+                      separatorBuilder: (_, _) =>
+                          const SizedBox(height: AppSpacing.md),
+                      itemBuilder: (context, index) => _ReviewCard(
+                        key: ValueKey((
+                          items[index]['submission_id'],
+                          ref.watch(bankSessionWidgetKeyProvider),
+                        )),
+                        item: items[index],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-                IconButton(
-                  tooltip: 'Refresh queue',
-                  onPressed: () {
-                    final identity = ref.read(bankSessionIdentityProvider);
-                    if (identity != null) {
-                      ref.invalidate(financeQueueRequestProvider(identity));
-                    }
-                  },
-                  icon: const Icon(Icons.refresh_outlined),
-                ),
               ],
             ),
-            const SizedBox(height: AppSpacing.md),
-            Row(
-              children: [
-                AppButton(
-                  label: 'View Payment History',
-                  onPressed: () => context.go('/admin/payments/history'),
-                  variant: ButtonVariant.secondary,
-                  size: ButtonSize.small,
-                  icon: const Icon(Icons.history_outlined, size: 16),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                AppButton(
-                  label: 'All Payments',
-                  onPressed: () => context.go('/admin/payments'),
-                  variant: ButtonVariant.outlined,
-                  size: ButtonSize.small,
-                  icon: const Icon(Icons.payments_outlined, size: 16),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            if (items.isEmpty)
-              const Expanded(
-                child: AppEmptyState(message: 'No receipts to review'),
-              )
-            else
-              Expanded(
-                child: ListView.separated(
-                  itemCount: items.length,
-                  separatorBuilder: (_, _) =>
-                      const SizedBox(height: AppSpacing.md),
-                  itemBuilder: (context, index) => _ReviewCard(
-                    key: ValueKey((
-                      items[index]['submission_id'],
-                      ref.watch(bankSessionWidgetKeyProvider),
-                    )),
-                    item: items[index],
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 }
@@ -128,24 +130,32 @@ class _LoadingSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppSkeleton(width: 200, height: 28, borderRadius: BorderRadius.circular(AppRadius.sm)),
-        const SizedBox(height: AppSpacing.sm),
-        AppSkeleton(width: 140, height: 18, borderRadius: BorderRadius.circular(AppRadius.sm)),
-        const SizedBox(height: AppSpacing.lg),
-        ...List.generate(
-          3,
-          (_) => Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.md),
-            child: AppSkeleton(
-              width: double.infinity,
-              height: 160,
-              borderRadius: BorderRadius.circular(AppRadius.card),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppSkeleton(
+            width: 200,
+            height: 28,
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          AppSkeleton(
+            width: 140,
+            height: 18,
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          ...List.generate(
+            3,
+            (_) => Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.md),
+              child: AppSkeleton(
+                width: double.infinity,
+                height: 160,
+                borderRadius: BorderRadius.circular(AppRadius.card),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
       ),
     );
   }
@@ -345,7 +355,9 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
               ),
               DropdownButtonFormField<String>(
                 initialValue: source,
-                decoration: const InputDecoration(labelText: 'Verification source'),
+                decoration: const InputDecoration(
+                  labelText: 'Verification source',
+                ),
                 items: const [
                   DropdownMenuItem(
                     value: 'bank_portal',
@@ -374,8 +386,7 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
                 value: confirmed,
                 onChanged: busy
                     ? null
-                    : (value) =>
-                          setState(() => confirmed = value ?? false),
+                    : (value) => setState(() => confirmed = value ?? false),
               ),
             ] else ...[
               const SizedBox(height: AppSpacing.sm),
@@ -390,7 +401,9 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
             AppButton(
               label: approve ? 'Record approval' : 'Record rejection',
               onPressed: busy ? null : decide,
-              variant: approve ? ButtonVariant.primary : ButtonVariant.destructive,
+              variant: approve
+                  ? ButtonVariant.primary
+                  : ButtonVariant.destructive,
               isLoading: busy,
             ),
           ],

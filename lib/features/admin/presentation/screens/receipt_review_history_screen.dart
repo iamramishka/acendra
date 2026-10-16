@@ -37,10 +37,7 @@ class _ReceiptReviewHistoryScreenState
 
   void _onStatusTap(PaymentStatus? status) {
     setState(() {
-      _filter = _filter.copyWith(
-        status: status,
-        clearStatus: status == null,
-      );
+      _filter = _filter.copyWith(status: status, clearStatus: status == null);
     });
   }
 
@@ -114,10 +111,7 @@ class _ReceiptReviewHistoryScreenState
                   label: 'From date',
                   hint: 'YYYY-MM-DD',
                   enabled: false,
-                  suffixIcon: Icon(
-                    Icons.calendar_today_outlined,
-                    size: 18,
-                  ),
+                  suffixIcon: Icon(Icons.calendar_today_outlined, size: 18),
                   // TODO: Integrate date picker
                 ),
               ),
@@ -127,10 +121,7 @@ class _ReceiptReviewHistoryScreenState
                   label: 'To date',
                   hint: 'YYYY-MM-DD',
                   enabled: false,
-                  suffixIcon: Icon(
-                    Icons.calendar_today_outlined,
-                    size: 18,
-                  ),
+                  suffixIcon: Icon(Icons.calendar_today_outlined, size: 18),
                   // TODO: Integrate date picker
                 ),
               ),
@@ -143,13 +134,10 @@ class _ReceiptReviewHistoryScreenState
               error: (_, _) => AppErrorState(
                 message: 'Failed to load receipt history. Please try again.',
                 actionLabel: 'Retry',
-                onRetry: () =>
-                    ref.invalidate(receiptHistoryProvider(_filter)),
+                onRetry: () => ref.invalidate(receiptHistoryProvider(_filter)),
               ),
               data: (records) => records.isEmpty
-                  ? const AppEmptyState(
-                      message: 'No reviewed receipts yet.',
-                    )
+                  ? const AppEmptyState(message: 'No reviewed receipts yet.')
                   : ListView.separated(
                       itemCount: records.length,
                       separatorBuilder: (_, _) =>
@@ -278,7 +266,11 @@ class _ReceiptHistoryTile extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.info_outline, size: 16, color: cs.onErrorContainer),
+                    Icon(
+                      Icons.info_outline,
+                      size: 16,
+                      color: cs.onErrorContainer,
+                    ),
                     const SizedBox(width: AppSpacing.xs),
                     Expanded(
                       child: Text(
@@ -356,11 +348,7 @@ class _DateRow extends StatelessWidget {
                 label,
                 style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
               ),
-              Text(
-                value,
-                style: tt.bodySmall,
-                overflow: TextOverflow.ellipsis,
-              ),
+              Text(value, style: tt.bodySmall, overflow: TextOverflow.ellipsis),
             ],
           ),
         ),
@@ -395,9 +383,7 @@ class _FilterChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? cs.primary : cs.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(AppRadius.chip),
-          border: Border.all(
-            color: selected ? cs.primary : cs.outlineVariant,
-          ),
+          border: Border.all(color: selected ? cs.primary : cs.outlineVariant),
         ),
         child: Text(
           label,

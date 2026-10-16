@@ -109,7 +109,9 @@ class LearningWorkspaceScreen extends ConsumerWidget {
                 state.progress[state.currentLessonId]?.videoSeconds,
             onVideoSeconds: state.currentLessonId != null
                 ? (seconds) => notifier.saveVideoPosition(
-                    state.currentLessonId!, seconds)
+                    state.currentLessonId!,
+                    seconds,
+                  )
                 : null,
           ),
         ),

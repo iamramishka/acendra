@@ -38,8 +38,7 @@ class _AdminStudentsScreenState extends ConsumerState<AdminStudentsScreen> {
   Widget build(BuildContext context) {
     final studentsAsync = ref.watch(adminStudentsProvider);
     final tt = Theme.of(context).textTheme;
-    final isWide =
-        MediaQuery.sizeOf(context).width >= AppBreakpoints.medium;
+    final isWide = MediaQuery.sizeOf(context).width >= AppBreakpoints.medium;
 
     return ResponsiveContainer(
       child: CustomScrollView(
@@ -67,9 +66,7 @@ class _AdminStudentsScreenState extends ConsumerState<AdminStudentsScreen> {
           ),
           studentsAsync.when(
             loading: () => SliverList(
-              delegate: SliverChildListDelegate([
-                const _LoadingSkeleton(),
-              ]),
+              delegate: SliverChildListDelegate([const _LoadingSkeleton()]),
             ),
             error: (e, _) => SliverFillRemaining(
               child: AppErrorState(
@@ -141,8 +138,10 @@ class _StudentsDataTable extends StatelessWidget {
 
   String _initials(AdminStudent s) {
     final name = s.displayName ?? s.email;
-    final parts =
-        name.split(RegExp(r'[\s@]+')).where((p) => p.isNotEmpty).toList();
+    final parts = name
+        .split(RegExp(r'[\s@]+'))
+        .where((p) => p.isNotEmpty)
+        .toList();
     if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     if (parts.isNotEmpty) return parts[0][0].toUpperCase();
     return '?';
@@ -195,8 +194,9 @@ class _StudentsDataTable extends StatelessWidget {
                 DataCell(
                   StatusBadge(
                     label: s.isActive ? 'Active' : 'Inactive',
-                    variant:
-                        s.isActive ? BadgeVariant.success : BadgeVariant.warning,
+                    variant: s.isActive
+                        ? BadgeVariant.success
+                        : BadgeVariant.warning,
                   ),
                 ),
                 DataCell(

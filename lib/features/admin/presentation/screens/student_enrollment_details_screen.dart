@@ -38,8 +38,10 @@ class _StudentEnrollmentDetailsScreenState
 
   String _initials(String email, String? displayName) {
     final name = displayName ?? email;
-    final parts =
-        name.split(RegExp(r'[\s@]+')).where((p) => p.isNotEmpty).toList();
+    final parts = name
+        .split(RegExp(r'[\s@]+'))
+        .where((p) => p.isNotEmpty)
+        .toList();
     if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     if (parts.isNotEmpty) return parts[0][0].toUpperCase();
     return '?';
@@ -158,8 +160,9 @@ class _StudentEnrollmentDetailsScreenState
   @override
   Widget build(BuildContext context) {
     final studentAsync = ref.watch(studentDetailProvider(widget.studentId));
-    final enrollmentsAsync =
-        ref.watch(studentEnrollmentsProvider(widget.studentId));
+    final enrollmentsAsync = ref.watch(
+      studentEnrollmentsProvider(widget.studentId),
+    );
     final tt = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
 
@@ -181,9 +184,7 @@ class _StudentEnrollmentDetailsScreenState
             ),
           ),
           studentAsync.when(
-            loading: () => SliverToBoxAdapter(
-              child: _ProfileSkeleton(),
-            ),
+            loading: () => SliverToBoxAdapter(child: _ProfileSkeleton()),
             error: (e, _) => SliverFillRemaining(
               child: AppErrorState(
                 message: 'Failed to load student profile.',
@@ -238,7 +239,9 @@ class _StudentEnrollmentDetailsScreenState
                                 ),
                                 const SizedBox(height: AppSpacing.sm),
                                 StatusBadge(
-                                  label: student.isActive ? 'Active' : 'Inactive',
+                                  label: student.isActive
+                                      ? 'Active'
+                                      : 'Inactive',
                                   variant: student.isActive
                                       ? BadgeVariant.success
                                       : BadgeVariant.warning,
@@ -249,8 +252,9 @@ class _StudentEnrollmentDetailsScreenState
                           if (student.isActive)
                             AppButton(
                               label: 'Deactivate',
-                              onPressed:
-                                  _isDeactivating ? null : _confirmDeactivate,
+                              onPressed: _isDeactivating
+                                  ? null
+                                  : _confirmDeactivate,
                               variant: ButtonVariant.destructive,
                               size: ButtonSize.small,
                               isLoading: _isDeactivating,
@@ -264,24 +268,23 @@ class _StudentEnrollmentDetailsScreenState
             ),
           ),
           enrollmentsAsync.when(
-            loading: () => SliverToBoxAdapter(
-              child: _EnrollmentsSkeleton(),
-            ),
+            loading: () => SliverToBoxAdapter(child: _EnrollmentsSkeleton()),
             error: (e, _) => SliverToBoxAdapter(
               child: AppErrorState(
                 message: 'Failed to load enrollments.',
                 actionLabel: 'Retry',
-                onRetry: () => ref
-                    .invalidate(studentEnrollmentsProvider(widget.studentId)),
+                onRetry: () => ref.invalidate(
+                  studentEnrollmentsProvider(widget.studentId),
+                ),
               ),
             ),
             data: (enrollments) {
               final avgProgress = enrollments.isEmpty
                   ? 0
                   : (enrollments
-                              .map((e) => e.progressPercent)
-                              .reduce((a, b) => a + b) ~/
-                          enrollments.length);
+                            .map((e) => e.progressPercent)
+                            .reduce((a, b) => a + b) ~/
+                        enrollments.length);
               final totalPaid = enrollments.fold<double>(
                 0,
                 (sum, e) => sum + e.amountPaid,
@@ -464,26 +467,22 @@ class _GrantEnrollmentSection extends StatelessWidget {
 }
 
 class _EnrollmentCard extends StatelessWidget {
-  const _EnrollmentCard({
-    super.key,
-    required this.enrollment,
-    this.onRevoke,
-  });
+  const _EnrollmentCard({super.key, required this.enrollment, this.onRevoke});
 
   final StudentEnrollment enrollment;
   final VoidCallback? onRevoke;
 
   BadgeVariant _statusBadgeVariant(EnrollmentStatus status) => switch (status) {
-        EnrollmentStatus.active => BadgeVariant.success,
-        EnrollmentStatus.expired => BadgeVariant.warning,
-        EnrollmentStatus.revoked => BadgeVariant.error,
-      };
+    EnrollmentStatus.active => BadgeVariant.success,
+    EnrollmentStatus.expired => BadgeVariant.warning,
+    EnrollmentStatus.revoked => BadgeVariant.error,
+  };
 
   String _statusLabel(EnrollmentStatus status) => switch (status) {
-        EnrollmentStatus.active => 'Active',
-        EnrollmentStatus.expired => 'Expired',
-        EnrollmentStatus.revoked => 'Revoked',
-      };
+    EnrollmentStatus.active => 'Active',
+    EnrollmentStatus.expired => 'Expired',
+    EnrollmentStatus.revoked => 'Revoked',
+  };
 
   String _formatDate(DateTime dt) =>
       '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
@@ -594,11 +593,11 @@ class _PaymentMethodChip extends StatelessWidget {
   final String method;
 
   String _label(String method) => switch (method) {
-        'stripe' => 'Card',
-        'bank_transfer' => 'Bank Transfer',
-        'admin_grant' => 'Admin Grant',
-        _ => method,
-      };
+    'stripe' => 'Card',
+    'bank_transfer' => 'Bank Transfer',
+    'admin_grant' => 'Admin Grant',
+    _ => method,
+  };
 
   @override
   Widget build(BuildContext context) {

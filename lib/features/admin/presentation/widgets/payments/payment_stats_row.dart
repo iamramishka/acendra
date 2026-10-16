@@ -88,10 +88,7 @@ class _StatCard extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          Text(
-            label,
-            style: tt.labelMedium?.copyWith(color: fgColor),
-          ),
+          Text(label, style: tt.labelMedium?.copyWith(color: fgColor)),
         ],
       ),
     );

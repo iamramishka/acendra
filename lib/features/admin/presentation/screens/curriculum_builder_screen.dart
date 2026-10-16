@@ -43,7 +43,8 @@ class _CurriculumBuilderScreenState
     setState(() => _savingSection = true);
     try {
       final sections =
-          ref.read(adminCurriculumProvider(widget.courseId)).asData?.value ?? [];
+          ref.read(adminCurriculumProvider(widget.courseId)).asData?.value ??
+          [];
       final section = AdminCurriculumSection(
         id: 'section-${DateTime.now().millisecondsSinceEpoch}',
         courseId: widget.courseId,
@@ -56,11 +57,19 @@ class _CurriculumBuilderScreenState
       _sectionTitleController.clear();
       setState(() => _addingSection = false);
       if (mounted) {
-        AppSnackbar.show(context, 'Section added.', variant: SnackbarVariant.success);
+        AppSnackbar.show(
+          context,
+          'Section added.',
+          variant: SnackbarVariant.success,
+        );
       }
     } catch (e) {
       if (mounted) {
-        AppSnackbar.show(context, 'Failed to add section.', variant: SnackbarVariant.error);
+        AppSnackbar.show(
+          context,
+          'Failed to add section.',
+          variant: SnackbarVariant.error,
+        );
       }
     } finally {
       if (mounted) setState(() => _savingSection = false);
@@ -81,17 +90,29 @@ class _CurriculumBuilderScreenState
         await ref.read(adminCourseRepositoryProvider).deleteSection(sectionId);
         ref.invalidate(adminCurriculumProvider(widget.courseId));
         if (mounted) {
-          AppSnackbar.show(context, 'Section deleted.', variant: SnackbarVariant.success);
+          AppSnackbar.show(
+            context,
+            'Section deleted.',
+            variant: SnackbarVariant.success,
+          );
         }
       } catch (e) {
         if (mounted) {
-          AppSnackbar.show(context, 'Failed to delete section.', variant: SnackbarVariant.error);
+          AppSnackbar.show(
+            context,
+            'Failed to delete section.',
+            variant: SnackbarVariant.error,
+          );
         }
       }
     }
   }
 
-  Future<void> _reorderSections(List<AdminCurriculumSection> sections, int oldIndex, int newIndex) async {
+  Future<void> _reorderSections(
+    List<AdminCurriculumSection> sections,
+    int oldIndex,
+    int newIndex,
+  ) async {
     final reordered = List<AdminCurriculumSection>.from(sections);
     final item = reordered.removeAt(oldIndex);
     reordered.insert(newIndex, item);
@@ -159,7 +180,10 @@ class _CurriculumBuilderScreenState
     );
   }
 
-  Widget _buildSectionList(BuildContext context, List<AdminCurriculumSection> sections) {
+  Widget _buildSectionList(
+    BuildContext context,
+    List<AdminCurriculumSection> sections,
+  ) {
     return ReorderableListView.builder(
       itemCount: sections.length,
       onReorderItem: (o, n) => _reorderSections(sections, o, n),
@@ -168,7 +192,11 @@ class _CurriculumBuilderScreenState
     );
   }
 
-  Widget _buildSectionCard(BuildContext context, AdminCurriculumSection section, int index) {
+  Widget _buildSectionCard(
+    BuildContext context,
+    AdminCurriculumSection section,
+    int index,
+  ) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final isExpanded = _expandedSections.contains(section.id);
@@ -183,7 +211,9 @@ class _CurriculumBuilderScreenState
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           InkWell(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.card)),
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(AppRadius.card),
+            ),
             onTap: () => setState(() {
               if (isExpanded) {
                 _expandedSections.remove(section.id);
@@ -200,10 +230,7 @@ class _CurriculumBuilderScreenState
                 children: [
                   ReorderableDragStartListener(
                     index: index,
-                    child: Icon(
-                      Icons.drag_handle,
-                      color: cs.onSurfaceVariant,
-                    ),
+                    child: Icon(Icons.drag_handle, color: cs.onSurfaceVariant),
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   Icon(
@@ -214,7 +241,9 @@ class _CurriculumBuilderScreenState
                   Expanded(
                     child: Text(
                       section.title,
-                      style: tt.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                      style: tt.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   Text(
@@ -275,9 +304,7 @@ class _CurriculumBuilderScreenState
               color: cs.primary,
             ),
             const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Text(lesson.title, style: tt.bodyMedium),
-            ),
+            Expanded(child: Text(lesson.title, style: tt.bodyMedium)),
             if (lesson.durationSeconds != null) ...[
               Text(
                 _formatDuration(lesson.durationSeconds!),

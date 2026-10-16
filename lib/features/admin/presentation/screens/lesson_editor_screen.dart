@@ -66,7 +66,9 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
   bool _validate() {
     bool valid = true;
     setState(() {
-      _titleError = _titleController.text.trim().isEmpty ? 'Title is required' : null;
+      _titleError = _titleController.text.trim().isEmpty
+          ? 'Title is required'
+          : null;
       if (_titleError != null) valid = false;
     });
     return valid;
@@ -78,8 +80,11 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
     try {
       final repo = ref.read(adminCourseRepositoryProvider);
       final sections =
-          ref.read(adminCurriculumProvider(widget.courseId)).asData?.value ?? [];
-      final sectionId = sections.isNotEmpty ? sections.first.id : 'default-section';
+          ref.read(adminCurriculumProvider(widget.courseId)).asData?.value ??
+          [];
+      final sectionId = sections.isNotEmpty
+          ? sections.first.id
+          : 'default-section';
 
       final durationText = _durationController.text.trim();
       final lesson = AdminLesson(
@@ -93,10 +98,9 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
         lessonType: _lessonType,
         sortOrder: 0,
         isPreviewed: _isPreviewed,
-        durationSeconds:
-            _hasDuration && durationText.isNotEmpty
-                ? int.tryParse(durationText)
-                : null,
+        durationSeconds: _hasDuration && durationText.isNotEmpty
+            ? int.tryParse(durationText)
+            : null,
       );
       await repo.upsertLesson(lesson);
       ref.invalidate(adminCurriculumProvider(widget.courseId));
@@ -225,7 +229,9 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
               ],
               SwitchListTile(
                 title: const Text('Allow Free Preview'),
-                subtitle: const Text('Students can view this lesson without enrolling'),
+                subtitle: const Text(
+                  'Students can view this lesson without enrolling',
+                ),
                 value: _isPreviewed,
                 onChanged: (v) => setState(() => _isPreviewed = v),
                 contentPadding: EdgeInsets.zero,

@@ -60,7 +60,9 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
   bool _validate() {
     bool valid = true;
     setState(() {
-      _titleError = _titleController.text.trim().isEmpty ? 'Title is required' : null;
+      _titleError = _titleController.text.trim().isEmpty
+          ? 'Title is required'
+          : null;
       final priceText = _priceController.text.trim();
       if (priceText.isEmpty) {
         _priceError = 'Price is required';
@@ -114,7 +116,11 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
       }
     } catch (e) {
       if (context.mounted) {
-        AppSnackbar.show(context, 'Failed to save course.', variant: SnackbarVariant.error);
+        AppSnackbar.show(
+          context,
+          'Failed to save course.',
+          variant: SnackbarVariant.error,
+        );
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -134,7 +140,8 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
       error: (e, _) => AppErrorState(
         message: e.toString(),
         actionLabel: 'Retry',
-        onRetry: () => ref.invalidate(adminCourseDetailProvider(widget.courseId)),
+        onRetry: () =>
+            ref.invalidate(adminCourseDetailProvider(widget.courseId)),
       ),
       data: (course) {
         _populateFromCourse(course);
@@ -209,7 +216,8 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
                       keyboardType: TextInputType.number,
                       errorText: _priceError,
                       onChanged: (_) {
-                        if (_priceError != null) setState(() => _priceError = null);
+                        if (_priceError != null)
+                          setState(() => _priceError = null);
                       },
                     ),
                   ),

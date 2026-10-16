@@ -53,7 +53,9 @@ void main() {
     addTearDown(container.dispose);
     await Future<void>.delayed(Duration.zero);
 
-    final notifier = container.read(learningWorkspaceProvider('course').notifier);
+    final notifier = container.read(
+      learningWorkspaceProvider('course').notifier,
+    );
     final aFuture = notifier.selectLesson('A');
     final bFuture = notifier.selectLesson('B');
 
@@ -87,8 +89,9 @@ void main() {
         addTearDown(container.dispose);
         await Future<void>.delayed(Duration.zero);
 
-        final notifier =
-            container.read(learningWorkspaceProvider('course').notifier);
+        final notifier = container.read(
+          learningWorkspaceProvider('course').notifier,
+        );
 
         // A starts and passes its enrollment check.
         final aFuture = notifier.selectLesson('A');

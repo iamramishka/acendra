@@ -13,10 +13,7 @@ abstract interface class AdminPaymentRepository {
 
   Future<PaymentRecord> getPayment(String paymentId);
 
-  Future<int> countPayments({
-    PaymentStatus? status,
-    PaymentMethod? method,
-  });
+  Future<int> countPayments({PaymentStatus? status, PaymentMethod? method});
 }
 
 class StubAdminPaymentRepository implements AdminPaymentRepository {

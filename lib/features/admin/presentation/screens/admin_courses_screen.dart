@@ -37,7 +37,11 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
     return courses.where((c) => c.title.toLowerCase().contains(q)).toList();
   }
 
-  Future<void> _confirmDelete(BuildContext context, String courseId, String title) async {
+  Future<void> _confirmDelete(
+    BuildContext context,
+    String courseId,
+    String title,
+  ) async {
     final confirmed = await AppDialog.show(
       context,
       title: 'Delete Course',
@@ -50,18 +54,26 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
       try {
         await ref.read(adminCoursesProvider.notifier).deleteCourse(courseId);
         if (context.mounted) {
-          AppSnackbar.show(context, 'Course deleted.', variant: SnackbarVariant.success);
+          AppSnackbar.show(
+            context,
+            'Course deleted.',
+            variant: SnackbarVariant.success,
+          );
         }
       } catch (e) {
         if (context.mounted) {
-          AppSnackbar.show(context, 'Failed to delete course.', variant: SnackbarVariant.error);
+          AppSnackbar.show(
+            context,
+            'Failed to delete course.',
+            variant: SnackbarVariant.error,
+          );
         }
       }
     }
   }
 
   @override
-  Widget build(BuildContext context, ) {
+  Widget build(BuildContext context) {
     final coursesAsync = ref.watch(adminCoursesProvider);
     final isWide = MediaQuery.sizeOf(context).width >= AppBreakpoints.medium;
 
@@ -138,7 +150,9 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
     return Container(
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.md)),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppRadius.md),
+        ),
       ),
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
@@ -149,7 +163,10 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
           const SizedBox(width: 56 + AppSpacing.md),
           Expanded(
             flex: 3,
-            child: Text('Course', style: tt.labelLarge?.copyWith(color: cs.onSurfaceVariant)),
+            child: Text(
+              'Course',
+              style: tt.labelLarge?.copyWith(color: cs.onSurfaceVariant),
+            ),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -174,8 +191,10 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
       itemBuilder: (_, i) => CourseTableRow(
         course: courses[i],
         onEdit: () => context.go('/admin/courses/${courses[i].id}/edit'),
-        onCurriculum: () => context.go('/admin/courses/${courses[i].id}/curriculum'),
-        onDelete: () => _confirmDelete(context, courses[i].id, courses[i].title),
+        onCurriculum: () =>
+            context.go('/admin/courses/${courses[i].id}/curriculum'),
+        onDelete: () =>
+            _confirmDelete(context, courses[i].id, courses[i].title),
       ),
     );
   }
@@ -186,8 +205,10 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
       itemBuilder: (_, i) => CourseCardTile(
         course: courses[i],
         onEdit: () => context.go('/admin/courses/${courses[i].id}/edit'),
-        onCurriculum: () => context.go('/admin/courses/${courses[i].id}/curriculum'),
-        onDelete: () => _confirmDelete(context, courses[i].id, courses[i].title),
+        onCurriculum: () =>
+            context.go('/admin/courses/${courses[i].id}/curriculum'),
+        onDelete: () =>
+            _confirmDelete(context, courses[i].id, courses[i].title),
       ),
     );
   }

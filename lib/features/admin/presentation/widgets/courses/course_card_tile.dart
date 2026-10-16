@@ -54,21 +54,27 @@ class CourseCardTile extends StatelessWidget {
                     children: [
                       Text(
                         course.title,
-                        style: tt.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                        style: tt.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
                         '${course.currency} ${course.price.toStringAsFixed(0)}',
-                        style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                        style: tt.bodySmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 StatusBadge(
                   label: course.isPublished ? 'Published' : 'Draft',
-                  variant: course.isPublished ? BadgeVariant.success : BadgeVariant.warning,
+                  variant: course.isPublished
+                      ? BadgeVariant.success
+                      : BadgeVariant.warning,
                 ),
               ],
             ),

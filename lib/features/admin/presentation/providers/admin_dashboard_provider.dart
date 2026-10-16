@@ -84,5 +84,5 @@ class AdminDashboardNotifier extends AsyncNotifier<AdminDashboardStats> {
 
 final adminDashboardProvider =
     AsyncNotifierProvider<AdminDashboardNotifier, AdminDashboardStats>(
-  AdminDashboardNotifier.new,
-);
+      AdminDashboardNotifier.new,
+    );

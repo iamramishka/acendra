@@ -49,7 +49,8 @@ class StubAdminCourseRepository implements AdminCourseRepository {
     AdminCourse(
       id: 'course-3',
       title: 'Supabase & Backend Integration',
-      description: 'Build production-ready backends with Supabase and PostgreSQL.',
+      description:
+          'Build production-ready backends with Supabase and PostgreSQL.',
       price: 8000,
       currency: 'LKR',
       isPublished: false,
@@ -226,7 +227,9 @@ class StubAdminCourseRepository implements AdminCourseRepository {
     await Future.delayed(const Duration(milliseconds: 200));
     for (final sections in _curriculum.values) {
       for (var i = 0; i < sections.length; i++) {
-        final lessons = sections[i].lessons.where((l) => l.id != lessonId).toList();
+        final lessons = sections[i].lessons
+            .where((l) => l.id != lessonId)
+            .toList();
         sections[i] = sections[i].copyWith(lessons: lessons);
       }
     }
