@@ -65,8 +65,21 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          # Strip Windows CRLF (\r) line endings that can corrupt the key file
+          printf '%s' "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
+          # Validate PEM headers are present (non-sensitive — only shows header/footer lines)
+          KEY_HEAD=$(head -1 ~/.ssh/deploy_key)
+          KEY_TAIL=$(tail -1 ~/.ssh/deploy_key)
+          if [[ "$KEY_HEAD" != "-----BEGIN OPENSSH PRIVATE KEY-----" ]]; then
+            echo "::error::DEPLOY_SSH_PRIVATE_KEY is missing the '-----BEGIN OPENSSH PRIVATE KEY-----' header. Paste the complete key output including the BEGIN and END lines."
+            exit 1
+          fi
+          if [[ "$KEY_TAIL" != "-----END OPENSSH PRIVATE KEY-----" ]]; then
+            echo "::error::DEPLOY_SSH_PRIVATE_KEY is missing the '-----END OPENSSH PRIVATE KEY-----' footer. Paste the complete key output including the BEGIN and END lines."
+            exit 1
+          fi
+          echo "SSH key format looks correct."
           ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Upload release to server
