@@ -332,8 +332,10 @@ void main() {
       const sensitiveDetail =
           'https://stream.mux.com/Private.m3u8?token=SECRET_TOKEN';
       final repo = VideoAuthorizationRepository(
-        (body) async =>
-            throw FunctionException(status: 403, details: sensitiveDetail),
+        (body) async => throw const FunctionException(
+          status: 403,
+          details: sensitiveDetail,
+        ),
       );
 
       await expectLater(
