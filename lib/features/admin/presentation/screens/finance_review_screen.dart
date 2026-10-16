@@ -1,61 +1,159 @@
+import 'package:acendra/app/theme/app_spacing.dart';
+import 'package:acendra/app/theme/app_theme_extension.dart';
+import 'package:acendra/core/widgets/buttons/app_button.dart';
+import 'package:acendra/core/widgets/feedback/app_skeleton.dart';
+import 'package:acendra/core/widgets/feedback/app_snackbar.dart';
+import 'package:acendra/core/widgets/feedback/app_state_views.dart';
+import 'package:acendra/core/widgets/inputs/app_text_field.dart';
 import 'package:acendra/features/bank_transfer/data/bank_transfer_repository.dart';
 import 'package:acendra/features/bank_transfer/presentation/providers/bank_transfer_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class FinanceReviewScreen extends ConsumerWidget {
   const FinanceReviewScreen({super.key});
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) => Scaffold(
-    appBar: AppBar(
-      title: const Text('Finance Receipt Review'),
-      actions: [
-        IconButton(
-          tooltip: 'Refresh queue',
-          onPressed: () {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: ref.watch(financeQueueProvider).when(
+        skipLoadingOnReload: false,
+        skipLoadingOnRefresh: false,
+        loading: () => _LoadingSkeleton(),
+        error: (_, _) => AppErrorState(
+          message:
+              'Finance review is unavailable. Sign in with an authorized finance account and MFA, or try again later.',
+          actionLabel: 'Retry',
+          onRetry: () {
             final identity = ref.read(bankSessionIdentityProvider);
             if (identity != null) {
               ref.invalidate(financeQueueRequestProvider(identity));
             }
           },
-          icon: const Icon(Icons.refresh),
         ),
-      ],
-    ),
-    body: ref
-        .watch(financeQueueProvider)
-        .when(
-          skipLoadingOnReload: false,
-          skipLoadingOnRefresh: false,
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => const Center(
-            child: Text(
-              'Finance review is unavailable. Sign in with an authorized finance account and MFA, or try again later.',
+        data: (items) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Finance Review',
+                        style: tt.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        items.isEmpty
+                            ? 'No pending receipts'
+                            : '${items.length} pending receipt${items.length == 1 ? '' : 's'}',
+                        style: tt.bodyMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Refresh queue',
+                  onPressed: () {
+                    final identity = ref.read(bankSessionIdentityProvider);
+                    if (identity != null) {
+                      ref.invalidate(financeQueueRequestProvider(identity));
+                    }
+                  },
+                  icon: const Icon(Icons.refresh_outlined),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              children: [
+                AppButton(
+                  label: 'View Payment History',
+                  onPressed: () => context.go('/admin/payments/history'),
+                  variant: ButtonVariant.secondary,
+                  size: ButtonSize.small,
+                  icon: const Icon(Icons.history_outlined, size: 16),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                AppButton(
+                  label: 'All Payments',
+                  onPressed: () => context.go('/admin/payments'),
+                  variant: ButtonVariant.outlined,
+                  size: ButtonSize.small,
+                  icon: const Icon(Icons.payments_outlined, size: 16),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            if (items.isEmpty)
+              const Expanded(
+                child: AppEmptyState(message: 'No receipts to review'),
+              )
+            else
+              Expanded(
+                child: ListView.separated(
+                  itemCount: items.length,
+                  separatorBuilder: (_, _) =>
+                      const SizedBox(height: AppSpacing.md),
+                  itemBuilder: (context, index) => _ReviewCard(
+                    key: ValueKey((
+                      items[index]['submission_id'],
+                      ref.watch(bankSessionWidgetKeyProvider),
+                    )),
+                    item: items[index],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LoadingSkeleton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppSkeleton(width: 200, height: 28, borderRadius: BorderRadius.circular(AppRadius.sm)),
+        const SizedBox(height: AppSpacing.sm),
+        AppSkeleton(width: 140, height: 18, borderRadius: BorderRadius.circular(AppRadius.sm)),
+        const SizedBox(height: AppSpacing.lg),
+        ...List.generate(
+          3,
+          (_) => Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.md),
+            child: AppSkeleton(
+              width: double.infinity,
+              height: 160,
+              borderRadius: BorderRadius.circular(AppRadius.card),
             ),
           ),
-          data: (items) => items.isEmpty
-              ? const Center(child: Text('No receipts to review'))
-              : ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: items
-                      .map(
-                        (item) => _ReviewCard(
-                          key: ValueKey((
-                            item['submission_id'],
-                            ref.watch(bankSessionWidgetKeyProvider),
-                          )),
-                          item: item,
-                        ),
-                      )
-                      .toList(),
-                ),
         ),
-  );
+      ],
+    );
+  }
 }
 
 class _ReviewCard extends ConsumerStatefulWidget {
   const _ReviewCard({super.key, required this.item});
+
   final Map<String, dynamic> item;
+
   @override
   ConsumerState<_ReviewCard> createState() => _ReviewCardState();
 }
@@ -65,7 +163,7 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
   final fields = List.generate(5, (_) => TextEditingController());
   bool busy = false, confirmed = false, approve = false;
   String source = 'bank_portal';
-  String? message;
+
   @override
   void dispose() {
     reason.dispose();
@@ -76,33 +174,35 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
   }
 
   Future<void> decide() async {
-    if (busy) {
-      return;
-    }
+    if (busy) return;
     final identity = ref.read(bankSessionIdentityProvider);
     if (identity == null) {
-      setState(
-        () => message = 'Sign in with an authorized finance account and MFA.',
+      AppSnackbar.show(
+        context,
+        'Sign in with an authorized finance account and MFA.',
+        variant: SnackbarVariant.error,
       );
       return;
     }
     final item = widget.item;
     if (approve &&
         (!confirmed || fields.any((field) => field.text.trim().isEmpty))) {
-      setState(
-        () => message =
-            'Complete the independent bank-credit evidence and confirmation.',
+      AppSnackbar.show(
+        context,
+        'Complete the independent bank-credit evidence and confirmation.',
+        variant: SnackbarVariant.warning,
       );
       return;
     }
     if (!approve && reason.text.trim().isEmpty) {
-      setState(() => message = 'Enter a student-safe rejection reason.');
+      AppSnackbar.show(
+        context,
+        'Enter a student-safe rejection reason.',
+        variant: SnackbarVariant.warning,
+      );
       return;
     }
-    setState(() {
-      busy = true;
-      message = null;
-    });
+    setState(() => busy = true);
     try {
       await ref
           .read(bankTransferRepositoryProvider)
@@ -122,19 +222,22 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
                   }
                 : null,
           );
-      if (!mounted || ref.read(bankSessionIdentityProvider) != identity) {
-        return;
-      }
+      if (!mounted || ref.read(bankSessionIdentityProvider) != identity) return;
       ref.invalidate(financeQueueRequestProvider(identity));
-      setState(() {
-        message = 'Decision recorded by the server.';
+      if (mounted) {
+        AppSnackbar.show(
+          context,
+          'Decision recorded by the server.',
+          variant: SnackbarVariant.success,
+        );
         reason.clear();
-      });
+      }
     } catch (_) {
       if (mounted && ref.read(bankSessionIdentityProvider) == identity) {
-        setState(
-          () => message =
-              'The decision was not confirmed. Your inputs are preserved. Refresh before retrying.',
+        AppSnackbar.show(
+          context,
+          'The decision was not confirmed. Your inputs are preserved. Refresh before retrying.',
+          variant: SnackbarVariant.error,
         );
       }
     } finally {
@@ -146,6 +249,10 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final ext = Theme.of(context).extension<AppThemeExtension>();
+
     const labels = [
       'Destination account ID',
       'Independent bank transaction ID',
@@ -153,39 +260,90 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
       'Settled date and time (ISO 8601)',
       'Stored order reference',
     ];
-    return Card(
+
+    return Container(
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        border: Border.all(color: ext?.border ?? cs.outlineVariant),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(widget.item['course_title'] as String),
-            Text('Order ${widget.item['order_number']}'),
+            Text(
+              widget.item['course_title'] as String,
+              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              'Order ${widget.item['order_number']}',
+              style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: AppSpacing.xs),
             Text(
               '${widget.item['currency']} ${widget.item['amount_minor']} minor units',
+              style: tt.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: ext?.success ?? cs.primary,
+              ),
             ),
-            const Text(
-              'Verify settled funds in the business-controlled bank source. A receipt alone does not prove payment.',
+            const SizedBox(height: AppSpacing.sm),
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.sm),
+              decoration: BoxDecoration(
+                color: cs.secondaryContainer,
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    size: 16,
+                    color: cs.onSecondaryContainer,
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
+                  Expanded(
+                    child: Text(
+                      'Verify settled funds in the business-controlled bank source. A receipt alone does not prove payment.',
+                      style: tt.bodySmall?.copyWith(
+                        color: cs.onSecondaryContainer,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
+            const SizedBox(height: AppSpacing.md),
             SwitchListTile(
-              title: const Text('Approve with independent bank evidence'),
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                'Approve with independent bank evidence',
+                style: tt.bodyMedium,
+              ),
               value: approve,
               onChanged: busy
                   ? null
                   : (value) => setState(() => approve = value),
             ),
             if (approve) ...[
-              for (var i = 0; i < labels.length; i++)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: TextField(
+              const SizedBox(height: AppSpacing.sm),
+              ...List.generate(
+                labels.length,
+                (i) => Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: AppTextField(
+                    label: labels[i],
                     controller: fields[i],
                     enabled: !busy,
-                    decoration: InputDecoration(labelText: labels[i]),
                   ),
                 ),
+              ),
               DropdownButtonFormField<String>(
                 initialValue: source,
+                decoration: const InputDecoration(labelText: 'Verification source'),
                 items: const [
                   DropdownMenuItem(
                     value: 'bank_portal',
@@ -204,34 +362,34 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
                     ? null
                     : (value) => setState(() => source = value!),
               ),
+              const SizedBox(height: AppSpacing.sm),
               CheckboxListTile(
-                title: const Text(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
                   'I independently verified this settled credit in the bank source',
+                  style: tt.bodyMedium,
                 ),
                 value: confirmed,
                 onChanged: busy
                     ? null
-                    : (value) => setState(() => confirmed = value ?? false),
+                    : (value) =>
+                          setState(() => confirmed = value ?? false),
               ),
-            ] else
-              TextField(
+            ] else ...[
+              const SizedBox(height: AppSpacing.sm),
+              AppTextField(
+                label: 'Student-safe rejection reason',
                 controller: reason,
                 enabled: !busy,
-                maxLength: 1000,
-                decoration: const InputDecoration(
-                  labelText: 'Student-safe rejection reason',
-                ),
+                maxLines: 3,
               ),
-            if (message != null) Text(message!),
-            FilledButton(
+            ],
+            const SizedBox(height: AppSpacing.md),
+            AppButton(
+              label: approve ? 'Record approval' : 'Record rejection',
               onPressed: busy ? null : decide,
-              child: Text(
-                busy
-                    ? 'Recording…'
-                    : approve
-                    ? 'Record approval'
-                    : 'Record rejection',
-              ),
+              variant: approve ? ButtonVariant.primary : ButtonVariant.destructive,
+              isLoading: busy,
             ),
           ],
         ),
