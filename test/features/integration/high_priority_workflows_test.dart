@@ -44,7 +44,10 @@ import 'package:acendra/features/my_courses/domain/repositories/my_courses_repos
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:riverpod/riverpod.dart' show Override;
+// Override is a sealed class not exported by the public flutter_riverpod API.
+// Import directly from the internal library (flutter_riverpod is a direct dep).
+// ignore: depend_on_referenced_packages, implementation_imports
+import 'package:flutter_riverpod/src/internals.dart' show Override;
 
 // ---------------------------------------------------------------------------
 // Fake repositories
@@ -179,7 +182,7 @@ Widget _authenticatedApp({
       ...extraOverrides,
     ],
     child: Consumer(
-      builder: (_, ref, __) =>
+      builder: (context, ref, _) =>
           MaterialApp.router(routerConfig: ref.watch(appRouterProvider)),
     ),
   );
