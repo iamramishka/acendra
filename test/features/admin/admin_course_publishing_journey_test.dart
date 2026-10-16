@@ -68,7 +68,7 @@ class _FakeAdminCourseRepository implements AdminCourseRepository {
         courseId: 'course-1',
         title: 'Getting Started',
         sortOrder: 0,
-        lessons: const [
+        lessons: [
           AdminLesson(
             id: 'l1',
             sectionId: 's1',

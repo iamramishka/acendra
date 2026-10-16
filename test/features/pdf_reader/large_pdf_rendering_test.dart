@@ -426,16 +426,16 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             appBar: AppBar(
-              title: Text(
+              title: const Text(
                 longTitle,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),
             ),
-            body: SizedBox.expand(),
+            body: const SizedBox.expand(),
           ),
         ),
       );
