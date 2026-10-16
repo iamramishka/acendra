@@ -1,0 +1,23 @@
+# gitleaks configuration for Acedra.
+#
+# Allowlists below cover test fixtures that intentionally contain
+# JWT-shaped strings to verify the application REJECTS service-role
+# and other forbidden credential formats. These are not real credentials.
+
+title = "Acedra gitleaks config"
+
+[allowlist]
+  description = "Test fixture JWT-shaped values that are not real credentials"
+
+  # Matches any JWT whose third segment (signature) is the literal word "fixture".
+  # Used in test/core/config/env_config_test.dart via jwtWithRole() to construct
+  # fake JWTs for testing that the app rejects service_role and other role keys.
+  regexes = [
+    '''eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.fixture''',
+  ]
+
+  # Test file that exercises JWT rejection logic — contains fixture tokens.
+  paths = [
+    '''test/core/config/env_config_test\.dart''',
+    '''test/features/video_player/protected_video_playback_test\.dart''',
+  ]
