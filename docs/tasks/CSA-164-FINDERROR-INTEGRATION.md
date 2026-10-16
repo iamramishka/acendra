@@ -32,3 +32,19 @@ Missing artwork now has a consistent accessible title-based cover. This does not
 The admin Students directory no longer uses seed rows. Separate dashboard/payment providers still use placeholders and require their own reviewed reporting/list integration. Existing reporting release gates remain intact. Unwired course/account/enrollment mutations now fail with an explicit unavailable error instead of fabricated local success; verified financial totals are shown as unavailable, never invented zero.
 
 Status: IN_REVIEW; owner approval, hosted CI and release acceptance remain required.
+
+## Session-isolation review correction
+
+Root-assigned follow-up commit 2cdedfd (integrated as 942b187) closes a P1 cache boundary found during review: repository providers depend on the current session, directory providers watch those repositories, prior searches cannot restore data after account changes, and search terms reset. Root inspected the implementation and independently ran all six session-switch/in-flight regressions: PASS (exit 0). This is client privacy isolation in addition to existing trusted backend authorization.
+
+The combined suite initially identified one obsolete icon assertion after the intentional cover redesign (677 passed, one failed). Root replaced that assertion with the required missing-cover message and reran shared widget/directory tests: 20 passed. No production failure was hidden. Final integrated analyzer: no issues (exit 0); full formatting: 263 files unchanged (exit 0); diff whitespace check clean. Initial release build passed including Wasm dry run; it emits the existing missing Cupertino font warning. Final cache-change release rebuild omits only the already-passed Wasm dry run.
+
+Documentation-only conflict during cache integration was resolved by retaining the navigation evidence and the cache scope/evidence addendum; no code conflict occurred.
+
+## Final root verification
+
+- flutter test --no-pub --reporter compact: 678 passed, zero failures (exit 0), final integrated sources. The six newly added session-isolation regressions were additionally executed directly against the final branch and passed (exit 0).
+- flutter build web --release --no-pub --no-wasm-dry-run after session correction: PASS (exit 0). Earlier normal release build also passed its Wasm dry run. Existing Cupertino font warning persists; no dependency changes were introduced.
+- Final flutter analyze --no-pub: no issues (exit 0). Final formatting: 263 files unchanged (exit 0). Final whitespace review clean.
+
+Final status: IN_REVIEW. PR creation follows; hosted CI and authorized review remain separate acceptance gates. No production changes or merge performed.
