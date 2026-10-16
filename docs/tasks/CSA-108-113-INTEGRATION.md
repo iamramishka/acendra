@@ -1,9 +1,9 @@
 # CSA-108/109/112/113 coordinated integration
 
-Date:2026-10-11 (Asia/Colombo). Owner CODEX root. Issue #81. Status IN_PROGRESS.
+Original implementation: 2026-10-11 (Asia/Colombo). Owner CODEX root. Issue #81. Development status: DONE via merged PR #84; see current reconciliation below.
 Branch codex/feat/csa-108-113-integration, isolated worktree
 C:/Users/ramis/.codex/worktrees/csa-108-113-integration/acendra.
-Base PR #79 head34e6624; dependent PR remains unmerged. Integration is stacked on
+Historical base PR #79 head34e6624; it was unmerged during implementation. Integration was stacked on
 that reviewed/tested foundation, not a claim it is already on dev.
 
 | Task | Owner | Exclusive scope |
@@ -55,3 +55,8 @@ strict storage.objects UPDATE guard must be tested against actual Storage upload
 No approved inspection implementation/resource limits or operational banking setup
 exists; production handlers remain hard disabled. No merge/deployment performed.
 Parallel workers encountered account usage limit before real Storage smoke finished.
+
+
+## Current reconciliation — 2026-10-16
+
+PR #84 merged into dev as a19fd048 with successful hosted Flutter/Supabase CI, including private receipt Storage lifecycle verification. CSA-108/109/112/113 are accepted DONE for their bounded development scopes. Earlier IN_PROGRESS/IN_REVIEW, unmerged dependency, incomplete Storage smoke and no-merge statements above describe the original implementation stage and are superseded by this result. Production inspection/resource, official bank destination, named reviewer and retention/dispute gates remain; no activation is approved by this reconciliation. Fresh code review found no actionable defect; 81 focused tests passed. Full-suite evidence and current scope: [reconciliation](CSA-FINANCIAL-ISSUE-RECONCILIATION.md).
