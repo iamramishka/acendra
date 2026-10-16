@@ -1,0 +1,120 @@
+name: Deploy to Production
+
+# Triggers on every push to dev, but only runs the deploy job
+# when the commit message contains the word "deploy" (case-insensitive).
+# Example commit: "feat(marketplace): add course grid deploy"
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    name: Build & Deploy Flutter Web
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.message, 'deploy')
+
+    # Requires these repository secrets (Settings → Secrets → Actions):
+    #   DEPLOY_SSH_PRIVATE_KEY  — ed25519 private key for ubuntu@3.25.99.105
+    #   DEPLOY_HOST             — 3.25.99.105
+    #   DEPLOY_USER             — deploy
+    #   SUPABASE_URL            — https://<project>.supabase.co
+    #   SUPABASE_ANON_KEY       — publishable/anon key only (never service-role)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter (stable)
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Flutter analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Flutter test
+        run: flutter test
+
+      - name: Build Flutter Web (release)
+        run: |
+          flutter build web --release \
+            --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
+            --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+
+      # Security gate: reject the build if any service-role key pattern
+      # appears in the output. A service-role JWT starts with a specific
+      # header that differs from the anon key.
+      - name: Secret scan on build output
+        run: |
+          set +e
+          # Supabase service-role JWTs have "role":"service_role" in their payload
+          HITS=$(grep -rl '"role":"service_role"\|service_role\b' build/web/ 2>/dev/null | wc -l)
+          set -e
+          if [ "$HITS" -gt 0 ]; then
+            echo "::error::Possible Supabase service-role key found in build/web/ — aborting deploy"
+            grep -rl '"role":"service_role"\|service_role\b' build/web/ 2>/dev/null
+            exit 1
+          fi
+          echo "Secret scan passed — no service-role key found."
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Upload release to server
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          TIMESTAMP=$(date -u +%Y%m%d-%H%M%S)
+          RELEASE_DIR="/var/www/acendra/releases/${TIMESTAMP}"
+
+          echo "Uploading to ${RELEASE_DIR} ..."
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            build/web/ \
+            "${DEPLOY_USER}@${DEPLOY_HOST}:${RELEASE_DIR}/"
+
+          echo "Switching symlink and reloading Nginx ..."
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            "${DEPLOY_USER}@${DEPLOY_HOST}" bash -s << EOF
+          set -e
+          # Atomic symlink switch (temp + rename avoids race)
+          ln -s "${RELEASE_DIR}" /var/www/acendra/next
+          mv -T /var/www/acendra/next /var/www/acendra/current
+          sudo systemctl reload nginx
+          # Keep last 5 releases; prune older ones
+          ls -dt /var/www/acendra/releases/*/ | tail -n +6 | xargs -r rm -rf
+          echo "Live: ${RELEASE_DIR}"
+          EOF
+
+      - name: Smoke test
+        run: |
+          echo "Waiting for Nginx to settle ..."
+          sleep 5
+          STATUS=$(curl -sk -o /dev/null -w "%{http_code}" https://${{ secrets.DEPLOY_HOST }})
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::Smoke test failed — HTTP $STATUS"
+            exit 1
+          fi
+          echo "Smoke test passed."
+
+      - name: Summary
+        run: |
+          echo "### Deploy complete :rocket:" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| --- | --- |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| URL | https://3-25-99-105.sslip.io |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Run | ${{ github.run_number }} |" >> "$GITHUB_STEP_SUMMARY"
