@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AuthShell extends StatelessWidget {
-  const AuthShell({
-    super.key,
-    required this.child,
-    this.banner,
-  });
+  const AuthShell({super.key, required this.child, this.banner});
 
   final Widget child;
   final Widget? banner;
@@ -51,10 +47,7 @@ class AuthShell extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   // Optional banner (e.g. signin hero image)
-                  if (banner != null) ...[
-                    banner!,
-                    const SizedBox(height: 24),
-                  ],
+                  if (banner != null) ...[banner!, const SizedBox(height: 24)],
                   child,
                 ],
               ),

@@ -35,7 +35,9 @@ void main() {
             adminPaymentCountsProvider.overrideWith((ref) async => {}),
             financeAccessProvider.overrideWith((ref) async => allowed),
           ],
-          child: const MaterialApp(home: Scaffold(body: AdminDashboardScreen())),
+          child: const MaterialApp(
+            home: Scaffold(body: AdminDashboardScreen()),
+          ),
         ),
       );
       await tester.pumpAndSettle();
