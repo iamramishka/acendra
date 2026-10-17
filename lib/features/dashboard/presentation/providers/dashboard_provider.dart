@@ -19,3 +19,21 @@ final featuredCoursesProvider = Provider<List<CourseSummary>>(
 final whyLearnItemsProvider = Provider<List<WhyLearnItem>>(
   (ref) => sampleWhyLearnItems,
 );
+
+typedef DashboardHomeData = ({
+  List<HeroSlide> slides,
+  List<DashboardCategory> categories,
+  List<CourseSummary> courses,
+  List<WhyLearnItem> highlights,
+});
+
+/// Composes the four offline sources behind a loading/error/retry boundary.
+/// This does not fetch live data or establish backend course identities.
+final dashboardHomeProvider = FutureProvider<DashboardHomeData>(
+  (ref) => (
+    slides: ref.watch(heroSlidesProvider),
+    categories: ref.watch(dashboardCategoriesProvider),
+    courses: ref.watch(featuredCoursesProvider),
+    highlights: ref.watch(whyLearnItemsProvider),
+  ),
+);

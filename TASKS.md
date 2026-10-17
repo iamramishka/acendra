@@ -2932,12 +2932,12 @@ TESTS - REQUIRED.
 REVIEW - BEFORE MERGE.
 INTEGRATION - VERIFIED.
 
-## CSA-DASH-001 - Student home, Phases 1 and 2
+## CSA-DASH-001 - Student home, Phases 1-3
 
 - Owner: CODEX; issue: https://github.com/iamramishka/acendra/issues/173.
-- Status: IN_REVIEW; models, offline data/providers and widget library implemented.
+- Status: IN_REVIEW; models, offline data/providers, widget library and Home screen implemented.
 - Branch: feat/csa-dash-001-student-home.
-- Scope, isolation, acceptance and verification: [Phase 1 handoff](docs/tasks/CSA-DASH-001-PHASE1.md), [Phase 2 handoff](docs/tasks/CSA-DASH-001-PHASE2.md).
-- Screen composition, routes, StudentShell and live backend integration remain subsequent phases.
+- Scope, isolation, acceptance and verification: [Phase 1 handoff](docs/tasks/CSA-DASH-001-PHASE1.md), [Phase 2 handoff](docs/tasks/CSA-DASH-001-PHASE2.md), [Phase 3 handoff](docs/tasks/CSA-DASH-001-PHASE3.md).
+- Routes, StudentShell and live backend integration remain subsequent phases.
 
 END OF TASKS.md
