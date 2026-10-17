@@ -8,35 +8,38 @@ Workflow file: `.github/workflows/deploy-production.yml`
 
 ## How it works
 
-Push to `dev` with the word **"deploy"** anywhere in the commit message →
-GitHub Actions automatically:
+Updated 2026-10-18 for Audit-001 (deploy no longer bypasses CI).
 
-1. Checks out the code
-2. Runs `flutter analyze` + `flutter test`
-3. Builds `flutter build web --release` with Supabase URL/anon key
-4. Scans the build output for service-role keys (fails the pipeline if found)
-5. Rsyncs `build/web/` to a timestamped release dir on the server
-6. Atomically switches the `current` symlink
-7. Reloads Nginx
-8. Runs a smoke test (HTTP 200 on `https://3-25-99-105.sslip.io`)
+Push to `dev` → `Flutter baseline` (`flutter-ci.yml`) runs. **Only if it
+succeeds**, `Deploy to Production` starts and waits for approval on the
+`production` environment. After approval it:
 
-**Commits without "deploy" in the message are ignored** — CI runs (analyze + test)
-still fire via `flutter-ci.yml`, but nothing is deployed.
+1. Checks out the exact commit CI tested (`workflow_run.head_sha`)
+2. Uses Flutter 3.44.0 and `--enforce-lockfile`, same as CI
+3. Runs `flutter analyze` + `flutter test`
+4. Builds `flutter build web --release` with Supabase URL/anon key
+5. Scans the build output for service-role keys (fails the pipeline if found)
+6. Rsyncs `build/web/` to a timestamped release dir on the server
+7. Atomically switches the `current` symlink
+8. Reloads Nginx
+9. Runs a smoke test
 
-### Example commits that trigger deploy
+The commit message no longer matters. The old `deploy` keyword does nothing.
 
-```
-feat(marketplace): add course grid deploy
-fix(checkout): fix price display deploy
-chore: update deps deploy
-```
+- CI failed or was cancelled → no deploy.
+- Pull-request CI runs → no deploy.
+- Deploys never overlap; a newer one waits for the running one.
+- To redeploy a commit: Actions → Deploy to Production → that run →
+  **Re-run jobs**.
+- To skip deploying a commit: **Reject** it on the approval prompt.
 
-### Example commits that do NOT deploy
+### Required one-time setting (project owner)
 
-```
-feat(marketplace): add course grid
-fix(checkout): fix price display
-```
+GitHub → Settings → Environments → `production` (created on first run if
+missing) → **Required reviewers** → add the project owner → Save.
+
+Without a required reviewer, every green push to `dev` deploys
+automatically. The environment is the approval gate.
 
 ---
 
