@@ -266,6 +266,29 @@ Widget _wrap(Widget screen, AdminCourseRepository repo) {
 // ---------------------------------------------------------------------------
 
 void main() {
+  for (final courseId in ['new', 'course-draft']) {
+    testWidgets('Cancel leaves $courseId editor without saving', (
+      tester,
+    ) async {
+      final repo = _FakeAdminCourseRepository();
+      await tester.pumpWidget(
+        _wrap(CourseEditorScreen(courseId: courseId), repo),
+      );
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, 'Unsaved changes');
+      await tester.ensureVisible(find.text('Cancel'));
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(find.text('Admin Courses'), findsOneWidget);
+      expect(find.text('Unsaved changes'), findsNothing);
+      expect(
+        (await repo.listCourses()).any(
+          (course) => course.title == 'Unsaved changes',
+        ),
+        isFalse,
+      );
+    });
+  }
   // -------------------------------------------------------------------------
   // 1. Course list: loading state → populated state
   // -------------------------------------------------------------------------

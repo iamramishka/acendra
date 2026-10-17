@@ -6,6 +6,7 @@ import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/feedback/app_skeleton.dart';
 import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:acendra/features/admin/presentation/providers/admin_dashboard_provider.dart';
+import 'package:acendra/features/admin/presentation/providers/finance_access_provider.dart';
 import 'package:acendra/features/admin/presentation/widgets/payment_queue_summary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,11 +26,19 @@ class AdminDashboardScreen extends ConsumerWidget {
         actionLabel: 'Retry',
         onRetry: () => ref.invalidate(adminDashboardProvider),
       ),
-      data: (stats) => _buildContent(context, stats),
+      data: (stats) => _buildContent(
+        context,
+        stats,
+        ref.watch(financeAccessProvider).value == true,
+      ),
     );
   }
 
-  Widget _buildContent(BuildContext context, AdminDashboardStats stats) {
+  Widget _buildContent(
+    BuildContext context,
+    AdminDashboardStats stats,
+    bool canReviewFinance,
+  ) {
     final theme = Theme.of(context);
     final width = MediaQuery.sizeOf(context).width;
     final isCompact = width < AppBreakpoints.compact;
@@ -73,12 +82,13 @@ class AdminDashboardScreen extends ConsumerWidget {
                 variant: ButtonVariant.secondary,
                 icon: const Icon(Icons.people_outline, size: 18),
               ),
-              AppButton(
-                label: 'Finance Review',
-                onPressed: () => context.go(RouteNames.financeReview),
-                variant: ButtonVariant.secondary,
-                icon: const Icon(Icons.account_balance_outlined, size: 18),
-              ),
+              if (canReviewFinance)
+                AppButton(
+                  label: 'Finance Review',
+                  onPressed: () => context.go(RouteNames.financeReview),
+                  variant: ButtonVariant.secondary,
+                  icon: const Icon(Icons.account_balance_outlined, size: 18),
+                ),
             ],
           ),
         ],
