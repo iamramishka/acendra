@@ -34,7 +34,8 @@ class CourseGrid extends StatelessWidget {
         final course = courses[index];
         return CourseCard(
           title: course.title,
-          instructorName: 'Acedra',
+          // The catalog contract does not supply an instructor name.
+          instructorName: '',
           price: course.formattedPrice,
           onTap: onCourseTap != null ? () => onCourseTap!(course) : null,
         );

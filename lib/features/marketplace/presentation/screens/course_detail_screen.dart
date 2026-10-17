@@ -32,7 +32,18 @@ class CourseDetailScreen extends ConsumerWidget {
         final theme = Theme.of(context);
 
         return Scaffold(
-          appBar: AppBar(title: Text(detail.title)),
+          appBar: AppBar(
+            leading: BackButton(
+              onPressed: () {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go(RouteNames.marketplace);
+                }
+              },
+            ),
+            title: Text(detail.title),
+          ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
