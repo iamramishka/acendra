@@ -1,6 +1,6 @@
 # Issue #160 startup integration on merged dev
 
-Date: 2026-10-17 (Asia/Colombo). Owner: CODEX. Status: IN_REVIEW, local only.
+Date: 2026-10-17 (Asia/Colombo). Owner: CODEX. Status: IN_REVIEW.
 Authority: project owner requested fixing the open repository issues.
 Coordination: [issue #160](https://github.com/iamramishka/acendra/issues/160).
 Branch: `codex/fix/csa-160-issue-reconciliation`.
@@ -76,7 +76,26 @@ staging project. The management write returned HTTP 201. Post-change probes:
 These probes verify the origin repair, not a signed-in real-role acceptance run.
 No live reporting, payment, role, storage or production feature was activated.
 
-## Publication and production holds
+## Publication review and production holds
+
+The owner subsequently requested review and merge into dev. Fresh repository API
+evidence reports `visibility: public`, `private: false`. The current Flutter and
+Supabase workflows use standard Ubuntu hosted runners, which
+[GitHub documents as free for public repositories](https://docs.github.com/en/billing/concepts/product-billing/github-actions).
+The private-repository minute-reserve assumption below is therefore historical
+for this source review. Repository visibility, paid runner selections, cache
+allowance and billing settings were not changed by CODEX. Proceed through the
+existing PR/CI workflow and merge only after checks pass. Do not trigger the
+separate production job through the merge message.
+
+Source inspection found no blocking defect in the startup/configuration diff.
+The startup resolver delegates to the existing validator before Supabase is
+initialized. Empty/partial configuration and public/privileged key cases have
+explicit tests; legacy key selection is covered by the production compile-time
+variant. Fresh full-suite and hosted verification results are recorded in the
+PR and issue #160 before merge. Production acceptance remains separate.
+
+### Historical private-repository capacity snapshot
 
 The issue requires a fresh check of at least 60 included Actions minutes and
 available storage before CI-triggering publication. The CLI token returned HTTP
@@ -89,7 +108,8 @@ The net amount is not evidence of unused included minutes or free future runs.
 Repository cache metadata reported 25 entries totaling 11,739,768,348 bytes;
 the documented separate included cache allowance is 10 GiB. No caches/artifacts
 were deleted or allowance settings changed. The required capacity reserve is not
-established. Use local checks; no CI-triggering push, PR or hosted workflow.
+established at that snapshot. The current public-repository review above
+supersedes the earlier publication hold; it does not erase historical usage.
 
 All eleven production tasks remain held under the
 [readiness matrix](../tasks/CSA-PHASE9-FREE-READINESS.md). Approved production
