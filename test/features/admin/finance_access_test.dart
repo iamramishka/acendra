@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:acendra/features/admin/presentation/providers/finance_access_provider.dart';
 import 'package:acendra/features/admin/presentation/providers/admin_dashboard_provider.dart';
+import 'package:acendra/features/admin/presentation/providers/admin_payments_provider.dart';
 import 'package:acendra/features/admin/presentation/screens/admin_dashboard_screen.dart';
 import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,6 +32,7 @@ void main() {
         ProviderScope(
           overrides: [
             adminDashboardProvider.overrideWith(_Dashboard.new),
+            adminPaymentCountsProvider.overrideWith((ref) async => {}),
             financeAccessProvider.overrideWith((ref) async => allowed),
           ],
           child: const MaterialApp(home: Scaffold(body: AdminDashboardScreen())),
