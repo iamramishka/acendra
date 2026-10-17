@@ -4,6 +4,7 @@ import 'package:acendra/app/theme/app_theme_extension.dart';
 import 'package:acendra/core/accessibility/semantics_labels.dart';
 import 'package:acendra/core/widgets/buttons/theme_toggle_button.dart';
 import 'package:acendra/core/widgets/layout/responsive_container.dart';
+import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,6 +21,9 @@ class PublicShell extends ConsumerWidget {
     final ext = Theme.of(context).extension<AppThemeExtension>();
     final borderColor = ext?.border ?? Theme.of(context).dividerColor;
     final surface = Theme.of(context).colorScheme.surface;
+
+    final isAuthenticated = ref.watch(isAuthenticatedProvider);
+    final isAdmin = ref.watch(isAdminProvider);
 
     return Scaffold(
       backgroundColor: surface,
@@ -47,6 +51,27 @@ class PublicShell extends ConsumerWidget {
                     onPressed: () => Scaffold.of(ctx).openEndDrawer(),
                   ),
                 ),
+              ]
+            : isAuthenticated
+            ? [
+                TextButton(
+                  onPressed: () => context.go(RouteNames.marketplace),
+                  child: const Text('Courses'),
+                ),
+                TextButton(
+                  onPressed: () => context.go(RouteNames.myCourses),
+                  child: const Text('My Courses'),
+                ),
+                if (isAdmin)
+                  TextButton(
+                    onPressed: () => context.go(RouteNames.admin),
+                    child: const Text('Admin'),
+                  ),
+                const SizedBox(width: 8),
+                const ThemeToggleButton(),
+                const SizedBox(width: 8),
+                const CircleAvatar(radius: 16, child: Text('S')),
+                const SizedBox(width: 8),
               ]
             : [
                 TextButton(
@@ -80,20 +105,38 @@ class PublicShell extends ConsumerWidget {
                       context.go(RouteNames.marketplace);
                     },
                   ),
-                  ListTile(
-                    title: const Text('Sign in'),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      context.go(RouteNames.login);
-                    },
-                  ),
-                  ListTile(
-                    title: const Text('Get Started'),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      context.go(RouteNames.register);
-                    },
-                  ),
+                  if (isAuthenticated) ...[
+                    ListTile(
+                      title: const Text('My Courses'),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.go(RouteNames.myCourses);
+                      },
+                    ),
+                    if (isAdmin)
+                      ListTile(
+                        title: const Text('Admin'),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          context.go(RouteNames.admin);
+                        },
+                      ),
+                  ] else ...[
+                    ListTile(
+                      title: const Text('Sign in'),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.go(RouteNames.login);
+                      },
+                    ),
+                    ListTile(
+                      title: const Text('Get Started'),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.go(RouteNames.register);
+                      },
+                    ),
+                  ],
                 ],
               ),
             )

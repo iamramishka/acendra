@@ -1,3 +1,5 @@
+import 'package:acendra/features/admin/data/repositories/admin_course_repository.dart';
+import 'package:acendra/features/admin/data/repositories/admin_student_repository.dart';
 import 'package:acendra/features/admin/domain/entities/payment_record.dart';
 import 'package:acendra/features/admin/presentation/providers/admin_payments_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,32 +45,50 @@ class AdminDashboardStats {
 class AdminDashboardNotifier extends AsyncNotifier<AdminDashboardStats> {
   @override
   Future<AdminDashboardStats> build() async {
-    // TODO: Replace with real Supabase queries using service-role or admin RPC.
-    final counts = await ref.read(adminPaymentCountsProvider.future);
-    final repo = ref.read(adminPaymentRepositoryProvider);
-    final recentPending = await repo.listPayments(
-      status: PaymentStatus.pending,
-      pageSize: 5,
+    final studentRepo = ref.read(adminStudentRepositoryProvider);
+    final courseRepo = ref.read(adminCourseRepositoryProvider);
+    final paymentRepo = ref.read(adminPaymentRepositoryProvider);
+
+    final results = await Future.wait([
+      studentRepo.listStudents(),
+      courseRepo.listCourses(),
+      paymentRepo.listPayments(status: PaymentStatus.pending, pageSize: 5),
+      paymentRepo.listPayments(status: PaymentStatus.approved, pageSize: 100),
+      paymentRepo.countPayments(status: PaymentStatus.pending),
+    ]);
+
+    final students = results[0] as List;
+    final courses = results[1] as List;
+    final pendingRecords = results[2] as List<PaymentRecord>;
+    final approvedRecords = results[3] as List<PaymentRecord>;
+    final pendingCount = results[4] as int;
+
+    final totalRevenue = approvedRecords.fold<double>(
+      0,
+      (sum, r) => sum + r.amount,
     );
+
+    final recentPending = pendingRecords
+        .map(
+          (r) => PaymentQueueItem(
+            id: r.orderId,
+            studentEmail: r.studentEmail,
+            courseTitle: r.courseTitle,
+            amount: r.amount,
+            currency: r.currency,
+            submittedAt: r.createdAt,
+            status: r.status.name,
+          ),
+        )
+        .toList();
+
     return AdminDashboardStats(
-      totalStudents: 128,
-      totalCourses: 14,
-      pendingPayments: counts[PaymentStatus.pending]!,
-      totalRevenue: 245800.00,
+      totalStudents: students.length,
+      totalCourses: courses.length,
+      pendingPayments: pendingCount,
+      totalRevenue: totalRevenue,
       currency: 'LKR',
-      recentPendingPayments: recentPending
-          .map(
-            (r) => PaymentQueueItem(
-              id: r.id,
-              studentEmail: r.studentEmail,
-              courseTitle: r.courseTitle,
-              amount: r.amount,
-              currency: r.currency,
-              submittedAt: r.createdAt,
-              status: r.status.name,
-            ),
-          )
-          .toList(),
+      recentPendingPayments: recentPending,
     );
   }
 }

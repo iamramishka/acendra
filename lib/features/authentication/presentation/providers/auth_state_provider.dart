@@ -24,5 +24,17 @@ final sessionRestoredProvider = Provider<bool>((ref) {
   return ref.watch(authStreamProvider).hasValue;
 });
 
+/// True when the signed-in user holds an admin or super_admin role.
+/// Checks both app_metadata (set by Supabase service role) and user_metadata.
+final isAdminProvider = Provider<bool>((ref) {
+  final session = ref.watch(currentSessionProvider);
+  if (session == null) return false;
+  final user = session.user;
+  const adminRoles = {'admin', 'super_admin'};
+  final appRole = user.appMetadata['role'] as String?;
+  final userRole = user.userMetadata?['role'] as String?;
+  return adminRoles.contains(appRole) || adminRoles.contains(userRole);
+});
+
 // Holds the email awaiting verification after sign-up.
 final pendingVerificationEmailProvider = StateProvider<String?>((ref) => null);

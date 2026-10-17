@@ -1,6 +1,7 @@
 import 'package:acendra/app/router/route_names.dart';
 import 'package:acendra/core/widgets/buttons/theme_toggle_button.dart';
 import 'package:acendra/core/widgets/layout/responsive_container.dart';
+import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +13,7 @@ class StudentShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isCompact = MediaQuery.of(context).size.width < 600;
+    final isAdmin = ref.watch(isAdminProvider);
     String location;
     try {
       location = GoRouterState.of(context).matchedLocation;
@@ -49,6 +51,11 @@ class StudentShell extends ConsumerWidget {
               onPressed: () => context.go(RouteNames.marketplace),
               child: const Text('Explore'),
             ),
+            if (isAdmin)
+              TextButton(
+                onPressed: () => context.go(RouteNames.admin),
+                child: const Text('Admin'),
+              ),
           ],
           const ThemeToggleButton(),
           const SizedBox(width: 8),
