@@ -7,6 +7,80 @@ String jwtWithRole(String role) =>
     'eyJhbGciOiJIUzI1NiJ9.${base64Url.encode(utf8.encode(jsonEncode({'role': role}))).replaceAll('=', '')}.fixture';
 
 void main() {
+  group('startup configuration', () {
+    test('startup consumes the selected compile-time public key binding', () {
+      final result = EnvConfig.readForStartup();
+      if (EnvConfig.environment == 'development' &&
+          EnvConfig.supabaseUrl.isEmpty &&
+          EnvConfig.supabasePublicKey.isEmpty) {
+        expect(result, isNull);
+      } else {
+        expect(result?.environment, EnvConfig.environment);
+        expect(result?.url, EnvConfig.supabaseUrl);
+        expect(result?.key, EnvConfig.supabasePublicKey);
+      }
+    });
+
+    test('only an unconfigured development app may skip the backend', () {
+      expect(
+        PublicBackendConfig.forStartup(
+          environment: 'development',
+          url: '',
+          key: '',
+        ),
+        isNull,
+      );
+      for (final environment in ['staging', 'production', 'unknown']) {
+        expect(
+          () => PublicBackendConfig.forStartup(
+            environment: environment,
+            url: '',
+            key: '',
+          ),
+          throwsArgumentError,
+        );
+      }
+    });
+
+    test('partial configuration fails instead of silently skipping auth', () {
+      for (final values in [
+        ('http://localhost:58000', ''),
+        ('', 'sb_publishable_fixture'),
+      ]) {
+        expect(
+          () => PublicBackendConfig.forStartup(
+            environment: 'development',
+            url: values.$1,
+            key: values.$2,
+          ),
+          throwsArgumentError,
+        );
+      }
+    });
+
+    test('hosted startup accepts public keys and rejects privileged keys', () {
+      for (final environment in ['staging', 'production']) {
+        for (final key in ['sb_publishable_fixture', jwtWithRole('anon')]) {
+          final result = PublicBackendConfig.forStartup(
+            environment: environment,
+            url: 'https://example.supabase.co',
+            key: key,
+          );
+          expect(result?.key, key);
+          expect(result?.environment, environment);
+        }
+        expect(
+          () => PublicBackendConfig.forStartup(
+            environment: environment,
+            url: 'https://example.supabase.co',
+            key: jwtWithRole('service_role'),
+          ),
+          throwsArgumentError,
+        );
+      }
+    });
+  });
+
   PublicBackendConfig config({
     String environment = 'development',
     String url = 'http://127.0.0.1:58000',

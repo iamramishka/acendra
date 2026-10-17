@@ -53,12 +53,17 @@ preparation until these prerequisites exist within the owner's constraints.
 
 [EnvConfig](../../lib/core/config/env_config.dart) declares `APP_ENV`,
 `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`; legacy `SUPABASE_ANON_KEY` is a
-compatibility fallback. Its `read()` method validates environment, URL and public
-key shape. However, [bootstrap](../../lib/app/bootstrap.dart) currently reads only
-the URL and legacy anon binding and does not invoke that validator.
-A publishable-key-only define therefore does not initialize the backend today.
-This worker does not own runtime/shared configuration; root must assign a separate
-reviewed change before claiming validated production initialization.
+compatibility fallback. The issue #160 integration wires
+[bootstrap](../../lib/app/bootstrap.dart) through `readForStartup()` and the
+existing environment, URL and public-key validator. Publishable-key-only builds
+therefore initialize the backend. Only wholly unconfigured development builds
+may skip initialization; partial configuration and unconfigured hosted builds
+fail before initialization. The production build workflow explicitly selects
+`APP_ENV=production` and the publishable-key binding. This source fix needs passing
+CI and review before integration. The current repository is public and uses
+standard hosted runners, superseding its earlier private-minute capacity hold.
+It does not establish production configuration or release acceptance. See the
+[current integration handoff](../reviews/CSA-160-CURRENT-INTEGRATION.md).
 
 Only public browser configuration belongs in Dart defines. Never include database
 passwords, Supabase service-role/secret keys, payment merchant/app secrets, SMTP
