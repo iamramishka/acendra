@@ -41,6 +41,16 @@ guard or authorization behavior was changed.
   failed. Their corrected route/screen assertions remain enforced, not skipped.
   The final gated result is recorded in [PR #174 checks](https://github.com/iamramishka/acendra/pull/174/checks)
   and [issue #173](https://github.com/iamramishka/acendra/issues/173).
+- Corrected guard head cfccd76: [run 39064160897](https://github.com/iamramishka/acendra/actions/runs/39064160897)
+  passed the full suite, all 17 Chrome checks, standard release build and tooling;
+  the independent Supabase foundations job also passed. This closes the earlier
+  browser-only guard verification gap.
+- Final return-navigation regression: a failing test reproduced an active
+  Design filter with an empty visible search field after leaving/reopening the
+  marketplace. Marketplace now owns/disposes a TextEditingController initialized
+  from the active query and synchronizes external query changes. All 20 affected
+  marketplace tests and focused analysis passed after the correction. The final
+  head is gated again in the PR; no filter or authorization rule was weakened.
 - Browser visual review: 390/768/1440 CSS-pixel iframe viewports in both themes;
   one/two/three-column course layouts, category scrolling, readable hero and
   prices, lower highlights, and fixed mobile navigation inspected. No visible

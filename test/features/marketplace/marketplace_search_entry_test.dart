@@ -69,6 +69,24 @@ Future<({GoRouter router, ProviderContainer container})> _pump(
 }
 
 void main() {
+  testWidgets('returning to marketplace restores the visible active query', (
+    tester,
+  ) async {
+    final app = await _pump(tester, initial: RouteNames.marketplace);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(SearchBar), 'Design');
+    app.router.go(RouteNames.dashboardHome);
+    await tester.pumpAndSettle();
+    app.router.go(RouteNames.marketplace);
+    await tester.pumpAndSettle();
+    expect(app.container.read(searchQueryProvider), 'Design');
+    expect(
+      tester.widget<EditableText>(find.byType(EditableText)).controller.text,
+      'Design',
+    );
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets(
     'AppBar search opens and refocuses search without clearing query',
     (tester) async {

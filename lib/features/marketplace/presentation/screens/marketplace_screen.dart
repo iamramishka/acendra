@@ -18,6 +18,15 @@ class MarketplaceScreen extends ConsumerStatefulWidget {
 
 class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   final _searchFocus = FocusNode();
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(
+      text: ref.read(searchQueryProvider),
+    );
+  }
 
   @override
   void didUpdateWidget(MarketplaceScreen oldWidget) {
@@ -29,12 +38,21 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
 
   @override
   void dispose() {
+    _searchController.dispose();
     _searchFocus.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(searchQueryProvider, (_, query) {
+      if (_searchController.text != query) {
+        _searchController.value = TextEditingValue(
+          text: query,
+          selection: TextSelection.collapsed(offset: query.length),
+        );
+      }
+    });
     ref.listen(marketplaceSearchRequestProvider, (_, _) {
       _searchFocus.requestFocus();
     });
@@ -58,6 +76,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: SearchBar(
+                  controller: _searchController,
                   focusNode: _searchFocus,
                   autoFocus: widget.focusSearch,
                   hintText: 'Search courses…',
