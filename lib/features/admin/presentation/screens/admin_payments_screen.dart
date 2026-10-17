@@ -46,7 +46,14 @@ class AdminPaymentsScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        '${state.records.length} record${state.records.length == 1 ? '' : 's'}',
+                        () {
+                          final total =
+                              state.pendingCount +
+                              state.approvedCount +
+                              state.rejectedCount +
+                              state.processingCount;
+                          return '$total record${total == 1 ? '' : 's'}';
+                        }(),
                         style: tt.bodyMedium?.copyWith(
                           color: cs.onSurfaceVariant,
                         ),
@@ -75,6 +82,7 @@ class AdminPaymentsScreen extends ConsumerWidget {
               pendingCount: state.pendingCount,
               approvedCount: state.approvedCount,
               rejectedCount: state.rejectedCount,
+              processingCount: state.processingCount,
             ),
             const SizedBox(height: AppSpacing.lg),
             PaymentFilterBar(
