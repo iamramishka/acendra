@@ -9,7 +9,9 @@ import 'package:go_router/go_router.dart';
 enum _AccountAction { profile, admin, signOut }
 
 class AccountMenu extends ConsumerWidget {
-  const AccountMenu({super.key});
+  const AccountMenu({super.key, this.icon});
+
+  final Widget? icon;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,7 +28,7 @@ class AccountMenu extends ConsumerWidget {
     return PopupMenuButton<_AccountAction>(
       tooltip: 'Account menu',
       enabled: !signingOut,
-      icon: CircleAvatar(radius: 16, child: Text(initial)),
+      icon: icon ?? CircleAvatar(radius: 16, child: Text(initial)),
       onSelected: (action) async {
         switch (action) {
           case _AccountAction.profile:

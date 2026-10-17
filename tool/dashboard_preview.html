@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Acedra offline dashboard QA</title>
+<style>
+  body { margin: 16px; font: 16px system-ui; background: #e5e7eb; color: #111827; }
+  h1 { font-size: 20px; }
+  form { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+  select, button { font: inherit; padding: 8px; }
+  #preview { position: relative; overflow: hidden; background: white; }
+  iframe { border: 0; transform-origin: top left; }
+</style>
+<h1>Acedra offline dashboard QA — synthetic data only</h1>
+<form>
+  <label>Width <select name="width" id="width">
+    <option>390</option><option>768</option><option>1440</option>
+  </select></label>
+  <label>Theme <select name="theme" id="theme">
+    <option>light</option><option>dark</option>
+  </select></label>
+  <button>Apply</button>
+</form>
+<div id="preview"><iframe id="frame" title="Offline dashboard preview"></iframe></div>
+<script>
+  const params = new URLSearchParams(location.search);
+  const width = [390, 768, 1440].includes(Number(params.get('width')))
+    ? Number(params.get('width')) : 390;
+  const theme = params.get('theme') === 'dark' ? 'dark' : 'light';
+  document.getElementById('width').value = String(width);
+  document.getElementById('theme').value = theme;
+  const frame = document.getElementById('frame');
+  frame.width = width;
+  frame.height = 900;
+  frame.src = './index.html?qaTheme=' + theme;
+  function fit() {
+    const scale = Math.min(1, (innerWidth - 32) / width);
+    frame.style.transform = 'scale(' + scale + ')';
+    document.getElementById('preview').style.width = width * scale + 'px';
+    document.getElementById('preview').style.height = 900 * scale + 'px';
+  }
+  addEventListener('resize', fit);
+  fit();
+</script>
+</html>

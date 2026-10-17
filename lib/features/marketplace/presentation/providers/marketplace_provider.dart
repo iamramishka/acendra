@@ -9,6 +9,9 @@ import 'package:flutter_riverpod/legacy.dart' show StateProvider;
 
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
+/// A focus request, separate from the actual search query/filter state.
+final marketplaceSearchRequestProvider = StateProvider<int>((ref) => 0);
+
 // ── Selected category ─────────────────────────────────────────────────────────
 
 final selectedCategoryProvider = StateProvider<String?>((ref) => null);

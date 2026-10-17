@@ -64,7 +64,7 @@ void main() {
       await tester.pumpWidget(_wrap(const StudentShell(child: SizedBox())));
 
       expect(find.byType(NavigationBar), findsNothing);
-      expect(find.text('My Courses'), findsOneWidget);
+      expect(find.text('My Learning'), findsOneWidget);
     });
   });
 

@@ -8,6 +8,8 @@ abstract final class RouteNames {
   static const String forgotPassword = '/forgot-password';
   static const String resetPassword = '/reset-password';
   static const String dashboard = '/dashboard';
+  static const String dashboardHome = '/dashboard/home';
+  static const String savedCourses = '/dashboard/saved';
   static const String myCourses = '/dashboard/courses';
   static const String learn = '/learn/:courseId';
   static const String admin = '/admin';
