@@ -13,7 +13,8 @@ class AuthShell extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final themeMode = ref.watch(themeModeProvider);
-    final isDark = themeMode == ThemeMode.dark ||
+    final isDark =
+        themeMode == ThemeMode.dark ||
         (themeMode == ThemeMode.system &&
             MediaQuery.platformBrightnessOf(context) == Brightness.dark);
 
@@ -95,8 +96,7 @@ class _ThemeToggle extends ConsumerWidget {
             AnimatedAlign(
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeInOut,
-              alignment:
-                  isDark ? Alignment.centerRight : Alignment.centerLeft,
+              alignment: isDark ? Alignment.centerRight : Alignment.centerLeft,
               child: Padding(
                 padding: const EdgeInsets.all(3),
                 child: Container(
@@ -116,8 +116,7 @@ class _ThemeToggle extends ConsumerWidget {
             ),
             // Background icon (the opposite mode)
             Align(
-              alignment:
-                  isDark ? Alignment.centerLeft : Alignment.centerRight,
+              alignment: isDark ? Alignment.centerLeft : Alignment.centerRight,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 9),
                 child: Icon(
