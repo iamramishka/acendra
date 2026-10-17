@@ -24,13 +24,23 @@ Session session(String aal) => Session(
 
 void main() {
   for (final allowed in [false, true]) {
-    testWidgets('finance shortcut visibility follows eligibility $allowed', (tester) async {
-      await tester.pumpWidget(ProviderScope(overrides: [
-        adminDashboardProvider.overrideWith(_Dashboard.new),
-        financeAccessProvider.overrideWith((ref) async => allowed),
-      ], child: MaterialApp(home: Scaffold(body: AdminDashboardScreen()))));
+    testWidgets('finance shortcut visibility follows eligibility $allowed', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            adminDashboardProvider.overrideWith(_Dashboard.new),
+            financeAccessProvider.overrideWith((ref) async => allowed),
+          ],
+          child: MaterialApp(home: Scaffold(body: AdminDashboardScreen())),
+        ),
+      );
       await tester.pumpAndSettle();
-      expect(find.text('Finance Review'), allowed ? findsOneWidget : findsNothing);
+      expect(
+        find.text('Finance Review'),
+        allowed ? findsOneWidget : findsNothing,
+      );
     });
   }
   for (final role in [
@@ -68,7 +78,10 @@ void main() {
 class _Dashboard extends AdminDashboardNotifier {
   @override
   Future<AdminDashboardStats> build() async => const AdminDashboardStats(
-    totalStudents: 0, totalCourses: 0, pendingPayments: 0, totalRevenue: 0,
+    totalStudents: 0,
+    totalCourses: 0,
+    pendingPayments: 0,
+    totalRevenue: 0,
     recentPendingPayments: [],
   );
 }
