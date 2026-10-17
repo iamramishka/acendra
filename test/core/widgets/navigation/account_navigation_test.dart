@@ -92,7 +92,14 @@ void main() {
         await tester.tap(find.byTooltip('Account menu'));
         await tester.pumpAndSettle();
         expect(find.text('Admin'), findsNothing);
-        await tester.tap(find.text('Profile'));
+        await tester.tap(
+          find.ancestor(
+            of: find.text('Profile'),
+            matching: find.byWidgetPredicate(
+              (widget) => widget is PopupMenuEntry<Object?>,
+            ),
+          ),
+        );
         await tester.pumpAndSettle();
         expect(
           router.routeInformationProvider.value.uri.path,

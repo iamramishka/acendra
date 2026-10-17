@@ -1,5 +1,13 @@
 /// Shared dashboard copy, including accessibility labels.
 abstract final class DashboardCopy {
+  static const home = 'Home';
+  static const myLearning = 'My Learning';
+  static const saved = 'Saved';
+  static const profile = 'Profile';
+  static const savedComingSoon = 'Saved courses are coming soon.';
+  static const savedExplanation =
+      'Saving courses is not available yet. Explore the marketplace to find courses.';
+  static const exploreCourses = 'Explore Courses';
   static const categories = 'Explore Categories';
   static const featured = 'Featured Courses';
   static const whyLearn = 'Why Learn with Acedra?';
