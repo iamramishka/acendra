@@ -64,10 +64,10 @@ class MarketplaceScreen extends ConsumerWidget {
                 sliver: SliverToBoxAdapter(
                   child: CourseGrid(
                     courses: courses,
-                    onCourseTap: (course) => context.push(
+                    onCourseTap: (course) => context.go(
                       RouteNames.courseDetail.replaceFirst(
                         ':courseId',
-                        course.id,
+                        Uri.encodeComponent(course.id),
                       ),
                     ),
                   ),

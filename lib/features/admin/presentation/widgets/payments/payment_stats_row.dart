@@ -6,15 +6,15 @@ class PaymentStatsRow extends StatelessWidget {
   const PaymentStatsRow({
     super.key,
     required this.pendingCount,
+    required this.processingCount,
     required this.approvedCount,
     required this.rejectedCount,
-    required this.processingCount,
   });
 
   final int pendingCount;
+  final int processingCount;
   final int approvedCount;
   final int rejectedCount;
-  final int processingCount;
 
   @override
   Widget build(BuildContext context) {

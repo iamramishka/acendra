@@ -39,21 +39,14 @@ class AdminPaymentsScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Payments',
+                        'Payments (demo data)',
                         style: tt.titleLarge?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        () {
-                          final total =
-                              state.pendingCount +
-                              state.approvedCount +
-                              state.rejectedCount +
-                              state.processingCount;
-                          return '$total record${total == 1 ? '' : 's'}';
-                        }(),
+                        '${state.totalCount} total payments · ${state.records.length} loaded for current filters',
                         style: tt.bodyMedium?.copyWith(
                           color: cs.onSurfaceVariant,
                         ),
@@ -78,11 +71,13 @@ class AdminPaymentsScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
+            Text('All payments by status', style: tt.labelLarge),
+            const SizedBox(height: AppSpacing.sm),
             PaymentStatsRow(
               pendingCount: state.pendingCount,
+              processingCount: state.processingCount,
               approvedCount: state.approvedCount,
               rejectedCount: state.rejectedCount,
-              processingCount: state.processingCount,
             ),
             const SizedBox(height: AppSpacing.lg),
             PaymentFilterBar(

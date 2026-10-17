@@ -8,6 +8,15 @@ final adminPaymentRepositoryProvider = Provider<AdminPaymentRepository>(
   (_) => StubAdminPaymentRepository(),
 );
 
+/// Unfiltered counts shared by the dashboard and payments screen.
+/// Uses a single atomic query to avoid count skew across statuses.
+final adminPaymentCountsProvider = FutureProvider<Map<PaymentStatus, int>>((
+  ref,
+) async {
+  final repo = ref.watch(adminPaymentRepositoryProvider);
+  return repo.countAllStatuses();
+});
+
 class AdminPaymentsFilter {
   const AdminPaymentsFilter({
     this.status,
@@ -68,6 +77,8 @@ class AdminPaymentsState {
   final int approvedCount;
   final int rejectedCount;
   final int processingCount;
+  int get totalCount =>
+      pendingCount + processingCount + approvedCount + rejectedCount;
 
   AdminPaymentsState copyWith({
     List<PaymentRecord>? records,
@@ -121,18 +132,7 @@ class AdminPaymentsNotifier extends AsyncNotifier<AdminPaymentsState> {
       pageSize: _pageSize,
     );
 
-    final pendingCount = await repo.countPayments(
-      status: PaymentStatus.pending,
-    );
-    final approvedCount = await repo.countPayments(
-      status: PaymentStatus.approved,
-    );
-    final rejectedCount = await repo.countPayments(
-      status: PaymentStatus.rejected,
-    );
-    final processingCount = await repo.countPayments(
-      status: PaymentStatus.processing,
-    );
+    final counts = await ref.read(adminPaymentCountsProvider.future);
 
     return AdminPaymentsState(
       records: [...existing, ...results],
@@ -140,10 +140,10 @@ class AdminPaymentsNotifier extends AsyncNotifier<AdminPaymentsState> {
       filter: filter,
       page: page,
       hasMore: results.length == _pageSize,
-      pendingCount: pendingCount,
-      approvedCount: approvedCount,
-      rejectedCount: rejectedCount,
-      processingCount: processingCount,
+      pendingCount: counts[PaymentStatus.pending]!,
+      approvedCount: counts[PaymentStatus.approved]!,
+      rejectedCount: counts[PaymentStatus.rejected]!,
+      processingCount: counts[PaymentStatus.processing]!,
     );
   }
 
@@ -169,6 +169,7 @@ class AdminPaymentsNotifier extends AsyncNotifier<AdminPaymentsState> {
   }
 
   Future<void> refresh() async {
+    ref.invalidate(adminPaymentCountsProvider);
     final current = state.asData?.value;
     final filter = current?.filter ?? const AdminPaymentsFilter();
     state = const AsyncLoading();
