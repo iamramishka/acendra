@@ -1,3 +1,5 @@
+import 'package:acendra/features/admin/domain/entities/payment_record.dart';
+import 'package:acendra/features/admin/presentation/providers/admin_payments_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class PaymentQueueItem {
@@ -41,43 +43,29 @@ class AdminDashboardStats {
 class AdminDashboardNotifier extends AsyncNotifier<AdminDashboardStats> {
   @override
   Future<AdminDashboardStats> build() async {
-    // TODO: Replace with real Supabase queries using service-role or admin RPC.
-    await Future<void>.delayed(const Duration(milliseconds: 400));
+    final counts = await ref.watch(adminPaymentCountsProvider.future);
+    final pending = await ref
+        .watch(adminPaymentRepositoryProvider)
+        .listPayments(status: PaymentStatus.pending, pageSize: 5);
     return AdminDashboardStats(
       totalStudents: 128,
       totalCourses: 14,
-      pendingPayments: 5,
+      pendingPayments: counts[PaymentStatus.pending]!,
       totalRevenue: 245800.00,
       currency: 'LKR',
-      recentPendingPayments: [
-        PaymentQueueItem(
-          id: 'order-001',
-          studentEmail: 'student1@example.com',
-          courseTitle: 'Flutter Masterclass',
-          amount: 4500.00,
-          currency: 'LKR',
-          submittedAt: DateTime.now().subtract(const Duration(hours: 2)),
-          status: 'pending',
-        ),
-        PaymentQueueItem(
-          id: 'order-002',
-          studentEmail: 'student2@example.com',
-          courseTitle: 'Advanced Dart',
-          amount: 3200.00,
-          currency: 'LKR',
-          submittedAt: DateTime.now().subtract(const Duration(hours: 5)),
-          status: 'pending',
-        ),
-        PaymentQueueItem(
-          id: 'order-003',
-          studentEmail: 'student3@example.com',
-          courseTitle: 'UI/UX Fundamentals',
-          amount: 5800.00,
-          currency: 'LKR',
-          submittedAt: DateTime.now().subtract(const Duration(hours: 9)),
-          status: 'pending',
-        ),
-      ],
+      recentPendingPayments: pending
+          .map(
+            (record) => PaymentQueueItem(
+              id: record.id,
+              studentEmail: record.studentEmail,
+              courseTitle: record.courseTitle,
+              amount: record.amount,
+              currency: record.currency,
+              submittedAt: record.createdAt,
+              status: record.status.name,
+            ),
+          )
+          .toList(),
     );
   }
 }

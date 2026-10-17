@@ -6,11 +6,13 @@ class PaymentStatsRow extends StatelessWidget {
   const PaymentStatsRow({
     super.key,
     required this.pendingCount,
+    this.processingCount = 0,
     required this.approvedCount,
     required this.rejectedCount,
   });
 
   final int pendingCount;
+  final int processingCount;
   final int approvedCount;
   final int rejectedCount;
 
@@ -27,6 +29,15 @@ class PaymentStatsRow extends StatelessWidget {
             count: pendingCount,
             bgColor: ext?.warningContainer ?? cs.secondaryContainer,
             fgColor: ext?.warning ?? cs.secondary,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: _StatCard(
+            label: 'Processing',
+            count: processingCount,
+            bgColor: cs.secondaryContainer,
+            fgColor: cs.onSecondaryContainer,
           ),
         ),
         const SizedBox(width: AppSpacing.md),

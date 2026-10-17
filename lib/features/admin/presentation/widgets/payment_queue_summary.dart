@@ -6,9 +6,12 @@ import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:acendra/core/widgets/feedback/status_badge.dart';
 import 'package:acendra/features/admin/presentation/providers/admin_dashboard_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:acendra/features/admin/domain/entities/payment_record.dart';
+import 'package:acendra/features/admin/presentation/providers/admin_payments_provider.dart';
 import 'package:go_router/go_router.dart';
 
-class PaymentQueueSummary extends StatelessWidget {
+class PaymentQueueSummary extends ConsumerWidget {
   const PaymentQueueSummary({
     super.key,
     required this.items,
@@ -19,7 +22,7 @@ class PaymentQueueSummary extends StatelessWidget {
   final bool isLoading;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final ext = theme.extension<AppThemeExtension>();
     final cs = theme.colorScheme;
@@ -38,7 +41,10 @@ class PaymentQueueSummary extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text('Pending Payments', style: theme.textTheme.titleMedium),
+                Text(
+                  'Pending Payments (demo data)',
+                  style: theme.textTheme.titleMedium,
+                ),
                 const SizedBox(width: AppSpacing.sm),
                 if (!isLoading)
                   Container(
@@ -51,7 +57,7 @@ class PaymentQueueSummary extends StatelessWidget {
                       borderRadius: BorderRadius.circular(AppRadius.chip),
                     ),
                     child: Text(
-                      '${items.length}',
+                      '${ref.watch(adminPaymentCountsProvider).asData?.value[PaymentStatus.pending] ?? items.length}',
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: cs.onErrorContainer,
                         fontWeight: FontWeight.w600,
