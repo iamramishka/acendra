@@ -1,5 +1,7 @@
 /// Shared dashboard copy, including accessibility labels.
 abstract final class DashboardCopy {
+  static const brand = 'Acedra';
+  static const searchCourses = 'Search courses';
   static const home = 'Home';
   static const myLearning = 'My Learning';
   static const saved = 'Saved';

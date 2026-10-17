@@ -5,6 +5,7 @@ import 'package:acendra/core/widgets/layout/responsive_container.dart';
 import 'package:acendra/core/widgets/navigation/account_menu.dart';
 import 'package:acendra/features/authentication/presentation/providers/navigation_access_provider.dart';
 import 'package:acendra/features/dashboard/presentation/dashboard_copy.dart';
+import 'package:acendra/features/marketplace/presentation/providers/marketplace_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -44,11 +45,28 @@ class StudentShell extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
-        title: Text(
-          'Acedra',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: Theme.of(context).colorScheme.primary,
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: AlignmentDirectional.centerStart,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset(
+                'assets/images/logo.png',
+                height: 28,
+                width: 28,
+                fit: BoxFit.contain,
+                excludeFromSemantics: true,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                DashboardCopy.brand,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ],
           ),
         ),
         actions: [
@@ -75,9 +93,22 @@ class StudentShell extends ConsumerWidget {
                 child: const Text('Admin'),
               ),
           ],
+          IconButton(
+            tooltip: DashboardCopy.searchCourses,
+            icon: const Icon(Icons.search_outlined),
+            onPressed: () {
+              ref.read(marketplaceSearchRequestProvider.notifier).state++;
+              context.go(
+                Uri(
+                  path: RouteNames.marketplace,
+                  queryParameters: const {'search': 'true'},
+                ).toString(),
+              );
+            },
+          ),
           const ThemeToggleButton(),
           const SizedBox(width: 8),
-          const AccountMenu(),
+          const AccountMenu(icon: Icon(Icons.menu)),
           const SizedBox(width: 8),
         ],
       ),

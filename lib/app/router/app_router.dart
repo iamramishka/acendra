@@ -114,7 +114,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: RouteNames.marketplace,
-            builder: (_, _) => const MarketplaceScreen(),
+            builder: (_, state) => MarketplaceScreen(
+              focusSearch: state.uri.queryParameters['search'] == 'true',
+            ),
           ),
           GoRoute(
             path: RouteNames.courseDetail,

@@ -88,7 +88,8 @@ void main() {
           brightness: brightness,
         );
         expect(find.text('Sign in'), findsNothing);
-        expect(find.text('J'), findsOneWidget);
+        expect(find.byTooltip('Account menu'), findsOneWidget);
+        expect(find.byIcon(Icons.menu), findsOneWidget);
         await tester.tap(find.byTooltip('Account menu'));
         await tester.pumpAndSettle();
         expect(find.text('Admin'), findsNothing);

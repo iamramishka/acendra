@@ -83,6 +83,14 @@ void main() {
             scale: scale,
           );
           final compact = width < 1024 || scale > 1.5;
+          expect(find.text(DashboardCopy.brand), findsOneWidget);
+          final logo = tester.widget<Image>(find.byType(Image));
+          expect(
+            (logo.image as AssetImage).assetName,
+            'assets/images/logo.png',
+          );
+          expect(find.byTooltip(DashboardCopy.searchCourses), findsOneWidget);
+          expect(find.byTooltip('Account menu'), findsOneWidget);
           expect(
             find.byType(NavigationBar),
             compact ? findsOneWidget : findsNothing,
