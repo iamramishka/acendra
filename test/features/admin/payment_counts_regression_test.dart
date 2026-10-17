@@ -3,12 +3,28 @@ import 'package:acendra/features/admin/presentation/providers/admin_dashboard_pr
 import 'package:acendra/features/admin/presentation/providers/admin_payments_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'fakes/dashboard_repositories.dart';
+import 'package:acendra/features/admin/data/repositories/admin_course_repository.dart';
+import 'package:acendra/features/admin/data/repositories/admin_payment_repository.dart';
+import 'package:acendra/features/admin/data/repositories/admin_student_repository.dart';
 
 void main() {
   test(
     'all statuses account for every payment and dashboard pending agrees',
     () async {
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [
+          adminPaymentRepositoryProvider.overrideWithValue(
+            StubAdminPaymentRepository(),
+          ),
+          adminCourseRepositoryProvider.overrideWithValue(
+            EmptyCourseRepository(),
+          ),
+          adminStudentRepositoryProvider.overrideWithValue(
+            EmptyStudentRepository(),
+          ),
+        ],
+      );
       addTearDown(container.dispose);
       final payments = await container.read(adminPaymentsProvider.future);
       final dashboard = await container.read(adminDashboardProvider.future);
@@ -30,7 +46,13 @@ void main() {
   );
 
   test('filtered results retain clearly global status totals', () async {
-    final container = ProviderContainer();
+    final container = ProviderContainer(
+      overrides: [
+        adminPaymentRepositoryProvider.overrideWithValue(
+          StubAdminPaymentRepository(),
+        ),
+      ],
+    );
     addTearDown(container.dispose);
     await container.read(adminPaymentsProvider.future);
     await container

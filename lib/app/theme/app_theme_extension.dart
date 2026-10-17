@@ -32,17 +32,17 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
   final Color border;
 
   static AppThemeExtension fromTokens(AppColorTokens t) => AppThemeExtension(
-    accent:           t.accent,
-    accentContainer:  t.accentContainer,
-    success:          t.success,
+    accent: t.accent,
+    accentContainer: t.accentContainer,
+    success: t.success,
     successContainer: t.successContainer,
-    warning:          t.warning,
+    warning: t.warning,
     warningContainer: t.warningContainer,
-    focusRing:        t.focusRing,
+    focusRing: t.focusRing,
     surfaceSecondary: t.surfaceSecondary,
-    surfaceTertiary:  t.surfaceTertiary,
-    textSecondary:    t.textSecondary,
-    border:           t.border,
+    surfaceTertiary: t.surfaceTertiary,
+    textSecondary: t.textSecondary,
+    border: t.border,
   );
 
   @override
@@ -59,34 +59,46 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
     Color? textSecondary,
     Color? border,
   }) => AppThemeExtension(
-    accent:           accent          ?? this.accent,
-    accentContainer:  accentContainer ?? this.accentContainer,
-    success:          success         ?? this.success,
+    accent: accent ?? this.accent,
+    accentContainer: accentContainer ?? this.accentContainer,
+    success: success ?? this.success,
     successContainer: successContainer ?? this.successContainer,
-    warning:          warning         ?? this.warning,
+    warning: warning ?? this.warning,
     warningContainer: warningContainer ?? this.warningContainer,
-    focusRing:        focusRing       ?? this.focusRing,
+    focusRing: focusRing ?? this.focusRing,
     surfaceSecondary: surfaceSecondary ?? this.surfaceSecondary,
-    surfaceTertiary:  surfaceTertiary  ?? this.surfaceTertiary,
-    textSecondary:    textSecondary   ?? this.textSecondary,
-    border:           border          ?? this.border,
+    surfaceTertiary: surfaceTertiary ?? this.surfaceTertiary,
+    textSecondary: textSecondary ?? this.textSecondary,
+    border: border ?? this.border,
   );
 
   @override
   AppThemeExtension lerp(ThemeExtension<AppThemeExtension>? other, double t) {
     if (other is! AppThemeExtension) return this;
     return AppThemeExtension(
-      accent:           Color.lerp(accent,           other.accent,           t)!,
-      accentContainer:  Color.lerp(accentContainer,  other.accentContainer,  t)!,
-      success:          Color.lerp(success,          other.success,          t)!,
-      successContainer: Color.lerp(successContainer, other.successContainer, t)!,
-      warning:          Color.lerp(warning,          other.warning,          t)!,
-      warningContainer: Color.lerp(warningContainer, other.warningContainer, t)!,
-      focusRing:        Color.lerp(focusRing,        other.focusRing,        t)!,
-      surfaceSecondary: Color.lerp(surfaceSecondary, other.surfaceSecondary, t)!,
-      surfaceTertiary:  Color.lerp(surfaceTertiary,  other.surfaceTertiary,  t)!,
-      textSecondary:    Color.lerp(textSecondary,    other.textSecondary,    t)!,
-      border:           Color.lerp(border,           other.border,           t)!,
+      accent: Color.lerp(accent, other.accent, t)!,
+      accentContainer: Color.lerp(accentContainer, other.accentContainer, t)!,
+      success: Color.lerp(success, other.success, t)!,
+      successContainer: Color.lerp(
+        successContainer,
+        other.successContainer,
+        t,
+      )!,
+      warning: Color.lerp(warning, other.warning, t)!,
+      warningContainer: Color.lerp(
+        warningContainer,
+        other.warningContainer,
+        t,
+      )!,
+      focusRing: Color.lerp(focusRing, other.focusRing, t)!,
+      surfaceSecondary: Color.lerp(
+        surfaceSecondary,
+        other.surfaceSecondary,
+        t,
+      )!,
+      surfaceTertiary: Color.lerp(surfaceTertiary, other.surfaceTertiary, t)!,
+      textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
+      border: Color.lerp(border, other.border, t)!,
     );
   }
 }

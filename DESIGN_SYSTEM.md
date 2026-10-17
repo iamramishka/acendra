@@ -281,17 +281,17 @@ design token definitions.
 
 ## 6.1 Primary Brand Palette
 
-The initial palette is based on the
-existing application layout prototype.
+The Horizon v2 palette is the published application baseline, approved by the
+project owner on 2026-10-17 for PR #165 CI reconciliation.
 
 Primary Light:
-#5146E5
+#1259DB
 
 Primary Dark:
-#A7A8FF
+#78ABFF
 
 Brand Direction:
-Indigo with soft violet accents.
+Royal Blue with Sky Cyan accents and Deep Navy neutrals.
 
 Use brand colors for:
 
@@ -312,24 +312,26 @@ Avoid excessive primary-colored surfaces.
 
 | Token | Hex Value |
 |-------|-----------|
-| background | #F6F8FC |
+| background | #F5F8FC |
 | surface | #FFFFFF |
-| surfaceSecondary | #EEF2FA |
-| surfaceTertiary | #E6EAF6 |
-| textPrimary | #101828 |
-| textSecondary | #5B667A |
-| border | #E0E6F0 |
-| primary | #5146E5 |
+| surfaceSecondary | #EAF3FF |
+| surfaceTertiary | #D6E8FF |
+| textPrimary | #0D1633 |
+| textSecondary | #54647E |
+| border | #DCE6F2 |
+| primary | #1259DB |
 | onPrimary | #FFFFFF |
-| primaryContainer | #EEECFF |
-| onPrimaryContainer | #473CC2 |
+| primaryContainer | #EAF3FF |
+| onPrimaryContainer | #0D3A8C |
+| accent | #1DA2FD |
+| accentContainer | #E0F5FF |
 | success | #147D43 |
 | successContainer | #E9F8EF |
 | warning | #A85B00 |
 | warningContainer | #FFF4DF |
 | error | #B42318 |
 | errorContainer | #FFF0EF |
-| focusRing | #F59E0B |
+| focusRing | #1DA2FD |
 
 ## 7.2 Light Theme Rules
 
@@ -352,24 +354,26 @@ for decorative emphasis.
 
 | Token | Hex Value |
 |-------|-----------|
-| background | #0B1020 |
-| surface | #151D30 |
-| surfaceSecondary | #202B41 |
-| surfaceTertiary | #29374F |
-| textPrimary | #F5F7FE |
-| textSecondary | #B0BED4 |
-| border | #334158 |
-| primary | #A7A8FF |
-| onPrimary | #11152C |
-| primaryContainer | #28284D |
-| onPrimaryContainer | #D1D1FF |
+| background | #081329 |
+| surface | #101E36 |
+| surfaceSecondary | #182844 |
+| surfaceTertiary | #1F3254 |
+| textPrimary | #F5F8FF |
+| textSecondary | #8BA4C8 |
+| border | #2A3B55 |
+| primary | #78ABFF |
+| onPrimary | #081A40 |
+| primaryContainer | #0F2A5C |
+| onPrimaryContainer | #BDD6FF |
+| accent | #58D2F4 |
+| accentContainer | #0A2E40 |
 | success | #83E8AE |
 | successContainer | #183C2F |
 | warning | #F4BF70 |
 | warningContainer | #4A371B |
 | error | #FF9F9B |
 | errorContainer | #4F282F |
-| focusRing | #F9C46B |
+| focusRing | #58D2F4 |
 
 ## 8.2 Dark Theme Rules
 

@@ -5,7 +5,7 @@ import 'package:acendra/features/admin/domain/entities/payment_record.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final adminPaymentRepositoryProvider = Provider<AdminPaymentRepository>(
-  (_) => StubAdminPaymentRepository(),
+  (_) => const UnavailableAdminPaymentRepository(),
 );
 
 /// Unfiltered counts shared by the dashboard and payments screen.
@@ -15,7 +15,7 @@ final adminPaymentCountsProvider = FutureProvider<Map<PaymentStatus, int>>((
 ) async {
   final repo = ref.watch(adminPaymentRepositoryProvider);
   return repo.countAllStatuses();
-});
+}, retry: (retryCount, error) => null);
 
 class AdminPaymentsFilter {
   const AdminPaymentsFilter({
@@ -182,6 +182,7 @@ class AdminPaymentsNotifier extends AsyncNotifier<AdminPaymentsState> {
 final adminPaymentsProvider =
     AsyncNotifierProvider<AdminPaymentsNotifier, AdminPaymentsState>(
       AdminPaymentsNotifier.new,
+      retry: (retryCount, error) => null,
     );
 
 // Provider for receipt review history (approved + rejected bank transfers).
@@ -211,4 +212,4 @@ final receiptHistoryProvider = FutureProvider.autoDispose
               return bTime.compareTo(aTime);
             });
       return reviewed;
-    });
+    }, retry: (retryCount, error) => null);

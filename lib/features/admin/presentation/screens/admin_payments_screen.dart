@@ -2,6 +2,7 @@ import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/feedback/app_skeleton.dart';
 import 'package:acendra/core/widgets/feedback/app_state_views.dart';
+import 'package:acendra/features/admin/data/repositories/admin_payment_repository.dart';
 import 'package:acendra/features/admin/presentation/providers/admin_payments_provider.dart';
 import 'package:acendra/features/admin/presentation/widgets/payments/payment_filter_bar.dart';
 import 'package:acendra/features/admin/presentation/widgets/payments/payment_record_tile.dart';
@@ -22,9 +23,11 @@ class AdminPaymentsScreen extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: paymentsAsync.when(
-        loading: () => _LoadingSkeleton(),
+        loading: () => SingleChildScrollView(child: _LoadingSkeleton()),
         error: (error, _) => AppErrorState(
-          message: 'Failed to load payments. Please try again.',
+          message: error is PaymentReportingUnavailable
+              ? 'Payment reporting is unavailable. Please try again later.'
+              : 'Failed to load payments. Please try again.',
           actionLabel: 'Retry',
           onRetry: () => ref.read(adminPaymentsProvider.notifier).refresh(),
         ),
@@ -39,7 +42,7 @@ class AdminPaymentsScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Payments (demo data)',
+                        'Payments',
                         style: tt.titleLarge?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),

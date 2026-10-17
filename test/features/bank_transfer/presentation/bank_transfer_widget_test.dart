@@ -15,6 +15,8 @@ import 'package:flutter_test/flutter_test.dart';
 // ── Test helpers ──────────────────────────────────────────────────────────────
 
 AppThemeExtension _ext() => const AppThemeExtension(
+  accent: Colors.blue,
+  accentContainer: Color(0xFFE3F2FD),
   success: Colors.green,
   successContainer: Color(0xFFE8F5E9),
   warning: Colors.orange,

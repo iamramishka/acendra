@@ -1,3 +1,4 @@
+import 'package:acendra/features/admin/data/repositories/admin_directory_client.dart';
 import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/dialogs/app_dialog.dart';
@@ -71,11 +72,11 @@ class _StudentEnrollmentDetailsScreenState
         'Student account deactivated.',
         variant: SnackbarVariant.success,
       );
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         AppSnackbar.show(
           context,
-          'Failed to deactivate student. Please try again.',
+          adminDataError(e, 'Failed to deactivate student. Please try again.'),
           variant: SnackbarVariant.error,
         );
       }
@@ -107,11 +108,11 @@ class _StudentEnrollmentDetailsScreenState
         'Enrollment revoked.',
         variant: SnackbarVariant.success,
       );
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         AppSnackbar.show(
           context,
-          'Failed to revoke enrollment. Please try again.',
+          adminDataError(e, 'Failed to revoke enrollment. Please try again.'),
           variant: SnackbarVariant.error,
         );
       }
@@ -144,11 +145,11 @@ class _StudentEnrollmentDetailsScreenState
         'Enrollment granted successfully.',
         variant: SnackbarVariant.success,
       );
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         AppSnackbar.show(
           context,
-          'Failed to grant enrollment. Please try again.',
+          adminDataError(e, 'Failed to grant enrollment. Please try again.'),
           variant: SnackbarVariant.error,
         );
       }
@@ -187,7 +188,7 @@ class _StudentEnrollmentDetailsScreenState
             loading: () => SliverToBoxAdapter(child: _ProfileSkeleton()),
             error: (e, _) => SliverFillRemaining(
               child: AppErrorState(
-                message: 'Failed to load student profile.',
+                message: adminDataError(e, 'Failed to load student profile.'),
                 actionLabel: 'Retry',
                 onRetry: () =>
                     ref.invalidate(studentDetailProvider(widget.studentId)),
@@ -271,7 +272,7 @@ class _StudentEnrollmentDetailsScreenState
             loading: () => SliverToBoxAdapter(child: _EnrollmentsSkeleton()),
             error: (e, _) => SliverToBoxAdapter(
               child: AppErrorState(
-                message: 'Failed to load enrollments.',
+                message: adminDataError(e, 'Failed to load enrollments.'),
                 actionLabel: 'Retry',
                 onRetry: () => ref.invalidate(
                   studentEnrollmentsProvider(widget.studentId),

@@ -51,6 +51,7 @@ class SupabaseCourseRepository implements CourseRepository {
         )
         .eq('id', courseId)
         .eq('status', 'published')
+        .not('title', 'ilike', 'SANDBOX TEST%')
         .single();
     return CourseDetailDto.fromJson(row);
   }

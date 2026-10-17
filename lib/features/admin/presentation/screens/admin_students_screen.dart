@@ -1,3 +1,4 @@
+import 'package:acendra/features/admin/data/repositories/admin_directory_client.dart';
 import 'package:acendra/app/theme/app_breakpoints.dart';
 import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
@@ -70,7 +71,7 @@ class _AdminStudentsScreenState extends ConsumerState<AdminStudentsScreen> {
             ),
             error: (e, _) => SliverFillRemaining(
               child: AppErrorState(
-                message: 'Failed to load students.',
+                message: adminDataError(e, 'Failed to load students.'),
                 actionLabel: 'Retry',
                 onRetry: () =>
                     ref.read(adminStudentsProvider.notifier).refresh(),
@@ -189,7 +190,11 @@ class _StudentsDataTable extends StatelessWidget {
                 DataCell(Text(s.email)),
                 DataCell(Text('${s.enrolledCourseCount}')),
                 DataCell(
-                  Text('${s.currency} ${s.totalAmountPaid.toStringAsFixed(0)}'),
+                  Text(
+                    s.totalAmountPaid == null
+                        ? 'Unavailable'
+                        : '${s.currency} ${s.totalAmountPaid!.toStringAsFixed(0)}',
+                  ),
                 ),
                 DataCell(
                   StatusBadge(

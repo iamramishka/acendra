@@ -71,8 +71,9 @@ class StudentListCard extends StatelessWidget {
                         icon: Icons.school_outlined,
                       ),
                       _InfoChip(
-                        label:
-                            '${student.currency} ${student.totalAmountPaid.toStringAsFixed(0)}',
+                        label: student.totalAmountPaid == null
+                            ? 'Payment total unavailable'
+                            : '${student.currency} ${student.totalAmountPaid!.toStringAsFixed(0)}',
                         icon: Icons.payments_outlined,
                       ),
                       StatusBadge(

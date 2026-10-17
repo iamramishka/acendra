@@ -9,19 +9,19 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('AppColors', () {
     test('light primary matches design spec', () {
-      expect(AppColors.light.primary, const Color(0xFF5146E5));
+      expect(AppColors.light.primary, const Color(0xFF1259DB));
     });
 
     test('dark primary matches design spec', () {
-      expect(AppColors.dark.primary, const Color(0xFFA7A8FF));
+      expect(AppColors.dark.primary, const Color(0xFF78ABFF));
     });
 
     test('light background matches design spec', () {
-      expect(AppColors.light.background, const Color(0xFFF6F8FC));
+      expect(AppColors.light.background, const Color(0xFFF5F8FC));
     });
 
     test('dark background matches design spec', () {
-      expect(AppColors.dark.background, const Color(0xFF0B1020));
+      expect(AppColors.dark.background, const Color(0xFF081329));
     });
   });
 

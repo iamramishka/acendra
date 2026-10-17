@@ -3,6 +3,7 @@ import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/feedback/status_badge.dart';
 import 'package:acendra/features/admin/domain/entities/admin_course.dart';
 import 'package:flutter/material.dart';
+import 'package:acendra/core/widgets/cards/course_thumbnail.dart';
 
 class CourseCardTile extends StatelessWidget {
   const CourseCardTile({
@@ -37,15 +38,14 @@ class CourseCardTile extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(AppRadius.sm),
-                  child: course.thumbnailUrl != null
-                      ? Image.network(
-                          course.thumbnailUrl!,
-                          width: 64,
-                          height: 48,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => _placeholder(cs),
-                        )
-                      : _placeholder(cs),
+                  child: SizedBox(
+                    width: 64,
+                    height: 48,
+                    child: CourseThumbnail(
+                      title: course.title,
+                      imageUrl: course.thumbnailUrl,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
@@ -112,15 +112,6 @@ class CourseCardTile extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _placeholder(ColorScheme cs) {
-    return Container(
-      width: 64,
-      height: 48,
-      color: cs.surfaceContainerHighest,
-      child: Icon(Icons.image_outlined, size: 24, color: cs.onSurfaceVariant),
     );
   }
 }

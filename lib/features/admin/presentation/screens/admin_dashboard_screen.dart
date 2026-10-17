@@ -22,7 +22,7 @@ class AdminDashboardScreen extends ConsumerWidget {
     return statsAsync.when(
       loading: () => _buildSkeleton(context),
       error: (e, _) => AppErrorState(
-        message: e.toString(),
+        message: 'Failed to load dashboard. Please try again.',
         actionLabel: 'Retry',
         onRetry: () => ref.invalidate(adminDashboardProvider),
       ),
@@ -65,6 +65,7 @@ class AdminDashboardScreen extends ConsumerWidget {
           PaymentQueueSummary(
             items: stats.recentPendingPayments,
             totalCount: stats.pendingPayments,
+            isUnavailable: stats.pendingPayments == null,
           ),
           const SizedBox(height: AppSpacing.lg),
           Text('Quick Actions', style: theme.textTheme.titleMedium),
@@ -106,23 +107,25 @@ class AdminDashboardScreen extends ConsumerWidget {
     return [
       _StatCard(
         icon: Icons.people_outline,
-        value: stats.totalStudents.toString(),
+        value: stats.totalStudents?.toString() ?? 'Unavailable',
         label: 'Total Students',
       ),
       _StatCard(
         icon: Icons.library_books_outlined,
-        value: stats.totalCourses.toString(),
+        value: stats.totalCourses?.toString() ?? 'Unavailable',
         label: 'Total Courses',
       ),
       _StatCard(
         icon: Icons.hourglass_empty_outlined,
-        value: stats.pendingPayments.toString(),
+        value: stats.pendingPayments?.toString() ?? 'Unavailable',
         label: 'Pending Payments',
-        isAlert: stats.pendingPayments > 0,
+        isAlert: (stats.pendingPayments ?? 0) > 0,
       ),
       _StatCard(
         icon: Icons.attach_money_outlined,
-        value: '${stats.currency} ${_formatRevenue(stats.totalRevenue)}',
+        value: stats.totalRevenue == null
+            ? 'Unavailable'
+            : '${stats.currency} ${_formatRevenue(stats.totalRevenue!)}',
         label: 'Total Revenue',
       ),
     ];

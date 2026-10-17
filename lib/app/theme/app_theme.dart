@@ -16,49 +16,49 @@ abstract final class AppTheme {
     required AppColorTokens tokens,
   }) {
     final colorScheme = ColorScheme(
-      brightness:           brightness,
+      brightness: brightness,
       // Primary — Royal Blue / Sky Cyan for dark
-      primary:              tokens.primary,
-      onPrimary:            tokens.onPrimary,
-      primaryContainer:     tokens.primaryContainer,
-      onPrimaryContainer:   tokens.onPrimaryContainer,
+      primary: tokens.primary,
+      onPrimary: tokens.onPrimary,
+      primaryContainer: tokens.primaryContainer,
+      onPrimaryContainer: tokens.onPrimaryContainer,
       // Secondary mirrors primary (same brand colour family)
-      secondary:            tokens.primary,
-      onSecondary:          tokens.onPrimary,
-      secondaryContainer:   tokens.primaryContainer,
+      secondary: tokens.primary,
+      onSecondary: tokens.onPrimary,
+      secondaryContainer: tokens.primaryContainer,
       onSecondaryContainer: tokens.onPrimaryContainer,
       // Tertiary → Sky Cyan accent
-      tertiary:             tokens.accent,
-      onTertiary:           tokens.onPrimary,
-      tertiaryContainer:    tokens.accentContainer,
-      onTertiaryContainer:  tokens.accent,
-      error:                tokens.error,
-      onError:              tokens.onPrimary,
-      errorContainer:       tokens.errorContainer,
-      onErrorContainer:     tokens.error,
-      surface:              tokens.surface,
-      onSurface:            tokens.textPrimary,
-      onSurfaceVariant:     tokens.textSecondary,
-      outline:              tokens.border,
-      outlineVariant:       tokens.border,
-      shadow:               Colors.black,
-      scrim:                Colors.black,
-      inverseSurface:       tokens.textPrimary,
-      onInverseSurface:     tokens.surface,
-      inversePrimary:       tokens.primaryContainer,
+      tertiary: tokens.accent,
+      onTertiary: tokens.onPrimary,
+      tertiaryContainer: tokens.accentContainer,
+      onTertiaryContainer: tokens.accent,
+      error: tokens.error,
+      onError: tokens.onPrimary,
+      errorContainer: tokens.errorContainer,
+      onErrorContainer: tokens.error,
+      surface: tokens.surface,
+      onSurface: tokens.textPrimary,
+      onSurfaceVariant: tokens.textSecondary,
+      outline: tokens.border,
+      outlineVariant: tokens.border,
+      shadow: Colors.black,
+      scrim: Colors.black,
+      inverseSurface: tokens.textPrimary,
+      onInverseSurface: tokens.surface,
+      inversePrimary: tokens.primaryContainer,
     );
 
     final textTheme = AppTypography.textTheme(colorScheme);
 
     return ThemeData(
-      useMaterial3:            true,
-      colorScheme:             colorScheme,
-      extensions:              [AppThemeExtension.fromTokens(tokens)],
-      textTheme:               textTheme,
+      useMaterial3: true,
+      colorScheme: colorScheme,
+      extensions: [AppThemeExtension.fromTokens(tokens)],
+      textTheme: textTheme,
       scaffoldBackgroundColor: tokens.background,
 
       cardTheme: CardThemeData(
-        color:            tokens.surface,
+        color: tokens.surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.card),
@@ -68,35 +68,35 @@ abstract final class AppTheme {
       ),
 
       appBarTheme: AppBarTheme(
-        backgroundColor:  tokens.surface,
-        foregroundColor:  tokens.textPrimary,
-        elevation:        0,
+        backgroundColor: tokens.surface,
+        foregroundColor: tokens.textPrimary,
+        elevation: 0,
         surfaceTintColor: Colors.transparent,
-        titleTextStyle:   textTheme.titleLarge,
+        titleTextStyle: textTheme.titleLarge,
       ),
 
       inputDecorationTheme: InputDecorationTheme(
-        filled:          true,
-        fillColor:       tokens.surface,
-        contentPadding:  const EdgeInsets.symmetric(
+        filled: true,
+        fillColor: tokens.surface,
+        contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
-          vertical:   AppSpacing.sm + AppSpacing.xs,
+          vertical: AppSpacing.sm + AppSpacing.xs,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide:   BorderSide(color: tokens.border),
+          borderSide: BorderSide(color: tokens.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide:   BorderSide(color: tokens.border),
+          borderSide: BorderSide(color: tokens.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide:   BorderSide(color: tokens.primary, width: 2),
+          borderSide: BorderSide(color: tokens.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide:   BorderSide(color: tokens.error),
+          borderSide: BorderSide(color: tokens.error),
         ),
       ),
 
@@ -104,50 +104,56 @@ abstract final class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: tokens.primary,
           foregroundColor: tokens.onPrimary,
-          elevation:       0,
+          elevation: 0,
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.lg,
-            vertical:   AppSpacing.md,
+            vertical: AppSpacing.md,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.button),
           ),
-          textStyle: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+          textStyle: textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
 
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: tokens.primary,
-          side:            BorderSide(color: tokens.primary),
+          side: BorderSide(color: tokens.primary),
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.lg,
-            vertical:   AppSpacing.md,
+            vertical: AppSpacing.md,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.button),
           ),
-          textStyle: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+          textStyle: textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
 
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: tokens.primary,
-          textStyle: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+          textStyle: textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
 
       dividerTheme: DividerThemeData(
-        color:     tokens.border,
+        color: tokens.border,
         thickness: 1,
-        space:     1,
+        space: 1,
       ),
 
       chipTheme: ChipThemeData(
         backgroundColor: tokens.surfaceSecondary,
-        labelStyle:      textTheme.bodySmall,
-        side:            BorderSide(color: tokens.border),
+        labelStyle: textTheme.bodySmall,
+        side: BorderSide(color: tokens.border),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.chip),
         ),

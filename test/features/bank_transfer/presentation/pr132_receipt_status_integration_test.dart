@@ -65,6 +65,8 @@ void main() {
               theme: ThemeData(
                 extensions: [
                   const AppThemeExtension(
+                    accent: Colors.blue,
+                    accentContainer: Colors.white,
                     success: Colors.green,
                     successContainer: Colors.white,
                     warning: Colors.orange,

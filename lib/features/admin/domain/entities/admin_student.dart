@@ -16,7 +16,7 @@ class AdminStudent {
   final String? displayName;
   final String? avatarUrl;
   final int enrolledCourseCount;
-  final double totalAmountPaid;
+  final double? totalAmountPaid;
   final String currency;
   final DateTime createdAt;
   final bool isActive;

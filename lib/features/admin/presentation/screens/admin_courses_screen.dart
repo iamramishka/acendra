@@ -1,3 +1,4 @@
+import 'package:acendra/features/admin/data/repositories/admin_directory_client.dart';
 import 'package:acendra/app/theme/app_breakpoints.dart';
 import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
@@ -64,7 +65,7 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
         if (context.mounted) {
           AppSnackbar.show(
             context,
-            'Failed to delete course.',
+            adminDataError(e, 'Failed to delete course.'),
             variant: SnackbarVariant.error,
           );
         }
@@ -91,7 +92,7 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
             child: coursesAsync.when(
               loading: _buildSkeleton,
               error: (e, _) => AppErrorState(
-                message: e.toString(),
+                message: adminDataError(e, 'Unable to load courses. Retry.'),
                 actionLabel: 'Retry',
                 onRetry: () => ref.invalidate(adminCoursesProvider),
               ),

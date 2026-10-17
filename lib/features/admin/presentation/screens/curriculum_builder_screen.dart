@@ -1,3 +1,4 @@
+import 'package:acendra/features/admin/data/repositories/admin_directory_client.dart';
 import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/dialogs/app_dialog.dart';
@@ -67,7 +68,7 @@ class _CurriculumBuilderScreenState
       if (mounted) {
         AppSnackbar.show(
           context,
-          'Failed to add section.',
+          adminDataError(e, 'Failed to add section.'),
           variant: SnackbarVariant.error,
         );
       }
@@ -100,7 +101,7 @@ class _CurriculumBuilderScreenState
         if (mounted) {
           AppSnackbar.show(
             context,
-            'Failed to delete section.',
+            adminDataError(e, 'Failed to delete section.'),
             variant: SnackbarVariant.error,
           );
         }
@@ -154,7 +155,7 @@ class _CurriculumBuilderScreenState
             child: curriculumAsync.when(
               loading: _buildSkeleton,
               error: (e, _) => AppErrorState(
-                message: e.toString(),
+                message: adminDataError(e, 'Unable to load courses. Retry.'),
                 actionLabel: 'Retry',
                 onRetry: () =>
                     ref.invalidate(adminCurriculumProvider(widget.courseId)),

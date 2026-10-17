@@ -176,7 +176,7 @@ void main() {
       expect(find.text(' (100)'), findsOneWidget);
     });
 
-    testWidgets('shows placeholder icon when imageUrl is null', (tester) async {
+    testWidgets('shows course cover when imageUrl is null', (tester) async {
       await tester.pumpWidget(
         _wrap(
           const CourseCard(
@@ -187,7 +187,7 @@ void main() {
         ),
       );
 
-      expect(find.byIcon(Icons.play_circle_outline), findsOneWidget);
+      expect(find.text('Cover image not provided'), findsOneWidget);
     });
 
     testWidgets('renders without error when onTap is null', (tester) async {

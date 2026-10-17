@@ -1,4 +1,6 @@
 import 'package:acendra/features/admin/data/repositories/admin_course_repository.dart';
+import 'package:acendra/features/admin/data/repositories/admin_directory_client.dart';
+import 'package:acendra/features/admin/data/repositories/admin_payment_repository.dart';
 import 'package:acendra/features/admin/data/repositories/admin_student_repository.dart';
 import 'package:acendra/features/admin/domain/entities/payment_record.dart';
 import 'package:acendra/features/admin/presentation/providers/admin_payments_provider.dart';
@@ -34,10 +36,15 @@ class AdminDashboardStats {
     required this.recentPendingPayments,
   });
 
-  final int totalStudents;
-  final int totalCourses;
-  final int pendingPayments;
-  final double totalRevenue;
+  final int? totalStudents;
+  final int? totalCourses;
+
+  /// Null means payment reporting is unavailable, rather than an empty queue.
+  final int? pendingPayments;
+
+  /// Null until trusted settlement reporting is activated. Payment list rows
+  /// (including administrative grants) do not establish recognized revenue.
+  final double? totalRevenue;
   final String currency;
   final List<PaymentQueueItem> recentPendingPayments;
 }
@@ -45,33 +52,29 @@ class AdminDashboardStats {
 class AdminDashboardNotifier extends AsyncNotifier<AdminDashboardStats> {
   @override
   Future<AdminDashboardStats> build() async {
-    final studentRepo = ref.read(adminStudentRepositoryProvider);
-    final courseRepo = ref.read(adminCourseRepositoryProvider);
-    final paymentRepo = ref.read(adminPaymentRepositoryProvider);
+    final studentRepo = ref.watch(adminStudentRepositoryProvider);
+    final courseRepo = ref.watch(adminCourseRepositoryProvider);
+    final paymentRepo = ref.watch(adminPaymentRepositoryProvider);
+    final counts = ref.watch(adminPaymentCountsProvider.future);
 
     final results = await Future.wait([
-      studentRepo.listStudents(),
-      courseRepo.listCourses(),
-      paymentRepo.listPayments(status: PaymentStatus.pending, pageSize: 5),
-      paymentRepo.listPayments(status: PaymentStatus.approved, pageSize: 100),
-      paymentRepo.countPayments(status: PaymentStatus.pending),
+      _whenMetricAvailable(studentRepo.listStudents()),
+      _whenMetricAvailable(courseRepo.listCourses()),
+      _whenMetricAvailable(
+        paymentRepo.listPayments(status: PaymentStatus.pending, pageSize: 5),
+      ),
+      _whenMetricAvailable(counts),
     ]);
 
-    final students = results[0] as List;
-    final courses = results[1] as List;
-    final pendingRecords = results[2] as List<PaymentRecord>;
-    final approvedRecords = results[3] as List<PaymentRecord>;
-    final pendingCount = results[4] as int;
+    final students = results[0] as List?;
+    final courses = results[1] as List?;
+    final pendingRecords = results[2] as List<PaymentRecord>?;
+    final statusCounts = results[3] as Map<PaymentStatus, int>?;
 
-    final totalRevenue = approvedRecords.fold<double>(
-      0,
-      (sum, r) => sum + r.amount,
-    );
-
-    final recentPending = pendingRecords
+    final recentPending = (pendingRecords ?? const <PaymentRecord>[])
         .map(
           (r) => PaymentQueueItem(
-            id: r.orderId,
+            id: r.id,
             studentEmail: r.studentEmail,
             courseTitle: r.courseTitle,
             amount: r.amount,
@@ -83,17 +86,29 @@ class AdminDashboardNotifier extends AsyncNotifier<AdminDashboardStats> {
         .toList();
 
     return AdminDashboardStats(
-      totalStudents: students.length,
-      totalCourses: courses.length,
-      pendingPayments: pendingCount,
-      totalRevenue: totalRevenue,
+      totalStudents: students?.length,
+      totalCourses: courses?.length,
+      pendingPayments: statusCounts?[PaymentStatus.pending],
+      totalRevenue: null,
       currency: 'LKR',
       recentPendingPayments: recentPending,
     );
   }
 }
 
+Future<T?> _whenMetricAvailable<T>(Future<T> result) async {
+  try {
+    return await result;
+  } on PaymentReportingUnavailable {
+    return null;
+  } on AdminDataException {
+    // A restricted/unavailable metric must not hide other authorized metrics.
+    return null;
+  }
+}
+
 final adminDashboardProvider =
     AsyncNotifierProvider<AdminDashboardNotifier, AdminDashboardStats>(
       AdminDashboardNotifier.new,
+      retry: (retryCount, error) => null,
     );

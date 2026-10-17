@@ -1,5 +1,6 @@
 import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
+import 'course_thumbnail.dart';
 
 class CourseCard extends StatelessWidget {
   const CourseCard({
@@ -21,7 +22,8 @@ class CourseCard extends StatelessWidget {
   final int? reviewCount;
   final VoidCallback? onTap;
 
-  String _semanticLabel() => instructorName != null && instructorName!.isNotEmpty
+  String _semanticLabel() =>
+      instructorName != null && instructorName!.isNotEmpty
       ? '$title. By $instructorName. $price'
       : '$title. $price';
 
@@ -43,18 +45,7 @@ class CourseCard extends StatelessWidget {
             children: [
               AspectRatio(
                 aspectRatio: 16 / 9,
-                child: imageUrl != null
-                    ? Image.network(imageUrl!, fit: BoxFit.cover)
-                    : ColoredBox(
-                        color: cs.primaryContainer,
-                        child: ExcludeSemantics(
-                          child: Icon(
-                            Icons.play_circle_outline,
-                            size: 48,
-                            color: cs.onPrimaryContainer,
-                          ),
-                        ),
-                      ),
+                child: CourseThumbnail(title: title, imageUrl: imageUrl),
               ),
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),
@@ -67,7 +58,8 @@ class CourseCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (instructorName != null && instructorName!.isNotEmpty) ...[
+                    if (instructorName != null &&
+                        instructorName!.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.xs),
                       Text(
                         instructorName!,

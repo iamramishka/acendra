@@ -15,6 +15,7 @@ class PaymentQueueSummary extends ConsumerWidget {
     required this.items,
     this.totalCount,
     this.isLoading = false,
+    this.isUnavailable = false,
   });
 
   final List<PaymentQueueItem> items;
@@ -22,6 +23,7 @@ class PaymentQueueSummary extends ConsumerWidget {
   /// Total pending count, shown in the header badge. Defaults to items.length.
   final int? totalCount;
   final bool isLoading;
+  final bool isUnavailable;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,12 +47,12 @@ class PaymentQueueSummary extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Pending Payments (demo data)',
+                    'Pending Payments',
                     style: theme.textTheme.titleMedium,
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
-                if (!isLoading)
+                if (!isLoading && !isUnavailable)
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.sm,
@@ -73,6 +75,8 @@ class PaymentQueueSummary extends ConsumerWidget {
             const SizedBox(height: AppSpacing.md),
             if (isLoading)
               _buildSkeleton()
+            else if (isUnavailable)
+              const Text('Payment reporting is unavailable.')
             else if (items.isEmpty)
               const AppEmptyState(message: 'No pending payments')
             else
@@ -81,7 +85,7 @@ class PaymentQueueSummary extends ConsumerWidget {
                   ...items.take(5).map((item) => _PaymentQueueRow(item: item)),
                 ],
               ),
-            if (!isLoading && items.isNotEmpty) ...[
+            if (!isLoading && !isUnavailable && items.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.md),
               Align(
                 alignment: Alignment.centerRight,
