@@ -98,6 +98,12 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(AppRadius.md),
           borderSide: BorderSide(color: tokens.error),
         ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderSide:   BorderSide(color: tokens.error, width: 2),
+        ),
+        errorStyle: TextStyle(color: tokens.error, fontSize: 12, height: 1.4),
+        errorMaxLines: 2,
       ),
 
       elevatedButtonTheme: ElevatedButtonThemeData(
