@@ -29,7 +29,7 @@ class AuthShell extends StatelessWidget {
                       Image.asset(
                         'assets/images/logo.png',
                         height: 28,
-                        errorBuilder: (_, _a, _b) => Icon(
+                        errorBuilder: (context, error, stackTrace) => Icon(
                           Icons.school_rounded,
                           color: cs.primary,
                           size: 28,

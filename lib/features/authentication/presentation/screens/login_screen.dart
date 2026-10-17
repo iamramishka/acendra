@@ -350,7 +350,8 @@ class _SignInBanner extends StatelessWidget {
               'assets/images/signin_banner.png',
               fit: BoxFit.cover,
               alignment: Alignment.centerLeft,
-              errorBuilder: (_, _a, _b) => const SizedBox.shrink(),
+              errorBuilder: (context, error, stackTrace) =>
+                  const SizedBox.shrink(),
             ),
           ),
         ],
