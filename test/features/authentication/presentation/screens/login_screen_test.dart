@@ -1,3 +1,4 @@
+import 'package:acendra/app/theme/app_theme.dart';
 import 'package:acendra/features/authentication/data/auth_repository.dart';
 import 'package:acendra/features/authentication/domain/auth_failure.dart';
 import 'package:acendra/features/authentication/presentation/screens/login_screen.dart';
@@ -26,32 +27,43 @@ Widget _wrap({AuthFailure? throws}) {
   final fake = _FakeAuthRepository(shouldThrow: throws);
   return ProviderScope(
     overrides: [authRepositoryProvider.overrideWithValue(fake)],
-    child: const MaterialApp(home: LoginScreen()),
+    child: MaterialApp(theme: AppTheme.light, home: const LoginScreen()),
   );
 }
 
 void main() {
   testWidgets('renders email and password fields', (tester) async {
     await tester.pumpWidget(_wrap());
-    expect(find.text('Email'), findsOneWidget);
+    expect(find.text('Email address'), findsOneWidget);
     expect(find.text('Password'), findsOneWidget);
-    expect(find.text('Sign in'), findsOneWidget);
+    expect(find.text('Sign In'), findsOneWidget);
   });
 
   testWidgets('shows validation errors when submitting empty form', (
     tester,
   ) async {
     await tester.pumpWidget(_wrap());
-    await tester.tap(find.text('Sign in'));
+    await tester.ensureVisible(find.text('Sign In'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sign In'));
     await tester.pump();
     expect(find.text('Enter your email'), findsOneWidget);
-    expect(find.text('Enter your password'), findsOneWidget);
+    // The password hint uses the same words; assert the validation error itself.
+    expect(
+      tester
+          .widget<TextField>(find.byType(TextField).last)
+          .decoration
+          ?.errorText,
+      'Enter your password',
+    );
   });
 
   testWidgets('shows error for invalid email format', (tester) async {
     await tester.pumpWidget(_wrap());
     await tester.enterText(find.byType(TextField).first, 'notanemail');
-    await tester.tap(find.text('Sign in'));
+    await tester.ensureVisible(find.text('Sign In'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sign In'));
     await tester.pump();
     expect(find.text('Enter a valid email'), findsOneWidget);
   });
@@ -60,14 +72,16 @@ void main() {
     await tester.pumpWidget(_wrap(throws: const InvalidCredentials()));
     await tester.enterText(find.byType(TextField).first, 'test@example.com');
     await tester.enterText(find.byType(TextField).last, 'password');
-    await tester.tap(find.text('Sign in'));
+    await tester.ensureVisible(find.text('Sign In'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sign In'));
     await tester.pumpAndSettle();
     expect(find.text('Invalid email or password.'), findsOneWidget);
   });
 
   testWidgets('has link to register screen', (tester) async {
     await tester.pumpWidget(_wrap());
-    expect(find.text('Sign up'), findsOneWidget);
+    expect(find.text('Create an account'), findsOneWidget);
   });
 
   testWidgets('has forgot password link', (tester) async {

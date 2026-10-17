@@ -1,4 +1,5 @@
 import 'package:acendra/features/marketplace/data/repositories/supabase_course_repository.dart';
+import 'package:acendra/core/widgets/cards/course_card.dart';
 import 'package:acendra/features/marketplace/domain/entities/course_summary.dart';
 import 'package:acendra/features/marketplace/presentation/screens/marketplace_screen.dart';
 import 'package:acendra/features/profile/presentation/screens/profile_screen.dart';
@@ -42,7 +43,26 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text(payload), findsOneWidget);
+      final card = find.byType(CourseCard);
+      // The title and short description are separate literal text surfaces.
+      final title = find.descendant(
+        of: card,
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is Text && widget.data == payload && widget.maxLines == 2,
+        ),
+      );
+      final description = find.descendant(
+        of: card,
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is Text &&
+              widget.data == payload &&
+              widget.maxLines == null,
+        ),
+      );
+      expect(title, findsOneWidget);
+      expect(description, findsOneWidget);
       verifyNoPayloadElements();
       await tester.enterText(find.byType(TextField), payload);
       await tester.pumpAndSettle();
