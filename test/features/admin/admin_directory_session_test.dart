@@ -224,6 +224,68 @@ void main() {
     );
   }
 
+  test('late initial list cannot replace a newer completed search', () async {
+    final initial = students['admin-a']!.pending =
+        Completer<List<AdminStudent>>();
+    container.listen(adminStudentsProvider, (_, _) {});
+    container.read(adminStudentsProvider);
+    students['admin-a']!.pending = null;
+    await container.read(adminStudentsProvider.notifier).search('filtered');
+    initial.complete([_student('unfiltered')]);
+    await Future<void>.delayed(Duration.zero);
+    expect(
+      container.read(adminStudentsProvider).requireValue.single.email,
+      'admin-a@synthetic.test',
+    );
+  });
+
+  test('late initial failure cannot replace a successful search', () async {
+    final initial = students['admin-a']!.pending =
+        Completer<List<AdminStudent>>();
+    container.listen(adminStudentsProvider, (_, _) {});
+    container.read(adminStudentsProvider);
+    students['admin-a']!.pending = null;
+    await container.read(adminStudentsProvider.notifier).search('filtered');
+    initial.completeError(const AdminDataException('Old request failed'));
+    await Future<void>.delayed(Duration.zero);
+    expect(
+      container.read(adminStudentsProvider).requireValue.single.email,
+      'admin-a@synthetic.test',
+    );
+  });
+
+  test(
+    'older search failure cannot overwrite a newer successful search',
+    () async {
+      container.listen(adminStudentsProvider, (_, _) {});
+      await container.read(adminStudentsProvider.future);
+      final pending = students['admin-a']!.pending =
+          Completer<List<AdminStudent>>();
+      final notifier = container.read(adminStudentsProvider.notifier);
+      final oldSearch = notifier.search('old');
+      students['admin-a']!.pending = null;
+      await notifier.search('latest');
+      pending.completeError(const AdminDataException('Old search failed'));
+      await oldSearch;
+      await Future<void>.delayed(Duration.zero);
+      expect(container.read(adminStudentsProvider).hasError, false);
+      expect(students['admin-a']!.lastSearch, 'latest');
+      expect(
+        container.read(adminStudentsProvider).requireValue.single.email,
+        'admin-a@synthetic.test',
+      );
+    },
+  );
+
+  test('same-account rebuild retains the visible search filter', () async {
+    container.listen(adminStudentsProvider, (_, _) {});
+    await container.read(adminStudentsProvider.future);
+    await container.read(adminStudentsProvider.notifier).search('filtered');
+    container.invalidate(adminStudentsProvider);
+    await container.read(adminStudentsProvider.future);
+    expect(students['admin-a']!.lastSearch, 'filtered');
+  });
+
   test('default live repository providers reject signed-out access', () {
     final signedOut = ProviderContainer(
       overrides: [currentSessionProvider.overrideWithValue(null)],

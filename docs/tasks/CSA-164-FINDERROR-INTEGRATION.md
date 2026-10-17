@@ -48,3 +48,19 @@ Documentation-only conflict during cache integration was resolved by retaining t
 - Final flutter analyze --no-pub: no issues (exit 0). Final formatting: 263 files unchanged (exit 0). Final whitespace review clean.
 
 Final status: IN_REVIEW. PR creation follows; hosted CI and authorized review remain separate acceptance gates. No production changes or merge performed.
+
+## PR165 review follow-up ownership — 2026-10-17
+
+Owner: CODEX root, authorized by project owner to review PR165 and fix confirmed issues. Reuse existing isolated integration branch/worktree; reviewed head 378ddf9 against origin/dev. No overlapping task or PR found; issue164 remains current coordination record. Review scope: changed directory client/provider/Edge/SQL boundaries and navigation/card behavior. Root temporarily owns changes and regression tests within those existing surfaces plus this evidence file. No deployment, merge, financial mutations or unrelated dashboard integration authorized. Acceptance: reproduce each confirmed issue, make bounded correction, verify negative/session tests and applicable checks, then update the same PR. Status: IN_PROGRESS.
+
+Confirmed review finding: course list includes complete descriptions, so 20 valid 40KB descriptions overflow the Edge adapter 512KiB cap and make admin course listing unavailable. Root owns additive migration 20261017000200_csa164_directory_course_summaries.sql and SQL regression; original shared migration remains unchanged. Reproduction: native SQL regression failed with course list exceeds Edge response cap (psql exit 3).
+
+Review findings and corrections:
+- P1 availability: course pages included every full description and could exceed the 512KiB Edge response cap (20 legitimate 40KB descriptions reproduced the failure). Additive migration now returns empty descriptions in list summaries and retains full descriptions when requesting an individual course. No shared/applied migration was rewritten; grants and authorization remain unchanged. SQL regression failed before the correction and passed after it. Fresh disposable database replay: all 35 ordered migrations and the expanded directory authorization/size regression passed.
+- P2 correctness: the initial AsyncNotifier build could finish after a newer search and replace the filtered results (deterministic failing test returned unfiltered@synthetic.test instead of the newer result). Searches/refresh now invalidate and rebuild through Riverpod's existing Future lifecycle. Obsolete values and failures are discarded; same-account rebuilds retain the search term, while logout/account switches reset it.
+- Added regressions cover late initial success/failure, older search failure, same-account query retention and all previous session privacy cases. Focused directory/session/navigation suite: 46 passed (exit 0).
+- Initial host test launcher stalled and its task-owned process tree was terminated. Using a task-local LOCALAPPDATA resolved the launch issue; the product regression then failed reproducibly before the fix and passed after it. No host setting was persisted.
+
+No further concrete findings in the reviewed navigation/card or Edge authorization diff. Existing dashboard/payment and actual artwork-delivery limitations remain as documented; review does not authorize release-gate activation or deployment. Final full-suite/analyzer/build evidence follows after execution. Status: IN_REVIEW pending final checks and updated PR.
+
+Follow-up static checks: full Dart formatting passed (263 files unchanged), analyzer passed with no issues, and all 15 directory Edge boundary tests passed. Full Flutter/release checks continue; their final results will be recorded in PR165's description. Review-fix scope is complete; status remains IN_REVIEW pending CI and owner acceptance.

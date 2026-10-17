@@ -27,6 +27,17 @@ begin
  begin perform public.csa164_admin_directory(adm,ss,'aal2','students',null,'',null,50); raise exception 'foreign session'; exception when insufficient_privilege then null; end;
  begin perform public.csa164_admin_directory(adm,ads,'aal2','students',null,'',null,51); raise exception 'unbounded'; exception when invalid_parameter_value then null; end;
  if has_function_privilege('authenticated','public.csa164_admin_directory(uuid,uuid,text,text,uuid,text,uuid,integer)','EXECUTE') or has_function_privilege('anon','public.csa164_admin_directory(uuid,uuid,text,text,uuid,text,uuid,integer)','EXECUTE') then raise exception 'direct client RPC'; end if;
+ -- Twenty valid authoring-size descriptions must not overflow the Edge
+ -- adapter's 512KiB response cap when listing lightweight course summaries.
+ insert into public.courses(id,slug,title,description,price_minor,status)
+ select id,'directory-long-'||id,'Long description course',repeat('x',40000),0,'draft'
+ from (select gen_random_uuid() id from generate_series(1,20)) fixtures;
+ result:=public.csa164_admin_directory(adm,ads,'aal2','courses',null,'Long description course',null,50);
+ if jsonb_array_length(result->'items')<>20 then raise exception 'long-description course listing incomplete'; end if;
+ if octet_length(result::text)>524288 then raise exception 'course list exceeds Edge response cap'; end if;
+ if result->'items'->0->>'description'<>'' then raise exception 'list unnecessarily delivers full descriptions'; end if;
+ result:=public.csa164_admin_directory(adm,ads,'aal2','courses',(result->'items'->0->>'id')::uuid,'',null,50);
+ if length(result->'items'->0->>'description')<>40000 then raise exception 'detail description truncated'; end if;
  update public.user_roles set revoked_at=clock_timestamp() where user_id=adm;
  begin perform public.csa164_admin_directory(adm,ads,'aal2','students',null,'',null,50); raise exception 'revoked admin'; exception when insufficient_privilege then null; end;
 end; $$;
