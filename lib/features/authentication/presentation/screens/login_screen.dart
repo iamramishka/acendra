@@ -65,6 +65,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (mounted) {
         AppSnackbar.show(context, e.message, variant: SnackbarVariant.error);
       }
+    } catch (_) {
+      if (mounted) {
+        AppSnackbar.show(
+          context,
+          'Something went wrong. Please try again.',
+          variant: SnackbarVariant.error,
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
