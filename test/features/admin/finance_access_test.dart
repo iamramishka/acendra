@@ -13,7 +13,7 @@ Session session(String aal) => Session(
   accessToken:
       'header.${base64Url.encode(utf8.encode(jsonEncode({'aal': aal})))}.signature',
   tokenType: 'bearer',
-  user: User(
+  user: const User(
     id: 'test-user',
     appMetadata: {},
     userMetadata: {},
@@ -33,7 +33,7 @@ void main() {
             adminDashboardProvider.overrideWith(_Dashboard.new),
             financeAccessProvider.overrideWith((ref) async => allowed),
           ],
-          child: MaterialApp(home: Scaffold(body: AdminDashboardScreen())),
+          child: const MaterialApp(home: Scaffold(body: AdminDashboardScreen())),
         ),
       );
       await tester.pumpAndSettle();
