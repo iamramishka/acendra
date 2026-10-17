@@ -6,8 +6,8 @@
 # Acedra — Bug Report / Issue Log
 
 **Date:** 2026-10-17\
-**Tester:** Claude (admin session — admin@gmail.com)\
-**Environment:** http://3.25.99.105/\
+**Tester:** Claude (admin session — [test admin account])\
+**Environment:** [hosted test deployment]/\
 **Login:** [credentials removed; use the approved credential store]
 
 ---
@@ -116,7 +116,7 @@ This test fixture is publicly visible to all users and is listed at LKR 100.00.\
 **Route:** All authenticated routes\
 **Description:** There is no link to the admin panel (`#/admin`) in any navigation bar. An admin user logging in is taken to `#/dashboard` (which is blank), and there is no way to reach `#/admin` except by typing the URL directly. The profile avatar (S) also produces no dropdown.\
 **Expected:** Admin users should see an "Admin" option in their nav or be redirected to `#/admin`.\
-**Actual:** Admin users must know to manually navigate to `http://3.25.99.105/#/admin`.
+**Actual:** Admin users must know to manually navigate to `[hosted test deployment]/#/admin`.
 
 ---
 

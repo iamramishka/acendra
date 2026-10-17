@@ -1,15 +1,15 @@
-# CSA-171 — finderror residual repairs and integration
+# Issue 171 — finderror residual repairs and integration
 
 Owner: CODEX. Status: IN_REVIEW. Authorization: project owner requested fixes
 and explicitly authorized taking over and integrating PR #165 on 2026-10-17.
 Coordination: GitHub issue #171; previous owners/scopes recorded in #164 and #166.
-Final branch: `fix/csa-171-pr165-final`, published base `origin/dev` at `80be734`.
+Final branch: `fix/csa-171-pr165-final`, pinned published base `ec23fd2`.
 Final worktree: `C:/Users/ramis/.codex/worktrees/finderror-pr165/acendra`.
 Initial verification snapshot: `fix/csa-166-finderror-residual` at local dev
 `ba0b9df`, worktree `C:/Users/ramis/.codex/worktrees/finderror-residual/acendra`.
 Scope: integrate reviewed PR #165; dashboard/payment presentation and reporting
 availability, marketplace enrollment/back navigation, regression tests, sanitized
-bug report, sign-in build compatibility and this evidence record. No production activation or data changes.
+bug report, responsive sign-in rows and this evidence record. No production activation or data changes.
 
 ## Integration
 
@@ -19,22 +19,24 @@ use the authenticated StudentShell and current-role account menu, retain the
 bounded viewport used by routed screens, retain guest public navigation.
 No blanket conflict resolution or edits to the original worktrees.
 
-Before publishing, discovered that local `ba0b9df` contains an unpushed theme
-commit. Prepared the final integration from PR165 `99ea281` and published dev
-`80be734`, merging their history and transferring only the authorized repairs.
-The final PR has no diff in theme sources or auth-state provider.
-The related dashboard placeholder-to-My-Courses router correction is included.
-The two test theme-fixture compatibility edits belong only to the local snapshot
-and are excluded from the published-base integration. Original local work remains
-untouched. This records the integration decision rather than silently publishing
-unrelated local changes.
+Initial integration from PR165 `99ea281` and published dev `80be734` excluded
+the then-unpublished local theme changes. Published dev subsequently advanced to
+`ec23fd2`, including those owner changes. The final integration pins and merges
+that published revision, preserving the theme and auth-state provider unchanged.
+Reviewed three conflicts: authenticated public navigation delegates to the
+StudentShell; Admin navigation uses current role grants rather than metadata;
+dashboard uses the corrected shared counts and unavailable financial state.
+The incoming theme, router and marketplace changes are retained. Two bank-transfer
+test fixtures supply the theme extension's new required accent fields.
 
-The published sign-in screen referenced `AppColors.deepNavy`, a token absent
-from published dev and defined only by the unpublished theme commit. The final
-analyzer reproduced this compile error. Replaced that reference with the same
-existing navy color as a feature-local constant, without introducing a global
-token or changing the pending theme. Added light/dark tests using production
-themes. Other sign-in source differences are Dart formatting only.
+The intermediate `80be734` analyzer exposed a sign-in reference to the missing
+`deepNavy` token. The final published base supplies that token, so the sign-in
+theme token is retained. Production-theme tests exposed horizontal overflows in
+the remember/forgot, account-link and legal-link rows at mobile width. These
+three rows now wrap while retaining their controls, callbacks and styling.
+Tests cover 320/390/768/1440 widths in both themes; typography is instantiated
+inside widget tests after binding initialization. No original worker or primary
+checkout was modified.
 
 ## Corrections
 
@@ -100,7 +102,34 @@ These are implementation statuses, not production acceptance or DONE claims.
 
 ## Verification
 
-Published-base integration: the same affected command plus `test/app/theme`
+Final pinned `ec23fd2` integration: **160 existing affected cases passed** in the
+combined invocation. The two new production-theme cases initially failed (test
+initialization, then real mobile overflow); after fixing the test setup and the
+three overflowing rows, the expanded **8-case** responsive sign-in file passed,
+exit 0. These are **168 distinct passing affected cases across incremental runs**,
+not a claim that the earlier failed combined invocation was green.
+
+Final full local analyzer was stopped after over five minutes without diagnostics.
+It is **incomplete**, not passed. Earlier snapshot analyzer results below are
+historical evidence only. The final release build and hosted CI remain separate
+checks. No analyzer result is fabricated from compiler/test success.
+
+Final pinned release build: `flutter build web --release --no-pub
+--no-wasm-dry-run`, exit 0, built `build/web` (335.6s). The existing missing
+Cupertino icon-font warning remains. This is a JavaScript release build; a final
+Wasm build is not claimed. Final changed-Dart formatting: **43 files**, exit 0;
+whitespace checks are clean.
+
+Final pinned tooling rerun: `npm run tool:test`, exit 0, **777 passed, 10 skipped**.
+Final baseline rerun of `test/app/theme/app_theme_test.dart`,
+`test/features/authentication/presentation/screens/login_screen_test.dart`, and
+`test/security/csa187_malicious_text_test.dart` confirmed **13 failures**: four
+old-palette assertions, six plain-theme/old-label sign-in fixture tests, three
+single-text-count assertions for duplicate title/description payloads. These
+existing assertions were retained. The new production-theme sign-in cases pass;
+this does not turn the broader suite green. Status remains IN_REVIEW.
+
+Intermediate `80be734` integration: the same affected command plus `test/app/theme`
 passed **223 tests**, exit 0. The four palette assertions that failed in the
 unpublished-theme snapshot pass on this base. `npm run tool:test` was rerun here:
 **777 passed, 10 skipped**, exit 0. PR-only Dart formatting checked **40 files**

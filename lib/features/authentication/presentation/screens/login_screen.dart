@@ -43,8 +43,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _submit() async {
     final emailErr = _validateEmail(_emailController.text);
-    final passErr =
-        _passwordController.text.isEmpty ? 'Enter your password' : null;
+    final passErr = _passwordController.text.isEmpty
+        ? 'Enter your password'
+        : null;
     setState(() {
       _emailError = emailErr;
       _passwordError = passErr;
@@ -53,7 +54,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     setState(() => _isLoading = true);
     try {
-      await ref.read(authRepositoryProvider).signIn(
+      await ref
+          .read(authRepositoryProvider)
+          .signIn(
             email: _emailController.text.trim(),
             password: _passwordController.text,
           );
@@ -136,24 +139,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           const SizedBox(height: 12),
 
           // Remember me + Forgot password
-          Row(
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 16,
+            runSpacing: 8,
             children: [
-              SizedBox(
-                width: 20,
-                height: 20,
-                child: Checkbox(
-                  value: _rememberMe,
-                  onChanged: (v) => setState(() => _rememberMe = v ?? false),
-                  activeColor: cs.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: Checkbox(
+                      value: _rememberMe,
+                      onChanged: (v) =>
+                          setState(() => _rememberMe = v ?? false),
+                      activeColor: cs.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
                   ),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Remember me',
+                    style: tt.bodySmall?.copyWith(color: cs.onSurface),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              Text('Remember me', style: tt.bodySmall?.copyWith(color: cs.onSurface)),
-              const Spacer(),
               TextButton(
                 onPressed: () => context.go(RouteNames.forgotPassword),
                 style: TextButton.styleFrom(
@@ -181,7 +196,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             isLoading: _isLoading,
             icon: _isLoading
                 ? null
-                : Icon(Icons.arrow_forward_rounded, size: 18, color: cs.onPrimary),
+                : Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 18,
+                    color: cs.onPrimary,
+                  ),
           ),
           const SizedBox(height: 20),
 
@@ -209,8 +228,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: ext.border),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              runSpacing: 8,
               children: [
                 Text(
                   'New to Acedra? ',
@@ -232,8 +253,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           const SizedBox(height: 20),
 
           // Privacy / Terms footer
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runSpacing: 8,
             children: [
               TextButton(
                 onPressed: () {},
@@ -301,18 +324,18 @@ class _SignInBanner extends StatelessWidget {
                 Text(
                   'Welcome\nback',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        height: 1.15,
-                      ),
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    height: 1.15,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Continue your learning\njourney.',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.white70,
-                        height: 1.4,
-                      ),
+                    color: Colors.white70,
+                    height: 1.4,
+                  ),
                 ),
               ],
             ),
