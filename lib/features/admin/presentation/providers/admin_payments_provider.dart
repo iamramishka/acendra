@@ -55,6 +55,7 @@ class AdminPaymentsState {
     this.pendingCount = 0,
     this.approvedCount = 0,
     this.rejectedCount = 0,
+    this.processingCount = 0,
   });
 
   final List<PaymentRecord> records;
@@ -66,6 +67,7 @@ class AdminPaymentsState {
   final int pendingCount;
   final int approvedCount;
   final int rejectedCount;
+  final int processingCount;
 
   AdminPaymentsState copyWith({
     List<PaymentRecord>? records,
@@ -78,6 +80,7 @@ class AdminPaymentsState {
     int? pendingCount,
     int? approvedCount,
     int? rejectedCount,
+    int? processingCount,
   }) {
     return AdminPaymentsState(
       records: records ?? this.records,
@@ -89,6 +92,7 @@ class AdminPaymentsState {
       pendingCount: pendingCount ?? this.pendingCount,
       approvedCount: approvedCount ?? this.approvedCount,
       rejectedCount: rejectedCount ?? this.rejectedCount,
+      processingCount: processingCount ?? this.processingCount,
     );
   }
 }
@@ -126,6 +130,9 @@ class AdminPaymentsNotifier extends AsyncNotifier<AdminPaymentsState> {
     final rejectedCount = await repo.countPayments(
       status: PaymentStatus.rejected,
     );
+    final processingCount = await repo.countPayments(
+      status: PaymentStatus.processing,
+    );
 
     return AdminPaymentsState(
       records: [...existing, ...results],
@@ -136,6 +143,7 @@ class AdminPaymentsNotifier extends AsyncNotifier<AdminPaymentsState> {
       pendingCount: pendingCount,
       approvedCount: approvedCount,
       rejectedCount: rejectedCount,
+      processingCount: processingCount,
     );
   }
 

@@ -12,10 +12,14 @@ class PaymentQueueSummary extends StatelessWidget {
   const PaymentQueueSummary({
     super.key,
     required this.items,
+    this.totalCount,
     this.isLoading = false,
   });
 
   final List<PaymentQueueItem> items;
+
+  /// Total pending count, shown in the header badge. Defaults to items.length.
+  final int? totalCount;
   final bool isLoading;
 
   @override
@@ -51,7 +55,7 @@ class PaymentQueueSummary extends StatelessWidget {
                       borderRadius: BorderRadius.circular(AppRadius.chip),
                     ),
                     child: Text(
-                      '${items.length}',
+                      '${totalCount ?? items.length}',
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: cs.onErrorContainer,
                         fontWeight: FontWeight.w600,
