@@ -7,11 +7,11 @@ import 'app.dart';
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (EnvConfig.supabaseUrl.isNotEmpty &&
-      EnvConfig.supabaseAnonKey.isNotEmpty) {
+  final config = EnvConfig.readForStartup();
+  if (config != null) {
     await Supabase.initialize(
-      url: EnvConfig.supabaseUrl,
-      anonKey: EnvConfig.supabaseAnonKey, // ignore: deprecated_member_use
+      url: config.url,
+      anonKey: config.key, // ignore: deprecated_member_use
     );
   }
 

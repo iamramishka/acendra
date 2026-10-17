@@ -27,11 +27,28 @@ abstract final class EnvConfig {
     url: supabaseUrl,
     key: supabasePublicKey,
   );
+
+  /// Only a completely unconfigured development build may run without a backend.
+  static PublicBackendConfig? readForStartup() =>
+      PublicBackendConfig.forStartup(
+        environment: environment,
+        url: supabaseUrl,
+        key: supabasePublicKey,
+      );
 }
 
 /// Public browser configuration only. This cannot verify a JWT's signature;
 /// rejecting privileged key shapes prevents accidental embedding of secrets.
 final class PublicBackendConfig {
+  static PublicBackendConfig? forStartup({
+    required String environment,
+    required String url,
+    required String key,
+  }) {
+    if (environment == 'development' && url.isEmpty && key.isEmpty) return null;
+    return PublicBackendConfig(environment: environment, url: url, key: key);
+  }
+
   PublicBackendConfig({
     required this.environment,
     required this.url,

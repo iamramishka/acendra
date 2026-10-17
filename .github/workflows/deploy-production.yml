@@ -43,8 +43,9 @@ jobs:
       - name: Build Flutter Web (release)
         run: |
           flutter build web --release \
+            --dart-define=APP_ENV=production \
             --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
-            --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+            --dart-define=SUPABASE_PUBLISHABLE_KEY=${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
 
       # Security gate: reject the build if any service-role key pattern
       # appears in the output. A service-role JWT starts with a specific
