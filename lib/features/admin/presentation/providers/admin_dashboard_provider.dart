@@ -43,26 +43,29 @@ class AdminDashboardStats {
 class AdminDashboardNotifier extends AsyncNotifier<AdminDashboardStats> {
   @override
   Future<AdminDashboardStats> build() async {
-    final counts = await ref.watch(adminPaymentCountsProvider.future);
-    final pending = await ref
-        .watch(adminPaymentRepositoryProvider)
-        .listPayments(status: PaymentStatus.pending, pageSize: 5);
+    // TODO: Replace with real Supabase queries using service-role or admin RPC.
+    final counts = await ref.read(adminPaymentCountsProvider.future);
+    final repo = ref.read(adminPaymentRepositoryProvider);
+    final recentPending = await repo.listPayments(
+      status: PaymentStatus.pending,
+      pageSize: 5,
+    );
     return AdminDashboardStats(
       totalStudents: 128,
       totalCourses: 14,
       pendingPayments: counts[PaymentStatus.pending]!,
       totalRevenue: 245800.00,
       currency: 'LKR',
-      recentPendingPayments: pending
+      recentPendingPayments: recentPending
           .map(
-            (record) => PaymentQueueItem(
-              id: record.id,
-              studentEmail: record.studentEmail,
-              courseTitle: record.courseTitle,
-              amount: record.amount,
-              currency: record.currency,
-              submittedAt: record.createdAt,
-              status: record.status.name,
+            (r) => PaymentQueueItem(
+              id: r.id,
+              studentEmail: r.studentEmail,
+              courseTitle: r.courseTitle,
+              amount: r.amount,
+              currency: r.currency,
+              submittedAt: r.createdAt,
+              status: r.status.name,
             ),
           )
           .toList(),

@@ -62,7 +62,10 @@ class AdminDashboardScreen extends ConsumerWidget {
                   children: _buildStatCards(context, stats),
                 ),
           const SizedBox(height: AppSpacing.lg),
-          PaymentQueueSummary(items: stats.recentPendingPayments),
+          PaymentQueueSummary(
+            items: stats.recentPendingPayments,
+            totalCount: stats.pendingPayments,
+          ),
           const SizedBox(height: AppSpacing.lg),
           Text('Quick Actions', style: theme.textTheme.titleMedium),
           const SizedBox(height: AppSpacing.md),

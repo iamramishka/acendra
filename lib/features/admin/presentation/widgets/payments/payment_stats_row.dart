@@ -6,7 +6,7 @@ class PaymentStatsRow extends StatelessWidget {
   const PaymentStatsRow({
     super.key,
     required this.pendingCount,
-    this.processingCount = 0,
+    required this.processingCount,
     required this.approvedCount,
     required this.rejectedCount,
   });
@@ -36,8 +36,8 @@ class PaymentStatsRow extends StatelessWidget {
           child: _StatCard(
             label: 'Processing',
             count: processingCount,
-            bgColor: cs.secondaryContainer,
-            fgColor: cs.onSecondaryContainer,
+            bgColor: cs.tertiaryContainer,
+            fgColor: cs.onTertiaryContainer,
           ),
         ),
         const SizedBox(width: AppSpacing.md),

@@ -4,9 +4,7 @@ import 'package:acendra/app/theme/app_theme_extension.dart';
 import 'package:acendra/core/widgets/feedback/app_skeleton.dart';
 import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:acendra/core/widgets/feedback/status_badge.dart';
-import 'package:acendra/features/admin/domain/entities/payment_record.dart';
 import 'package:acendra/features/admin/presentation/providers/admin_dashboard_provider.dart';
-import 'package:acendra/features/admin/presentation/providers/admin_payments_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,10 +13,14 @@ class PaymentQueueSummary extends ConsumerWidget {
   const PaymentQueueSummary({
     super.key,
     required this.items,
+    this.totalCount,
     this.isLoading = false,
   });
 
   final List<PaymentQueueItem> items;
+
+  /// Total pending count, shown in the header badge. Defaults to items.length.
+  final int? totalCount;
   final bool isLoading;
 
   @override
@@ -59,7 +61,7 @@ class PaymentQueueSummary extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(AppRadius.chip),
                     ),
                     child: Text(
-                      '${ref.watch(adminPaymentCountsProvider).asData?.value[PaymentStatus.pending] ?? items.length}',
+                      '${totalCount ?? items.length}',
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: cs.onErrorContainer,
                         fontWeight: FontWeight.w600,
