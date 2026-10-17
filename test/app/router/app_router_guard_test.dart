@@ -3,6 +3,7 @@ library;
 
 import 'package:acendra/app/router/app_router.dart';
 import 'package:acendra/app/router/route_names.dart';
+import 'package:acendra/app/theme/app_theme.dart';
 import 'package:acendra/features/dashboard/presentation/screens/dashboard_home_screen.dart';
 import 'package:acendra/features/dashboard/presentation/screens/dashboard_saved_screen.dart';
 import 'package:acendra/core/widgets/navigation/student_shell.dart';
@@ -45,6 +46,8 @@ Widget _app({required bool sessionRestored, required bool isAuthenticated}) =>
       ],
       child: Consumer(
         builder: (_, ref, _) => MaterialApp.router(
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
           routerConfig: ref.watch(appRouterProvider),
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context).copyWith(disableAnimations: true),
