@@ -32,7 +32,6 @@ import 'package:acendra/features/marketplace/presentation/screens/course_detail_
 import 'package:acendra/features/marketplace/presentation/screens/marketplace_screen.dart';
 import 'package:acendra/features/profile/presentation/screens/profile_edit_screen.dart';
 import 'package:acendra/features/profile/presentation/screens/profile_screen.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -46,21 +45,6 @@ const _publicRoutes = {
   RouteNames.marketplace,
   RouteNames.courseDetail,
 };
-
-class _PlaceholderScreen extends StatelessWidget {
-  const _PlaceholderScreen({required this.title});
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(
-        child: Text(title, style: Theme.of(context).textTheme.headlineMedium),
-      ),
-    );
-  }
-}
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -144,7 +128,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: RouteNames.dashboard,
-            builder: (_, _) => const _PlaceholderScreen(title: 'Dashboard'),
+            redirect: (_, _) => RouteNames.myCourses,
           ),
           GoRoute(
             path: RouteNames.myCourses,

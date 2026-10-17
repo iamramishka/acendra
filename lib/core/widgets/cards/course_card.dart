@@ -6,7 +6,7 @@ class CourseCard extends StatelessWidget {
   const CourseCard({
     super.key,
     required this.title,
-    required this.instructorName,
+    this.instructorName,
     required this.price,
     this.imageUrl,
     this.rating,
@@ -15,14 +15,17 @@ class CourseCard extends StatelessWidget {
   });
 
   final String title;
-  final String instructorName;
+  final String? instructorName;
   final String price;
   final String? imageUrl;
   final double? rating;
   final int? reviewCount;
   final VoidCallback? onTap;
 
-  String _semanticLabel() => '$title. By $instructorName. $price';
+  String _semanticLabel() =>
+      instructorName != null && instructorName!.isNotEmpty
+      ? '$title. By $instructorName. $price'
+      : '$title. $price';
 
   @override
   Widget build(BuildContext context) {
@@ -55,11 +58,16 @@ class CourseCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      instructorName,
-                      style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                    ),
+                    if (instructorName != null &&
+                        instructorName!.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        instructorName!,
+                        style: tt.bodySmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                     if (rating != null) ...[
                       const SizedBox(height: AppSpacing.xs),
                       Row(

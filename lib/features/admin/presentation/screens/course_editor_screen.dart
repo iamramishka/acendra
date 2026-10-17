@@ -258,7 +258,13 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
                 children: [
                   AppButton(
                     label: 'Cancel',
-                    onPressed: () => context.go('/admin/courses'),
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/admin/courses');
+                      }
+                    },
                     variant: ButtonVariant.outlined,
                   ),
                   const SizedBox(width: AppSpacing.md),

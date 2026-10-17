@@ -6,6 +6,7 @@ import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/feedback/app_skeleton.dart';
 import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:acendra/features/admin/presentation/providers/admin_dashboard_provider.dart';
+import 'package:acendra/features/admin/presentation/providers/finance_access_provider.dart';
 import 'package:acendra/features/admin/presentation/widgets/payment_queue_summary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,15 +22,23 @@ class AdminDashboardScreen extends ConsumerWidget {
     return statsAsync.when(
       loading: () => _buildSkeleton(context),
       error: (e, _) => AppErrorState(
-        message: e.toString(),
+        message: 'Failed to load dashboard. Please try again.',
         actionLabel: 'Retry',
         onRetry: () => ref.invalidate(adminDashboardProvider),
       ),
-      data: (stats) => _buildContent(context, stats),
+      data: (stats) => _buildContent(
+        context,
+        stats,
+        ref.watch(financeAccessProvider).value == true,
+      ),
     );
   }
 
-  Widget _buildContent(BuildContext context, AdminDashboardStats stats) {
+  Widget _buildContent(
+    BuildContext context,
+    AdminDashboardStats stats,
+    bool canReviewFinance,
+  ) {
     final theme = Theme.of(context);
     final width = MediaQuery.sizeOf(context).width;
     final isCompact = width < AppBreakpoints.compact;
@@ -53,7 +62,11 @@ class AdminDashboardScreen extends ConsumerWidget {
                   children: _buildStatCards(context, stats),
                 ),
           const SizedBox(height: AppSpacing.lg),
-          PaymentQueueSummary(items: stats.recentPendingPayments),
+          PaymentQueueSummary(
+            items: stats.recentPendingPayments,
+            totalCount: stats.pendingPayments,
+            isUnavailable: stats.pendingPayments == null,
+          ),
           const SizedBox(height: AppSpacing.lg),
           Text('Quick Actions', style: theme.textTheme.titleMedium),
           const SizedBox(height: AppSpacing.md),
@@ -73,12 +86,13 @@ class AdminDashboardScreen extends ConsumerWidget {
                 variant: ButtonVariant.secondary,
                 icon: const Icon(Icons.people_outline, size: 18),
               ),
-              AppButton(
-                label: 'Finance Review',
-                onPressed: () => context.go(RouteNames.financeReview),
-                variant: ButtonVariant.secondary,
-                icon: const Icon(Icons.account_balance_outlined, size: 18),
-              ),
+              if (canReviewFinance)
+                AppButton(
+                  label: 'Finance Review',
+                  onPressed: () => context.go(RouteNames.financeReview),
+                  variant: ButtonVariant.secondary,
+                  icon: const Icon(Icons.account_balance_outlined, size: 18),
+                ),
             ],
           ),
         ],
@@ -93,23 +107,25 @@ class AdminDashboardScreen extends ConsumerWidget {
     return [
       _StatCard(
         icon: Icons.people_outline,
-        value: stats.totalStudents.toString(),
+        value: stats.totalStudents?.toString() ?? 'Unavailable',
         label: 'Total Students',
       ),
       _StatCard(
         icon: Icons.library_books_outlined,
-        value: stats.totalCourses.toString(),
+        value: stats.totalCourses?.toString() ?? 'Unavailable',
         label: 'Total Courses',
       ),
       _StatCard(
         icon: Icons.hourglass_empty_outlined,
-        value: stats.pendingPayments.toString(),
+        value: stats.pendingPayments?.toString() ?? 'Unavailable',
         label: 'Pending Payments',
-        isAlert: stats.pendingPayments > 0,
+        isAlert: (stats.pendingPayments ?? 0) > 0,
       ),
       _StatCard(
         icon: Icons.attach_money_outlined,
-        value: '${stats.currency} ${_formatRevenue(stats.totalRevenue)}',
+        value: stats.totalRevenue == null
+            ? 'Unavailable'
+            : '${stats.currency} ${_formatRevenue(stats.totalRevenue!)}',
         label: 'Total Revenue',
       ),
     ];

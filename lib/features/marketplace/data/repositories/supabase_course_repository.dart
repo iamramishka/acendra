@@ -21,6 +21,7 @@ class SupabaseCourseRepository implements CourseRepository {
           'id, slug, title, short_description, price_minor, currency_code, published_at, category_id',
         )
         .eq('status', 'published')
+        .not('title', 'ilike', 'SANDBOX TEST%')
         .order('published_at', ascending: false)
         .limit(20);
     return (rows as List<dynamic>)
@@ -50,6 +51,7 @@ class SupabaseCourseRepository implements CourseRepository {
         )
         .eq('id', courseId)
         .eq('status', 'published')
+        .not('title', 'ilike', 'SANDBOX TEST%')
         .single();
     return CourseDetailDto.fromJson(row);
   }

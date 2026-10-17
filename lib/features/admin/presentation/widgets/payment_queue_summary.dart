@@ -6,20 +6,27 @@ import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:acendra/core/widgets/feedback/status_badge.dart';
 import 'package:acendra/features/admin/presentation/providers/admin_dashboard_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class PaymentQueueSummary extends StatelessWidget {
+class PaymentQueueSummary extends ConsumerWidget {
   const PaymentQueueSummary({
     super.key,
     required this.items,
+    this.totalCount,
     this.isLoading = false,
+    this.isUnavailable = false,
   });
 
   final List<PaymentQueueItem> items;
+
+  /// Total pending count, shown in the header badge. Defaults to items.length.
+  final int? totalCount;
   final bool isLoading;
+  final bool isUnavailable;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final ext = theme.extension<AppThemeExtension>();
     final cs = theme.colorScheme;
@@ -38,9 +45,14 @@ class PaymentQueueSummary extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text('Pending Payments', style: theme.textTheme.titleMedium),
+                Expanded(
+                  child: Text(
+                    'Pending Payments',
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
                 const SizedBox(width: AppSpacing.sm),
-                if (!isLoading)
+                if (!isLoading && !isUnavailable)
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.sm,
@@ -51,7 +63,7 @@ class PaymentQueueSummary extends StatelessWidget {
                       borderRadius: BorderRadius.circular(AppRadius.chip),
                     ),
                     child: Text(
-                      '${items.length}',
+                      '${totalCount ?? items.length}',
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: cs.onErrorContainer,
                         fontWeight: FontWeight.w600,
@@ -63,6 +75,8 @@ class PaymentQueueSummary extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
             if (isLoading)
               _buildSkeleton()
+            else if (isUnavailable)
+              const Text('Payment reporting is unavailable.')
             else if (items.isEmpty)
               const AppEmptyState(message: 'No pending payments')
             else
@@ -71,7 +85,7 @@ class PaymentQueueSummary extends StatelessWidget {
                   ...items.take(5).map((item) => _PaymentQueueRow(item: item)),
                 ],
               ),
-            if (!isLoading && items.isNotEmpty) ...[
+            if (!isLoading && !isUnavailable && items.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.md),
               Align(
                 alignment: Alignment.centerRight,

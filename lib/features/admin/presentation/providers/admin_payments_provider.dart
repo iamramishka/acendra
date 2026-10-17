@@ -5,8 +5,17 @@ import 'package:acendra/features/admin/domain/entities/payment_record.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final adminPaymentRepositoryProvider = Provider<AdminPaymentRepository>(
-  (_) => StubAdminPaymentRepository(),
+  (_) => const UnavailableAdminPaymentRepository(),
 );
+
+/// Unfiltered counts shared by the dashboard and payments screen.
+/// Uses a single atomic query to avoid count skew across statuses.
+final adminPaymentCountsProvider = FutureProvider<Map<PaymentStatus, int>>((
+  ref,
+) async {
+  final repo = ref.watch(adminPaymentRepositoryProvider);
+  return repo.countAllStatuses();
+}, retry: (retryCount, error) => null);
 
 class AdminPaymentsFilter {
   const AdminPaymentsFilter({
@@ -55,6 +64,7 @@ class AdminPaymentsState {
     this.pendingCount = 0,
     this.approvedCount = 0,
     this.rejectedCount = 0,
+    this.processingCount = 0,
   });
 
   final List<PaymentRecord> records;
@@ -66,6 +76,9 @@ class AdminPaymentsState {
   final int pendingCount;
   final int approvedCount;
   final int rejectedCount;
+  final int processingCount;
+  int get totalCount =>
+      pendingCount + processingCount + approvedCount + rejectedCount;
 
   AdminPaymentsState copyWith({
     List<PaymentRecord>? records,
@@ -78,6 +91,7 @@ class AdminPaymentsState {
     int? pendingCount,
     int? approvedCount,
     int? rejectedCount,
+    int? processingCount,
   }) {
     return AdminPaymentsState(
       records: records ?? this.records,
@@ -89,6 +103,7 @@ class AdminPaymentsState {
       pendingCount: pendingCount ?? this.pendingCount,
       approvedCount: approvedCount ?? this.approvedCount,
       rejectedCount: rejectedCount ?? this.rejectedCount,
+      processingCount: processingCount ?? this.processingCount,
     );
   }
 }
@@ -117,15 +132,7 @@ class AdminPaymentsNotifier extends AsyncNotifier<AdminPaymentsState> {
       pageSize: _pageSize,
     );
 
-    final pendingCount = await repo.countPayments(
-      status: PaymentStatus.pending,
-    );
-    final approvedCount = await repo.countPayments(
-      status: PaymentStatus.approved,
-    );
-    final rejectedCount = await repo.countPayments(
-      status: PaymentStatus.rejected,
-    );
+    final counts = await ref.read(adminPaymentCountsProvider.future);
 
     return AdminPaymentsState(
       records: [...existing, ...results],
@@ -133,9 +140,10 @@ class AdminPaymentsNotifier extends AsyncNotifier<AdminPaymentsState> {
       filter: filter,
       page: page,
       hasMore: results.length == _pageSize,
-      pendingCount: pendingCount,
-      approvedCount: approvedCount,
-      rejectedCount: rejectedCount,
+      pendingCount: counts[PaymentStatus.pending]!,
+      approvedCount: counts[PaymentStatus.approved]!,
+      rejectedCount: counts[PaymentStatus.rejected]!,
+      processingCount: counts[PaymentStatus.processing]!,
     );
   }
 
@@ -161,6 +169,7 @@ class AdminPaymentsNotifier extends AsyncNotifier<AdminPaymentsState> {
   }
 
   Future<void> refresh() async {
+    ref.invalidate(adminPaymentCountsProvider);
     final current = state.asData?.value;
     final filter = current?.filter ?? const AdminPaymentsFilter();
     state = const AsyncLoading();
@@ -173,6 +182,7 @@ class AdminPaymentsNotifier extends AsyncNotifier<AdminPaymentsState> {
 final adminPaymentsProvider =
     AsyncNotifierProvider<AdminPaymentsNotifier, AdminPaymentsState>(
       AdminPaymentsNotifier.new,
+      retry: (retryCount, error) => null,
     );
 
 // Provider for receipt review history (approved + rejected bank transfers).
@@ -202,4 +212,4 @@ final receiptHistoryProvider = FutureProvider.autoDispose
               return bTime.compareTo(aTime);
             });
       return reviewed;
-    });
+    }, retry: (retryCount, error) => null);

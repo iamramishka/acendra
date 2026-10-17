@@ -14,8 +14,49 @@ abstract interface class AdminPaymentRepository {
   Future<PaymentRecord> getPayment(String paymentId);
 
   Future<int> countPayments({PaymentStatus? status, PaymentMethod? method});
+
+  /// Returns a count for every PaymentStatus in a single atomic operation.
+  /// Prefer this over calling countPayments once per status to avoid
+  /// count skew when records change between queries.
+  Future<Map<PaymentStatus, int>> countAllStatuses();
 }
 
+class PaymentReportingUnavailable implements Exception {
+  const PaymentReportingUnavailable();
+}
+
+/// No approved live payment-list adapter is active. Never substitute fixtures
+/// for financial records or infer zero balances from unavailable reporting.
+class UnavailableAdminPaymentRepository implements AdminPaymentRepository {
+  const UnavailableAdminPaymentRepository();
+
+  @override
+  Future<List<PaymentRecord>> listPayments({
+    PaymentStatus? status,
+    PaymentMethod? method,
+    String? searchQuery,
+    DateTime? fromDate,
+    DateTime? toDate,
+    int page = 0,
+    int pageSize = 20,
+  }) async => throw const PaymentReportingUnavailable();
+
+  @override
+  Future<PaymentRecord> getPayment(String paymentId) async =>
+      throw const PaymentReportingUnavailable();
+
+  @override
+  Future<int> countPayments({
+    PaymentStatus? status,
+    PaymentMethod? method,
+  }) async => throw const PaymentReportingUnavailable();
+
+  @override
+  Future<Map<PaymentStatus, int>> countAllStatuses() async =>
+      throw const PaymentReportingUnavailable();
+}
+
+/// Synthetic fixture repository; tests must opt in explicitly.
 class StubAdminPaymentRepository implements AdminPaymentRepository {
   static final _records = [
     PaymentRecord(
@@ -169,5 +210,18 @@ class StubAdminPaymentRepository implements AdminPaymentRepository {
       results = results.where((r) => r.paymentMethod == method).toList();
     }
     return results.length;
+  }
+
+  @override
+  Future<Map<PaymentStatus, int>> countAllStatuses() async {
+    // TODO: Replace with SELECT status, COUNT(*) FROM payments GROUP BY status.
+    await Future.delayed(const Duration(milliseconds: 200));
+    final counts = <PaymentStatus, int>{
+      for (final s in PaymentStatus.values) s: 0,
+    };
+    for (final r in _records) {
+      counts[r.status] = (counts[r.status] ?? 0) + 1;
+    }
+    return counts;
   }
 }
