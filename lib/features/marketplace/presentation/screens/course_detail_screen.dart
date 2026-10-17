@@ -32,7 +32,15 @@ class CourseDetailScreen extends ConsumerWidget {
         final theme = Theme.of(context);
 
         return Scaffold(
-          appBar: AppBar(title: Text(detail.title)),
+          appBar: AppBar(
+            title: Text(detail.title),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => context.canPop()
+                  ? context.pop()
+                  : context.go(RouteNames.marketplace),
+            ),
+          ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -102,15 +110,10 @@ class CourseDetailScreen extends ConsumerWidget {
                   child: AppButton(
                     label: enrollState.isLoading
                         ? 'Checking enrollment…'
-                        : enrollState.hasError
-                        ? 'Enrollment status unavailable'
                         : isEnrolled
                         ? 'Continue Learning'
                         : 'Enroll Now',
-                    onPressed:
-                        enrollState.isLoading ||
-                            enrollState.hasError ||
-                            !enrollState.hasValue
+                    onPressed: enrollState.isLoading
                         ? null
                         : () => context.go(
                             (isEnrolled
@@ -123,13 +126,6 @@ class CourseDetailScreen extends ConsumerWidget {
                           ),
                   ),
                 ),
-                if (enrollState.hasError)
-                  TextButton(
-                    onPressed: () =>
-                        ref.invalidate(isEnrolledProvider(courseId)),
-                    child: const Text('Retry enrollment status'),
-                  ),
-
                 const SizedBox(height: 32),
 
                 // Curriculum preview
