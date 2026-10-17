@@ -2932,12 +2932,12 @@ TESTS - REQUIRED.
 REVIEW - BEFORE MERGE.
 INTEGRATION - VERIFIED.
 
-## CSA-DASH-001 - Student home, Phases 1-5
+## CSA-DASH-001 - Student home, Phases 1-6
 
 - Owner: CODEX; issue: https://github.com/iamramishka/acendra/issues/173.
-- Status: IN_REVIEW; Home screen/navigation and branded AppBar with focused marketplace search implemented.
+- Status: IN_REVIEW; Home/navigation/AppBar implemented; final verification and visual evidence recorded for review.
 - Branch: feat/csa-dash-001-student-home.
-- Scope, isolation, acceptance and verification: [Phase 1 handoff](docs/tasks/CSA-DASH-001-PHASE1.md), [Phase 2 handoff](docs/tasks/CSA-DASH-001-PHASE2.md), [Phase 3 handoff](docs/tasks/CSA-DASH-001-PHASE3.md), [Phase 4 handoff](docs/tasks/CSA-DASH-001-PHASE4.md), [Phase 5 handoff](docs/tasks/CSA-DASH-001-PHASE5.md).
-- Phase 6 verification and live backend integration remain; Saved is explicitly coming soon.
+- Scope, isolation, acceptance and verification: [Phase 1 handoff](docs/tasks/CSA-DASH-001-PHASE1.md), [Phase 2 handoff](docs/tasks/CSA-DASH-001-PHASE2.md), [Phase 3 handoff](docs/tasks/CSA-DASH-001-PHASE3.md), [Phase 4 handoff](docs/tasks/CSA-DASH-001-PHASE4.md), [Phase 5 handoff](docs/tasks/CSA-DASH-001-PHASE5.md), [Phase 6 evidence](docs/tasks/CSA-DASH-001-PHASE6.md).
+- Acceptance follows the enforced CI browser gate and owner review; live data and saved-course persistence remain future work.
 
 END OF TASKS.md

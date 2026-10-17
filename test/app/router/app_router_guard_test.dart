@@ -8,6 +8,7 @@ import 'package:acendra/features/dashboard/presentation/screens/dashboard_home_s
 import 'package:acendra/features/dashboard/presentation/screens/dashboard_saved_screen.dart';
 import 'package:acendra/core/widgets/navigation/student_shell.dart';
 import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
+import 'package:acendra/features/authentication/presentation/screens/login_screen.dart';
 import 'package:acendra/features/learning/data/repositories/supabase_learning_repository.dart';
 import 'package:acendra/features/learning/domain/entities/lesson_content.dart';
 import 'package:acendra/features/learning/domain/repositories/learning_repository.dart';
@@ -172,7 +173,8 @@ void main() {
       ).read(appRouterProvider);
       router.go(route);
       await tester.pumpAndSettle();
-      expect(find.text('Sign in'), findsWidgets);
+      expect(find.byType(LoginScreen), findsOneWidget);
+      expect(router.routeInformationProvider.value.uri.path, RouteNames.login);
       expect(find.textContaining('currently unavailable'), findsNothing);
       expect(tester.takeException(), isNull);
     });
@@ -183,8 +185,11 @@ void main() {
       _app(sessionRestored: true, isAuthenticated: false),
     );
     await tester.pumpAndSettle();
-    // Login screen shows "Sign in" button.
-    expect(find.text('Sign in'), findsWidgets);
+    expect(find.byType(LoginScreen), findsOneWidget);
+    final router = ProviderScope.containerOf(
+      tester.element(find.byType(Consumer)),
+    ).read(appRouterProvider);
+    expect(router.routeInformationProvider.value.uri.path, RouteNames.login);
   });
 
   testWidgets('authenticated user is redirected from login to dashboard', (
@@ -234,7 +239,8 @@ void main() {
     router.go('/dashboard');
     await tester.pumpAndSettle();
     // Should be redirected back to login.
-    expect(find.text('Sign in'), findsWidgets);
+    expect(find.byType(LoginScreen), findsOneWidget);
+    expect(router.routeInformationProvider.value.uri.path, RouteNames.login);
   });
 
   testWidgets('no redirect fires when session not yet restored', (
