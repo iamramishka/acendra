@@ -14,6 +14,11 @@ abstract interface class AdminPaymentRepository {
   Future<PaymentRecord> getPayment(String paymentId);
 
   Future<int> countPayments({PaymentStatus? status, PaymentMethod? method});
+
+  /// Returns a count for every PaymentStatus in a single atomic operation.
+  /// Prefer this over calling countPayments once per status to avoid
+  /// count skew when records change between queries.
+  Future<Map<PaymentStatus, int>> countAllStatuses();
 }
 
 class StubAdminPaymentRepository implements AdminPaymentRepository {
@@ -169,5 +174,18 @@ class StubAdminPaymentRepository implements AdminPaymentRepository {
       results = results.where((r) => r.paymentMethod == method).toList();
     }
     return results.length;
+  }
+
+  @override
+  Future<Map<PaymentStatus, int>> countAllStatuses() async {
+    // TODO: Replace with SELECT status, COUNT(*) FROM payments GROUP BY status.
+    await Future.delayed(const Duration(milliseconds: 200));
+    final counts = <PaymentStatus, int>{
+      for (final s in PaymentStatus.values) s: 0,
+    };
+    for (final r in _records) {
+      counts[r.status] = (counts[r.status] ?? 0) + 1;
+    }
+    return counts;
   }
 }

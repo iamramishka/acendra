@@ -70,7 +70,6 @@ class _CourseGrid extends StatelessWidget {
         final course = courses[index];
         return CourseCard(
           title: course.title,
-          instructorName: 'Acedra',
           price: 'Enrolled',
           imageUrl: course.thumbnailUrl,
           onTap: () => context.go('/learn/${course.courseId}'),

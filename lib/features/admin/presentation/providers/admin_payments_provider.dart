@@ -9,14 +9,12 @@ final adminPaymentRepositoryProvider = Provider<AdminPaymentRepository>(
 );
 
 /// Unfiltered counts shared by the dashboard and payments screen.
+/// Uses a single atomic query to avoid count skew across statuses.
 final adminPaymentCountsProvider = FutureProvider<Map<PaymentStatus, int>>((
   ref,
 ) async {
   final repo = ref.watch(adminPaymentRepositoryProvider);
-  final counts = await Future.wait(
-    PaymentStatus.values.map((status) => repo.countPayments(status: status)),
-  );
-  return Map.fromIterables(PaymentStatus.values, counts);
+  return repo.countAllStatuses();
 });
 
 class AdminPaymentsFilter {
