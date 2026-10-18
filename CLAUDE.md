@@ -619,6 +619,70 @@ than a couple exist.
 
 ---
 
+# 18. OPERATING MODES AND PR REVIEW
+
+Pick one mode per task and state it
+in the plan and the PR.
+
+## Solo loop
+
+One agent plans, builds, tests,
+self-reviews and opens the PR.
+
+Use only for low-risk work:
+UI, docs, tests, refactors with
+no auth, payment, RLS or migration
+impact.
+
+## Maker-checker
+
+Maker builds. A different agent
+or the owner checks.
+
+Required for: payments, bank
+transfers, enrollments, auth,
+roles, RLS, migrations, Edge
+Functions, CI/CD and deploy.
+
+The maker never approves its own
+work. A Claude subagent is not an
+independent checker.
+
+## Manager + Helpers
+
+A lead agent splits the task and
+gives helpers bounded, preferably
+read-only pieces inside the same
+task scope (see section 7).
+
+The lead stays accountable, reviews
+every helper result, and runs the
+final verification itself.
+
+## PR review format
+
+Every review comment (self-review
+in Solo loop, checker review in
+Maker-checker) uses:
+
+- Evidence: exact commands run and
+  their real output; screenshots
+  for UI; negative tests for
+  security and payment changes.
+- Gap: what is untested, skipped,
+  mocked or out of scope.
+- Criteria: each acceptance
+  criterion marked met or not met.
+
+No Evidence means not verified.
+An open Gap must appear in the PR
+description and Known Limitations.
+
+AI review is a review aid, never
+the required approval.
+
+---
+
 # 19. STOP CONDITIONS
 
 Stop the affected operation and
