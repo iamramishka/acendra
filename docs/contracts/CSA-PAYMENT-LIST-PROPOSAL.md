@@ -413,4 +413,3 @@ Other choices:
 
 Review correction ownership, regression evidence, execution limitations and integration status are recorded in
 [PR-181-REVIEW-FIXES.md](../tasks/PR-181-REVIEW-FIXES.md) and GitHub #184. Activation remains a separate reviewed release.
-
