@@ -95,7 +95,7 @@ jobs:
           ssh-keygen -l -f ~/.ssh/deploy_key
           ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Upload release to server
+      - name: Upload release and Nginx config to server
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
@@ -109,6 +109,12 @@ jobs:
             build/web/ \
             "${DEPLOY_USER}@${DEPLOY_HOST}:${RELEASE_DIR}/"
 
+          echo "Uploading Nginx config ..."
+          rsync -az \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            server/nginx.conf \
+            "${DEPLOY_USER}@${DEPLOY_HOST}:/tmp/acendra-nginx.conf"
+
           echo "Switching symlink and reloading Nginx ..."
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
             "${DEPLOY_USER}@${DEPLOY_HOST}" bash -s << EOF
@@ -116,6 +122,12 @@ jobs:
           # Atomic symlink switch (temp + rename avoids race)
           ln -s "${RELEASE_DIR}" /var/www/acendra/next
           mv -T /var/www/acendra/next /var/www/acendra/current
+          # Apply updated Nginx config if the site file exists (set up by setup-ssl.sh).
+          # Falls back to plain reload when HTTPS is not yet provisioned.
+          if [ -f /etc/nginx/sites-available/acendra ]; then
+            sudo /usr/bin/install -m 644 /tmp/acendra-nginx.conf /etc/nginx/sites-available/acendra
+            sudo /usr/sbin/nginx -t
+          fi
           sudo systemctl reload nginx
           # Keep last 5 releases; prune older ones
           ls -dt /var/www/acendra/releases/*/ | tail -n +6 | xargs -r rm -rf
@@ -126,13 +138,40 @@ jobs:
         run: |
           echo "Waiting for Nginx to settle ..."
           sleep 5
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.DEPLOY_HOST }})
-          echo "HTTP status: $STATUS"
-          if [ "$STATUS" != "200" ]; then
-            echo "::error::Smoke test failed — HTTP $STATUS"
+          DOMAIN="3-25-99-105.sslip.io"
+
+          # Verify HTTPS is live and returns 200.
+          HTTPS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://${DOMAIN}" || echo "000")
+          echo "HTTPS status: ${HTTPS_STATUS}"
+
+          # Verify HTTP redirects to HTTPS (301 or 302).
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 --no-location "http://${DOMAIN}" || echo "000")
+          echo "HTTP→HTTPS redirect status: ${HTTP_STATUS}"
+
+          # Check required security headers on the HTTPS response.
+          HEADERS=$(curl -sI --max-time 10 "https://${DOMAIN}" 2>/dev/null || echo "")
+          HAS_HSTS=$(echo "$HEADERS" | grep -i "strict-transport-security" | wc -l)
+          HAS_XCTO=$(echo "$HEADERS" | grep -i "x-content-type-options" | wc -l)
+          HAS_XFO=$(echo "$HEADERS" | grep -i "x-frame-options\|frame-ancestors" | wc -l)
+          HAS_SERVER_LEAK=$(echo "$HEADERS" | grep -i "^server:.*nginx.*[0-9]" | wc -l)
+
+          FAIL=0
+          [ "$HTTPS_STATUS" != "200" ]          && echo "::error::HTTPS not live (status ${HTTPS_STATUS})" && FAIL=1
+          [ "$HTTP_STATUS" != "301" ] && [ "$HTTP_STATUS" != "302" ] \
+                                          && echo "::error::HTTP does not redirect to HTTPS (status ${HTTP_STATUS})" && FAIL=1
+          [ "$HAS_HSTS"  -eq 0 ]               && echo "::error::Missing Strict-Transport-Security header" && FAIL=1
+          [ "$HAS_XCTO"  -eq 0 ]               && echo "::error::Missing X-Content-Type-Options header" && FAIL=1
+          [ "$HAS_XFO"   -eq 0 ]               && echo "::error::Missing X-Frame-Options / frame-ancestors header" && FAIL=1
+          [ "$HAS_SERVER_LEAK" -gt 0 ]          && echo "::error::Server header discloses Nginx version" && FAIL=1
+
+          if [ "$FAIL" -eq 1 ]; then
+            echo ""
+            echo "One or more checks failed. Run server/setup-ssl.sh on the production server"
+            echo "to provision the TLS certificate and install the Nginx config."
             exit 1
           fi
-          echo "Smoke test passed."
+
+          echo "Smoke test passed — HTTPS live, HTTP redirects, security headers present."
 
       - name: Summary
         run: |
