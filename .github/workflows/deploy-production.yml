@@ -150,19 +150,27 @@ jobs:
 
           # Check required security headers on the HTTPS response.
           HEADERS=$(curl -sI --max-time 10 "https://${DOMAIN}" 2>/dev/null || echo "")
-          HAS_HSTS=$(echo "$HEADERS" | grep -i "strict-transport-security" | wc -l)
-          HAS_XCTO=$(echo "$HEADERS" | grep -i "x-content-type-options" | wc -l)
-          HAS_XFO=$(echo "$HEADERS" | grep -i "x-frame-options\|frame-ancestors" | wc -l)
-          HAS_SERVER_LEAK=$(echo "$HEADERS" | grep -i "^server:.*nginx.*[0-9]" | wc -l)
 
           FAIL=0
           [ "$HTTPS_STATUS" != "200" ]          && echo "::error::HTTPS not live (status ${HTTPS_STATUS})" && FAIL=1
           [ "$HTTP_STATUS" != "301" ] && [ "$HTTP_STATUS" != "302" ] \
                                           && echo "::error::HTTP does not redirect to HTTPS (status ${HTTP_STATUS})" && FAIL=1
-          [ "$HAS_HSTS"  -eq 0 ]               && echo "::error::Missing Strict-Transport-Security header" && FAIL=1
-          [ "$HAS_XCTO"  -eq 0 ]               && echo "::error::Missing X-Content-Type-Options header" && FAIL=1
-          [ "$HAS_XFO"   -eq 0 ]               && echo "::error::Missing X-Frame-Options / frame-ancestors header" && FAIL=1
-          [ "$HAS_SERVER_LEAK" -gt 0 ]          && echo "::error::Server header discloses Nginx version" && FAIL=1
+          if ! grep -qi '^strict-transport-security:' <<< "$HEADERS"; then
+            echo "::error::Missing Strict-Transport-Security header"
+            FAIL=1
+          fi
+          if ! grep -qi '^x-content-type-options:' <<< "$HEADERS"; then
+            echo "::error::Missing X-Content-Type-Options header"
+            FAIL=1
+          fi
+          if ! grep -qi '^x-frame-options:\|frame-ancestors' <<< "$HEADERS"; then
+            echo "::error::Missing X-Frame-Options / frame-ancestors header"
+            FAIL=1
+          fi
+          if grep -qi '^server:.*nginx.*[0-9]' <<< "$HEADERS"; then
+            echo "::error::Server header discloses Nginx version"
+            FAIL=1
+          fi
 
           if [ "$FAIL" -eq 1 ]; then
             echo ""
