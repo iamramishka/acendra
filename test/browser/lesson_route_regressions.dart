@@ -1,4 +1,5 @@
 import 'package:acendra/app/theme/app_theme.dart';
+import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:acendra/features/learning/data/repositories/learning_progress_repository.dart';
 import 'package:acendra/features/learning/data/repositories/supabase_learning_repository.dart';
 import 'package:acendra/features/learning/domain/entities/lesson_content.dart';
@@ -80,6 +81,7 @@ void registerLessonRouteRegressionTests() {
     (tester) async {
       final container = ProviderContainer(
         overrides: [
+          currentSessionProvider.overrideWithValue(null),
           learningRepositoryProvider.overrideWithValue(_Lessons()),
           learningProgressRepositoryProvider.overrideWithValue(_Progress()),
         ],
@@ -90,12 +92,13 @@ void registerLessonRouteRegressionTests() {
         (_, _) {},
       );
       addTearDown(keepAlive.close);
-      await container
-          .read(learningWorkspaceProvider('course').notifier)
-          .loadCourse('course');
+      // The constructor already schedules loading. Flush that work rather
+      // than racing it with a second load that invalidates its request token.
+      await tester.pump();
       expect(
         container.read(learningWorkspaceProvider('course')).currentLessonId,
         'first',
+        reason: 'The retained workspace must be loaded before mounting it.',
       );
 
       await tester.pumpWidget(
