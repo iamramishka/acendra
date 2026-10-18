@@ -1,5 +1,7 @@
 import 'package:acendra/features/admin/data/repositories/admin_course_repository.dart';
+import 'package:acendra/features/admin/data/repositories/admin_directory_client.dart';
 import 'package:acendra/features/admin/data/repositories/admin_payment_repository.dart';
+import 'package:acendra/features/admin/data/repositories/admin_reporting_repository.dart';
 import 'package:acendra/features/admin/data/repositories/admin_student_repository.dart';
 import 'package:acendra/features/admin/domain/entities/payment_record.dart';
 import 'package:acendra/features/admin/presentation/providers/admin_dashboard_provider.dart';
@@ -101,7 +103,96 @@ void main() {
 
     final stats = await container.read(adminDashboardProvider.future);
 
-    expect(stats.totalRevenue, isNull);
+    expect(stats.confirmedReceipts, isNull);
+  });
+
+  test(
+    'dashboard surfaces gross confirmed receipts from the reporting API',
+    () async {
+      final container = ProviderContainer(
+        overrides: [
+          adminCourseRepositoryProvider.overrideWithValue(
+            EmptyCourseRepository(),
+          ),
+          adminStudentRepositoryProvider.overrideWithValue(
+            EmptyStudentRepository(),
+          ),
+          adminReportingRepositoryProvider.overrideWithValue(
+            _FakeReporting(
+              ConfirmedReceipts(
+                grossReceiptsMinor: BigInt.from(1234567),
+                currency: 'LKR',
+              ),
+            ),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+      final stats = await container.read(adminDashboardProvider.future);
+      expect(stats.confirmedReceipts?.formattedGross, 'LKR 12,345.67');
+    },
+  );
+
+  test('unavailable or restricted receipts stay null, not zero', () async {
+    for (final error in <Object>[
+      const ReportingUnavailable(),
+      const AdminDataException('Admin service is unavailable.'),
+    ]) {
+      final container = ProviderContainer(
+        overrides: [
+          adminCourseRepositoryProvider.overrideWithValue(
+            EmptyCourseRepository(),
+          ),
+          adminStudentRepositoryProvider.overrideWithValue(
+            EmptyStudentRepository(),
+          ),
+          adminReportingRepositoryProvider.overrideWithValue(
+            _FakeReporting.failing(error),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+      final stats = await container.read(adminDashboardProvider.future);
+      expect(stats.confirmedReceipts, isNull);
+      expect(stats.totalCourses, 0);
+    }
+  });
+
+  test('signed-out or unwired reporting leaves receipts unavailable', () async {
+    final container = ProviderContainer(
+      overrides: [
+        adminCourseRepositoryProvider.overrideWithValue(
+          EmptyCourseRepository(),
+        ),
+        adminStudentRepositoryProvider.overrideWithValue(
+          EmptyStudentRepository(),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    final stats = await container.read(adminDashboardProvider.future);
+    expect(stats.confirmedReceipts, isNull);
+    expect(stats.totalCourses, 0);
+  });
+
+  testWidgets('dashboard labels receipts as gross, with exact amount', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          adminDashboardProvider.overrideWith(_ReceiptsDashboard.new),
+          financeAccessProvider.overrideWith((ref) async => false),
+        ],
+        child: const MaterialApp(home: Scaffold(body: AdminDashboardScreen())),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('LKR 12,345.67'), findsOneWidget);
+    expect(find.text('Gross Receipts (30 days)'), findsOneWidget);
+    expect(find.text('Total Revenue'), findsNothing);
+    expect(find.textContaining('Net'), findsNothing);
+    expect(find.textContaining('Refund'), findsNothing);
   });
 
   test('dashboard uses the same global status snapshot as Payments', () async {
@@ -181,9 +272,33 @@ class _UnavailableDashboard extends AdminDashboardNotifier {
     totalStudents: 0,
     totalCourses: 0,
     pendingPayments: null,
-    totalRevenue: null,
+    confirmedReceipts: null,
     recentPendingPayments: [],
   );
+}
+
+class _ReceiptsDashboard extends AdminDashboardNotifier {
+  @override
+  Future<AdminDashboardStats> build() async => AdminDashboardStats(
+    totalStudents: 0,
+    totalCourses: 0,
+    pendingPayments: 0,
+    confirmedReceipts: ConfirmedReceipts(
+      grossReceiptsMinor: BigInt.from(1234567),
+      currency: 'LKR',
+    ),
+    recentPendingPayments: const [],
+  );
+}
+
+class _FakeReporting implements AdminReportingRepository {
+  _FakeReporting(ConfirmedReceipts value) : _value = value, _error = null;
+  _FakeReporting.failing(Object error) : _value = null, _error = error;
+  final ConfirmedReceipts? _value;
+  final Object? _error;
+  @override
+  Future<ConfirmedReceipts> confirmedReceipts() async =>
+      _error != null ? throw _error : _value!;
 }
 
 class _FailedDashboard extends AdminDashboardNotifier {
