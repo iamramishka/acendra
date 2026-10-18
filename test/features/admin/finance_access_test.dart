@@ -85,7 +85,7 @@ class _Dashboard extends AdminDashboardNotifier {
     totalStudents: 0,
     totalCourses: 0,
     pendingPayments: 0,
-    totalRevenue: 0,
+    confirmedReceipts: null,
     recentPendingPayments: [],
   );
 }
