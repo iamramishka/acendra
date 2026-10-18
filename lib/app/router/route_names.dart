@@ -12,6 +12,7 @@ abstract final class RouteNames {
   static const String savedCourses = '/dashboard/saved';
   static const String myCourses = '/dashboard/courses';
   static const String learn = '/learn/:courseId';
+  static const String learnLesson = '/learn/:courseId/:lessonId';
   static const String admin = '/admin';
   static const String checkout = '/checkout/:courseId';
   static const String checkoutSuccess = '/checkout/:courseId/success';

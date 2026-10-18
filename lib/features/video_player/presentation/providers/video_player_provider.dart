@@ -84,6 +84,10 @@ class VideoPlayerNotifier extends StateNotifier<VideoProgress> {
     await _controller?.seekTo(position);
   }
 
+  Future<void> setPlaybackSpeed(double speed) async {
+    await _controller?.setPlaybackSpeed(speed);
+  }
+
   VideoPlayerController? get controller => _controller;
 
   @override
