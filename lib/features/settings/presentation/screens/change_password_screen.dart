@@ -3,6 +3,7 @@ import 'package:acendra/core/widgets/feedback/app_snackbar.dart';
 import 'package:acendra/core/widgets/inputs/app_text_field.dart';
 import 'package:acendra/features/authentication/data/auth_repository.dart';
 import 'package:acendra/features/authentication/domain/auth_failure.dart';
+import 'package:acendra/features/authentication/domain/auth_input_rules.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -29,8 +30,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   }
 
   String? get _passwordError =>
-      _password.text.isNotEmpty && _password.text.length < 6
-      ? 'Password must be at least 6 characters'
+      _password.text.isNotEmpty && _password.text.length < minPasswordLength
+      ? 'Password must be at least $minPasswordLength characters'
       : null;
 
   String? get _confirmError =>
@@ -39,7 +40,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       : null;
 
   bool get _valid =>
-      _password.text.length >= 6 && _confirm.text == _password.text;
+      _password.text.length >= minPasswordLength &&
+      _confirm.text == _password.text;
 
   Future<void> _submit() async {
     setState(() => _loading = true);

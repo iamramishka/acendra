@@ -82,15 +82,12 @@ void main() {
     expect(_fake.signUpCalls, 0);
   });
 
-  testWidgets('rejects passwords shorter than 8 characters', (tester) async {
+  testWidgets('rejects passwords shorter than 5 characters', (tester) async {
     await tester.pumpWidget(_wrap());
-    await _fill(tester, password: 'abc123', confirm: 'abc123');
+    await _fill(tester, password: 'abcd', confirm: 'abcd');
     await _acceptTerms(tester);
     await _tapCreate(tester);
-    expect(
-      find.text('Use at least 8 characters with a letter and a number'),
-      findsOneWidget,
-    );
+    expect(find.text('Use at least 5 characters'), findsOneWidget);
     expect(_fake.signUpCalls, 0);
   });
 

@@ -5,6 +5,7 @@ import 'package:acendra/core/widgets/inputs/app_text_field.dart';
 import 'package:acendra/core/widgets/navigation/auth_shell.dart';
 import 'package:acendra/features/authentication/data/auth_repository.dart';
 import 'package:acendra/features/authentication/domain/auth_failure.dart';
+import 'package:acendra/features/authentication/domain/auth_input_rules.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -39,8 +40,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
 
     if (password.isEmpty) {
       pErr = 'Enter a new password';
-    } else if (password.length < 6) {
-      pErr = 'Password must be at least 6 characters';
+    } else if (password.length < minPasswordLength) {
+      pErr = 'Password must be at least $minPasswordLength characters';
     }
 
     if (confirm.isEmpty) {
