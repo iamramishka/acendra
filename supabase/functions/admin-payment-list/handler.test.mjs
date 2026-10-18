@@ -11,7 +11,7 @@ const listBody=(o={})=>({mode:'list',page_size:20,cursor:null,status:null,method
 const req=(body=listBody(),token=jwt(),method='POST')=>new Request('https://function.invalid',{method,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:method==='POST'?JSON.stringify(body):undefined});
 const item=(o={})=>({payment_id:pid,order_id:pid,order_number:'ORD-1',course_id:cid,course_title:'Synthetic course',amount_minor:'499900',currency_code:'LKR',method:'bank_transfer',status:'processing',created_at:'2026-10-15T07:45:00.123456Z',updated_at:'2026-10-15T08:10:00.000000Z',settled_at:null,...o});
 const counts=(o={})=>({pending:'3',processing:'2',approved:'40',rejected:'5',total:'50',...o});
-const listResult=(o={})=>({items:[item()],has_more:false,counts:counts(),as_of:'2026-10-18T05:00:00.000001Z',...o});
+const listResult=(o={})=>({items:[item()],has_more:false,counts:counts(),as_of:'2026-10-18T05:00:00.000001Z',count_as_of:'2026-10-18T05:00:00.000001Z',...o});
 // Fake backend: Auth user lookup, then RPC. Records every call and refuses any non-reporting URL.
 function backend({rpc=()=>listResult(),user={id:actor},rpcStatus=200}={}){
  const calls=[];
@@ -91,9 +91,33 @@ test('actor identifiers supplied in the body are rejected, not trusted',async()=
 test('successful list returns exactly the allowlisted wire shape',async()=>{
  const b=backend();const r=await make(b)(req());assert.equal(r.status,200);assert.equal(r.headers.get('Cache-Control'),'no-store');
  const {data}=await r.json();
- assert.deepEqual(Object.keys(data).sort(),['as_of','count_basis','counts','items','next_cursor']);
+ assert.deepEqual(Object.keys(data).sort(),['as_of','count_as_of','count_basis','counts','items','next_cursor']);
  assert.deepEqual(Object.keys(data.items[0]).sort(),['amount_minor','course_id','course_title','created_at','currency_code','method','order_id','order_number','payment_id','settled_at','status','updated_at']);
  assert.equal(data.next_cursor,null);assert.equal(data.count_basis,'current_snapshot');assert.deepEqual(data.counts,counts());
+ assert.equal(data.count_as_of,data.as_of);
+});
+
+test('continuation preserves creation cutoff but returns current counts and their snapshot time',async()=>{
+ const cutoff='2026-10-18T05:00:00.000001Z',current='2026-10-18T05:01:00.000002Z';
+ const laterCounts=counts({processing:'1',approved:'41'});
+ const b=backend({rpc:a=>a.p_after_id
+  ?listResult({items:[item({status:'approved',settled_at:current})],counts:laterCounts,as_of:a.p_as_of,count_as_of:current})
+  :listResult({has_more:true})});
+ const h=make(b,{now:()=>Date.parse('2026-10-18T05:01:00Z')});
+ const first=await (await h(req(listBody({page_size:1})))).json();
+ assert.equal(first.data.count_as_of,cutoff);
+ const response=await h(req(listBody({page_size:1,cursor:first.data.next_cursor})));
+ assert.equal(response.status,200);
+ const {data}=await response.json();
+ assert.equal(data.as_of,cutoff);assert.equal(data.count_as_of,current);
+ assert.deepEqual(data.counts,laterCounts);assert.equal(data.items[0].status,'approved');
+});
+
+test('missing, malformed or earlier count snapshot timestamps fail closed',async()=>{
+ for(const value of [undefined,null,'yesterday','2026-10-18T04:59:59.999999Z']){
+  const r=await make(backend({rpc:()=>listResult({count_as_of:value})}))(req());
+  assert.equal(r.status,503);assert.equal(await errorCode(r),'REPORTING_UNAVAILABLE');
+ }
 });
 test('large and zero amounts survive as exact decimal strings; numbers and overflow fail closed',async()=>{
  for(const amount of ['0','9007199254740993','9223372036854775807']){

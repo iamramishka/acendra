@@ -129,10 +129,11 @@ export function createHandler({env,fetch:request=globalThis.fetch,enabled=false,
     if(!exact(result,['item','as_of'])||!validateItem(result.item)||!TS.test(result.as_of))return respond(503,'REPORTING_UNAVAILABLE');
     return respond(200,null,{item:pick(result.item,ITEM_KEYS),as_of:result.as_of});
    }
-   if(!exact(result,['items','has_more','counts','as_of'])||!Array.isArray(result.items)||result.items.length>input.size||typeof result.has_more!=='boolean'
-    ||!result.items.every(validateItem)||!validateCounts(result.counts)||!TS.test(result.as_of)||(result.has_more&&result.items.length!==input.size))return respond(503,'REPORTING_UNAVAILABLE');
+   if(!exact(result,['items','has_more','counts','as_of','count_as_of'])||!Array.isArray(result.items)||result.items.length>input.size||typeof result.has_more!=='boolean'
+    ||!result.items.every(validateItem)||!validateCounts(result.counts)||!TS.test(result.as_of)||!TS.test(result.count_as_of)
+    ||result.count_as_of<result.as_of||(result.has_more&&result.items.length!==input.size))return respond(503,'REPORTING_UNAVAILABLE');
    const next=result.has_more?await makeCursor(result.items.at(-1),result.as_of,user.id,input):null;
-   return respond(200,null,{items:result.items.map(i=>pick(i,ITEM_KEYS)),next_cursor:next,counts:pick(result.counts,COUNT_KEYS),as_of:result.as_of,count_basis:'current_snapshot'});
+   return respond(200,null,{items:result.items.map(i=>pick(i,ITEM_KEYS)),next_cursor:next,counts:pick(result.counts,COUNT_KEYS),as_of:result.as_of,count_as_of:result.count_as_of,count_basis:'current_snapshot'});
   }catch{return respond(503,'SERVICE_UNAVAILABLE');}
  };
 }

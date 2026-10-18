@@ -1,12 +1,13 @@
 # Admin payment-list reporting — contract PROPOSAL
 
-Status: **PROPOSED / IN_REVIEW. Owner approval pending. Not approved, not implemented.**
-Prepared by: CLAUDE (docs only). Backend owner if approved: CODEX (payment/reporting backend).
-Task ID: not assigned (placeholder `CSA-PAYLIST-TBD`); no GitHub Issue exists yet. Resolves finderror finding 004
+Status: **PROPOSED / IN_REVIEW. Contract approval pending; inactive implementation in PR #181 (section 17).**
+Prepared by: CLAUDE (proposal and initial backend). Review-fix owner: CODEX (payment/reporting backend).
+Review-fix task: PR-181, GitHub #184 (original placeholder `CSA-PAYLIST-TBD`). Resolves finderror finding 004
 (and enables 013/014/015/016 to be satisfied with live data). Modeled on
 [CSA-158-172-REPORTING.md](CSA-158-172-REPORTING.md).
 
-This document changes no shared contract. It adds no migration, Edge Function or Flutter code, and does not edit
+The proposal in sections 1–16 changes no approved shared contract. The inactive implementation in section 17 adds
+a migration and Edge Function; it does not edit Flutter code,
 `docs/API_CONTRACTS.MD`, `TASKS.md`, router, theme or `pubspec.yaml`. If approved, the owner/Codex must
 record the contract in `docs/API_CONTRACTS.MD` through the normal shared-file process.
 
@@ -350,7 +351,7 @@ fabricated email/receipt fields.
 11. **Task ownership.** Which task ID and issue number; which agent owns the migration; who is the independent checker?
 12. **Activation.** What are the release gates (hosted staging acceptance, finance sign-off) before enabling?
 
-## 16. Verification status of this document
+## 16. Verification status of the original proposal
 
 Documentation only. No application was built, deployed or runtime-tested for this proposal. Schema statements
 were read from
@@ -362,7 +363,7 @@ were read from
 The request/response, mapping and indexes are proposals that the backend owner must validate against the live
 schema before implementation. Review evidence and limits: [PR179-CONTRACT-FIX-BOARD.md](../reviews/PR179-CONTRACT-FIX-BOARD.md).
 
-## 17. Implementation decisions (backend, owner-authorized takeover from Codex)
+## 17. Inactive implementation and review corrections
 
 Implemented read-only and hard-disabled: migration `20261018000100_csapaylist_admin_payment_list.sql`
 (`csapaylist_admin_payment_list`, `csapaylist_admin_payment_detail`, service_role only), Edge Function
@@ -385,13 +386,15 @@ nothing below is an owner approval of the contract itself.
 
 Other choices:
 
-- Status is mapped from `orders.status` only (`created`/`pending_payment` pending, `pending_verification` processing,
-  `paid` + qualifying settlement approved, `failed`/`cancelled` rejected). `payment_attempts` and
-  `bank_transfer_submissions` are not read, so receipt state can never influence the status. A "qualifying"
-  settlement is `bank_transfer`, or online with `provider_environment='production'`.
+- Status follows section 6. For a `pending_payment` bank order, the latest submission by
+  `(created_at desc, id desc)` distinguishes `rejected` from pending. A newer preparation restores pending;
+  finalization moves the order to processing. Terminal order states retain precedence over old submissions.
+  A qualifying settlement is `bank_transfer`, or online with `provider_environment='production'`.
 - `settled_at` = earliest qualifying `confirmed_at`.
 - `counts` cover `method` and date filters, the `as_of` boundary, and **not** `status` or `order_number_prefix`
   (literal reading of section 5). They come from the same single SQL statement as the page rows.
+  `as_of` remains the fixed cursor creation cutoff; `count_as_of` is the current request's
+  `statement_timestamp()` and accompanies the live counts/items through the handler.
 - Cursor is built in the Edge Function, not in SQL: base64url payload `{c: created_at, i: id, a: as_of, u: actor,
   f: filter-hash}` plus an HMAC-SHA256 keyed with the service key. Bound to actor, filters (not page_size), and
   expiry. SQL receives only `(created_at, id, as_of)` and re-validates shape. Rotating the service key invalidates
@@ -407,4 +410,7 @@ Other choices:
 - Shared files touched (owner-authorized "do all"): `supabase/config.toml` (function entry; the code-level
   `enabled:false` gate still applies) and `csa173_admin_permissions.test.sql` (grant matrix 13 -> 15 signatures).
   `TASKS.md` and `docs/API_CONTRACTS.MD` were not edited; recording the contract there is an owner step.
+
+Review correction ownership, regression evidence, execution limitations and integration status are recorded in
+[PR-181-REVIEW-FIXES.md](../tasks/PR-181-REVIEW-FIXES.md) and GitHub #184. Activation remains a separate reviewed release.
 

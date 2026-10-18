@@ -23,13 +23,19 @@ returns table(payment_id uuid,order_id uuid,order_number text,course_id uuid,cou
 language sql stable security definer set search_path='' as $$
  select o.id,o.id,o.order_number,o.course_id,o.course_title_snapshot,o.amount_minor,o.currency_code,o.payment_method,
   case o.status
-   when 'created' then 'pending' when 'pending_payment' then 'pending'
+   when 'created' then 'pending'
+   when 'pending_payment' then case when o.payment_method='bank_transfer' and b.status='rejected' then 'rejected' else 'pending' end
    when 'pending_verification' then 'processing'
    when 'failed' then 'rejected' when 'cancelled' then 'rejected'
    when 'paid' then case when st.confirmed is not null then 'approved' end
   end,
   o.created_at,o.updated_at,st.confirmed
  from public.orders o
+ left join lateral (
+  select submission.status from public.bank_transfer_submissions submission
+  where o.payment_method='bank_transfer' and o.status='pending_payment' and submission.order_id=o.id
+  order by submission.created_at desc,submission.id desc limit 1
+ ) b on true
  left join lateral (
   select min(s.confirmed_at) as confirmed from app_private.verified_settlements s
   where o.status='paid' and s.order_id=o.id and (s.method='bank_transfer' or s.provider_environment='production')
@@ -88,7 +94,8 @@ begin
    ) order by s.created_at desc,s.payment_id desc) from shown s),'[]'::jsonb),
   'has_more',(select count(*) from page)>p_page_size,
   'counts',jsonb_build_object('pending',t.pending::text,'processing',t.processing::text,'approved',t.approved::text,'rejected',t.rejected::text,'total',t.total::text),
-  'as_of',to_char(v_as_of at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"'))
+  'as_of',to_char(v_as_of at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"'),
+  'count_as_of',to_char(v_now at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"'))
  into v_bad,v_result from totals t;
  if v_bad or v_result is null then
   raise exception using errcode='55000',message='Payment reporting unavailable.';

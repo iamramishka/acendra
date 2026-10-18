@@ -16,6 +16,7 @@ declare
  c uuid:=gen_random_uuid(); tag text:=substr(gen_random_uuid()::text,1,8); pre text; r jsonb; b jsonb; w jsonb;
  o1 uuid; o2 uuid; o3 uuid; o4 uuid; o5 uuid; o6 uuid; o7 uuid; o8 uuid; o9 uuid; o10 uuid; o11 uuid;
  seen uuid[]:='{}'; prev_created text; cursor_c timestamptz; cursor_i uuid; cursor_a timestamptz; n integer:=0; item jsonb; keys text[];
+ receipt uuid:=gen_random_uuid(); submission uuid:=gen_random_uuid(); bank_version uuid:=gen_random_uuid(); bank_account uuid:=gen_random_uuid(); upload jsonb; snapshot_time timestamptz;
 begin
  pre:='PL-'||tag;
  insert into auth.users(id) values(admin),(finance),(finance1),(manager),(student),(nobody);
@@ -25,6 +26,8 @@ begin
  insert into public.user_roles(user_id,role_id) select finance1,id from public.roles where code='finance_admin';
  insert into public.user_roles(user_id,role_id) select manager,id from public.roles where code='content_manager';
  insert into public.courses(id,slug,title,price_minor,status,published_at) values(c,'paylist-'||c,'Synthetic',100,'published',now());
+ insert into app_private.bank_account_versions(id,bank_account_id,version,bank_name,account_holder,account_number,branch_name)
+ values(bank_version,bank_account,1,'Synthetic bank','Synthetic holder','SYNTHETIC-ONLY','Synthetic branch');
 
  -- Authority is checked before validation and before any data access.
  begin perform pg_temp.pl(student,ss,'aal1');raise exception 'student allowed';exception when insufficient_privilege then null;end;
@@ -74,8 +77,11 @@ begin
   values(o6,'online',9007199254740993,'LKR','payhere','synthetic','production','SECRET-SETTLEMENT-'||tag,'provider_retrieval','SECRET-EVIDENCE-'||tag,now()-interval '3 minutes');
  update public.orders set status='paid',paid_at=clock_timestamp() where id=o6;
  o7:=pg_temp.mk(student,c,pre||'-7','bank_transfer',1,now()-interval '3 minutes');
+ insert into app_private.order_bank_instructions(order_id,bank_account_version_id,instruction_snapshot)
+ select o7,id,jsonb_build_object('bank_name',bank_name,'account_holder',account_holder,'account_number',account_number,'branch_name',branch_name,'currency_code',currency_code)
+ from app_private.bank_account_versions where id=bank_version;
  insert into app_private.verified_settlements(order_id,method,amount_minor,currency_code,receiving_bank_account_scope,external_settlement_id,verification_method,evidence_reference,confirmed_at)
-  values(o7,'bank_transfer',1,'LKR','synthetic-scope','SECRET-BANK-'||tag,'bank_reconciliation','SECRET-BANK-EVIDENCE-'||tag,now()-interval '2 minutes');
+  values(o7,'bank_transfer',1,'LKR',bank_account::text,'SECRET-BANK-'||tag,'bank_reconciliation','SECRET-BANK-EVIDENCE-'||tag,now()-interval '2 minutes');
  update public.orders set status='paid',paid_at=clock_timestamp() where id=o7;
  o8:=pg_temp.mk(student,c,pre||'-8','online',100,now()-interval '2 minutes');
  o9:=pg_temp.mk(student,c,pre||'-9','online',100,(select created_at from public.orders where id=o8));
@@ -100,7 +106,8 @@ begin
  select array_agg(k order by k) into keys from jsonb_object_keys(r->'items'->0) k;
  if keys is distinct from array['amount_minor','course_id','course_title','created_at','currency_code','method','order_id','order_number','payment_id','settled_at','status','updated_at'] then raise exception 'item keys %',keys;end if;
  select array_agg(k order by k) into keys from jsonb_object_keys(r) k;
- if keys is distinct from array['as_of','counts','has_more','items'] then raise exception 'result keys %',keys;end if;
+ if keys is distinct from array['as_of','count_as_of','counts','has_more','items'] then raise exception 'result keys %',keys;end if;
+ if r->>'as_of' is distinct from r->>'count_as_of' then raise exception 'first page snapshot time differs from cutoff';end if;
  if r::text like '%SECRET%' or r::text like '%'||student::text||'%' or r::text ilike '%receipt%' or r::text ilike '%payhere%' or r::text ilike '%email%' then raise exception 'private data in list';end if;
  if (r->'items'->0->>'payment_id')<>(r->'items'->0->>'order_id') then raise exception 'payment id is order id';end if;
 
@@ -149,6 +156,52 @@ begin
  select array_agg(k order by k) into keys from jsonb_object_keys(r) k;
  if keys is distinct from array['as_of','item'] then raise exception 'detail keys';end if;
  begin perform public.csapaylist_admin_payment_detail(finance,fs,'aal2',gen_random_uuid());raise exception 'missing detail';exception when no_data_found then null;end;
+
+ -- Reproduce the real rejection workflow: rejection resets its order to pending_payment.
+ -- Seed only historical inspected evidence; review, retry preparation and finalization use trusted operations.
+ insert into app_private.order_bank_instructions(order_id,bank_account_version_id,instruction_snapshot)
+ select o3,id,jsonb_build_object('bank_name',bank_name,'account_holder',account_holder,'account_number',account_number,'branch_name',branch_name,'currency_code',currency_code)
+ from app_private.bank_account_versions where id=bank_version;
+ insert into app_private.media_assets(id,asset_type,storage_provider,bucket_name,object_path,uploaded_by,validation_status,validated_at,checksum_sha256,mime_type,size_bytes)
+ values(receipt,'bank_receipt','supabase','bank-receipts',student::text||'/'||o3::text||'/historical.png',student,'validated',now(),repeat('a',64),'image/png',100);
+ insert into public.bank_transfer_submissions(id,order_id,submitted_by,receipt_asset_id,status,created_at,submitted_at)
+ values(submission,o3,student,receipt,'submitted',now()-interval '6 minutes',now()-interval '5 minutes');
+ b:=pg_temp.pl(finance,fs,'aal2',1)->'counts';
+ perform public.csa112_review_bank_transfer(finance,fs,'aal2','paylist-reject-'||tag,submission,'reject',null,'Synthetic unmatched credit',null);
+ if (select status from public.orders where id=o3)<>'pending_payment' then raise exception 'rejection did not reset order';end if;
+ r:=pg_temp.pl(finance,fs,'aal2',50,null,null,null,'rejected',null,null,null,pre||'-3');
+ if jsonb_array_length(r->'items')<>1 or r->'items'->0->>'status'<>'rejected'
+  or (r->'counts'->>'rejected')::bigint<>(b->>'rejected')::bigint+1
+  or (r->'counts'->>'processing')::bigint<>(b->>'processing')::bigint-1
+  or (r->'counts'->>'pending')::bigint<>(b->>'pending')::bigint
+  or public.csapaylist_admin_payment_detail(finance,fs,'aal2',o3)->'item'->>'status'<>'rejected'
+ then raise exception 'rejected bank payment lost from list/detail/counts';end if;
+
+ upload:=public.csa108_prepare_receipt(student,ss,'aal1','paylist-retry-'||tag,o3,repeat('a',64),100,'image/png','png');
+ r:=pg_temp.pl(finance,fs,'aal2',50,null,null,null,'pending',null,null,null,pre||'-3');
+ if jsonb_array_length(r->'items')<>1 or r->'items'->0->>'status'<>'pending'
+  or public.csapaylist_admin_payment_detail(finance,fs,'aal2',o3)->'item'->>'status'<>'pending'
+ then raise exception 'older rejection overrides newer preparation';end if;
+ insert into storage.objects(bucket_id,name) values('bank-receipts',upload->>'object_path');
+ perform public.csa109_finalize_receipt(student,ss,'aal1',(upload->>'upload_id')::uuid,repeat('a',64),100,'image/png','synthetic-paylist-inspection');
+ r:=pg_temp.pl(finance,fs,'aal2',50,null,null,null,'processing',null,null,null,pre||'-3');
+ if jsonb_array_length(r->'items')<>1 or r->'items'->0->>'status'<>'processing' then raise exception 'older rejection overrides newer submission';end if;
+
+ -- A continuation has a fixed older creation cutoff, but facts use this statement's live snapshot.
+ snapshot_time:=statement_timestamp()-interval '30 seconds';
+ b:=pg_temp.pl(finance,fs,'aal2',50,now(),gen_random_uuid(),snapshot_time,null,null,null,null,pre||'-3');
+ perform public.csa112_review_bank_transfer(finance,fs,'aal2','paylist-approve-'||tag,(upload->>'submission_id')::uuid,'approve',
+  jsonb_build_object('destination_account_id',bank_account,'bank_transaction_id','paylist-credit-'||tag,'amount_minor','250000',
+   'currency','LKR','settled_at',now()-interval '1 minute','source','bank_statement','order_reference',pre||'-3','bank_credit_confirmed',true),null,null);
+ r:=pg_temp.pl(finance,fs,'aal2',50,now(),gen_random_uuid(),snapshot_time,null,null,null,null,pre||'-3');
+ if r->>'as_of' is distinct from b->>'as_of' or (r->>'as_of')::timestamptz is distinct from snapshot_time
+  or (r->>'count_as_of')::timestamptz is distinct from statement_timestamp()
+  or (r->>'count_as_of')::timestamptz<=(r->>'as_of')::timestamptz
+  or (r->'counts'->>'processing')::bigint<>(b->'counts'->>'processing')::bigint-1
+  or (r->'counts'->>'approved')::bigint<>(b->'counts'->>'approved')::bigint+1
+  or r->'items'->0->>'status'<>'approved'
+  or public.csapaylist_admin_payment_detail(finance,fs,'aal2',o3)->'item'->>'status'<>'approved'
+ then raise exception 'continuation snapshot or terminal paid precedence failed';end if;
 
  -- Fail closed (these poison the global scope, so they run last): a paid order whose only
  -- settlement is sandbox is not approved; refunded orders are unsupported.
