@@ -1,0 +1,938 @@
+# compare.md
+# Acedra — Mobile Prototype vs Flutter App: Layout & Flow Audit
+
+Status: Draft audit (IN_REVIEW) — not a task claim
+Prepared by: CLAUDE
+Date: 2026-10-18
+Prototype: "Acedra Mobile Prototype" artifact — https://claude.ai/artifact/NDAfFDE3QHzxMNTRXqf4RJ
+Code audited: branch `feat/csa-158-172-dashboard-receipts-ui` at `9ba9c0d`
+Scope: student-facing screens only (the prototype has no admin screens)
+
+---
+
+## 1. How to use this file
+
+1. Work through the COM tasks one at a time, in order.
+2. For each task, open the prototype screen and the Flutter screen side by side
+   at **390 px** width (the prototype's phone width), then repeat at 768 and 1440.
+3. Tick each checkbox under **Check** only after seeing it yourself in the running
+   app. Leave the task's `Result` as `—` until every box is checked.
+4. Gaps marked **DECISION** need a project-owner answer before anyone builds them.
+5. Before implementation, each COM task must be turned into a CSA task and GitHub
+   Issue with an owner, branch and file scope (AGENTS.md §6, §8). COM IDs are
+   audit IDs only, not task claims.
+
+Important rule for "match the prototype":
+the prototype fakes data and unlocks courses in the browser. The Flutter app
+must copy the **layout and the flow**, never the fake logic. Enrollment, payment
+status, receipt state and PDF access stay backend-authoritative (AGENTS.md §30–§33).
+Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
+"Coded prototype with sample data") must not ship.
+
+### Verdict legend
+
+| Verdict | Meaning |
+|---|---|
+| MATCH | Layout and flow already match the prototype |
+| PARTIAL | Screen exists; layout and/or flow differ |
+| MISSING | Prototype screen has no Flutter equivalent |
+| CONFLICT | Prototype and app disagree on a rule; owner decision needed |
+
+---
+
+## 2. Summary
+
+| ID | Area | Prototype screen | Flutter source | Verdict | SRS | Priority |
+|---|---|---|---|---|---|---|
+| COM-001 | Foundation | Tokens, fonts, light/dark | `lib/app/theme/**` | MATCH | — | P2 |
+| COM-002 | Shell | 4-tab bottom nav | `lib/core/widgets/navigation/student_shell.dart` | PARTIAL | — | P1 |
+| COM-003 | Auth | Sign in | `authentication/.../login_screen.dart` | PARTIAL | UI-ST-002 | P2 |
+| COM-004 | Auth | Create account | `authentication/.../register_screen.dart` | PARTIAL + CONFLICT | UI-ST-003 | P1 |
+| COM-005 | Auth | Check your inbox | `authentication/.../verify_email_screen.dart` | PARTIAL | UI-ST-005 | P2 |
+| COM-006 | Auth | Forgot password | `authentication/.../forgot_password_screen.dart` | PARTIAL | UI-ST-004 | P2 |
+| COM-007 | Auth | Set / change password | `authentication/.../reset_password_screen.dart` | PARTIAL + CONFLICT | UI-ST-004 | P1 |
+| COM-008 | Catalog | Explore courses | `marketplace/.../marketplace_screen.dart` | PARTIAL | UI-ST-007/008 | P1 |
+| COM-009 | Catalog | Course details | `marketplace/.../course_detail_screen.dart` | PARTIAL | UI-ST-009/010 | P1 |
+| COM-010 | Payment | Secure checkout | `checkout/.../checkout_screen.dart` | PARTIAL | UI-ST-011 | P0 |
+| COM-011 | Payment | PayHere "Checking your payment" | `checkout/.../payment_pending/success/failure_screen.dart` | PARTIAL | UI-ST-014 | P0 |
+| COM-012 | Payment | Bank transfer + receipt upload | `bank_transfer/.../bank_transfer_screen.dart`, `checkout/.../receipt_resubmission_form.dart` | PARTIAL | UI-ST-012/013 | P0 |
+| COM-013 | Payment | Bank payment status timeline | `bank_transfer/.../receipt_status_screen.dart` | PARTIAL | UI-ST-014 | P1 |
+| COM-014 | Payment | Order history | none | MISSING | UI-ST-022 | P1 |
+| COM-015 | Student | Home | `dashboard/.../dashboard_home_screen.dart` | PARTIAL (different screen) | UI-ST-006 | P1 |
+| COM-016 | Student | My Courses | `my_courses/.../my_courses_screen.dart` | PARTIAL | UI-ST-015 | P1 |
+| COM-017 | Learning | Course overview + progress | none (workspace opens straight into a lesson) | MISSING | UI-ST-016 | P1 |
+| COM-018 | Learning | Video lesson | `learning/.../learning_workspace_screen.dart`, `video_player/**` | PARTIAL | UI-ST-017 | P2 |
+| COM-019 | Learning | Text & image lesson | `learning/.../text_lesson_viewer.dart` | PARTIAL | UI-ST-019 | P2 |
+| COM-020 | Learning | PDF reader | `pdf_reader/**` | PARTIAL + CONFLICT | UI-ST-018 | P1 |
+| COM-021 | Account | My profile | `profile/.../profile_screen.dart`, `profile_edit_screen.dart` | PARTIAL | UI-ST-020 | P2 |
+| COM-022 | Account | Settings | none | MISSING | UI-ST-021 | P1 |
+| COM-023 | Cross-cutting | Empty / loading / error / feedback | various | PARTIAL | — | P2 |
+
+Count: 1 MATCH, 18 PARTIAL, 4 MISSING (COM-014, 017, 022, plus Home is a
+different screen in practice), 3 with CONFLICT items.
+
+---
+
+## 3. Owner decisions needed first
+
+| Ref | Question | Prototype | App today | Blocks |
+|---|---|---|---|---|
+| D-1 | Minimum password length | 8 chars + letter + number | 6 chars, no other rule | COM-004, COM-007 |
+| D-2 | Bottom-nav tabs | Home · Explore · My Courses · Profile | Home · My Learning · Saved · Profile | COM-002 |
+| D-3 | Watermark format (SRS DEC-008 still open) | "Licensed to <name> · <id>" diagonal | none in reader | COM-020 |
+| D-4 | Interface languages (SRS DEC-013 still open) | English / Sinhala / Tamil selector | none | COM-021, COM-022 |
+| D-5 | Billing details on checkout | not shown | First/Last/Phone/Address/City/Country required (PayHere fields) | COM-010 |
+| D-6 | Receipt review time copy | none | "1–2 business days" | COM-013 |
+| D-7 | Home content | personal (resume, my courses, recent) | marketing carousel with **sample content** | COM-015 |
+| D-8 | Email notification preference | on/off toggle | none, no backend field | COM-022 |
+
+### Owner answers (2026-10-18)
+
+- D-1: minimum 5 characters, no strength rules (no letter/number requirement). Supabase Auth minimum must be set to 5 as well.
+- D-3: watermark = "Acendra Product" plus the student's name and ID.
+- D-4: English and Sinhala (no Tamil).
+- D-5: keep billing fields; Country defaults to Sri Lanka, changeable via a searchable country dropdown (suggestions as the user types).
+- D-6: show "1–2 business days".
+- D-8: add the email notification on/off toggle (needs a backend preference field).
+
+D-5 note: PayHere needs the customer fields (see the checkout repository's
+expected-field list), so they cannot just be deleted. Options: prefill from the
+profile, collect them once and remember them, or keep the form but collapse it.
+
+---
+
+## 4. Audit tasks
+
+### COM-001 — Design tokens, fonts and theme
+
+Prototype: colours copied from `app_colors.dart`, Manrope headings, Inter body,
+light + dark + system theme.
+
+Current app:
+- `lib/app/theme/app_colors.dart:55-72` — Royal Blue `#1259DB`, Sky Cyan
+  `#1DA2FD`, Deep Navy `#0D1633`, background `#F5F8FC`. Same as the prototype.
+- `lib/app/theme/app_typography.dart` — Manrope headings, Inter body. Same.
+- Breakpoints: compact 600, medium 1024 (`app_breakpoints.dart`).
+
+Gaps: none in tokens. Individual screens often use raw Material defaults instead
+of the prototype's card/radius/pill styles — tracked in each task below.
+
+Check:
+- [x] Light theme colours match on Sign in, Explore and Checkout. (code: every light token hex equals the prototype's; screens not viewed)
+- [x] Dark theme colours match on the same three screens. (code: every dark token hex equals the prototype's; screens not viewed)
+- [x] Headings render in Manrope, body text in Inter. (code: `app_typography.dart` uses GoogleFonts.manrope / interTextTheme; not seen rendered)
+
+Result: PASS (code-only, 2026-10-18). Light and dark palettes match the
+prototype token for token; fonts match. Still open: a visual pass in the running app.
+
+---
+
+### COM-002 — Student shell and bottom navigation
+
+Prototype layout: brand header (logo + "Acedra", profile avatar at right);
+4-tab bottom bar **Home · Explore · My Courses · Profile**; Order History and
+Settings highlight the Profile tab; lesson screens have no bottom bar.
+
+Current app: `lib/core/widgets/navigation/student_shell.dart`
+- Bottom bar shown only when width < 1024 (`:19`).
+- Tabs (`:127`): **Home · My Learning · Saved · Profile**. "Explore" is a top-bar
+  text button on wide screens only; on mobile you reach it through the search icon.
+- App bar also carries search, theme toggle and an account menu.
+- Saved tab opens a "coming soon" screen (`DashboardCopy.savedComingSoon`).
+- Logged-in users on `/marketplace` get the StudentShell (`public_shell.dart`),
+  good — same nav as the prototype.
+- `LearningShell` back button calls `context.pop()`
+  (`learning_shell.dart:18`). Opening `/learn/:id` directly (refresh, deep
+  link, or after `context.go`) leaves nothing to pop. **Flow bug.**
+
+Gaps:
+- Layout: tab set differs (D-2). "My Learning" vs prototype "My Courses" label.
+- Layout: theme toggle sits in the app bar; prototype moves it into Settings.
+- Flow: Order History and Settings do not exist, so Profile has no sub-pages to
+  highlight (COM-014, COM-022).
+- Flow: Learning back button can fail on a directly opened lesson.
+
+Check:
+- [ ] At 390 px the bottom bar shows exactly the agreed tabs (after D-2).
+      (code: FAIL — app has Home · My Learning · Saved · Profile; prototype has Home · Explore · My Courses · Profile)
+- [ ] Each tab opens the right screen and shows as selected. (not checked; Saved is a "coming soon" screen)
+- [ ] Explore is reachable in one tap on mobile.
+      (code: no — only via the app-bar search icon, which goes to `/marketplace?search=true`)
+- [ ] Refresh the browser on `/learn/<id>`, then press back: you land on My Courses
+      (or the course overview), not a dead button.
+      (code: `learning_shell.dart:18` calls `context.pop()` with no fallback; not run)
+
+Fixed on `feat/com-001-005-prototype-alignment` (uncommitted): tabs are now
+Home · Explore · My Courses · Profile, learning back falls back to My Courses.
+Theme toggle still in the app bar (needs Settings, COM-022). Tests pass; not yet seen in a browser.
+Earlier result: FAIL (code-only, 2026-10-18). Tab set differs (blocked on D-2); Explore
+is not a mobile tab; theme toggle still in the app bar; learning back button has
+no fallback. Prototype tabs confirmed in its `NAVS` list.
+
+---
+
+### COM-003 — Sign in
+
+Prototype layout: logo header → navy hero "Welcome back / Continue your learning
+journey." → title "Sign in to Acedra" + subtitle → Email (mail icon) → Password
+(lock icon, Show/Hide) → Remember me + Forgot password? → **Sign In →** →
+"or" → card "New to Acedra? Create an account".
+Prototype flow: invalid email / empty password show inline errors → success goes
+to Home.
+
+Current app: `authentication/presentation/screens/login_screen.dart`
+- Layout matches closely: banner, heading, icons, remember-me row, "or",
+  create-account card are all present.
+- Adds Privacy Policy · Terms of Service links at the bottom.
+- Success goes to `/dashboard` → `/dashboard/home`. Matches.
+
+Gaps:
+- Flow: **Remember me does nothing.** `_rememberMe` (`:27`) is never read.
+  Either wire it to session persistence or remove it; do not ship a fake control.
+- Flow: Privacy Policy and Terms buttons have empty handlers (`:270`, `:289`).
+- Layout: banner uses an image asset (`signin_banner.png`) with a silent fallback;
+  confirm the asset exists in the build, otherwise the hero is half empty.
+- Copy: email validation is "contains @ and ." — weaker than the prototype regex.
+  Minor.
+
+Check:
+- [ ] 390 px: order of elements matches the prototype top to bottom.
+      (code: matches — hero, title, email, password, remember/forgot, Sign In, "or", card; app adds a Privacy/Terms footer; not viewed)
+- [x] Empty submit shows both inline errors. (code: `_submit` sets both errors; not run)
+- [ ] Wrong password shows a readable error, no stack trace.
+      (code: shows `AuthFailure.message` in a snackbar, not inline; not run)
+- [ ] Correct login lands on Home. (code: goes to `RouteNames.dashboard`; not run)
+- [ ] Remember me: either works (session survives browser restart only when on) or is removed.
+      (code: FAIL — `_rememberMe` is only written, never read)
+- [ ] Privacy / Terms links open real pages or are hidden.
+      (code: FAIL — both `onPressed: () {}`)
+
+Fixed (uncommitted): fake Remember me and dead Privacy/Terms footer removed, shared
+prototype widgets used, stricter email check. Not yet seen in a browser.
+Earlier result: PARTIAL (code-only, 2026-10-18). Layout and copy match the prototype.
+Flow gaps: Remember me is a dead control, Privacy/Terms do nothing, email check
+is only "contains @ and .". Not run in a browser.
+
+---
+
+### COM-004 — Create account
+
+Prototype layout: logo header with back → navy hero "Create your account / Start
+learning with confidence." → Full name (user icon) → Email → Password ("At least 8
+characters") → Confirm password → **checkbox "I agree to the Terms of Service and
+Privacy Policy"** → **Create Account →** → "or" → "Already have an account? Sign In".
+Prototype flow: all fields validated, terms must be ticked → "Check your inbox".
+
+Current app: `authentication/presentation/screens/register_screen.dart`
+- Plain form: heading "Create your account", subtitle "Start learning today",
+  four labelled fields, button, sign-in link.
+- Success stores the email and goes to `/verify-email`. Matches.
+
+Gaps:
+- Layout: no hero banner, no field icons, no "or" divider, plain text link instead
+  of the soft card. Uses floating labels while Sign in uses labels above fields —
+  inconsistent between the two auth screens.
+- Flow: **no terms/privacy consent checkbox.** Prototype blocks signup without it.
+- CONFLICT D-1: app accepts 6 characters (`:53`); prototype requires 8.
+  Must also match the Supabase Auth password policy server-side.
+- No back button in header (prototype has one).
+
+Check:
+- [ ] Layout matches the prototype at 390 px (hero, icons, consent, card link).
+      (code: FAIL — no hero, field icons, "or" divider or card; floating labels vs labels-above on Sign in)
+- [ ] Submitting without consent shows an error and does not call sign-up.
+      (code: FAIL — no consent checkbox exists)
+- [ ] Password rule matches D-1 in both the form and Supabase Auth settings.
+      (code: FAIL — form allows 6 at `register_screen.dart:53`, prototype 8; Supabase setting not checked)
+- [x] Mismatched passwords show "Passwords do not match". (code: matches; not run)
+- [ ] Success lands on Check your inbox with the email shown.
+      (code: goes to verify-email and stores the email; not run)
+
+Fixed (uncommitted): hero, icons, back button, consent checkbox, "or" + card, password
+rule 8+ with letter and number. Terms/Privacy are plain text (no pages exist);
+consent is not stored server-side. Supabase Auth password policy not changed.
+Earlier result: FAIL (code-only, 2026-10-18). Missing hero, icons, consent checkbox,
+"or" divider and card link; password minimum 6 vs 8 (D-1). Not run in a browser.
+
+---
+
+### COM-005 — Check your inbox (email verification)
+
+Prototype layout: soft hero with mail tile + check badge → "Check your inbox" →
+masked email pill (`de••@example.com`) → helper text → **Resend Verification Email**
+(disabled with a 30 s countdown after use) → **Back to Sign In** → info box
+"Didn't receive the email? Check your spam folder…".
+
+Current app: `authentication/presentation/screens/verify_email_screen.dart`
+- Icon, "Verify your email", full email in plain text, Resend (outlined),
+  Back to sign in.
+
+Gaps:
+- Layout: no hero, no masked-email pill, no spam-folder info box. Title wording differs.
+- Flow: **no resend cooldown** — the button re-enables as soon as the call
+  returns, so users can spam it (Supabase also rate-limits; show that nicely).
+- Privacy: prototype masks the email; app shows it in full. Masking is the
+  safer default on a shared screen.
+- If the page is refreshed, `pendingVerificationEmailProvider` is empty, so the
+  resend button disappears. Prototype always offers resend.
+
+Check:
+- [ ] Layout matches the prototype.
+      (code: FAIL — no hero tile/badge, email pill or spam-folder info box; title "Verify your email" vs "Check your inbox")
+- [ ] Email is masked. (code: FAIL — full address shown; prototype shows `de••@example.com`)
+- [ ] After Resend, the button shows a countdown and is disabled until it ends.
+      (code: FAIL — re-enables as soon as the call returns)
+- [ ] After a browser refresh the screen still offers a way to resend.
+      (code: FAIL — Resend is hidden when `pendingVerificationEmailProvider` is null)
+
+Fixed (uncommitted): hero tile + badge, masked email pill, 30 s resend cooldown, spam
+info box, email field when the address is lost on refresh. Not yet seen in a browser.
+Earlier result: FAIL (code-only, 2026-10-18). All four gaps confirmed against the
+prototype source: layout, masking, 30 s cooldown, refresh behaviour. Not run in a browser.
+
+---
+
+### COM-006 — Forgot password
+
+Prototype layout: soft hero (lock tile + send badge) → "Forgot your password?" →
+Email → **Send Reset Link →** → **Back to Sign In** (outlined) → info box "If an
+account exists for the address, reset instructions will be sent."
+
+Current app: `authentication/presentation/screens/forgot_password_screen.dart`
+- Form then an in-place success view "Check your inbox — We sent a password reset
+  link to <email>."
+
+Gaps:
+- Layout: no hero, no info box; Back to sign in is a text link not a button.
+- Privacy/flow: success copy **"We sent a password reset link to <email>"**
+  confirms an account exists. Prototype uses neutral wording ("If an account
+  exists…"). Use the neutral wording to avoid account enumeration.
+- Flow: prototype goes straight to the reset screen (demo only). The real flow
+  must stay email-link → `/reset-password`; keep the app's behaviour here.
+
+Check:
+- [ ] Layout matches the prototype.
+- [ ] Success message does not confirm whether the account exists.
+- [ ] Reset link in the email opens `/reset-password` and works.
+
+Result: PARTIAL (2026-10-18, commit 3852c6e). FIXED: neutral success wording (no account confirmation), outlined Back to sign in, info text. NOT DONE: hero. Overlaps Codex CSA-265 (#183).
+
+---
+
+### COM-007 — Set new password / Change password
+
+Prototype layout: soft hero (shield) → "Set a new password" (or "Change your
+password" when signed in) → New password → Confirm → **live checklist** (8+ chars,
+letters and a number, both match) → **Update Password** disabled until all rules
+pass → Back to Sign In (only when signed out).
+Prototype flow: signed-out → back to Sign in with toast; signed-in (from Settings)
+→ back to Settings with "Password updated."
+
+Current app: `authentication/presentation/screens/reset_password_screen.dart`
+- Two plain fields (no show/hide), button, Back to sign in. Always returns to
+  `/login`.
+
+Gaps:
+- Layout: no hero, no live checklist, no show/hide toggle (uses `AppTextField`
+  with `obscureText` instead of `AppPasswordField`).
+- CONFLICT D-1: 6-char minimum (`:42`).
+- Flow: **no signed-in "Change password" path.** There is no Settings screen
+  linking here, and after success it always sends the user to `/login`.
+- Button is always enabled; prototype disables it until rules pass.
+
+Check:
+- [ ] Checklist updates as you type and the button stays disabled until all pass.
+- [ ] From Settings (once COM-022 exists) the flow returns to Settings, still signed in.
+- [ ] From the email link the flow returns to Sign in.
+
+Result: —
+
+---
+
+### COM-008 — Explore courses (catalog + search)
+
+Prototype layout: brand header → "Explore Courses / Discover skills worth
+mastering." → rounded search field → category chips (All Courses, …) → row with
+"**N Courses**" count and **Sort** (Popular · Price low→high · Price high→low) →
+one-column list of large course cards (gradient art, category dot, title, blurb,
+price, chevron).
+Prototype flow: search and chips filter live; no results → "No courses found —
+Try a different word or category."
+
+Current app: `marketplace/presentation/screens/marketplace_screen.dart`
+- `SearchBar` + `FilterChip` row + `CourseGrid` (1/2/3 columns).
+
+Gaps:
+- Layout: no page title/subtitle, no result count, **no sort control**.
+- Layout: card shows `shortDescription` in the instructor slot
+  (`course_grid.dart` passes `instructorName: course.shortDescription`); no
+  category label on the card.
+- Flow: empty state always says "No courses available yet." (`:105`) even when
+  a search simply has no matches. Needs a separate "No courses found" state.
+- Flow: chip "All" vs prototype "All Courses" (copy only).
+- Performance: grid uses `shrinkWrap` inside a sliver; fine for small catalogs,
+  should become a `SliverGrid` before the catalog grows.
+
+Check:
+- [ ] Title, search, chips, count, sort and cards appear in prototype order.
+- [ ] Sort changes order correctly for both price directions.
+- [ ] Search with no match shows "No courses found", not "No courses available yet".
+- [ ] Tapping a card opens Course details.
+
+Result: PARTIAL (2026-10-18, commit 3852c6e). FIXED: title and subtitle, course count, sort (Newest, price both ways; no Popular, no data), separate "No courses found" state. NOT DONE: category label and blurb on card, SliverGrid. Overlaps Codex CSA-265 (#183).
+
+---
+
+### COM-009 — Course details
+
+Prototype layout: header "Course Details" with back → large course art →
+category + title + blurb → chips "N modules" "N lessons" → card **What You'll
+Learn** (check list) → card **About This Course** → card **Course Curriculum**
+(expandable modules; lessons show lock icon if not owned, play icon if owned,
+minutes) → **sticky footer** with price + action.
+Prototype flow — footer has three states:
+1. Not owned, no open order → price + **Buy Course** → Checkout.
+2. Open (unpaid) order exists → status label + **Payment Status** → PayHere
+   status or bank status screen.
+3. Owned → "You own this course · N% done" + **Go to Course** → Course overview.
+
+Current app: `marketplace/presentation/screens/course_detail_screen.dart`
+- AppBar with course title, price row + "Enrolled" chip, descriptions, stats,
+  one button **Enroll Now / Continue Learning**, curriculum `ExpansionTile`s
+  with type icons and "Preview" chip.
+
+Gaps:
+- Layout: no hero image, no "What You'll Learn" card, no sticky footer (button
+  scrolls away), no lock/play icons per lesson, no lesson durations.
+- Flow: **no "open order" state.** A student with a pending PayHere or bank
+  order sees "Enroll Now" again and can start a second order. Prototype routes
+  them to Payment Status instead. Needs a backend read of the student's open
+  order for this course (contract needed).
+- Flow: "Continue Learning" goes straight into `/learn/:id`; prototype goes to the
+  course overview first (COM-017).
+- Flow: back always goes to `/marketplace` (`:38`), even when the user came from
+  Home or My Courses.
+- Copy: "Enroll Now" vs prototype "Buy Course".
+
+Check:
+- [ ] Sticky footer stays visible while scrolling.
+- [ ] Not owned → Buy Course → Checkout.
+- [ ] Pending order → Payment Status, and no second order can be started.
+- [ ] Owned → Go to Course → course overview.
+- [ ] Back returns to the screen you came from.
+
+Result: —
+
+---
+
+### COM-010 — Secure checkout
+
+Prototype layout: header "🔒 Secure Checkout" + logo → **3-step bar** (Order ✓ ·
+Payment · Confirm) → "Complete Your Purchase" → card **Order Summary** (art,
+title, category, lessons, Total) → card **Select Payment Method** (radio cards:
+Online Payment / PayHere logo; Bank Transfer) → info box that changes with the
+method → "Your card details are entered on PayHere, not in Acedra." → **sticky
+footer**: Total Amount + **Continue to PayHere** / **Continue to Bank Transfer**.
+Prototype flow: one tap creates the order → PayHere status (COM-011) or bank
+transfer screen (COM-012).
+
+Current app: `checkout/presentation/screens/checkout_screen.dart`
+- Order Summary card, Payment Method cards, **Billing Details** form,
+  **Proceed to Payment** (`:433`) creates the order, then **Pay Now** (`:440`)
+  starts PayHere. For bank: bank instructions card, **Continue Bank Transfer**,
+  plus a **receipt upload form embedded under it** (`:459`).
+
+Gaps:
+- Layout: no step bar, no method explanation info box, no "card details stay on
+  PayHere" line, no sticky footer total.
+- Layout bug: before the order exists the summary shows **"Course: <raw id>"**
+  (`:254`) instead of title, art and price. The course is already loaded on the
+  details screen; show it here.
+- Flow: two taps (Proceed → Pay Now) vs one. Acceptable if D-5 keeps billing
+  fields; otherwise merge.
+- Flow: bank method shows instructions **and** an upload form on checkout, and
+  also a button to the bank screen — the same job in two places. Prototype has
+  one bank screen with upload (COM-012).
+- Flow: status badge prints the raw backend value uppercased
+  ("PENDING PAYMENT"). Map to the prototype labels.
+- Flow: back uses `Navigator.maybePop()` (`:180`); after `context.go` there may be
+  nothing to pop.
+- DECISION D-5 (billing fields).
+
+Security (keep as is): order creation and PayHere handoff are server-side and
+validated (`checkout_submission_repository.dart`). Do not move any of it client-side.
+
+Check:
+- [ ] Before any order, summary shows the real course title, art and price.
+- [ ] Step bar shows Order done, Payment current.
+- [ ] Switching method changes the info box and footer button label.
+- [ ] Online: one clear path to PayHere; card data never entered in Acedra.
+- [ ] Bank: lands on a single bank screen with instructions + upload.
+- [ ] Back works after a direct page load.
+
+Result: —
+
+---
+
+### COM-011 — PayHere payment status ("Checking your payment")
+
+Prototype layout: header "Payment Status" → spinning ring with shield →
+"Checking your payment" → pill "Verification in progress" → card **Transaction
+Details** (course, order ref, method, amount, status pill) → info box "Your course
+unlocks after the payment is verified. Avoid starting another payment…" →
+**Refresh Payment Status** → **View Order History**.
+Prototype flow: Refresh re-checks status; reachable later from Course details and
+Order history.
+
+Current app: `/checkout/:id/pending`, `/success`, `/failure`
+(`payment_pending_screen.dart`, `payment_success_screen.dart`,
+`payment_failure_screen.dart`). Reached only from PayHere's return/cancel URL
+(configured server-side in `supabase/functions/_shared/payments/payhere.mjs`).
+
+Gaps:
+- Flow: **screens read course title and order number from `state.extra`**
+  (`app_router.dart` pending/success/failure builders). A PayHere redirect is a
+  full page load with no `extra`, so these come back empty — the pending screen
+  shows "Order #" with nothing after it (`payment_pending_screen.dart:82`).
+  The screen must load the order from the backend by id.
+- Flow: **no Refresh / live status check.** User cannot see the moment the
+  payment is verified.
+- Flow: no link to Order history (does not exist yet, COM-014).
+- Copy: pending screen's "What happens next?" lists **bank** steps ("We receive
+  your receipt", `:99`) on what is the PayHere return page.
+- Layout: no transaction details card.
+- Copy: failure "Contact Support" shows `support@acedra.com`
+  (`payment_failure_screen.dart:90`) — confirm this is a real mailbox.
+
+Security (keep): app already says access needs independent verification and
+never treats the redirect as success. Keep that.
+
+Check:
+- [ ] Return from PayHere sandbox shows the real order number, course and amount.
+- [ ] Refresh re-reads status from the backend and updates the pill.
+- [ ] Copy on the PayHere page mentions no bank receipts.
+- [ ] Cancel returns to a failure page with a working Try Again.
+
+Check results (code-only, 2026-10-18):
+- FAIL: pending/success/failure builders read `state.extra` (`app_router.dart:157-184`), so a PayHere redirect shows an empty "Order #".
+- FAIL: no Refresh / status read. Own orders can be read directly (`csa092_orders_read_own` RLS policy), so no new backend is needed.
+- FAIL: `payment_pending_screen.dart:99` still lists bank steps ("We receive your receipt").
+- Not verified: `support@acedra.com` mailbox.
+
+Result: FAIL (code-only). NOT FIXED: files are in `checkout/presentation` and the router, which Codex holds under CSA-265.
+
+---
+
+### COM-012 — Bank transfer instructions + receipt upload
+
+Prototype layout: header "Bank Transfer" → "Complete Your Transfer" → soft card
+(course, **order reference with copy**, total) → card **Bank Transfer Details**
+(Bank, Account Holder, Account Number — **each with copy**) → info "use the exact
+amount and the order reference" → card **Upload Payment Receipt** (dashed drop
+zone, "JPEG, PNG or PDF · up to 5 MiB", Choose File, selected file row with
+Remove, error box) → info "Submitting a receipt does not confirm payment" →
+**sticky footer: Submit Receipt for Review** (disabled until a file is chosen).
+Prototype flow: submit → bank status screen (COM-013).
+
+Current app:
+- `bank_transfer/presentation/screens/bank_transfer_screen.dart`: order badge,
+  4 numbered steps, account details card (copy on account number only,
+  `:326`), disclaimer, **"I've made the transfer"** (`:195`) → status screen.
+  **No upload on this screen.**
+- Upload lives in `checkout/presentation/widgets/receipt_resubmission_form.dart`
+  (embedded in checkout and on `/bank-transfer/:id/resubmit`).
+
+Gaps:
+- Flow: upload is split from the instructions; prototype does both on one screen
+  and submits from the footer.
+- Flow: **screen only works straight after checkout.** It reads the in-memory
+  `checkoutProvider`; a refresh or deep link shows "Payment instructions are
+  unavailable…" (`:54`). Must load the order by `orderId` from the backend.
+- **SRS defect:** picker accepts `.jpg,.jpeg,.pdf` only
+  (`receipt_file_picker_web.dart:10`). SRS (§ receipt types, approved
+  2026-10-11) requires **JPEG, PNG and PDF, 5 MiB**. PNG is missing; the hint
+  text says "max 5 MB" vs SRS "5 MiB".
+- Layout: no copy button for order reference, bank name or holder.
+- Layout: "I've made the transfer" goes to a status page that then asks to upload
+  — an extra hop.
+
+Security (keep): bank details come from the backend; receipt upload is private
+and server-validated; access only after finance approval.
+
+Check:
+- [ ] Instructions and upload are on one screen.
+- [ ] Order reference, bank, holder and account number each copy correctly.
+- [ ] PNG, JPEG and PDF up to 5 MiB are accepted; others show a clear error.
+- [ ] Submit is disabled with no file; enabled after choosing one.
+- [ ] Refreshing the page still shows the instructions for that order.
+- [ ] After submit you land on the bank status screen.
+
+Check results (code-only, 2026-10-18):
+- FAIL, NOT FIXED: PNG is rejected by the picker (`checkout/presentation/services/receipt_file.dart` and `receipt_file_picker_web.dart`: `.jpg,.jpeg,.pdf`; message "5 MB"). The backend (`validation.mjs`, bank-receipts bucket) and `bank_transfer_repository.dart` already accept PNG, so the only defect is those two checkout files (Codex-owned scope under CSA-265).
+- FAIL, NOT FIXED: instructions do not survive a refresh. They come from the in-memory checkout response; `bank-transfer-read` returns no bank details, so a reload needs a backend read.
+- FAIL, NOT FIXED: upload is still on a separate screen (the upload form lives in `checkout/presentation`). "I've made the transfer" is kept because three existing test files depend on it.
+- FIXED: copy buttons for order reference, bank, account holder and account number (real icon buttons with tooltips, 48 px targets instead of a 16 px tap area).
+- FIXED: "use the exact amount and your order reference" guidance.
+- FIXED: back button falls back to the dashboard when there is nothing to pop.
+
+Result: PARTIAL. Layout-only items fixed in `bank_transfer/**`; PNG, refresh and single-screen upload remain (see above).
+
+---
+
+### COM-013 — Bank payment status timeline
+
+Prototype layout: header "Payment Status" → status card (large clock icon,
+"Awaiting Verification" / "Receipt Needed", pill) → card **Order Details** (course,
+ref, amount, method, date) → card **Payment Progress** — 4-step vertical timeline
+with per-step pill: Order Created ✓ · Receipt Submitted · Bank Verification ·
+Enrollment Activated → info "We will email you when it is confirmed." →
+Upload Receipt (only when missing) → View Orders → Explore Courses.
+
+Current app: `bank_transfer/presentation/screens/receipt_status_screen.dart` +
+`checkout/presentation/widgets/receipt_status_card.dart`
+- Status card with title/description per state (awaiting, submitted, under review,
+  verified, rejected + reason), upload / resubmit button, Go to Dashboard.
+
+Gaps:
+- Layout: **no 4-step timeline**, no order details card (amount, method, date).
+- Flow: no "View Orders" (COM-014) or "Explore Courses" exits.
+- App handles **Rejected + reason + resubmit**, which the prototype lacks — keep it
+  (prototype gap, not app gap).
+- Copy D-6: "within 1–2 business days" (`receipt_status_screen.dart:267`,
+  `receipt_status_card.dart:176`) is a service promise not found in SRS —
+  confirm or remove.
+- Copy: prototype promises an email on confirmation — only add if the backend
+  actually sends one.
+
+Check:
+- [ ] Timeline shows the correct current step for each status.
+- [ ] Rejected state still shows the reason and resubmit.
+- [ ] Order details match the backend record.
+- [ ] Exits go to Orders and Explore.
+
+Check results (code-only, 2026-10-18):
+- FIXED: four-step timeline (Order Created, Receipt Submitted, Bank Verification, Enrollment Activated) driven by the backend status; rejected shows "Needs Attention" and enrollment stays not started; only approved marks enrollment done. Tested for all five statuses.
+- FIXED: Order Details card (course, order reference, method, submitted date).
+- FIXED: "Explore Courses" exit. Rejected reason and resubmit are kept.
+- FIXED: error body no longer prints `err.toString()`; only our own failure messages are shown, anything else gets a generic message.
+- NOT FIXED: amount and order date are not returned by the student status read (`bank-transfer-read` only returns them for the finance queue), so they are not shown.
+- NOT FIXED: "View Orders" exit needs COM-014.
+- NOT FIXED: D-6 "1–2 business days" and the "notified once approved" line are in `checkout/presentation/widgets/receipt_status_card.dart` (CSA-265 scope) and `_statusConfig` is not reached for those states.
+- The prototype's "we will email you" line was not added: nothing in the backend sends that email.
+
+Result: PARTIAL. Timeline, details, exit and error handling fixed; amount/date and View Orders blocked.
+
+---
+
+### COM-014 — Order history (student)  — MISSING
+
+Prototype layout: header "Order History" (Profile tab active) → "Your Purchases"
+→ chips All · Paid · Awaiting Payment → order cards (art, "Order #ref", status
+pill, title, date, price, button **Go to Course** if paid or **View Payment
+Status** otherwise) → empty state "No orders here".
+Prototype entry: Profile → Order History; PayHere status → View Order History;
+bank status → View Orders.
+
+Current app: no route, no screen. `RouteNames` has only the admin
+`adminPaymentHistory`. SRS requires it: **UI-ST-022 Payment History** and
+"View own purchase history".
+
+Needs: a student-scoped, RLS-protected order list read (new CSA task; backend
+contract owner to be assigned). Statuses must come from the backend.
+
+Check:
+- [ ] Route exists and is reachable from Profile.
+- [ ] Only the signed-in student's orders appear (test with a second account).
+- [ ] Filters work; empty state shows.
+- [ ] Each card's button goes to the right course or status screen.
+
+Check results (code-only, 2026-10-18):
+- Confirmed MISSING: no route, screen or `RouteNames` entry for student order history.
+- Correction to the note above: a student-scoped read already exists. `csa092_orders_read_own` lets authenticated users SELECT their own orders, so the list may not need a migration. Needs a read-only repository and a new route.
+- Blocked by the router lock held by CSA-265.
+
+Result: DONE code-only (2026-10-18, commit 6f769dc). /orders with All/Paid/Awaiting filters, empty and error states, linked from Profile and bank status. Uses own-orders RLS read. NOT DONE: second-account check, browser check.
+
+---
+
+### COM-015 — Home
+
+Prototype layout: brand header + avatar → greeting ("Good morning") + "Welcome
+back, <name>" → navy **Continue learning** card (course, current lesson, % bar,
+"N of M lessons", **Resume Learning**) → "My Courses" with View All + 2-column
+owned-course cards (progress %, Continue / Get Started) → "Recently Accessed"
+(last video lesson, last PDF with page).
+
+Current app: `dashboard/presentation/screens/dashboard_home_screen.dart`
+- **Preview notice** "courses and categories below are sample content" (`:76`),
+  hero carousel, category row, featured courses, "Why learn with Acedra".
+- Tapping a category or course shows a "sample" snackbar (`:97`, `:112`).
+
+Gaps:
+- This is a **different screen**: a marketing home with sample data, not the
+  prototype's personal learning home. No greeting, no resume, no progress, no
+  owned courses, no recently accessed.
+- `ContinueLearningCard` exists in `my_courses/presentation/widgets/` but is
+  **not used anywhere**.
+- Needs per-student progress data (learning progress is in `learning_provider`;
+  a summary read for Home is required).
+- DECISION D-7: replace, or keep the marketing sections below the personal ones.
+- Note: current branch (CSA-158/172) touches dashboard work — coordinate before
+  editing this area.
+
+Check:
+- [ ] Greeting uses the time of day and the student's name.
+- [ ] Resume opens the exact next unfinished lesson.
+- [ ] Owned courses show real progress.
+- [ ] No "sample content" text in a production build.
+
+Check results (code-only, 2026-10-18):
+- FAIL: `dashboard_home_screen.dart:76` still shows the sample-content preview notice; home is still the marketing page.
+- Confirmed: `ContinueLearningCard` is not used by any screen or test.
+- A progress read exists (csa127/csa133 migrations); a Home summary read still has to be designed. D-7 is open.
+
+Result: PARTIAL (2026-10-18, commit fbbb3e5). D-7 decided: personal section on top (greeting, Continue Learning, owned courses), existing sections kept below. The "sample content" notice remains because those sections are still sample data. Depends on the unrun com015 migration for progress.
+
+---
+
+### COM-016 — My Courses
+
+Prototype layout: brand header → "My Courses / Your learning library" → chips All
+· In Progress · Not Started · Completed → large cards (art, category, title,
+blurb, "N of M lessons completed", %, bar, **Continue Learning** / **Start
+Learning**) → filter empty states with Explore button.
+
+Current app: `my_courses/presentation/screens/my_courses_screen.dart`
+- AppBar "My Courses", grid of `CourseCard`s with price text **"Enrolled"**
+  (`:73`), extended FAB "Explore Courses" (`:19`), empty state.
+
+Gaps:
+- Layout: no filter chips, no progress, no per-card button.
+- Data: `EnrolledCourse` has no progress fields — progress summary needed.
+- Flow: card goes straight to `/learn/:id`; prototype goes to course overview
+  (COM-017).
+- Layout: FAB overlaps the last card on mobile and duplicates the bottom-nav
+  Explore route (once D-2 adds it).
+
+Check:
+- [ ] Filters show the right courses by progress.
+- [ ] Each card shows real progress and the right button label.
+- [ ] Empty filter shows a message and an Explore button.
+
+Result: PARTIAL (2026-10-18, commit fbbb3e5). FIXED: filter chips, progress bar, Continue/Start/Review per card, one-call progress RPC com015_my_course_progress (migration NOT run or tested). NOT DONE: card goes to resume lesson, not overview.
+
+---
+
+### COM-017 — Course overview with progress — MISSING
+
+Prototype layout: back "My Courses" → course art + title + "N modules · N
+lessons" → card **Your Learning Progress** (big %, bar) → card **Continue
+learning** (next lesson, Resume / Start Lesson) → **Course Curriculum** with
+module status circles (done ✓ / current / todo), "Completed" pill, lessons with
+done/current/empty markers, "In Progress", durations.
+
+Current app: `/learn/:courseId` opens `LearningWorkspaceScreen` directly into a
+lesson with a curriculum sidebar (≥ 900 px) or a FAB bottom sheet (mobile).
+`CurriculumNav` lists lessons but there is no course-level progress view.
+
+Gaps:
+- Screen missing. Decide: new route (e.g. `/learn/:courseId` = overview,
+  `/learn/:courseId/:lessonId` = lesson) — **router change, shared file**,
+  needs a lock (AGENTS.md §14–15).
+- No course % or "N of M lessons" anywhere in learning.
+
+Check:
+- [ ] Overview shows correct % and next lesson.
+- [ ] Module and lesson markers reflect saved progress after reload.
+- [ ] Resume opens the right lesson.
+
+Result: implemented in f8ac6c9 (course overview, lesson header, complete-and-continue); not re-verified this session.
+
+---
+
+### COM-018 — Video lesson
+
+Prototype layout: header (course title) → 16:10 player (play overlay, time, seek,
+**speed 1/1.25/1.5/2x**, **CC**) → "Lesson 08" + title + "Video Lesson" + status
+pill → **Course Progress** card → tabs **Overview / Resources** (resources list:
+PDF guide opens reader, ZIP) → **sticky footer: Previous · Mark Complete &
+Continue**.
+
+Current app: `learning_workspace_screen.dart` + `video_player/presentation/widgets/**`
+- Player with play/pause, seek, fullscreen (`video_controls.dart`); resume position
+  saved; "Mark complete / Mark incomplete" button top-right; Previous/Next bar.
+
+Gaps:
+- Layout: no lesson header (number, type, status), no course progress card, no
+  Overview/Resources tabs.
+- Player: no speed control, no captions toggle (Mux supports both; captions
+  depend on uploaded tracks).
+- Flow: complete and next are separate actions; prototype combines "Mark Complete
+  & Continue".
+- App has "Mark incomplete" — prototype doesn't; keep (harmless).
+
+Check:
+- [ ] Speed and CC controls work (CC only when a track exists).
+- [ ] Mark Complete & Continue saves progress and opens the next lesson.
+- [ ] Resources tab opens the PDF in the reader.
+
+Result: see f8ac6c9 (lesson header); not re-verified this session.
+
+---
+
+### COM-019 — Text & image lesson
+
+Prototype layout: eyebrow "Lesson 09" + title + "Text & Image Lesson" + small
+course-progress card → content cards (headings, paragraphs, inline code,
+diagrams, **Key Takeaway** callout) → footer **Previous · Complete & Continue**
+(last lesson in module → back to overview with "Module finished" toast).
+
+Current app: `learning/presentation/widgets/text_lesson_viewer.dart`,
+`image_lesson_viewer.dart` in the workspace.
+
+Gaps:
+- Layout: header and course-progress mini card missing; callout styles depend on
+  how lesson text is authored (check what `contentText` supports).
+- Flow: same complete-and-continue gap as COM-018; no "module finished" moment.
+
+Check:
+- [ ] Header shows lesson number, type and status.
+- [ ] Complete & Continue advances; last lesson returns to overview.
+
+Result: see f8ac6c9; not re-verified this session.
+
+---
+
+### COM-020 — PDF reader
+
+Prototype layout: header (back, document title, **Contents**, **Bookmark**) →
+page on grey canvas with **personal watermark** → note "This guide shows your name
+as a watermark on every page." → **footer**: ‹ page / total › · − zoom % + ·
+fit-to-width. Contents sheet lists chapters (current highlighted) and bookmarks.
+
+Current app: `pdf_reader/presentation/widgets/**`
+- Page navigation, zoom presets (fit page, fit width, 100/150/200),
+  bookmarks + bookmarks panel, search bar, loading/error states, reading position.
+
+Gaps:
+- **No watermark and no watermark disclosure** in the reader (no "watermark"
+  string anywhere in `pdf_reader/`). SRS FR-PDF-SEC-005/006 are MUST; SRS also
+  says delivery uses **server-watermarked derivatives**, so the watermark should
+  come from the backend file, not a Flutter overlay. Format is open (D-3 /
+  DEC-008). The disclosure line can be added now.
+- Layout: no document **contents/outline** sheet (only bookmarks).
+- Layout: controls placement differs (prototype puts nav + zoom in one bottom bar).
+- App has search, which the prototype lacks — keep.
+- Do not add download/print controls (SRS: avoid unnecessary download/print).
+
+Check:
+- [ ] Watermark visible and readable on every page (after D-3), not covering text.
+- [ ] Disclosure line shown.
+- [ ] Contents sheet jumps to chapters; bookmarks list works.
+- [ ] Zoom, fit-to-width, page nav work at 390 px without horizontal page scroll.
+- [ ] Reopening the PDF returns to the last page.
+
+Result: PARTIAL (2026-10-18, commit e67a76e + follow-up). DONE: single footer bar (page, zoom, fit-to-width), 44 px targets. Watermark disclosure is built but switched OFF (kPdfWatermarkApplied=false) because delivered PDFs are not watermarked yet (CSA-139, D-3). NOT DONE: contents sheet. Zoom not seen in a browser.
+
+---
+
+### COM-021 — My profile
+
+Prototype layout: brand header → "My Profile" → gradient card (large avatar with
+camera badge, name, email, **Change Photo**) → card **Personal Information**
+(Display Name editable, Email **read-only with lock** + "Email can't be changed
+here.", **Preferred Language** select, Save Changes) → list: **Order History**,
+**Settings**.
+
+Current app: `profile/presentation/screens/profile_screen.dart` (view + Sign out)
+and `profile_edit_screen.dart` (display name only).
+
+Gaps:
+- Layout: view and edit are two screens; prototype edits inline.
+- Missing: photo change (needs private avatar storage + RLS — backend task),
+  language (D-4), Order History link (COM-014), Settings link (COM-022).
+- Flow: Sign out sits on Profile; prototype puts it in Settings.
+
+Check:
+- [ ] Display name saves and shows everywhere (header avatar initials, Home greeting).
+- [ ] Email is read-only.
+- [ ] Order History and Settings rows open their screens.
+
+Result: PARTIAL (2026-10-18, commit 0f52388). FIXED: email read-only with note, Settings link; Order History link added in 6f769dc. NOT DONE: photo, language (D-4), inline edit.
+
+---
+
+### COM-022 — Settings — MISSING
+
+Prototype layout: header "Settings" (Profile tab active) → **Appearance**: theme
+segmented control Light / Dark / System → **Preferences**: Language select, Email
+Notifications switch → **Account & Security**: Change Password → red **Sign Out**
+card.
+
+Current app: no route or screen. Theme is a toggle button in app bars
+(`ThemeToggleButton`). `theme_mode_provider.dart` starts on System, but
+`toggle()` only flips light↔dark, so **System cannot be chosen again** once
+toggled, and the choice is **not persisted** across reloads. `setMode()`
+already exists for a three-way control;
+sign-out is on Profile and in the account menu. SRS requires **UI-ST-021 Account
+Settings**.
+
+Needs:
+- Theme: three-way control using the existing `themeModeProvider`.
+- Language: blocked on D-4.
+- Email notifications: blocked on D-8 (no backend preference).
+- Change password: link to the signed-in variant of COM-007.
+
+Check:
+- [ ] Route exists, reachable from Profile.
+- [ ] Light / Dark / System each apply and persist after reload.
+- [ ] Change Password returns here signed in.
+- [ ] Sign Out signs out and lands on Sign in.
+
+Result: PASS code-only (2026-10-18, commit 0f52388). /settings with Light/Dark/System persisted in localStorage, Change Password (returns to Settings), Sign Out. Language and email notifications omitted (D-4, D-8). Not seen in a browser.
+
+---
+
+### COM-023 — Cross-cutting states and feedback
+
+Prototype: every list has an empty state with an icon and a next action; toasts
+for confirmations; inline field errors; disabled buttons until valid.
+
+Current app: shared `AppErrorState`, `AppEmptyState`, `AppSkeleton`,
+`AppSnackbar` exist and are used — good. Gaps are per screen (listed above):
+generic empty messages, buttons enabled before input is valid, raw status strings.
+
+Check:
+- [ ] Every list screen has loading, empty and error states.
+- [ ] No raw backend codes (`pending_payment`, ids) shown to students.
+- [ ] Errors never show stack traces or internal details (`receipt_status_screen.dart`
+      currently shows `err.toString()` in `_ErrorBody` — check what that prints).
+- [ ] All tap targets ≥ 44 px at 390 px; keyboard focus visible.
+
+Result: PARTIAL (2026-10-18). Raw exception text removed from PDF, video and lesson errors; My Courses/Order History empty states have actions; PDF search target 44 px. Other list screens (admin) not swept.
+
+---
+
+## 5. Suggested order of work
+
+1. Owner decisions D-1 … D-8.
+2. P0 payment flow correctness: COM-012 (PNG + reload), COM-011 (load order by
+   id), COM-010 (raw id, duplicate upload), COM-009 (open-order state).
+3. Missing SRS screens: COM-014, COM-022, COM-017.
+4. Personal Home and My Courses: COM-015, COM-016 (needs progress summary).
+5. Layout polish: auth (COM-003–007), catalog (COM-008), learning (COM-018–020),
+   profile (COM-021), shell (COM-002).
+
+Shared files these tasks will touch (need locks): `lib/app/router/**`,
+`lib/core/widgets/navigation/**`, `lib/app/theme/**` (only if new tokens),
+`pubspec.yaml` (only if a new package), `supabase/migrations/**` (orders read,
+progress summary, avatar storage, notification preference).
+
+## 6. Audit limits
+
+- Code review only. The app was **not run** for this audit; every **Check** box
+  is still open. Line numbers refer to commit `9ba9c0d`.
+- Admin screens were not compared (the prototype has none).
+- Widths 768 and 1440 were not compared against the prototype (prototype is a
+  phone mockup only).
+- Backend behaviour (RLS, Edge Functions) was read only where a screen depends on it.
