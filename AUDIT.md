@@ -57,7 +57,7 @@ Honesty limits of this audit:
 | E | Speed + quality + accountability | 3 | Audit-001, Audit-002, Audit-008, Audit-011 |
 | F | AI security scanning + AI eval agents | 3 | Audit-004, Audit-005, Audit-009 |
 | G | AI compliance audit (AGENTS.md rules) | 4 | Audit-001, Audit-002, Audit-003, Audit-013 |
-| | **Overall** | **4.3** | 4 P0, 4 P1, 4 P2, 2 P3 |
+| | **Overall** | **4.3** | 3 P0, 4 P1, 5 P2, 2 P3 |
 
 Summary: the code-level controls are strong. CI pins actions, the Supabase
 tests use a real database, and admin financial screens fail closed. The
@@ -326,8 +326,9 @@ Evidence:
   marked many tasks DONE in a single commit.
 
 Fix:
-- [ ] Use a distinct status, such as `DONE (self-verified)`, until a
-      checker review exists, or record the review link per task.
+- [ ] Keep tasks `IN_REVIEW` until the required reviews and acceptance
+      criteria are complete. Record the review evidence per task before
+      marking it `DONE`, as required by AGENTS.md sections 7 and 52.
 
 ### Audit-014 - Local test result differs from CI
 Severity: **P3** · Score: 6/10 · Area: A
