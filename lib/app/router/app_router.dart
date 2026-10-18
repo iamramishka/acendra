@@ -36,6 +36,8 @@ import 'package:acendra/features/marketplace/presentation/screens/course_detail_
 import 'package:acendra/features/marketplace/presentation/screens/marketplace_screen.dart';
 import 'package:acendra/features/profile/presentation/screens/profile_edit_screen.dart';
 import 'package:acendra/features/profile/presentation/screens/profile_screen.dart';
+import 'package:acendra/features/settings/presentation/screens/change_password_screen.dart';
+import 'package:acendra/features/settings/presentation/screens/settings_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -197,6 +199,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: RouteNames.profileEdit,
             builder: (_, _) => const ProfileEditScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.settings,
+            builder: (_, _) => const SettingsScreen(),
+            routes: [
+              GoRoute(
+                path: 'password',
+                builder: (_, _) => const ChangePasswordScreen(),
+              ),
+            ],
           ),
           // Bank transfer flow (CSA-107, 110, 115)
           GoRoute(

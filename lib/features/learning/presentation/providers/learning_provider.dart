@@ -156,7 +156,10 @@ class LearningNotifier extends StateNotifier<LearningState> {
       }
     } catch (e) {
       if (!mounted || requestId != _requestId) return;
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Could not load this lesson. Please try again.',
+      );
     }
   }
 
@@ -255,7 +258,10 @@ class LearningNotifier extends StateNotifier<LearningState> {
       state = state.copyWith(currentContent: content, isLoading: false);
     } catch (e) {
       if (!mounted || requestId != _requestId) return;
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Could not load this lesson. Please try again.',
+      );
     }
   }
 }

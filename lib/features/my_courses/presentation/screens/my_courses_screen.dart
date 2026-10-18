@@ -30,8 +30,10 @@ class MyCoursesScreen extends ConsumerWidget {
         ),
         data: (courses) {
           if (courses.isEmpty) {
-            return const AppEmptyState(
+            return AppEmptyState(
               message: 'You have not enrolled in any courses yet.',
+              actionLabel: 'Browse courses',
+              onAction: () => context.go('/marketplace'),
             );
           }
           return _CourseGrid(courses: courses);
