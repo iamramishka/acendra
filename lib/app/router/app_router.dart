@@ -26,6 +26,8 @@ import 'package:acendra/features/checkout/presentation/screens/checkout_screen.d
 import 'package:acendra/features/checkout/presentation/screens/payment_failure_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_pending_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_success_screen.dart';
+import 'package:acendra/features/dashboard/presentation/screens/dashboard_home_screen.dart';
+import 'package:acendra/features/dashboard/presentation/screens/dashboard_saved_screen.dart';
 import 'package:acendra/features/learning/presentation/screens/learning_workspace_screen.dart';
 import 'package:acendra/features/my_courses/presentation/screens/my_courses_screen.dart';
 import 'package:acendra/features/marketplace/presentation/screens/course_detail_screen.dart';
@@ -112,7 +114,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: RouteNames.marketplace,
-            builder: (_, _) => const MarketplaceScreen(),
+            builder: (_, state) => MarketplaceScreen(
+              focusSearch: state.uri.queryParameters['search'] == 'true',
+            ),
           ),
           GoRoute(
             path: RouteNames.courseDetail,
@@ -128,7 +132,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: RouteNames.dashboard,
-            redirect: (_, _) => RouteNames.myCourses,
+            redirect: (_, _) => RouteNames.dashboardHome,
+          ),
+          GoRoute(
+            path: RouteNames.dashboardHome,
+            builder: (_, _) => const DashboardHomeScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.savedCourses,
+            builder: (_, _) => const DashboardSavedScreen(),
           ),
           GoRoute(
             path: RouteNames.myCourses,

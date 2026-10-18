@@ -7,11 +7,55 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class MarketplaceScreen extends ConsumerWidget {
-  const MarketplaceScreen({super.key});
+class MarketplaceScreen extends ConsumerStatefulWidget {
+  const MarketplaceScreen({super.key, this.focusSearch = false});
+
+  final bool focusSearch;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MarketplaceScreen> createState() => _MarketplaceScreenState();
+}
+
+class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
+  final _searchFocus = FocusNode();
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(
+      text: ref.read(searchQueryProvider),
+    );
+  }
+
+  @override
+  void didUpdateWidget(MarketplaceScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.focusSearch && !oldWidget.focusSearch) {
+      _searchFocus.requestFocus();
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocus.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen(searchQueryProvider, (_, query) {
+      if (_searchController.text != query) {
+        _searchController.value = TextEditingValue(
+          text: query,
+          selection: TextSelection.collapsed(offset: query.length),
+        );
+      }
+    });
+    ref.listen(marketplaceSearchRequestProvider, (_, _) {
+      _searchFocus.requestFocus();
+    });
     final rawState = ref.watch(marketplaceProvider);
     final filtered = ref.watch(filteredCoursesProvider);
     final categories = ref.watch(categoriesProvider);
@@ -32,6 +76,9 @@ class MarketplaceScreen extends ConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: SearchBar(
+                  controller: _searchController,
+                  focusNode: _searchFocus,
+                  autoFocus: widget.focusSearch,
                   hintText: 'Search courses…',
                   leading: const Icon(Icons.search),
                   onChanged: (q) =>

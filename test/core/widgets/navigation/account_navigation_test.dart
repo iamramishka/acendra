@@ -88,11 +88,19 @@ void main() {
           brightness: brightness,
         );
         expect(find.text('Sign in'), findsNothing);
-        expect(find.text('J'), findsOneWidget);
+        expect(find.byTooltip('Account menu'), findsOneWidget);
+        expect(find.byIcon(Icons.menu), findsOneWidget);
         await tester.tap(find.byTooltip('Account menu'));
         await tester.pumpAndSettle();
         expect(find.text('Admin'), findsNothing);
-        await tester.tap(find.text('Profile'));
+        await tester.tap(
+          find.ancestor(
+            of: find.text('Profile'),
+            matching: find.byWidgetPredicate(
+              (widget) => widget is PopupMenuEntry<Object?>,
+            ),
+          ),
+        );
         await tester.pumpAndSettle();
         expect(
           router.routeInformationProvider.value.uri.path,

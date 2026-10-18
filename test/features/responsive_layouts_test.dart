@@ -417,31 +417,39 @@ void main() {
       // bottom NavigationBar instead).
       Finder inAppBar(String label) =>
           find.descendant(of: find.byType(AppBar), matching: find.text(label));
-      expect(inAppBar('My Courses'), findsNothing);
+      expect(inAppBar('My Learning'), findsNothing);
       expect(inAppBar('Explore'), findsNothing);
     });
 
-    testWidgets(
-      'mobile 390: bottom nav has My Courses and Explore destinations',
-      (tester) async {
-        _setViewport(tester, _mobile.$1, _mobile.$2);
-        await tester.pumpWidget(_app(const StudentShell(child: SizedBox())));
-        expect(find.text('My Courses'), findsOneWidget);
-        expect(find.text('Explore'), findsOneWidget);
-      },
-    );
-
-    testWidgets('tablet 768: hides bottom NavigationBar', (tester) async {
-      _setViewport(tester, _tablet.$1, _tablet.$2);
+    testWidgets('mobile 390: bottom nav has all four student destinations', (
+      tester,
+    ) async {
+      _setViewport(tester, _mobile.$1, _mobile.$2);
       await tester.pumpWidget(_app(const StudentShell(child: SizedBox())));
-      expect(find.byType(NavigationBar), findsNothing);
+      expect(find.byType(NavigationDestination), findsNWidgets(4));
+      for (final label in ['Home', 'My Learning', 'Saved', 'Profile']) {
+        expect(find.text(label), findsOneWidget);
+      }
     });
 
-    testWidgets('tablet 768: shows AppBar nav links', (tester) async {
+    testWidgets('tablet 768: shows compact NavigationBar', (tester) async {
       _setViewport(tester, _tablet.$1, _tablet.$2);
       await tester.pumpWidget(_app(const StudentShell(child: SizedBox())));
-      expect(find.text('My Courses'), findsOneWidget);
-      expect(find.text('Explore'), findsOneWidget);
+      expect(find.byType(NavigationBar), findsOneWidget);
+    });
+
+    testWidgets('tablet 768: keeps navigation outside AppBar', (tester) async {
+      _setViewport(tester, _tablet.$1, _tablet.$2);
+      await tester.pumpWidget(_app(const StudentShell(child: SizedBox())));
+      expect(
+        find.descendant(
+          of: find.byType(AppBar),
+          matching: find.text('My Learning'),
+        ),
+        findsNothing,
+      );
+      expect(find.text('My Learning'), findsOneWidget);
+      expect(find.byType(NavigationDestination), findsNWidgets(4));
     });
 
     testWidgets('desktop 1440: hides bottom NavigationBar', (tester) async {
@@ -453,7 +461,9 @@ void main() {
     testWidgets('desktop 1440: shows AppBar nav links', (tester) async {
       _setViewport(tester, _desktop.$1, _desktop.$2);
       await tester.pumpWidget(_app(const StudentShell(child: SizedBox())));
-      expect(find.text('My Courses'), findsOneWidget);
+      expect(find.text('My Learning'), findsOneWidget);
+      expect(find.text('Home'), findsOneWidget);
+      expect(find.text('Saved'), findsOneWidget);
       expect(find.text('Explore'), findsOneWidget);
     });
 
