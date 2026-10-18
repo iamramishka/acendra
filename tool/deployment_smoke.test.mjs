@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const workflow = readFileSync(new URL('../.github/workflows/deploy-production.yml', import.meta.url), 'utf8');
@@ -49,3 +51,72 @@ for (const [name, overrides, message] of [
     assert.match(result.stdout, message);
   });
 }
+
+// ---- Nginx config rollout (review findings on PR 177) ----------------------
+const setupSsl = readFileSync(new URL('../server/setup-ssl.sh', import.meta.url), 'utf8').replace(/\r/g, '');
+const deployStep = workflow.split('      - name: Upload release and Nginx config to server')[1]
+  .split('      - name: Smoke test')[0].replace(/\r/g, '');
+const remoteScript = deployStep.split('bash -s << EOF\n')[1].split('\n          EOF')[0]
+  .replace(/^          /gm, '').replace(/\$\{RELEASE_DIR\}/g, 'REL');
+const SITE = '/etc/nginx/sites-available/acendra';
+
+function runRemote({ nginxTestExit = 0, siteExists = true } = {}) {
+  const dir = mkdtempSync(join(tmpdir(), 'acendra-remote-'));
+  const log = join(dir, 'calls.log');
+  const site = join(dir, 'site');
+  if (siteExists) writeFileSync(site, 'x');
+  const script = remoteScript.replaceAll(`[ -f ${SITE} ]`, '[ -f "$SITE_FILE" ]');
+  const mocks = `
+sudo() { echo "sudo $*" >> "$LOG"; if [[ "$*" == *"nginx -t"* ]]; then return "$NGINX_RC"; fi; }
+ln() { echo "ln $*" >> "$LOG"; }
+mv() { echo "mv $*" >> "$LOG"; }
+ls() { :; }
+`;
+  const result = spawnSync(bash, ['-e', '-o', 'pipefail', '-c', mocks + script], {
+    encoding: 'utf8',
+    env: { ...process.env, LOG: log, SITE_FILE: site, NGINX_RC: String(nginxTestExit) },
+  });
+  const calls = existsSync(log) ? readFileSync(log, 'utf8').trim().split('\n').filter(Boolean) : [];
+  rmSync(dir, { recursive: true, force: true });
+  return { ...result, calls };
+}
+
+test('no step stages the Nginx config in world-writable /tmp', () => {
+  for (const [name, text] of [['workflow', workflow], ['setup-ssl.sh', setupSsl]]) {
+    assert.doesNotMatch(text, /\/tmp\/acendra-nginx\.conf/, name);
+  }
+});
+
+test('Nginx config is validated before the release symlink is switched', () => {
+  const { status, calls } = runRemote();
+  assert.equal(status, 0);
+  const idx = (needle) => calls.findIndex((c) => c.includes(needle));
+  assert.ok(idx('nginx -t') >= 0, 'nginx -t must run');
+  assert.ok(idx('nginx -t') < idx('mv -T'), 'config test must precede the symlink switch');
+  assert.ok(idx('mv -T') < idx('systemctl reload nginx'), 'reload follows the switch');
+});
+
+test('a rejected Nginx config is rolled back and the release is not switched', () => {
+  const { status, calls, stderr } = runRemote({ nginxTestExit: 1 });
+  assert.notEqual(status, 0);
+  assert.ok(calls.some((c) => /install .*sites-available\/acendra\.bak .*sites-available\/acendra$/.test(c)),
+    `previous config must be restored: ${calls.join(' | ')}`);
+  assert.ok(!calls.some((c) => c.startsWith('ln ') || c.startsWith('mv ')), 'symlink must not switch');
+  assert.ok(!calls.some((c) => c.includes('systemctl reload')), 'must not reload with a rejected config');
+  assert.match(stderr, /restoring previous config/i);
+});
+
+test('without a provisioned site file the deploy only switches and reloads', () => {
+  const { status, calls } = runRemote({ siteExists: false });
+  assert.equal(status, 0);
+  assert.ok(!calls.some((c) => c.includes('install') || c.includes('nginx -t')));
+  assert.ok(calls.some((c) => c.includes('mv -T')));
+});
+
+test('every sudo command the deploy runs has an exact sudoers rule', () => {
+  const rules = [...setupSsl.matchAll(/NOPASSWD: (.+)$/gm)]
+    .map((m) => m[1].replaceAll('$NGINX_SITE', SITE).replace('/bin/systemctl', 'systemctl').replaceAll('$DEPLOY_DIR', '/var/www/acendra/.deploy').trim());
+  const used = [...remoteScript.matchAll(/^\s*(?:if ! )?sudo (.+?)(?:; then)?$/gm)].map((m) => m[1].trim());
+  assert.ok(used.length >= 4, `expected sudo calls, got ${used.join(' | ')}`);
+  for (const cmd of used) assert.ok(rules.includes(cmd), `no sudoers rule for: ${cmd}\nrules: ${rules.join('\n')}`);
+});

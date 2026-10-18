@@ -109,25 +109,35 @@ jobs:
             build/web/ \
             "${DEPLOY_USER}@${DEPLOY_HOST}:${RELEASE_DIR}/"
 
+          # Stage the candidate config in a deploy-user-only directory (not
+          # world-writable /tmp) so it cannot be swapped before sudo installs it.
           echo "Uploading Nginx config ..."
-          rsync -az \
+          rsync -az --chmod=F600 \
+            --rsync-path="mkdir -p -m 700 /var/www/acendra/.deploy && rsync" \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             server/nginx.conf \
-            "${DEPLOY_USER}@${DEPLOY_HOST}:/tmp/acendra-nginx.conf"
+            "${DEPLOY_USER}@${DEPLOY_HOST}:/var/www/acendra/.deploy/nginx.conf"
 
           echo "Switching symlink and reloading Nginx ..."
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
             "${DEPLOY_USER}@${DEPLOY_HOST}" bash -s << EOF
           set -e
+          # Apply the updated Nginx config BEFORE switching the release, if the
+          # site file exists (set up by setup-ssl.sh). A rejected config is rolled
+          # back and aborts the deploy, so a bad file is never left installed.
+          # Falls back to plain reload when HTTPS is not yet provisioned.
+          if [ -f /etc/nginx/sites-available/acendra ]; then
+            sudo /usr/bin/install -m 644 /etc/nginx/sites-available/acendra /etc/nginx/sites-available/acendra.bak
+            sudo /usr/bin/install -m 644 /var/www/acendra/.deploy/nginx.conf /etc/nginx/sites-available/acendra
+            if ! sudo /usr/sbin/nginx -t; then
+              echo "Nginx rejected the new config; restoring previous config" >&2
+              sudo /usr/bin/install -m 644 /etc/nginx/sites-available/acendra.bak /etc/nginx/sites-available/acendra
+              exit 1
+            fi
+          fi
           # Atomic symlink switch (temp + rename avoids race)
           ln -s "${RELEASE_DIR}" /var/www/acendra/next
           mv -T /var/www/acendra/next /var/www/acendra/current
-          # Apply updated Nginx config if the site file exists (set up by setup-ssl.sh).
-          # Falls back to plain reload when HTTPS is not yet provisioned.
-          if [ -f /etc/nginx/sites-available/acendra ]; then
-            sudo /usr/bin/install -m 644 /tmp/acendra-nginx.conf /etc/nginx/sites-available/acendra
-            sudo /usr/sbin/nginx -t
-          fi
           sudo systemctl reload nginx
           # Keep last 5 releases; prune older ones
           ls -dt /var/www/acendra/releases/*/ | tail -n +6 | xargs -r rm -rf

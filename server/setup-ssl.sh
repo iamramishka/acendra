@@ -14,6 +14,7 @@ EMAIL="ramishka.madhushan@zettab.io"
 DEPLOY_USER="deploy"
 NGINX_SITE="/etc/nginx/sites-available/acendra"
 NGINX_ENABLED="/etc/nginx/sites-enabled/acendra"
+DEPLOY_DIR="/var/www/acendra/.deploy"
 CERTBOT_WEBROOT="/var/www/certbot"
 
 echo "==> Installing certbot ..."
@@ -59,15 +60,30 @@ cat > /etc/cron.d/certbot-acendra <<CRONEOF
 0 3 * * * root certbot renew --quiet --deploy-hook "systemctl reload nginx"
 CRONEOF
 
+echo "==> Creating deploy-only staging directory $DEPLOY_DIR ..."
+# The candidate config is installed as root by sudo, so it must be staged where
+# only the deploy user can write (never world-writable /tmp).
+if [ -n "$(find /var/www/acendra -maxdepth 0 -perm /022 -print)" ]; then
+    echo "ERROR: /var/www/acendra must not be group- or world-writable." >&2
+    exit 1
+fi
+install -d -o "$DEPLOY_USER" -g "$DEPLOY_USER" -m 700 "$DEPLOY_DIR"
+
 echo "==> Granting $DEPLOY_USER limited sudo for Nginx config updates ..."
-cat > /etc/sudoers.d/acendra-deploy <<SUDOEOF
-# Allows the deploy user to update the Nginx site config and reload Nginx.
-# Written by setup-ssl.sh — do not edit by hand.
-$DEPLOY_USER ALL=(root) NOPASSWD: /usr/bin/install -m 644 /tmp/acendra-nginx.conf $NGINX_SITE
+SUDOERS_TMP="$(mktemp)"
+cat > "$SUDOERS_TMP" <<SUDOEOF
+# Allows the deploy user to update the Nginx site config (with backup and
+# rollback) and reload Nginx. Written by setup-ssl.sh — do not edit by hand.
+$DEPLOY_USER ALL=(root) NOPASSWD: /usr/bin/install -m 644 $NGINX_SITE $NGINX_SITE.bak
+$DEPLOY_USER ALL=(root) NOPASSWD: /usr/bin/install -m 644 $DEPLOY_DIR/nginx.conf $NGINX_SITE
+$DEPLOY_USER ALL=(root) NOPASSWD: /usr/bin/install -m 644 $NGINX_SITE.bak $NGINX_SITE
 $DEPLOY_USER ALL=(root) NOPASSWD: /usr/sbin/nginx -t
 $DEPLOY_USER ALL=(root) NOPASSWD: /bin/systemctl reload nginx
 SUDOEOF
-chmod 440 /etc/sudoers.d/acendra-deploy
+# Never install a sudoers file that fails validation.
+visudo -cf "$SUDOERS_TMP"
+install -m 440 -o root -g root "$SUDOERS_TMP" /etc/sudoers.d/acendra-deploy
+rm -f "$SUDOERS_TMP"
 
 echo ""
 echo "Done. HTTPS is live at https://$DOMAIN"
