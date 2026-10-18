@@ -328,3 +328,49 @@ Docs only. Nothing was run, built, deployed or tested. Schema statements were re
 `20261011001200_csa094_bank_transfer_submissions.sql`, `20261011001400_csa096_financial_constraints.sql` and
 `20261012003000_csa158_172_reporting.sql`; the request/response, mapping and indexes are proposals that the
 backend owner must validate against the live schema before implementation.
+
+## 17. Implementation decisions (backend, owner-authorized takeover from Codex)
+
+Implemented read-only and hard-disabled: migration `20261018000100_csapaylist_admin_payment_list.sql`
+(`csapaylist_admin_payment_list`, `csapaylist_admin_payment_detail`, service_role only), Edge Function
+`supabase/functions/admin-payment-list/` (`index.ts` passes `enabled: false`), Node tests and SQL fixtures.
+Open questions were resolved conservatively (least privilege, omit rather than guess). The owner may still override;
+nothing below is an owner approval of the contract itself.
+
+| Q | Choice | Reason |
+| --- | --- | --- |
+| 1 | `payment_id = order_id = orders.id`; both returned | One row per order; attempts/submissions are not payments. |
+| 2 | `finance_admin` and `super_admin`, AAL2 only; `content_manager`, students, AAL1 denied entirely (403) | Reuses `csa158_reporting_roles` then narrows. Handler also denies AAL1 before the RPC. |
+| 3 | Student email, student id, buyer data omitted | Minimization; no purpose-limited lookup exists. |
+| 4 | Search = case-insensitive order-number prefix only (`[A-Za-z0-9-]`, 1..40) | No indexed, privacy-reviewed email/name search. |
+| 5 | `cancelled` and `failed` map to `rejected` | Existing four-value `PaymentStatus`; no shared enum change. |
+| 6 | `refunded` order in scope fails the whole list closed (55000 -> 503); detail of a refunded order also 503 | Same as CSA-172; no adjustment ledger. |
+| 7 | Sandbox online settlements never count as approved. A `paid` order whose only settlements are sandbox fails the request closed (it is neither approved nor hidden) | Consistent with CSA-172; a silent omission would understate counts. |
+| 8 | Wire methods `online` / `bank_transfer` only; admin grants are not listed | Enrollments, not orders. Flutter enum rename is the frontend task. |
+| 9 | No entity changes made here (Flutter untouched) | Frontend task. |
+| 10 | `page_size` 1..50, date window <= 366 inclusive days, Asia/Colombo day boundaries, cursor TTL 15 min | As proposed. No retention limit invented. |
+
+Other choices:
+
+- Status is mapped from `orders.status` only (`created`/`pending_payment` pending, `pending_verification` processing,
+  `paid` + qualifying settlement approved, `failed`/`cancelled` rejected). `payment_attempts` and
+  `bank_transfer_submissions` are not read, so receipt state can never influence the status. A "qualifying"
+  settlement is `bank_transfer`, or online with `provider_environment='production'`.
+- `settled_at` = earliest qualifying `confirmed_at`.
+- `counts` cover `method` and date filters, the `as_of` boundary, and **not** `status` or `order_number_prefix`
+  (literal reading of section 5). They come from the same single SQL statement as the page rows.
+- Cursor is built in the Edge Function, not in SQL: base64url payload `{c: created_at, i: id, a: as_of, u: actor,
+  f: filter-hash}` plus an HMAC-SHA256 keyed with the service key. Bound to actor, filters (not page_size), and
+  expiry. SQL receives only `(created_at, id, as_of)` and re-validates shape. Rotating the service key invalidates
+  outstanding cursors. Timestamps keep microsecond text (`...SSSSSSZ`) end to end; they are never parsed to a JS Date
+  for the keyset position.
+- Response is re-validated by an allowlist in the handler (exact keys, uuid/decimal/enum/timestamp shapes, counts sum
+  to total, `settled_at` non-null only for `approved`). Any deviation fails closed with 503 `REPORTING_UNAVAILABLE`.
+  `amount_minor` is a decimal string <= bigint max.
+- Error mapping: SQLSTATE `42501` 403, `22023` 400, `P0002` 404 (detail only, after authority), everything else 503.
+- Added index `orders(created_at desc, id desc)`. The page query reads through `app_private.csapaylist_scope`, a
+  security-definer SQL function; counts require scanning the filtered scope, so very large order tables are not
+  index-only. Measure before activation.
+- `supabase/config.toml`, `TASKS.md`, `docs/API_CONTRACTS.MD` and the csa173 RPC-grant matrix were not edited.
+  Registering the function in `config.toml` and the matrix, and recording the contract in `API_CONTRACTS.MD`, are
+  owner/activation steps.
