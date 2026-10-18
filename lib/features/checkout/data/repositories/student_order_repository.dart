@@ -31,7 +31,7 @@ class StudentOrder {
     _ => 'Status unavailable',
   };
   String get formattedAmount =>
-      '$currency ${(amountMinor / 100).toStringAsFixed(2)}';
+      '$currency ${amountMinor ~/ 100}.${(amountMinor % 100).toString().padLeft(2, '0')}';
   factory StudentOrder.fromJson(Map<String, dynamic> row) {
     final amount = row['amount_minor'];
     if (amount is! int || amount < 0) {

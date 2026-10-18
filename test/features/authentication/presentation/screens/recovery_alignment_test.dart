@@ -36,8 +36,8 @@ void main() {
         tokenType: 'bearer',
         user: const User(
           id: 'student-a',
-          appMetadata: const {},
-          userMetadata: const {},
+          appMetadata: {},
+          userMetadata: {},
           aud: 'authenticated',
           createdAt: '2026-10-18',
         ),

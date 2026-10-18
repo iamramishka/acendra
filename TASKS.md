@@ -2943,7 +2943,7 @@ INTEGRATION - VERIFIED.
 ## CSA-265 - COM-005–010 prototype alignment and integration
 
 - Owner: CODEX; issue: https://github.com/iamramishka/acendra/issues/183.
-- Status: IN_PROGRESS; owner authorized takeover and reconciliation with PR #185 on 2026-10-18.
+- Status: IN_REVIEW; owner authorized takeover and reconciliation with PR #185 on 2026-10-18; current-head CI and financial review are required.
 - Branch: feat/csa-265-prototype-alignment; isolated worktree: C:/Users/ramis/.codex/worktrees/com-005-010-alignment/acendra.
 - Scope, dependencies, shared-file ownership, acceptance and verification: [CSA-265 task record](docs/tasks/CSA-265.md).
 - Financial changes require maintainer review. Production configuration and activation remain gated by issue #160.
