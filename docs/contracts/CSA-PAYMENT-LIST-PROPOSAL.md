@@ -1,12 +1,13 @@
 # Admin payment-list reporting — contract PROPOSAL
 
-Status: **PROPOSED / IN_REVIEW. Owner approval pending. Not approved, not implemented.**
-Prepared by: CLAUDE (docs only). Backend owner if approved: CODEX (payment/reporting backend).
-Task ID: not assigned (placeholder `CSA-PAYLIST-TBD`); no GitHub Issue exists yet. Resolves finderror finding 004
+Status: **PROPOSED / IN_REVIEW. Contract approval pending; inactive implementation in PR #181 (section 17).**
+Prepared by: CLAUDE (proposal and initial backend). Review-fix owner: CODEX (payment/reporting backend).
+Review-fix task: PR-181, GitHub #184 (original placeholder `CSA-PAYLIST-TBD`). Resolves finderror finding 004
 (and enables 013/014/015/016 to be satisfied with live data). Modeled on
 [CSA-158-172-REPORTING.md](CSA-158-172-REPORTING.md).
 
-This document changes no shared contract. It adds no migration, Edge Function or Flutter code, and does not edit
+The proposal in sections 1–16 changes no approved shared contract. The inactive implementation in section 17 adds
+a migration and Edge Function; it does not edit Flutter code,
 `docs/API_CONTRACTS.MD`, `TASKS.md`, router, theme or `pubspec.yaml`. If approved, the owner/Codex must
 record the contract in `docs/API_CONTRACTS.MD` through the normal shared-file process.
 
@@ -350,7 +351,7 @@ fabricated email/receipt fields.
 11. **Task ownership.** Which task ID and issue number; which agent owns the migration; who is the independent checker?
 12. **Activation.** What are the release gates (hosted staging acceptance, finance sign-off) before enabling?
 
-## 16. Verification status of this document
+## 16. Verification status of the original proposal
 
 Documentation only. No application was built, deployed or runtime-tested for this proposal. Schema statements
 were read from
@@ -361,3 +362,54 @@ were read from
 `20261011001700_csa108_113_bank_workflow.sql` for no-child checkout and bank rejection/resubmission states.
 The request/response, mapping and indexes are proposals that the backend owner must validate against the live
 schema before implementation. Review evidence and limits: [PR179-CONTRACT-FIX-BOARD.md](../reviews/PR179-CONTRACT-FIX-BOARD.md).
+
+## 17. Inactive implementation and review corrections
+
+Implemented read-only and hard-disabled: migration `20261018000100_csapaylist_admin_payment_list.sql`
+(`csapaylist_admin_payment_list`, `csapaylist_admin_payment_detail`, service_role only), Edge Function
+`supabase/functions/admin-payment-list/` (`index.ts` passes `enabled: false`), Node tests and SQL fixtures.
+Open questions were resolved conservatively (least privilege, omit rather than guess). The owner may still override;
+nothing below is an owner approval of the contract itself.
+
+| Q | Choice | Reason |
+| --- | --- | --- |
+| 1 | `payment_id = order_id = orders.id`; both returned | One row per order; attempts/submissions are not payments. |
+| 2 | `finance_admin` and `super_admin`, AAL2 only; `content_manager`, students, AAL1 denied entirely (403) | Reuses `csa158_reporting_roles` then narrows. Handler also denies AAL1 before the RPC. |
+| 3 | Student email, student id, buyer data omitted | Minimization; no purpose-limited lookup exists. |
+| 4 | Search = case-insensitive order-number prefix only (`[A-Za-z0-9-]`, 1..40) | No indexed, privacy-reviewed email/name search. |
+| 5 | `cancelled` and `failed` map to `rejected` | Existing four-value `PaymentStatus`; no shared enum change. |
+| 6 | `refunded` order in scope fails the whole list closed (55000 -> 503); detail of a refunded order also 503 | Same as CSA-172; no adjustment ledger. |
+| 7 | Sandbox online settlements never count as approved. A `paid` order whose only settlements are sandbox fails the request closed (it is neither approved nor hidden) | Consistent with CSA-172; a silent omission would understate counts. |
+| 8 | Wire methods `online` / `bank_transfer` only; admin grants are not listed | Enrollments, not orders. Flutter enum rename is the frontend task. |
+| 9 | No entity changes made here (Flutter untouched) | Frontend task. |
+| 10 | `page_size` 1..50, date window <= 366 inclusive days, Asia/Colombo day boundaries, cursor TTL 15 min | As proposed. No retention limit invented. |
+
+Other choices:
+
+- Status follows section 6. For a `pending_payment` bank order, the latest submission by
+  `(created_at desc, id desc)` distinguishes `rejected` from pending. A newer preparation restores pending;
+  finalization moves the order to processing. Terminal order states retain precedence over old submissions.
+  A qualifying settlement is `bank_transfer`, or online with `provider_environment='production'`.
+- `settled_at` = earliest qualifying `confirmed_at`.
+- `counts` cover `method` and date filters, the `as_of` boundary, and **not** `status` or `order_number_prefix`
+  (literal reading of section 5). They come from the same single SQL statement as the page rows.
+  `as_of` remains the fixed cursor creation cutoff; `count_as_of` is the current request's
+  `statement_timestamp()` and accompanies the live counts/items through the handler.
+- Cursor is built in the Edge Function, not in SQL: base64url payload `{c: created_at, i: id, a: as_of, u: actor,
+  f: filter-hash}` plus an HMAC-SHA256 keyed with the service key. Bound to actor, filters (not page_size), and
+  expiry. SQL receives only `(created_at, id, as_of)` and re-validates shape. Rotating the service key invalidates
+  outstanding cursors. Timestamps keep microsecond text (`...SSSSSSZ`) end to end; they are never parsed to a JS Date
+  for the keyset position.
+- Response is re-validated by an allowlist in the handler (exact keys, uuid/decimal/enum/timestamp shapes, counts sum
+  to total, `settled_at` non-null only for `approved`). Any deviation fails closed with 503 `REPORTING_UNAVAILABLE`.
+  `amount_minor` is a decimal string <= bigint max.
+- Error mapping: SQLSTATE `42501` 403, `22023` 400, `P0002` 404 (detail only, after authority), everything else 503.
+- Added index `orders(created_at desc, id desc)`. The page query reads through `app_private.csapaylist_scope`, a
+  security-definer SQL function; counts require scanning the filtered scope, so very large order tables are not
+  index-only. Measure before activation.
+- Shared files touched (owner-authorized "do all"): `supabase/config.toml` (function entry; the code-level
+  `enabled:false` gate still applies) and `csa173_admin_permissions.test.sql` (grant matrix 13 -> 15 signatures).
+  `TASKS.md` and `docs/API_CONTRACTS.MD` were not edited; recording the contract there is an owner step.
+
+Review correction ownership, regression evidence, execution limitations and integration status are recorded in
+[PR-181-REVIEW-FIXES.md](../tasks/PR-181-REVIEW-FIXES.md) and GitHub #184. Activation remains a separate reviewed release.
