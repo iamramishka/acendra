@@ -1,18 +1,34 @@
 name: Deploy to Production
 
-# Triggers on every push to dev, but only runs the deploy job
-# when the commit message contains the word "deploy" (case-insensitive).
-# Example commit: "feat(marketplace): add course grid deploy"
+# Audit-001: deploy only a dev commit that already passed "Flutter baseline".
+# Runs after that workflow completes; the production environment's required
+# reviewer approves each deploy. To redeploy, re-run this workflow's run.
 on:
-  push:
-    branches:
-      - dev
+  workflow_run:
+    workflows: ["Flutter baseline"]
+    types: [completed]
+    branches: [dev]
+
+permissions:
+  contents: read
+
+# Never run two deploys at once; a newer commit waits for the current one.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
 
 jobs:
   deploy:
     name: Build & Deploy Flutter Web
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.message, 'deploy')
+    environment: production
+    # Only a successful push run on this repository's dev branch. Pull-request
+    # runs (including forks whose branch is also named "dev") never deploy.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'dev' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
 
     # Requires these repository secrets (Settings → Secrets → Actions):
     #   DEPLOY_SSH_PRIVATE_KEY  — ed25519 private key for ubuntu@3.25.99.105
@@ -22,17 +38,23 @@ jobs:
     #   SUPABASE_PUBLISHABLE_KEY   — publishable/anon key only (never service-role)
 
     steps:
-      - name: Checkout
+      # Build the exact commit CI tested, not the latest dev head.
+      - name: Checkout tested commit
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
 
-      - name: Set up Flutter (stable)
+      # Same toolchain and lockfile as flutter-ci.yml.
+      - name: Set up Flutter (3.44.0, matches CI)
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.44.0'
           channel: stable
           cache: true
 
-      - name: Install dependencies
-        run: flutter pub get
+      - name: Install locked dependencies
+        run: flutter pub get --enforce-lockfile
 
       - name: Flutter analyze
         run: flutter analyze --no-fatal-infos
@@ -118,7 +140,8 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "| --- | --- |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.event.workflow_run.head_sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.event.workflow_run.head_branch }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| CI run | ${{ github.event.workflow_run.html_url }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| URL | https://3-25-99-105.sslip.io |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Run | ${{ github.run_number }} |" >> "$GITHUB_STEP_SUMMARY"
