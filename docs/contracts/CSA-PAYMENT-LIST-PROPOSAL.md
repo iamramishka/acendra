@@ -371,6 +371,6 @@ Other choices:
 - Added index `orders(created_at desc, id desc)`. The page query reads through `app_private.csapaylist_scope`, a
   security-definer SQL function; counts require scanning the filtered scope, so very large order tables are not
   index-only. Measure before activation.
-- `supabase/config.toml`, `TASKS.md`, `docs/API_CONTRACTS.MD` and the csa173 RPC-grant matrix were not edited.
-  Registering the function in `config.toml` and the matrix, and recording the contract in `API_CONTRACTS.MD`, are
-  owner/activation steps.
+- Shared files touched (owner-authorized "do all"): `supabase/config.toml` (function entry; the code-level
+  `enabled:false` gate still applies) and `csa173_admin_permissions.test.sql` (grant matrix 13 -> 15 signatures).
+  `TASKS.md` and `docs/API_CONTRACTS.MD` were not edited; recording the contract there is an owner step.
