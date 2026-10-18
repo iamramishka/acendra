@@ -110,6 +110,7 @@ List:
     "next_cursor": null,
     "counts": { "pending": "3", "processing": "2", "approved": "40", "rejected": "5", "total": "50" },
     "as_of": "2026-10-18T05:00:00Z",
+    "count_as_of": "2026-10-18T05:00:00Z",
     "count_basis": "current_snapshot"
   }
 }
@@ -129,33 +130,51 @@ Field rules:
 - Timestamps are UTC ISO-8601. `settled_at` is `verified_settlements.confirmed_at` when a verified settlement
   exists, else null. `updated_at` is `orders.updated_at`.
 - `counts`: decimal strings, one per status plus `total`, computed in the **same statement/snapshot** as the page
-  (§8) over the `method`/date filters but **not** the `status` filter, so the tab badges, the dashboard queue
-  tile and the page all show one snapshot (findings 013/014). A caller using the dashboard with no filters gets the
-  global counts from the same field.
+  (§8) over the `method`/date filters and the fixed `created_at <= as_of` membership cutoff, but **not** the
+  `status` filter. Each list response supplies the page and its tab badges from one current snapshot (findings
+  013/014). A caller using the dashboard with no filters and no cursor gets global counts from the same field;
+  the dashboard and Payments page share that response when they need identical counts.
+- `as_of`: fixed order-creation cutoff established on the first list request and bound into subsequent cursors.
+  It limits membership, not the age of the status facts. `count_as_of` is the current request's
+  `statement_timestamp()` for both its live items and counts. They are equal on page 1; later pages retain
+  `as_of` and advance `count_as_of`. `count_basis: "current_snapshot"` refers to `count_as_of`.
 - Omitted unconditionally, never returned as null/empty (see §10): receipt/storage paths or signed URLs,
   `bank_transfer_submissions` ids and reviewer ids, `public_rejection_reason`, processor notes, payer or bank
   details, `provider`, `provider_session_id`, `provider_transaction_id`, settlement or evidence references,
   `external_settlement_id`, buyer id, buyer email, IP/device data.
 
-Detail returns `{"data": {"item": {...same fields...}, "as_of": "..."}}`. A payment that does not exist returns
-404 `RESOURCE_NOT_FOUND`.
+Detail returns `{"data": {"item": {...same fields...}, "as_of": "..."}}`; its `as_of` is the current detail
+request's statement timestamp, with no cursor or counts. A payment that does not exist returns 404
+`RESOURCE_NOT_FOUND`.
 
 ## 6. Status mapping to Flutter `PaymentStatus`
 
 Flutter today: `PaymentStatus { pending, approved, rejected, processing }`
 ([payment_record.dart](../../lib/features/admin/domain/entities/payment_record.dart)). The mapping is computed in SQL
 from trusted `orders.status`, the latest `bank_transfer_submissions.status` and `payment_attempts.status`; the
-client never derives it.
+client never derives it. Latest supporting rows are selected per order by `(created_at desc, id desc)`.
+Resolve terminal order states (`paid`, `failed`, `cancelled`, `refunded`) before considering pending-state
+supporting rows; an older rejected submission must not override a paid order or a newer upload/review.
 
 | Order status | Supporting state | Wire `status` |
 | --- | --- | --- |
-| `created`, `pending_payment` | online: attempt `initialized`/`pending`; bank: submission `awaiting_receipt` | `pending` |
-| `pending_verification` | bank submission `submitted` / `under_review`, or online attempt awaiting provider result | `processing` |
+| `created`, `pending_payment` | online: no attempt yet, or latest attempt `initialized` / `pending` | `pending` |
+| `created`, `pending_payment` | bank: no submission yet, or latest submission `awaiting_receipt` | `pending` |
+| `pending_payment` | bank: latest submission `rejected`, before a new submission is prepared | `rejected` |
+| `pending_verification` | bank: latest submission `submitted` / `under_review`; online: latest attempt `initialized` / `pending` awaiting provider result | `processing` |
 | `paid` | verified settlement exists | `approved` |
 | `failed` | online attempt failed | `rejected` |
 | `cancelled` | order cancelled | `rejected` (Q5) |
 | `paid` but no verified settlement | inconsistent | request fails 503 `REPORTING_UNAVAILABLE`; never shown as approved |
 | `refunded` | — | request fails closed 503 `REPORTING_UNAVAILABLE` (Q6) |
+
+The no-child-row cases are ordinary checkout states: `csa098_create_checkout_order` inserts a
+`pending_payment` order before online initialization or bank receipt preparation. Bank review rejection
+(`csa112_review_bank_transfer`) leaves its submission `rejected` and resets the order to `pending_payment`;
+this is a supported rejection, not an inconsistent financial state. Preparing a new submission makes the
+latest row `awaiting_receipt` (`pending`); submitting it moves the order to `pending_verification`
+(`processing`). These mappings describe the latest review outcome for one order and do not grant access.
+Other order/supporting-state combinations remain unsupported and fail closed under §9.
 
 Refunds: CSA-172 already fails closed when any order is `refunded` because no confirmed adjustment ledger exists.
 This proposal keeps the same behaviour rather than inventing a refund presentation. If the owner wants refunded
@@ -197,12 +216,17 @@ No error reveals whether a payment exists to a caller who lacks the role (permis
   the `as_of` boundary and a hash of the filters. No offset pagination (cost grows, rows shift under writes).
   Required index (migration owner to confirm): `orders(created_at desc, id desc)`, plus partial/composite indexes
   as measured by the owner; no unbounded scans.
-- `as_of` is `statement_timestamp()` of the first page; later pages keep `created_at <= as_of` for **new rows**.
-  Status of already-listed rows is live, so a page may legitimately show a status that changed since page 1.
-  This is documented, not hidden: `counts` and `as_of` describe the first page's snapshot.
-- `counts` and the items for one request are produced in a single SQL statement/transaction snapshot so they cannot
-  skew against each other. Dashboard and Payments page must both use this one `counts` source (no second query
-  path).
+- `as_of` is `statement_timestamp()` of the first page; later pages keep `created_at <= as_of` for both items
+  and counts. Orders created after the cutoff are excluded until the caller starts a fresh traversal.
+- Status and counts are live for each request, using one SQL statement snapshot and its current
+  `count_as_of = statement_timestamp()`. They are not preserved from page 1. For example, if a bank order in
+  scope is approved between page 1 and page 2, page 2's counts move one from `processing` to `approved` and
+  any matching page-2 item uses that same current state. `as_of` stays fixed while `count_as_of` advances.
+- A fixed creation cutoff is not a historical status snapshot. With a status filter, an order may enter or leave
+  the matching set between requests; a newly matching order above the current keyset position is seen only on
+  refresh. Do not promise an immutable set, historical counts or gap-free traversal across status changes.
+- Dashboard and Payments page use this one `counts` source (no second query path). Identical counts are
+  guaranteed when they consume the same response; separate requests can differ after intervening writes.
 - No N+1: one query joins `orders`, a lateral latest submission/attempt, and `verified_settlements`.
 
 ## 9. Fail-closed rules
@@ -253,19 +277,21 @@ Backend (Codex; Node handler tests and executable SQL fixtures, as for CSA-158/1
 | Direct SQL | `anon`, `authenticated` cannot execute RPC or select base tables; only `service_role` executes |
 | Request validation | unknown keys, missing keys, wrong types, `page_size` 0/51, bad dates, `to < from`, span 367 days, bad prefix chars, oversized body, wrong content type |
 | Filters | each of status/method/date/prefix alone and combined; Asia/Colombo midnight boundaries; inclusive end date |
-| Pagination | first/middle/last/empty page; no duplicates or gaps across pages with concurrent inserts; stable order with equal `created_at`; tampered cursor; cursor reused with different filters; exact `page_size` bound |
-| Mapping | every row in the §6 table, including `paid` without settlement and `refunded` failing closed |
-| Counts | `counts` equal the sum of statuses; equal across dashboard and Payments page requests in one snapshot; honor method/date but not status filter |
+| Pagination | first/middle/last/empty page; unchanged statuses have no duplicates or gaps across pages when concurrent inserts are after the creation cutoff; stable order with equal `created_at`; tampered cursor; cursor reused with different filters; exact `page_size` bound |
+| Mapping | every row in the §6 table; checkout with no online attempt or bank submission is `pending`; bank rejection resets the order to `pending_payment` and reports `rejected`; new receipt preparation reports `pending`, then submission reports `processing`; older rejection never overrides newer pending/review or paid state; `paid` without settlement and `refunded` fail closed |
+| Counts | `counts` equal the sum of statuses; page and counts use one current statement snapshot; dashboard and Payments page consuming that response agree; honor method/date and `created_at <= as_of` but not status filter; page 1 has `as_of = count_as_of`, subsequent responses retain the cutoff and report their current `count_as_of` |
 | Large amounts | `amount_minor` at `9007199254740993` and bigint max serialize as exact strings; `0`; sum of counts as strings |
 | Privacy | response keys exactly equal the allowlist; fixtures seeded with receipt paths, emails, provider refs, rejection reasons never appear in body, logs or errors |
 | Errors | backend/SQL error text never reaches the body; stable codes only; permission checked before existence (404 vs 403 oracle) |
 | Performance | query plan uses the keyset index; no seq scan on a large synthetic orders table; response under size limit at `page_size` 50 |
-| Concurrency | status changes between pages; simultaneous bank approval does not corrupt counts |
+| Concurrency | approval between pages changes live counts and matching rows together at the new `count_as_of`; cursor `as_of` remains fixed; new orders after that cutoff are excluded from both items and counts; status-filter membership can change and requires refresh for newly matching rows above the cursor; separate requests need not have identical counts |
 
 Frontend (Claude, after approval, widget/unit tests): adapter parses exact strings; large amounts do not lose
 precision; each error code maps to a safe message; 401/403/503 states render unavailable/permission states, never
-empty lists or zero counts; dashboard and Payments page use one count provider; Processing included in totals;
-filters send the exact request shape; no fabricated email/receipt fields.
+empty lists or zero counts; dashboard and Payments page use one count provider and one response for identical
+badges; retain the fixed cursor cutoff but replace counts and their `count_as_of` together on each response;
+refresh starts a new traversal; Processing included in totals; filters send the exact request shape; no
+fabricated email/receipt fields.
 
 ## 13. Flutter adapter plan (Claude, after owner approval and after the endpoint contract is deployed to staging)
 
@@ -278,7 +304,10 @@ filters send the exact request shape; no fabricated email/receipt fields.
    This changes a shared interface and tests, so it is an explicit part of the frontend task, not a silent change.
    `searchQuery` maps only to `order_number_prefix`; email search is dropped (Q4).
 3. `countAllStatuses` / `countPayments`: served from the `counts` field of a `page_size` 1 request (or the first
-   list page) so dashboard and Payments page share one snapshot; one shared Riverpod provider.
+   list page) through one shared Riverpod provider. Share the response when dashboard and Payments page need
+   identical counts; independent requests can observe later writes. Keep each response's counts and
+   `count_as_of` together, update them on every fetched page, and treat `as_of` only as the fixed creation cutoff.
+   Refresh discards the cursor chain and starts a new cutoff; do not present cursor pages as historical snapshots.
 4. `getPayment`: `mode: "detail"`.
 5. Money: parse `amount_minor` with `BigInt.parse` / keep as string; Flutter Web `int` and `double` are JS numbers
    and lose precision above 2^53. `PaymentRecord.amount` is a `double` today. Moving to an exact minor-unit type
@@ -323,8 +352,12 @@ filters send the exact request shape; no fabricated email/receipt fields.
 
 ## 16. Verification status of this document
 
-Docs only. Nothing was run, built, deployed or tested. Schema statements were read from
+Documentation only. No application was built, deployed or runtime-tested for this proposal. Schema statements
+were read from
 `supabase/migrations/20261011001000_csa092_orders_payment_attempts.sql`,
 `20261011001200_csa094_bank_transfer_submissions.sql`, `20261011001400_csa096_financial_constraints.sql` and
-`20261012003000_csa158_172_reporting.sql`; the request/response, mapping and indexes are proposals that the
-backend owner must validate against the live schema before implementation.
+`20261012003000_csa158_172_reporting.sql`. Review corrections also checked
+`20261012002000_csa117_checkout_alignment.sql`, `20261011001600_csa101_105_online_payment.sql` and
+`20261011001700_csa108_113_bank_workflow.sql` for no-child checkout and bank rejection/resubmission states.
+The request/response, mapping and indexes are proposals that the backend owner must validate against the live
+schema before implementation. Review evidence and limits: [PR179-CONTRACT-FIX-BOARD.md](../reviews/PR179-CONTRACT-FIX-BOARD.md).
