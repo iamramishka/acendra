@@ -138,7 +138,7 @@ class PdfReaderNotifier extends StateNotifier<PdfReaderState> {
     } catch (e) {
       state = state.copyWith(
         status: PdfReaderStatus.error,
-        errorMessage: e.toString(),
+        errorMessage: 'Could not load this document. Please try again.',
       );
     }
   }
@@ -155,7 +155,7 @@ class PdfReaderNotifier extends StateNotifier<PdfReaderState> {
   void onDocumentError(Object error) {
     state = state.copyWith(
       status: PdfReaderStatus.error,
-      errorMessage: error.toString(),
+      errorMessage: 'Could not load this document. Please try again.',
     );
   }
 

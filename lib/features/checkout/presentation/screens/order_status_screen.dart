@@ -69,6 +69,27 @@ class OrderStatusScreen extends ConsumerWidget {
                     'Course access starts only after payment is independently verified and your enrollment is activated. Avoid starting another payment while verification is pending.',
                   ),
                   const SizedBox(height: 16),
+                  if (order.method == 'online' &&
+                      order.status == 'pending_payment')
+                    FilledButton(
+                      onPressed: () => context.go(
+                        RouteNames.checkout.replaceFirst(
+                          ':courseId',
+                          order.courseId,
+                        ),
+                      ),
+                      child: const Text('Continue Payment'),
+                    ),
+                  if (order.isBank && order.status == 'pending_payment')
+                    FilledButton(
+                      onPressed: () => context.go(
+                        RouteNames.bankTransfer.replaceFirst(
+                          ':orderId',
+                          order.id,
+                        ),
+                      ),
+                      child: const Text('Bank Transfer Instructions'),
+                    ),
                   OutlinedButton(
                     onPressed: () =>
                         ref.invalidate(studentOrderProvider(orderId)),

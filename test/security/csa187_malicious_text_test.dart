@@ -74,7 +74,10 @@ void main() {
         'unmatched-security-query',
       );
       await tester.pumpAndSettle();
-      expect(find.text('No courses available yet.'), findsOneWidget);
+      expect(
+        find.text('No courses found. Try a different word or category.'),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
       verifyNoPayloadElements();
     });

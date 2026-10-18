@@ -16,7 +16,7 @@ final marketplaceSearchRequestProvider = StateProvider<int>((ref) => 0);
 
 final selectedCategoryProvider = StateProvider<String?>((ref) => null);
 
-enum CourseSort { newest, priceAscending, priceDescending }
+enum CourseSort { newest, priceLow, priceHigh }
 
 final courseSortProvider = StateProvider<CourseSort>(
   (ref) => CourseSort.newest,
@@ -70,8 +70,8 @@ final filteredCoursesProvider = Provider<AsyncValue<List<CourseSummary>>>((
     sorted.sort((a, b) {
       final order = switch (sort) {
         CourseSort.newest => b.publishedAt.compareTo(a.publishedAt),
-        CourseSort.priceAscending => a.priceMinor.compareTo(b.priceMinor),
-        CourseSort.priceDescending => b.priceMinor.compareTo(a.priceMinor),
+        CourseSort.priceLow => a.priceMinor.compareTo(b.priceMinor),
+        CourseSort.priceHigh => b.priceMinor.compareTo(a.priceMinor),
       };
       return order == 0 ? a.id.compareTo(b.id) : order;
     });

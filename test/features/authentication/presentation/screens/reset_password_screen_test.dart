@@ -36,7 +36,12 @@ void main() {
 
   testWidgets('empty passwords cannot be submitted', (tester) async {
     await tester.pumpWidget(_wrap());
-    expect(tester.widget<AppButton>(find.widgetWithText(AppButton, 'Update Password')).onPressed, isNull);
+    expect(
+      tester
+          .widget<AppButton>(find.widgetWithText(AppButton, 'Update Password'))
+          .onPressed,
+      isNull,
+    );
     expect(find.text('Both passwords match'), findsOneWidget);
   });
 
@@ -44,7 +49,12 @@ void main() {
     await tester.pumpWidget(_wrap());
     await tester.enterText(find.byType(TextField).first, 'abc');
     await tester.pump();
-    expect(tester.widget<AppButton>(find.widgetWithText(AppButton, 'Update Password')).onPressed, isNull);
+    expect(
+      tester
+          .widget<AppButton>(find.widgetWithText(AppButton, 'Update Password'))
+          .onPressed,
+      isNull,
+    );
     expect(find.text('At least 8 characters'), findsOneWidget);
   });
 
@@ -53,13 +63,19 @@ void main() {
     await tester.enterText(find.byType(TextField).first, 'password123');
     await tester.enterText(find.byType(TextField).last, 'different');
     await tester.pump();
-    expect(tester.widget<AppButton>(find.widgetWithText(AppButton, 'Update Password')).onPressed, isNull);
+    expect(
+      tester
+          .widget<AppButton>(find.widgetWithText(AppButton, 'Update Password'))
+          .onPressed,
+      isNull,
+    );
   });
 
   testWidgets('shows snackbar on auth failure', (tester) async {
     await tester.pumpWidget(_wrap(throws: const WeakPassword()));
     await tester.enterText(find.byType(TextField).first, 'password123');
     await tester.enterText(find.byType(TextField).last, 'password123');
+    await tester.pump();
     await tester.ensureVisible(find.text('Update Password'));
     await tester.tap(find.text('Update Password'));
     await tester.pumpAndSettle();

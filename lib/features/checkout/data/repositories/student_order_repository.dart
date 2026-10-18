@@ -34,8 +34,9 @@ class StudentOrder {
       '$currency ${(amountMinor / 100).toStringAsFixed(2)}';
   factory StudentOrder.fromJson(Map<String, dynamic> row) {
     final amount = row['amount_minor'];
-    if (amount is! int || amount < 0)
+    if (amount is! int || amount < 0) {
       throw const FormatException('Invalid order amount');
+    }
     return StudentOrder(
       id: row['id'] as String,
       courseId: row['course_id'] as String,

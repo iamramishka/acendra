@@ -1,6 +1,7 @@
 import 'package:acendra/features/learning/data/repositories/supabase_learning_repository.dart';
 import 'package:acendra/features/learning/data/repositories/learning_progress_repository.dart';
 import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
+import 'package:acendra/features/learning/domain/course_progress_summary.dart';
 import 'package:acendra/features/learning/domain/entities/lesson_content.dart';
 import 'package:acendra/features/marketplace/domain/entities/curriculum_section.dart';
 import 'package:acendra/features/marketplace/domain/entities/lesson_item.dart';
@@ -8,6 +9,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart'
     show StateNotifier, StateNotifierProvider;
+
+/// Result of [LearningNotifier.completeAndContinue].
+enum ContinueOutcome { advanced, moduleFinished, courseFinished, failed }
 
 @immutable
 class LearningState {
@@ -85,6 +89,17 @@ class LearningNotifier extends StateNotifier<LearningState> {
 
   final Ref _ref;
   int _requestId = 0;
+  String? _requestedLessonId;
+
+  /// Opens [lessonId] instead of the saved resume lesson. Safe to call before
+  /// the course has loaded.
+  Future<void> requestLesson(String lessonId) async {
+    if (state.sections.isEmpty) {
+      _requestedLessonId = lessonId;
+      return;
+    }
+    await selectLesson(lessonId);
+  }
 
   Future<void> loadCourse(String courseId) async {
     if (!mounted || state.isSavingProgress) return;
@@ -102,7 +117,9 @@ class LearningNotifier extends StateNotifier<LearningState> {
 
       final flat = state.flatLessons;
       if (flat.isNotEmpty) {
-        String selected = flat.first.id;
+        String selected = flat.any((l) => l.id == _requestedLessonId)
+            ? _requestedLessonId!
+            : flat.first.id;
         try {
           final saved = await _ref
               .read(learningProgressRepositoryProvider)
@@ -125,7 +142,10 @@ class LearningNotifier extends StateNotifier<LearningState> {
             clearProgressError: true,
             progressReady: true,
           );
-          if (valid.isNotEmpty) selected = valid.first.lessonId;
+          if (valid.isNotEmpty &&
+              !flat.any((l) => l.id == _requestedLessonId)) {
+            selected = valid.first.lessonId;
+          }
         } catch (_) {
           if (!mounted || requestId != _requestId) return;
           state = state.copyWith(
@@ -136,7 +156,10 @@ class LearningNotifier extends StateNotifier<LearningState> {
       }
     } catch (e) {
       if (!mounted || requestId != _requestId) return;
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Could not load this lesson. Please try again.',
+      );
     }
   }
 
@@ -165,6 +188,33 @@ class LearningNotifier extends StateNotifier<LearningState> {
         progressError: 'Could not save progress. Retry to reload it.',
       );
     }
+  }
+
+  /// Marks the current lesson complete (if it is not already) and opens the
+  /// next one. Reports where the learner ended up so the screen can show the
+  /// right message; a failed save never advances.
+  Future<ContinueOutcome> completeAndContinue() async {
+    final lessonId = state.currentLessonId;
+    if (lessonId == null) return ContinueOutcome.failed;
+    if (!(state.progress[lessonId]?.completed ?? false)) {
+      await setCompleted(true);
+      if (!mounted || !(state.progress[lessonId]?.completed ?? false)) {
+        return ContinueOutcome.failed;
+      }
+    }
+    final flat = state.flatLessons;
+    final index = flat.indexWhere((l) => l.id == lessonId);
+    if (index < 0 || index == flat.length - 1) {
+      return ContinueOutcome.courseFinished;
+    }
+    if (CourseProgressSummary.from(
+      state.sections,
+      state.progress,
+    ).isLastInSection(lessonId)) {
+      return ContinueOutcome.moduleFinished;
+    }
+    await selectLesson(flat[index + 1].id);
+    return ContinueOutcome.advanced;
   }
 
   Future<void> saveVideoPosition(String lessonId, int seconds) async {
@@ -208,7 +258,10 @@ class LearningNotifier extends StateNotifier<LearningState> {
       state = state.copyWith(currentContent: content, isLoading: false);
     } catch (e) {
       if (!mounted || requestId != _requestId) return;
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Could not load this lesson. Please try again.',
+      );
     }
   }
 }

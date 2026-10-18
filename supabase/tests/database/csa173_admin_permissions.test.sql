@@ -12,15 +12,15 @@ return pg_temp.check_ok(code='42501',label);end;$$;
 do $$ declare f record; role_name text; n integer:=0;
 begin
  for f in select p.oid,p.proname from pg_proc p join pg_namespace ns on ns.oid=p.pronamespace
- where ns.nspname='public' and p.proname=any(array['csa073_change_role','csa089_create_course','csa112_review_bank_transfer','csa116_grant_admin','csa118_revoke_access','csa118_release_restriction','csa158_dashboard_stats','csa172_financial_report','csa164_get_media_upload','csa164_prepare_media_upload','csa164_finalize_media_upload','csa165_publish_course','csa168_list_enrollments']) loop
+ where ns.nspname='public' and p.proname=any(array['csa073_change_role','csa089_create_course','csa112_review_bank_transfer','csa116_grant_admin','csa118_revoke_access','csa118_release_restriction','csa158_dashboard_stats','csa172_financial_report','csa164_get_media_upload','csa164_prepare_media_upload','csa164_finalize_media_upload','csa165_publish_course','csa168_list_enrollments','csapaylist_admin_payment_list','csapaylist_admin_payment_detail']) loop
  n:=n+1;
  foreach role_name in array array['anon','authenticated'] loop
  if has_function_privilege(role_name,f.oid,'EXECUTE') then raise exception '% can invoke %',role_name,f.proname;end if;end loop;
  if not has_function_privilege('service_role',f.oid,'EXECUTE') then raise exception 'Missing trusted gateway: %',f.proname;end if;
  end loop;
- if n<>13 then raise exception 'Expected 13 admin RPC signatures, found %',n;end if;
+ if n<>15 then raise exception 'Expected 15 admin RPC signatures, found %',n;end if;
 end;$$;
-select pg_temp.check_ok(true,'13 admin RPC signatures deny browser/guest and permit trusted gateway');
+select pg_temp.check_ok(true,'15 admin RPC signatures deny browser/guest and permit trusted gateway');
 select pg_temp.check_ok(not has_function_privilege('service_role','public.csa061_change_role(uuid,text,uuid,text,text,text,uuid)','execute'),'legacy role core cannot bypass session gateway');
 create temporary table csa173_actors(label text primary key,actor uuid,session uuid,aal text);
 insert into csa173_actors values('super',gen_random_uuid(),gen_random_uuid(),'aal2'),('finance',gen_random_uuid(),gen_random_uuid(),'aal2'),('content',gen_random_uuid(),gen_random_uuid(),'aal1'),('student',gen_random_uuid(),gen_random_uuid(),'aal1');

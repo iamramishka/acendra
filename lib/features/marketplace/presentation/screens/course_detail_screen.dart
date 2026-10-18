@@ -97,21 +97,21 @@ class CourseDetailScreen extends ConsumerWidget {
                         ? null
                         : () {
                             if (enrolled) {
-                              context.push(
+                              context.go(
                                 RouteNames.courseOverview.replaceFirst(
                                   ':courseId',
                                   Uri.encodeComponent(courseId),
                                 ),
                               );
                             } else if (order != null) {
-                              context.push(
+                              context.go(
                                 RouteNames.orderStatus.replaceFirst(
                                   ':orderId',
                                   order.id,
                                 ),
                               );
                             } else {
-                              context.push(
+                              context.go(
                                 RouteNames.checkout.replaceFirst(
                                   ':courseId',
                                   Uri.encodeComponent(courseId),

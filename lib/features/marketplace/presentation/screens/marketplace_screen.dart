@@ -126,27 +126,37 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                     Text(
                       '${courses.length} ${courses.length == 1 ? 'Course' : 'Courses'}',
                     ),
-                    DropdownButton<CourseSort>(
-                      value: ref.watch(courseSortProvider),
-                      hint: const Text('Sort courses'),
-                      items: const [
-                        DropdownMenuItem(
-                          value: CourseSort.newest,
-                          child: Text('Newest'),
+                    Material(
+                      type: MaterialType.transparency,
+                      child: SizedBox(
+                        width: 300,
+                        child: DropdownButton<CourseSort>(
+                          isExpanded: true,
+                          itemHeight: null,
+                          value: ref.watch(courseSortProvider),
+                          hint: const Text('Sort courses'),
+                          items: const [
+                            DropdownMenuItem(
+                              value: CourseSort.newest,
+                              child: Text('Newest'),
+                            ),
+                            DropdownMenuItem(
+                              value: CourseSort.priceLow,
+                              child: Text('Price: low to high'),
+                            ),
+                            DropdownMenuItem(
+                              value: CourseSort.priceHigh,
+                              child: Text('Price: high to low'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            if (value != null) {
+                              ref.read(courseSortProvider.notifier).state =
+                                  value;
+                            }
+                          },
                         ),
-                        DropdownMenuItem(
-                          value: CourseSort.priceAscending,
-                          child: Text('Price: low to high'),
-                        ),
-                        DropdownMenuItem(
-                          value: CourseSort.priceDescending,
-                          child: Text('Price: high to low'),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        if (value != null)
-                          ref.read(courseSortProvider.notifier).state = value;
-                      },
+                      ),
                     ),
                   ],
                 ),

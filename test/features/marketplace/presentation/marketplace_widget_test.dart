@@ -126,7 +126,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
       expect(find.text('All Courses'), findsOneWidget);
-      expect(find.text('Flutter'), findsOneWidget);
+      expect(find.widgetWithText(FilterChip, 'Flutter'), findsOneWidget);
     });
 
     testWidgets('tapping a course card navigates to course detail', (
@@ -182,7 +182,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Go to Course'), findsOneWidget);
-      expect(find.text('Enrolled'), findsOneWidget);
+      expect(find.text('You own this course'), findsOneWidget);
     });
 
     testWidgets('shows curriculum section title', (tester) async {

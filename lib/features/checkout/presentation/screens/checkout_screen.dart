@@ -107,9 +107,20 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       );
       if (!mounted ||
           epoch != _identityEpoch ||
-          actor != ref.read(checkoutActorProvider))
+          actor != ref.read(checkoutActorProvider)) {
         return;
+      }
       if (existing != null) {
+        if (existing.method == 'online' &&
+            existing.status == 'pending_payment') {
+          await ref
+              .read(checkoutProvider.notifier)
+              .resumeOnlineOrder(
+                courseId: widget.courseId,
+                orderId: existing.id,
+              );
+          return;
+        }
         context.push(
           RouteNames.orderStatus.replaceFirst(':orderId', existing.id),
         );
@@ -120,8 +131,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           .createOrder(courseId: widget.courseId, method: method);
       if (!mounted ||
           epoch != _identityEpoch ||
-          actor != ref.read(checkoutActorProvider))
+          actor != ref.read(checkoutActorProvider)) {
         return;
+      }
       final order = ref.read(checkoutProvider).asData?.value;
       ref.invalidate(openCourseOrderProvider(widget.courseId));
       if (order == null || order.courseId != widget.courseId) return;
@@ -133,7 +145,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         );
       }
     } catch (_) {
-      if (mounted && epoch == _identityEpoch)
+      if (mounted && epoch == _identityEpoch) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
@@ -141,6 +153,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             ),
           ),
         );
+      }
     } finally {
       if (mounted) setState(() => _isCreating = false);
     }
@@ -246,6 +259,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         order == null &&
         (course?.hasError == true || existing?.hasError == true);
     final openOrder = existing?.asData?.value;
+    final canResume =
+        openOrder?.method == 'online' && openOrder?.status == 'pending_payment';
     void back() {
       if (context.canPop()) {
         context.pop();
@@ -281,7 +296,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               ),
               const SizedBox(height: 8),
               AppButton(
-                label: openOrder != null
+                label: canResume
+                    ? 'Resume Payment'
+                    : openOrder != null
                     ? 'Payment Status'
                     : order != null &&
                           order.paymentMethod == PaymentMethod.online
@@ -293,7 +310,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 onPressed: waiting || blocked
                     ? null
                     : () {
-                        if (openOrder != null) {
+                        if (canResume) {
+                          ref
+                              .read(checkoutProvider.notifier)
+                              .resumeOnlineOrder(
+                                courseId: widget.courseId,
+                                orderId: openOrder!.id,
+                              );
+                        } else if (openOrder != null) {
                           context.push(
                             RouteNames.orderStatus.replaceFirst(
                               ':orderId',
@@ -375,13 +399,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: const [
-                Text('✓ Order'),
-                Text('2 Payment'),
-                Text('3 Confirm'),
-              ],
+            const Wrap(
+              alignment: WrapAlignment.spaceAround,
+              spacing: 16,
+              runSpacing: 8,
+              children: [Text('✓ Order'), Text('2 Payment'), Text('3 Confirm')],
             ),
             const SizedBox(height: 24),
             Text(

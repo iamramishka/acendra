@@ -49,7 +49,12 @@ class _FakeCheckoutRepository implements CheckoutRepository {
 
 Widget _wrap(Widget child, CheckoutRepository repo) {
   return ProviderScope(
-    overrides: [checkoutRepositoryProvider.overrideWithValue(repo), courseDetailProvider('course-123').overrideWith((ref) async => fakeDetail)],
+    overrides: [
+      checkoutRepositoryProvider.overrideWithValue(repo),
+      courseDetailProvider(
+        'course-123',
+      ).overrideWith((ref) async => fakeDetail),
+    ],
     child: MaterialApp(home: child),
   );
 }

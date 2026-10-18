@@ -1,6 +1,7 @@
 import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:acendra/core/widgets/feedback/app_skeleton.dart';
 import 'package:acendra/core/widgets/feedback/app_state_views.dart';
+import 'package:acendra/features/learning/domain/course_progress_summary.dart';
 import 'package:acendra/features/learning/domain/entities/lesson_content.dart';
 import 'package:acendra/features/learning/presentation/providers/learning_provider.dart';
 import 'package:acendra/features/marketplace/domain/entities/curriculum_section.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:acendra/features/pdf_reader/presentation/widgets/protected_pdf_lesson.dart';
 import 'package:acendra/features/video_player/presentation/widgets/authorized_video_widget.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 const double _kSidebarWidth = 280.0;
 const double _kDesktopBreakpoint = 900.0;
@@ -23,7 +25,10 @@ class LearningWorkspaceScreen extends ConsumerStatefulWidget {
   });
 
   final String courseId;
+
+  /// Lesson from the URL; falls back to the saved resume lesson when null.
   final String? initialLessonId;
+
   @override
   ConsumerState<LearningWorkspaceScreen> createState() =>
       _LearningWorkspaceScreenState();
@@ -31,26 +36,50 @@ class LearningWorkspaceScreen extends ConsumerStatefulWidget {
 
 class _LearningWorkspaceScreenState
     extends ConsumerState<LearningWorkspaceScreen> {
-  bool _openedInitialLesson = false;
-  String get courseId => widget.courseId;
+  @override
+  void initState() {
+    super.initState();
+    final lessonId = widget.initialLessonId;
+    if (lessonId != null) {
+      ref
+          .read(learningWorkspaceProvider(widget.courseId).notifier)
+          .requestLesson(lessonId);
+    }
+  }
+
+  Future<void> _completeAndContinue(LearningNotifier notifier) async {
+    final outcome = await notifier.completeAndContinue();
+    if (!mounted) return;
+    switch (outcome) {
+      case ContinueOutcome.advanced:
+      case ContinueOutcome.failed:
+        break;
+      case ContinueOutcome.moduleFinished:
+      case ContinueOutcome.courseFinished:
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              outcome == ContinueOutcome.courseFinished
+                  ? 'Course finished'
+                  : 'Module finished',
+            ),
+          ),
+        );
+        context.go('/learn/${widget.courseId}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final courseId = widget.courseId;
     final state = ref.watch(learningWorkspaceProvider(courseId));
     final notifier = ref.read(learningWorkspaceProvider(courseId).notifier);
-    if (!_openedInitialLesson &&
-        !state.isLoading &&
-        state.currentContent != null) {
-      _openedInitialLesson = true;
-      final requested = widget.initialLessonId;
-      if (requested != null &&
-          state.flatLessons.any((lesson) => lesson.id == requested)) {
-        Future.microtask(() {
-          if (mounted) notifier.selectLesson(requested);
-        });
-      }
-    }
-
+    final summary = CourseProgressSummary.from(state.sections, state.progress);
+    final completed = state.progress[state.currentLessonId]?.completed ?? false;
+    final busy =
+        state.isSavingProgress ||
+        !state.progressReady ||
+        state.progressError != null;
     if (state.error != null && !state.isLoading) {
       return AppErrorState(
         message: 'Could not load course content.',
@@ -93,35 +122,15 @@ class _LearningWorkspaceScreenState
               ],
             ),
           ),
-        if (state.currentLessonId != null && !state.isLoading)
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              child: TextButton.icon(
-                onPressed:
-                    state.isSavingProgress ||
-                        !state.progressReady ||
-                        state.progressError != null
-                    ? null
-                    : () => notifier.setCompleted(
-                        !(state.progress[state.currentLessonId]?.completed ??
-                            false),
-                      ),
-                icon: Icon(
-                  state.progress[state.currentLessonId]?.completed == true
-                      ? Icons.check_circle
-                      : Icons.check_circle_outline,
-                ),
-                label: Text(
-                  state.isSavingProgress
-                      ? 'Saving progress…'
-                      : state.progress[state.currentLessonId]?.completed == true
-                      ? 'Mark incomplete'
-                      : 'Mark complete',
-                ),
-              ),
-            ),
+        if (state.currentLessonId != null &&
+            !state.isLoading &&
+            state.currentContent != null)
+          _LessonHeader(
+            lessonNumber: currentIndex + 1,
+            typeLabel: flat[currentIndex].typeLabel,
+            completed: completed,
+            summary: summary,
+            onMarkIncomplete: busy ? null : () => notifier.setCompleted(false),
           ),
         Expanded(
           child: _LessonContentArea(
@@ -131,6 +140,15 @@ class _LearningWorkspaceScreenState
             onNext: currentIndex >= 0 && currentIndex < flat.length - 1
                 ? onNext
                 : null,
+            forwardLabel: completed
+                ? null
+                : currentIndex == flat.length - 1
+                ? 'Mark Complete'
+                : 'Mark Complete & Continue',
+            onForward: completed || busy
+                ? null
+                : () => _completeAndContinue(notifier),
+            forwardBusy: state.isSavingProgress,
             initialVideoSeconds:
                 state.progress[state.currentLessonId]?.videoSeconds,
             onVideoSeconds: state.currentLessonId != null
@@ -266,6 +284,9 @@ class _LessonContentArea extends StatelessWidget {
     required this.isLoading,
     this.onPrevious,
     this.onNext,
+    this.forwardLabel,
+    this.onForward,
+    this.forwardBusy = false,
     this.initialVideoSeconds,
     this.onVideoSeconds,
   });
@@ -274,6 +295,9 @@ class _LessonContentArea extends StatelessWidget {
   final bool isLoading;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
+  final String? forwardLabel;
+  final VoidCallback? onForward;
+  final bool forwardBusy;
   final int? initialVideoSeconds;
   final ValueChanged<int>? onVideoSeconds;
 
@@ -312,26 +336,60 @@ class _LessonContentArea extends StatelessWidget {
               onVideoSeconds: onVideoSeconds,
             ),
           ),
-          _LessonNavBar(onPrevious: onPrevious, onNext: onNext),
+          _LessonNavBar(
+            onPrevious: onPrevious,
+            onNext: onNext,
+            forwardLabel: forwardLabel,
+            onForward: onForward,
+            forwardBusy: forwardBusy,
+          ),
         ],
       ),
       'pdf' => Column(
         children: [
           Expanded(child: ProtectedPdfLesson(lessonId: content!.id)),
-          _LessonNavBar(onPrevious: onPrevious, onNext: onNext),
+          _LessonNavBar(
+            onPrevious: onPrevious,
+            onNext: onNext,
+            forwardLabel: forwardLabel,
+            onForward: onForward,
+            forwardBusy: forwardBusy,
+          ),
         ],
       ),
-      'text' => TextLessonViewer(
-        title: content!.title,
-        content: content!.contentText ?? '',
-        onPrevious: onPrevious,
-        onNext: onNext,
+      'text' => Column(
+        children: [
+          Expanded(
+            child: TextLessonViewer(
+              title: content!.title,
+              content: content!.contentText ?? '',
+            ),
+          ),
+          _LessonNavBar(
+            onPrevious: onPrevious,
+            onNext: onNext,
+            forwardLabel: forwardLabel,
+            onForward: onForward,
+            forwardBusy: forwardBusy,
+          ),
+        ],
       ),
-      'image' => ImageLessonViewer(
-        title: content!.title,
-        imageUrl: content!.contentImageUrl ?? '',
-        onPrevious: onPrevious,
-        onNext: onNext,
+      'image' => Column(
+        children: [
+          Expanded(
+            child: ImageLessonViewer(
+              title: content!.title,
+              imageUrl: content!.contentImageUrl ?? '',
+            ),
+          ),
+          _LessonNavBar(
+            onPrevious: onPrevious,
+            onNext: onNext,
+            forwardLabel: forwardLabel,
+            onForward: onForward,
+            forwardBusy: forwardBusy,
+          ),
+        ],
       ),
       _ => _PlaceholderLessonViewer(
         title: content!.title,
@@ -418,10 +476,102 @@ class _PlaceholderLessonViewer extends StatelessWidget {
   }
 }
 
+/// Lesson number, type, status and a compact course-progress readout.
+class _LessonHeader extends StatelessWidget {
+  const _LessonHeader({
+    required this.lessonNumber,
+    required this.typeLabel,
+    required this.completed,
+    required this.summary,
+    this.onMarkIncomplete,
+  });
+
+  final int lessonNumber;
+  final String typeLabel;
+  final bool completed;
+  final CourseProgressSummary summary;
+  final VoidCallback? onMarkIncomplete;
+
+  @override
+  Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.md,
+        AppSpacing.lg,
+        AppSpacing.sm,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: AppSpacing.sm,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(
+                'Lesson ${lessonNumber.toString().padLeft(2, '0')} · '
+                '$typeLabel Lesson',
+                style: tt.labelLarge,
+              ),
+              Chip(
+                visualDensity: VisualDensity.compact,
+                avatar: Icon(
+                  completed ? Icons.check_circle : Icons.timelapse,
+                  size: 16,
+                  color: completed ? cs.primary : cs.onSurfaceVariant,
+                ),
+                label: Text(completed ? 'Completed' : 'In Progress'),
+              ),
+              if (completed && onMarkIncomplete != null)
+                TextButton(
+                  onPressed: onMarkIncomplete,
+                  child: const Text('Mark incomplete'),
+                ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Semantics(
+            label:
+                'Course progress ${summary.percent} percent, '
+                '${summary.completedLessons} of ${summary.totalLessons} '
+                'lessons completed',
+            child: Row(
+              children: [
+                Expanded(
+                  child: LinearProgressIndicator(value: summary.percent / 100),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Text(
+                  '${summary.completedLessons}/${summary.totalLessons} · '
+                  '${summary.percent}%',
+                  style: tt.labelSmall,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _LessonNavBar extends StatelessWidget {
-  const _LessonNavBar({this.onPrevious, this.onNext});
+  const _LessonNavBar({
+    this.onPrevious,
+    this.onNext,
+    this.forwardLabel,
+    this.onForward,
+    this.forwardBusy = false,
+  });
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
+
+  /// When set, replaces "Next" with a primary complete-and-continue action.
+  final String? forwardLabel;
+  final VoidCallback? onForward;
+  final bool forwardBusy;
 
   @override
   Widget build(BuildContext context) {
@@ -446,7 +596,17 @@ class _LessonNavBar extends StatelessWidget {
             )
           else
             const SizedBox.shrink(),
-          if (onNext != null)
+          if (forwardLabel != null)
+            Flexible(
+              child: FilledButton(
+                onPressed: onForward,
+                child: Text(
+                  forwardBusy ? 'Saving progress…' : forwardLabel!,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            )
+          else if (onNext != null)
             TextButton.icon(
               onPressed: onNext,
               icon: const Icon(Icons.arrow_forward),

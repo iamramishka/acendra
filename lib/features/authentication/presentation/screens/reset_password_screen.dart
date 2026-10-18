@@ -64,15 +64,17 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         widget.changePassword ? RouteNames.settings : RouteNames.login,
       );
     } on AuthFailure catch (e) {
-      if (mounted)
+      if (mounted) {
         AppSnackbar.show(context, e.message, variant: SnackbarVariant.error);
+      }
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         AppSnackbar.show(
           context,
           'Could not update your password. Please retry.',
           variant: SnackbarVariant.error,
         );
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }

@@ -115,8 +115,8 @@ void main() {
     ).read(appRouterProvider);
     const paths = [
       RouteNames.dashboardHome,
+      RouteNames.marketplace,
       RouteNames.myCourses,
-      RouteNames.savedCourses,
       RouteNames.profile,
     ];
     for (final index in [1, 2, 3, 0]) {
@@ -222,7 +222,7 @@ void main() {
     ).read(appRouterProvider);
     router.go('/forgot-password');
     await tester.pumpAndSettle();
-    expect(find.text('Forgot password?'), findsOneWidget);
+    expect(find.text('Forgot your password?'), findsOneWidget);
   });
 
   testWidgets('unauthenticated user is redirected from dashboard to login', (

@@ -88,7 +88,6 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-
           Text(
             'Check your inbox',
             style: tt.headlineSmall?.copyWith(fontWeight: FontWeight.w800),

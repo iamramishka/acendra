@@ -1,4 +1,5 @@
 import 'package:acendra/features/checkout/data/repositories/supabase_checkout_repository.dart';
+import 'package:acendra/features/checkout/data/repositories/student_order_repository.dart';
 import 'package:acendra/features/checkout/domain/entities/checkout_order.dart';
 import 'package:acendra/features/checkout/domain/entities/customer_info.dart';
 import 'package:acendra/features/checkout/domain/entities/payment_method.dart';
@@ -54,6 +55,44 @@ class CheckoutNotifier extends AsyncNotifier<CheckoutOrder?> {
   void reset() {
     _generation++;
     state = const AsyncData(null);
+  }
+
+  Future<void> resumeOnlineOrder({
+    required String courseId,
+    required String orderId,
+  }) async {
+    if (state.isLoading) return;
+    final actor = ref.read(checkoutActorProvider);
+    if (actor == null) return;
+    final generation = _generation;
+    state = const AsyncLoading();
+    final result = await AsyncValue.guard(() async {
+      final order = await ref
+          .read(studentOrderRepositoryProvider)
+          .read(actor, orderId);
+      if (order.id != orderId ||
+          order.courseId != courseId ||
+          order.method != 'online' ||
+          order.status != 'pending_payment') {
+        throw StateError('This order cannot resume online payment.');
+      }
+      return CheckoutOrder(
+        orderId: order.id,
+        orderNumber: order.number,
+        courseId: order.courseId,
+        courseTitle: order.title,
+        amountMinor: order.amountMinor,
+        currencyCode: order.currency,
+        paymentMethod: PaymentMethod.online,
+        status: order.status,
+        nextAction: 'initialize_online_payment',
+      );
+    });
+    if (ref.mounted &&
+        generation == _generation &&
+        actor == ref.read(checkoutActorProvider)) {
+      state = result;
+    }
   }
 }
 
