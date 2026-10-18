@@ -233,6 +233,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final checkoutState = ref.watch(checkoutProvider);
     final selectedMethod = ref.watch(selectedPaymentMethodProvider);
     final order = checkoutState.asData?.value;
+    final effectiveMethod = order?.paymentMethod ?? selectedMethod;
     if (order != null && order.courseId != widget.courseId) {
       return Scaffold(
         body: Center(
@@ -303,7 +304,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     : order != null &&
                           order.paymentMethod == PaymentMethod.online
                     ? 'Pay Now'
-                    : selectedMethod == PaymentMethod.online
+                    : effectiveMethod == PaymentMethod.online
                     ? 'Continue to PayHere'
                     : 'Continue to Bank Transfer',
                 isLoading: waiting,
@@ -360,7 +361,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           actionLabel: 'Retry',
           onRetry: () => ref.read(checkoutProvider.notifier).reset(),
         ),
-        data: (order) => _buildBody(context, order, selectedMethod),
+        data: (order) => _buildBody(context, order, effectiveMethod),
       ),
     );
   }

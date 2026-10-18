@@ -1,22 +1,27 @@
+import 'package:acendra/app/theme/app_breakpoints.dart';
+import 'package:acendra/features/marketplace/domain/entities/category.dart';
 import 'package:acendra/features/marketplace/domain/entities/course_summary.dart';
-import 'package:acendra/features/marketplace/presentation/providers/marketplace_provider.dart';
 import 'package:acendra/features/marketplace/presentation/widgets/course_art.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CourseGrid extends ConsumerWidget {
-  const CourseGrid({super.key, required this.courses, this.onCourseTap});
+class CourseGrid extends StatelessWidget {
+  const CourseGrid({
+    super.key,
+    required this.courses,
+    this.categories = const [],
+    this.onCourseTap,
+  });
   final List<CourseSummary> courses;
+  final List<Category> categories;
   final void Function(CourseSummary)? onCourseTap;
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final categories = ref.watch(categoriesProvider).asData?.value ?? [];
+  Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth < 600
+        final columns = constraints.maxWidth < AppBreakpoints.compact
             ? 1
-            : constraints.maxWidth < 1024
+            : constraints.maxWidth < AppBreakpoints.medium
             ? 2
             : 3;
         final width = (constraints.maxWidth - (columns - 1) * 16) / columns;

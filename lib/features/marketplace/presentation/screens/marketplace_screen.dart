@@ -178,6 +178,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                 sliver: SliverToBoxAdapter(
                   child: CourseGrid(
                     courses: courses,
+                    categories: categories.asData?.value ?? [],
                     onCourseTap: (course) => context.go(
                       RouteNames.courseDetail.replaceFirst(
                         ':courseId',

@@ -41,9 +41,14 @@ class _LearningWorkspaceScreenState
     super.initState();
     final lessonId = widget.initialLessonId;
     if (lessonId != null) {
-      ref
-          .read(learningWorkspaceProvider(widget.courseId).notifier)
-          .requestLesson(lessonId);
+      // A retained workspace can already have loaded sections. Selecting then
+      // changes notifier state, so wait until this widget finishes mounting.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref
+            .read(learningWorkspaceProvider(widget.courseId).notifier)
+            .requestLesson(lessonId);
+      });
     }
   }
 
