@@ -1,6 +1,6 @@
 # CSA-260: GitHub Actions Deploy Pipeline
 
-Date: 2026-10-16. Author: CLAUDE. Status: READY — pending GitHub Secrets setup.
+Date: 2026-10-16. Author: CLAUDE. Status: READY — pending GitHub Secrets and SSL setup.
 
 Workflow file: `.github/workflows/deploy-production.yml`
 
@@ -8,7 +8,8 @@ Workflow file: `.github/workflows/deploy-production.yml`
 
 ## How it works
 
-Updated 2026-10-18 for Audit-001 (deploy no longer bypasses CI).
+Updated 2026-10-18 for Audit-001 (deploy no longer bypasses CI) and
+Audit-004 (HTTPS + security headers, smoke test enforces them).
 
 Push to `dev` → `Flutter baseline` (`flutter-ci.yml`) runs. **Only if it
 succeeds**, `Deploy to Production` starts and waits for approval on the
@@ -20,9 +21,9 @@ succeeds**, `Deploy to Production` starts and waits for approval on the
 4. Builds `flutter build web --release` with Supabase URL/anon key
 5. Scans the build output for service-role keys (fails the pipeline if found)
 6. Rsyncs `build/web/` to a timestamped release dir on the server
-7. Atomically switches the `current` symlink
-8. Reloads Nginx
-9. Runs a smoke test
+7. Uploads `server/nginx.conf` to the server
+8. Atomically switches the `current` symlink; applies new Nginx config and reloads
+9. Runs a smoke test (HTTPS live, HTTP redirects, security headers present)
 
 The commit message no longer matters. The old `deploy` keyword does nothing.
 
@@ -33,10 +34,32 @@ The commit message no longer matters. The old `deploy` keyword does nothing.
   **Re-run jobs**.
 - To skip deploying a commit: **Reject** it on the approval prompt.
 
-### Required one-time setting (project owner)
+### Required one-time settings (project owner)
 
-GitHub → Settings → Environments → `production` (created on first run if
-missing) → **Required reviewers** → add the project owner → Save.
+**1. GitHub environment reviewer** (already configured via API)
+
+GitHub → Settings → Environments → `production` → **Required reviewers** →
+`iamramishka` → Save.
+
+**2. HTTPS and Nginx setup (Audit-004)**
+
+Run `server/setup-ssl.sh` as root on the production server **once** before
+the first deploy after this change lands:
+
+```bash
+# On the server (as a user with sudo access, not the deploy user)
+sudo bash /path/to/server/setup-ssl.sh
+```
+
+This script:
+- Installs Certbot and obtains a Let's Encrypt certificate for `3-25-99-105.sslip.io`
+- Installs `server/nginx.conf` with HTTPS, HSTS, CSP, and other security headers
+- Configures automatic cert renewal
+- Grants the `deploy` user limited sudo to update the Nginx site config on future deploys
+
+After the script succeeds, every deploy automatically keeps the Nginx config
+in sync. **The smoke test will fail until this script has been run** — that
+is intentional: it enforces HTTPS before traffic reaches the app.
 
 Without a required reviewer, every green push to `dev` deploys
 automatically. The environment is the approval gate.
@@ -97,10 +120,12 @@ The server keeps the last 5 releases; older ones are pruned automatically on eac
 ## First deploy checklist
 
 - [ ] Add all 5 GitHub Secrets listed above
+- [ ] Run `sudo bash server/setup-ssl.sh` on the production server (Audit-004)
 - [ ] Confirm `SUPABASE_URL` and `SUPABASE_ANON_KEY` are the staging values first
-- [ ] Make a commit to `dev` with "deploy" in the message
-- [ ] Watch the Actions tab → "Deploy to Production" workflow
+- [ ] Push a commit to `dev`, approve the deploy in GitHub Actions
+- [ ] Watch the Actions tab → "Deploy to Production" → smoke test passes
 - [ ] Check `https://3-25-99-105.sslip.io` loads the Flutter app
+- [ ] Verify `http://3-25-99-105.sslip.io` redirects to HTTPS
 - [ ] Verify deep links work (navigate to a route, hit browser refresh)
 - [ ] Verify Supabase auth redirect URL includes `https://3-25-99-105.sslip.io`
 
