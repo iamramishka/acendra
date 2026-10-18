@@ -123,22 +123,10 @@ class AdminDashboardScreen extends ConsumerWidget {
       ),
       _StatCard(
         icon: Icons.attach_money_outlined,
-        value: stats.totalRevenue == null
-            ? 'Unavailable'
-            : '${stats.currency} ${_formatRevenue(stats.totalRevenue!)}',
-        label: 'Total Revenue',
+        value: stats.confirmedReceipts?.formattedGross ?? 'Unavailable',
+        label: 'Gross Receipts (30 days)',
       ),
     ];
-  }
-
-  String _formatRevenue(double value) {
-    if (value >= 1000000) {
-      return '${(value / 1000000).toStringAsFixed(1)}M';
-    }
-    if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(1)}K';
-    }
-    return value.toStringAsFixed(2);
   }
 
   Widget _buildSkeleton(BuildContext context) {
