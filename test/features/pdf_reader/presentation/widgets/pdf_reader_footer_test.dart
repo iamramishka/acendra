@@ -104,6 +104,24 @@ void main() {
       expect(prev.onPressed, isNull);
     });
 
+    testWidgets('every control is at least 44 px at 390 px', (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_host(_footer(), width: 390));
+      final buttons = find.byType(IconButton);
+      expect(buttons, findsNWidgets(5));
+      for (final b in buttons.evaluate()) {
+        final size = tester.getSize(find.byElementPredicate((e) => e == b));
+        expect(size.width, greaterThanOrEqualTo(44));
+        expect(size.height, greaterThanOrEqualTo(44));
+      }
+    });
+
+    test('watermark disclosure stays off until delivery is watermarked', () {
+      expect(kPdfWatermarkApplied, isFalse);
+    });
+
     for (final width in [320.0, 390.0, 768.0, 1440.0]) {
       testWidgets('does not overflow at ${width.toInt()}px', (tester) async {
         tester.view.physicalSize = Size(width, 844);

@@ -1,6 +1,11 @@
 import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
 
+/// Flip to true only once delivered PDFs actually carry the watermark
+/// (CSA-139 private storage + watermark worker, and decision D-3). Showing
+/// the disclosure before then would be a false protection claim.
+const kPdfWatermarkApplied = false;
+
 /// Note shown under the page. The watermark itself is burned into the
 /// server-delivered file; this only discloses it (SRS FR-PDF-SEC-005/006).
 class PdfWatermarkDisclosure extends StatelessWidget {
@@ -56,7 +61,6 @@ class PdfReaderFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final style = theme.textTheme.bodySmall;
-    const density = VisualDensity.compact;
 
     return Material(
       color: theme.colorScheme.surface,
@@ -68,7 +72,6 @@ class PdfReaderFooter extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                visualDensity: density,
                 tooltip: 'Previous page',
                 onPressed: onPrevious,
                 icon: const Icon(Icons.chevron_left),
@@ -80,14 +83,12 @@ class PdfReaderFooter extends StatelessWidget {
                 ),
               ),
               IconButton(
-                visualDensity: density,
                 tooltip: 'Next page',
                 onPressed: onNext,
                 icon: const Icon(Icons.chevron_right),
               ),
               const SizedBox(width: AppSpacing.sm),
               IconButton(
-                visualDensity: density,
                 tooltip: 'Zoom out',
                 onPressed: onZoomOut,
                 icon: const Icon(Icons.remove),
@@ -101,14 +102,12 @@ class PdfReaderFooter extends StatelessWidget {
                 ),
               ),
               IconButton(
-                visualDensity: density,
                 tooltip: 'Zoom in',
                 onPressed: onZoomIn,
                 icon: const Icon(Icons.add),
               ),
               const SizedBox(width: AppSpacing.sm),
               IconButton(
-                visualDensity: density,
                 tooltip: 'Fit to width',
                 isSelected: isFitWidth,
                 onPressed: onFitWidth,

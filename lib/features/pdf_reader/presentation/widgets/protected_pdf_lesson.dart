@@ -247,7 +247,7 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
             ),
           ),
         ),
-        const PdfWatermarkDisclosure(),
+        if (kPdfWatermarkApplied) const PdfWatermarkDisclosure(),
         PdfReaderFooter(
           currentPage: _page,
           totalPages: _pages,
