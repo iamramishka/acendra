@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AuthShell extends ConsumerWidget {
-  const AuthShell({super.key, required this.child, this.banner});
+  const AuthShell({super.key, required this.child, this.banner, this.onBack});
 
   final Widget child;
   final Widget? banner;
+
+  /// When set, a back button is shown at the start of the header.
+  final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,6 +35,12 @@ class AuthShell extends ConsumerWidget {
                   // Header: logo + app name + theme toggle
                   Row(
                     children: [
+                      if (onBack != null)
+                        IconButton(
+                          tooltip: 'Back',
+                          icon: const Icon(Icons.arrow_back),
+                          onPressed: onBack,
+                        ),
                       Image.asset(
                         'assets/images/logo_icon.png',
                         height: 28,

@@ -29,10 +29,11 @@ class StudentShell extends ConsumerWidget {
     }
 
     int selectedIndex;
-    if (location == RouteNames.myCourses ||
-        location.startsWith('${RouteNames.myCourses}/')) {
+    if (location == RouteNames.marketplace ||
+        location.startsWith('${RouteNames.marketplace}/')) {
       selectedIndex = 1;
-    } else if (location == RouteNames.savedCourses) {
+    } else if (location == RouteNames.myCourses ||
+        location.startsWith('${RouteNames.myCourses}/')) {
       selectedIndex = 2;
     } else if (location == RouteNames.profile ||
         location.startsWith('${RouteNames.profile}/')) {
@@ -76,16 +77,12 @@ class StudentShell extends ConsumerWidget {
               child: const Text(DashboardCopy.home),
             ),
             TextButton(
-              onPressed: () => context.go(RouteNames.myCourses),
-              child: const Text(DashboardCopy.myLearning),
-            ),
-            TextButton(
-              onPressed: () => context.go(RouteNames.savedCourses),
-              child: const Text(DashboardCopy.saved),
-            ),
-            TextButton(
               onPressed: () => context.go(RouteNames.marketplace),
-              child: const Text('Explore'),
+              child: const Text(DashboardCopy.explore),
+            ),
+            TextButton(
+              onPressed: () => context.go(RouteNames.myCourses),
+              child: const Text(DashboardCopy.myCourses),
             ),
             if (canOpenAdmin)
               TextButton(
@@ -118,8 +115,8 @@ class StudentShell extends ConsumerWidget {
               onDestinationSelected: (index) {
                 const destinations = [
                   RouteNames.dashboardHome,
+                  RouteNames.marketplace,
                   RouteNames.myCourses,
-                  RouteNames.savedCourses,
                   RouteNames.profile,
                 ];
                 context.go(destinations[index]);
@@ -131,14 +128,14 @@ class StudentShell extends ConsumerWidget {
                   label: DashboardCopy.home,
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.school_outlined),
-                  selectedIcon: Icon(Icons.school),
-                  label: DashboardCopy.myLearning,
+                  icon: Icon(Icons.explore_outlined),
+                  selectedIcon: Icon(Icons.explore),
+                  label: DashboardCopy.explore,
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.bookmark_outline),
-                  selectedIcon: Icon(Icons.bookmark),
-                  label: DashboardCopy.saved,
+                  icon: Icon(Icons.menu_book_outlined),
+                  selectedIcon: Icon(Icons.menu_book),
+                  label: DashboardCopy.myCourses,
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.person_outline),
