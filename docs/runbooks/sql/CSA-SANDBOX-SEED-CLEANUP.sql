@@ -13,9 +13,10 @@
 --     bank submissions reference courses/profiles ON DELETE RESTRICT, and
 --     app_private.audit_logs is append-only).
 --   * The sandbox course is ARCHIVED (status = 'archived'), not deleted.
---   * @example.com accounts are REPORTED only. Removing auth users is an owner
---     decision done through the Supabase Auth Admin API/dashboard, and only for
---     accounts Part 1 shows have zero dependent rows.
+--   * @example.com accounts are REPORTED only. All account/profile deletion is
+--     deferred to a separately approved procedure. Zero counted dependents do
+--     not bypass profiles.id -> auth.users ON DELETE RESTRICT or authorize
+--     removal through the Auth Admin API, dashboard or SQL in this runbook.
 --
 -- Dry run:
 --   psql "$TARGET_DB_URL" -v ON_ERROR_STOP=1 -v mode=dryrun \

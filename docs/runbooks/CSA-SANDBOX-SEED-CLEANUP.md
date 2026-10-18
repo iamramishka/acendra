@@ -1,18 +1,23 @@
 # CSA-SANDBOX-SEED-CLEANUP — Sandbox course and placeholder seed data
 
-Status: PROPOSED — IN_REVIEW. Nothing in this package has been executed
-against any database. Maker: CLAUDE. Checker: a human reviewer (a Claude
+Status: PROPOSED — IN_REVIEW. This package has not been executed against a
+hosted database. Prior local review evidence is recorded in
+`docs/reviews/PR180-CLEANUP-FIX-BOARD.md`. Maker: CLAUDE; account-procedure
+documentation correction: CODEX. Required hosted checker: a human reviewer (a Claude
 subagent is not an independent checker; AGENTS.md §43, CLAUDE.md §18).
 
-Closes the data-level residue of `finderror.md` issues 005, 022 and 023
-(see `docs/tasks/CSA-171-FINDERROR-RESIDUAL.md`, row 005).
+Prepares archival of the data-level residue of `finderror.md` issues 005 and
+022, plus an inventory for issue 023 (see
+`docs/tasks/CSA-171-FINDERROR-RESIDUAL.md`, row 005). Account deletion for issue
+023 remains deferred to a separately approved procedure; this package does
+not close that finding.
 
 ## 1. Scope
 
 | Finding | Residue | Action in this runbook |
 | --- | --- | --- |
 | 005 / 022 | Course `SANDBOX TEST ONLY - Checkout Verification` still exists in the hosted DB; the app only hides it (`lib/features/marketplace/data/repositories/supabase_course_repository.dart` filters `title not ilike 'SANDBOX TEST%'` for listing and detail). | **Archive** the course (`status = 'archived'`). Do not delete. |
-| 023 | Placeholder `@example.com` students, orders and payments (`alice/bob/carol/david@example.com`, `student1-3@example.com`, orders like `ORD-2026-0001`). | **Report only** in SQL. Account removal is a separate owner decision, only for accounts with zero dependent rows. |
+| 023 | Placeholder `@example.com` students, orders and payments (`alice/bob/carol/david@example.com`, `student1-3@example.com`, orders like `ORD-2026-0001`). | **Report only**. All account/profile deletion is deferred to a separately approved procedure; zero counted dependents do not authorize deletion. |
 
 Out of scope: any change to `supabase/migrations`, app code, payment logic,
 PayHere sandbox configuration, or the local seed `supabase/seed.sql` (its
@@ -45,7 +50,7 @@ explicitly local-only).
 | Approve running on the hosted environment, and name the target (project ref / DB name) | Project owner (written, in the tracking GitHub Issue) |
 | Independent review of this runbook, SQL and the dry-run output | A second reviewer who is not the maker (human; project owner or designated maintainer) |
 | Execute (psql with privileged connection) | Authorized maintainer holding the DB credential. Agents must not hold or use it. |
-| Decide per-account fate of `@example.com` users | Project owner |
+| Decide per-account retention or sign-in restriction for `@example.com` users | Project owner; deletion requires a separate approved procedure |
 
 Do not run against production without the approval above. Staging first if a
 staging project exists; the approval must name which environment(s).
@@ -88,19 +93,25 @@ staging project exists; the approval must name which environment(s).
 5. **Apply.** Same command plus `-v do_commit=yes`. Idempotent: if the course
    is already archived it changes nothing and writes no audit row.
 6. **Verify** (section 6) and record evidence (section 8).
-7. **`@example.com` accounts (finding 023), owner decision per account.**
-   Use dry-run sections 1.5/1.6.
-   * Any account with orders, enrollments, bank submissions, role rows or any
-     non-zero row in 1.6 **stays**. Do not delete financial or audit history. If
-     it must not be usable, the owner may disable sign-in via the Auth Admin API
-     (ban) and rotate nothing else.
-   * Accounts with zero dependents in 1.6 may be removed by the owner through
-     the Supabase Auth Admin API or dashboard (not by SQL against `auth.users`).
-     `profiles.id → auth.users` is `ON DELETE RESTRICT`, so remove the profile
-     only via the supported admin flow; if that fails with an FK error, the
-     account has dependents — stop and keep it.
-   * This script deliberately contains no statement for this step.
-8. **Close out.** Update the Issue and, via the TASKS.md owner, finding status.
+7. **`@example.com` accounts (finding 023), inventory and owner decision.**
+   Use dry-run sections 1.5/1.6 to record dependencies. Retain all accounts and
+   profiles under this runbook, including those with zero counted dependents.
+   * CSA-060 automatically creates a profile for an Auth account. The profile's
+     `id → auth.users` foreign key uses `ON DELETE RESTRICT` (CSA-059). Thus an
+     Auth Admin API/dashboard deletion is blocked by the profile even when
+     section 1.6 reports zero rows referencing that profile. This expected FK
+     failure does not demonstrate additional hidden profile dependents.
+   * No supported profile-removal flow is supplied by this package. All account
+     and profile deletion requires a separate approved procedure covering
+     dependency checks, retention obligations and the required removal order.
+     Do not attempt deletion through the Auth API, dashboard or SQL as part of
+     this runbook, and do not weaken the foreign keys to allow it.
+   * If an account must not be usable, the owner may separately authorize an
+     Auth Admin API sign-in ban. Preserve its profile, dependencies, financial
+     and audit history. The SQL performs no account action.
+8. **Close out.** Record archival verification and the account inventory in the
+   Issue and, via the TASKS.md owner, update only the verified finding status.
+   Finding 023 remains open for the separately approved account procedure.
 
 ## 6. Verification queries (read-only)
 
@@ -136,8 +147,8 @@ storage objects equal the dry-run counts.
   design; record the revert in the Issue.
 * Catastrophic or unexpected state: restore from the recorded restore point per
   `CSA-216-RECOVERY-RUNBOOK.md`. Never reset production data.
-* Account removals (step 7) are not reversible by this runbook; hence the
-  zero-dependents rule and the pre-change backup.
+* Account/profile deletion is outside this runbook. Step 7 retains all such
+  rows; any future removal needs its own approved recovery procedure.
 
 ## 8. Evidence to record in the GitHub Issue
 
@@ -154,12 +165,19 @@ storage objects equal the dry-run counts.
 
 * The sandbox course id is not recorded anywhere in the repo; the SQL finds it
   by exact title and requires the executor to supply and confirm the id.
-* The SQL was reviewed statically against `supabase/migrations`; it has **not**
-  been executed on any database (no hosted access by design). The checker
-  should rehearse it on a throwaway local Supabase database first.
+* Prior review replayed the actual migrations and exercised the SQL's dry run,
+  rollback rehearsal, committed archival and idempotent repeat on an isolated
+  native PostgreSQL 17 database with minimal Auth/Storage schema shims. That
+  review preserved constrained synthetic financial fixtures; see the correction
+  board for evidence and limitations. This is not hosted Supabase Auth/Storage
+  runtime verification. The human checker must still review the actual target's
+  dry-run output and perform the required rehearsal before hosted application.
 * If the hosted DB is missing a table referenced in dry-run section 1 (schema
   drift), `ON_ERROR_STOP` aborts before any write; Part 1 is read-only.
 * Archiving does not remove the course from admin views by design.
+* The account dependency inventory is evidence for a future decision, not an
+  account-deletion procedure. Finding 023 remains open even if the inventory
+  reports zero counted dependents.
 * App-side sandbox exclusion is covered by
   `test/features/marketplace/data/sandbox_course_visibility_test.dart` (direct
   detail) and `sandbox_course_listing_test.dart` (catalog query filter). These
