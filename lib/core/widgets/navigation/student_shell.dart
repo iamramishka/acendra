@@ -1,6 +1,5 @@
 import 'package:acendra/app/router/route_names.dart';
 import 'package:acendra/app/theme/app_breakpoints.dart';
-import 'package:acendra/core/widgets/buttons/theme_toggle_button.dart';
 import 'package:acendra/core/widgets/layout/responsive_container.dart';
 import 'package:acendra/core/widgets/navigation/account_menu.dart';
 import 'package:acendra/features/authentication/presentation/providers/navigation_access_provider.dart';
@@ -36,7 +35,10 @@ class StudentShell extends ConsumerWidget {
         location.startsWith('${RouteNames.myCourses}/')) {
       selectedIndex = 2;
     } else if (location == RouteNames.profile ||
-        location.startsWith('${RouteNames.profile}/')) {
+        location.startsWith('${RouteNames.profile}/') ||
+        location == RouteNames.orders ||
+        location == RouteNames.settings ||
+        location.startsWith('${RouteNames.settings}/')) {
       selectedIndex = 3;
     } else {
       selectedIndex = 0;
@@ -103,7 +105,6 @@ class StudentShell extends ConsumerWidget {
               );
             },
           ),
-          const ThemeToggleButton(),
           const SizedBox(width: 8),
           const AccountMenu(icon: Icon(Icons.menu)),
           const SizedBox(width: 8),
