@@ -1,5 +1,14 @@
 # Phase9 existing-service readiness and operational holds
 
+Current selection, 2026-10-18: the owner delegated target/operator choices. See the
+[selected configuration and fresh inventory](../operations/CSA-160-TARGET-SELECTION.md).
+`iamramishka` is selected as release operator; the nominated hostname is retained.
+The single visible backend remains staging, and encryption/full recovery are not
+verified. Production tasks remain BLOCKED on capabilities, not unanswered names.
+The private-repository CI allowance snapshot below is historical: the repository
+is now public with standard hosted runners, as recorded in the
+[current integration review](../reviews/CSA-160-CURRENT-INTEGRATION.md).
+
 Date: 2026-10-15 Asia/Colombo. Owner: CODEX root. Coordination: [issue160](https://github.com/iamramishka/acendra/issues/160) and [parallel board](CSA-PHASE9-EXISTING-FREE-BOARD.md).
 
 The owner authorized parallel work, no new services and no spending, with missing prerequisites held. All three isolated workers completed bounded documentation/preflight work. Production tasks remain BLOCKED until their operational requirements are met. No staging environment is reclassified as production.
