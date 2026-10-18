@@ -2,8 +2,10 @@ import 'package:acendra/app/router/route_names.dart';
 import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:acendra/app/theme/app_theme_extension.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
+import 'package:acendra/features/bank_transfer/data/bank_transfer_repository.dart';
 import 'package:acendra/features/bank_transfer/domain/entities/receipt_submission.dart';
 import 'package:acendra/features/bank_transfer/presentation/providers/bank_transfer_provider.dart';
+import 'package:acendra/features/bank_transfer/presentation/widgets/payment_progress_widgets.dart';
 import 'package:acendra/features/checkout/presentation/widgets/receipt_status_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,11 +29,20 @@ class ReceiptStatusScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Transfer Status'),
-        leading: BackButton(onPressed: () => Navigator.of(context).maybePop()),
+        leading: BackButton(
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.go(RouteNames.dashboard),
+        ),
       ),
       body: submissionAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => _ErrorBody(message: err.toString()),
+        // Only failures we wrote ourselves are safe to show verbatim.
+        error: (err, _) => _ErrorBody(
+          message: err is BankTransferFailure
+              ? err.message
+              : 'Something went wrong. Please try again.',
+        ),
         data: (submission) => _StatusBody(
           submission: submission,
           onUploadTap: () => context.push(
@@ -68,10 +79,12 @@ class _StatusBody extends StatelessWidget {
                   onResubmit: onUploadTap,
                   onGoToCourse: () => context.go(RouteNames.myCourses),
                 ),
-                TextButton(
-                  onPressed: () => context.go(RouteNames.dashboard),
-                  child: const Text('Go to Dashboard'),
-                ),
+                const SizedBox(height: AppSpacing.md),
+                BankOrderDetailsCard(submission: submission),
+                const SizedBox(height: AppSpacing.md),
+                PaymentProgressCard(status: submission.status),
+                const SizedBox(height: AppSpacing.sm),
+                const _Exits(),
               ],
             ),
           ),
@@ -168,7 +181,17 @@ class _StatusBody extends StatelessWidget {
                   ),
                 ),
 
-              const SizedBox(height: AppSpacing.xxl),
+              const SizedBox(height: AppSpacing.lg),
+              SizedBox(
+                width: double.infinity,
+                child: BankOrderDetailsCard(submission: submission),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              SizedBox(
+                width: double.infinity,
+                child: PaymentProgressCard(status: submission.status),
+              ),
+              const SizedBox(height: AppSpacing.xl),
 
               // ── Actions ───────────────────────────────────────────────
               if (submission.status == ReceiptStatus.awaitingReceipt ||
@@ -187,14 +210,33 @@ class _StatusBody extends StatelessWidget {
                 const SizedBox(height: AppSpacing.sm),
               ],
 
-              TextButton(
-                onPressed: () => context.go(RouteNames.dashboard),
-                child: const Text('Go to Dashboard'),
-              ),
+              const _Exits(),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _Exits extends StatelessWidget {
+  const _Exits();
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: AppSpacing.sm,
+      children: [
+        TextButton(
+          onPressed: () => context.go(RouteNames.dashboard),
+          child: const Text('Go to Dashboard'),
+        ),
+        TextButton(
+          onPressed: () => context.go(RouteNames.marketplace),
+          child: const Text('Explore Courses'),
+        ),
+      ],
     );
   }
 }
