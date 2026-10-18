@@ -147,10 +147,15 @@ void main() {
     addTearDown(() => debugNetworkImageHttpClientProvider = null);
     await HttpOverrides.runZoned(() async {
       await tester.pumpWidget(_wrap(url: 'https://example.com/cover.png'));
-      await tester.runAsync(
-        () async => Future<void>.delayed(const Duration(milliseconds: 100)),
-      );
-      await tester.pumpAndSettle();
+      // Image decoding runs in real time; poll (bounded) instead of a fixed
+      // delay so a loaded machine cannot flake the test.
+      for (var i = 0; i < 50; i++) {
+        await tester.runAsync(
+          () async => Future<void>.delayed(const Duration(milliseconds: 100)),
+        );
+        await tester.pumpAndSettle();
+        if (find.text('Loading cover image').evaluate().isEmpty) break;
+      }
       expect(find.text('Loading cover image'), findsNothing);
       expect(find.text('Cover image unavailable'), findsNothing);
       expect(tester.widget<RawImage>(find.byType(RawImage)).image, isNotNull);
