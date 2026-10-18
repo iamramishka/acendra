@@ -11,7 +11,9 @@ import 'package:acendra/features/checkout/domain/entities/payment_method.dart';
 import 'package:acendra/features/checkout/domain/entities/customer_info.dart';
 import 'package:acendra/features/checkout/domain/entities/payment_handoff.dart';
 import 'package:acendra/features/checkout/data/repositories/checkout_submission_repository.dart';
-import 'package:acendra/features/checkout/presentation/widgets/receipt_resubmission_form.dart';
+import 'package:acendra/features/checkout/data/repositories/student_order_repository.dart';
+import 'package:acendra/features/marketplace/presentation/providers/marketplace_provider.dart';
+import 'package:acendra/features/marketplace/presentation/widgets/course_art.dart';
 import 'package:acendra/features/checkout/presentation/providers/payment_launcher_provider.dart';
 import 'package:acendra/features/checkout/presentation/providers/checkout_actor_provider.dart';
 import 'package:acendra/features/checkout/presentation/providers/checkout_provider.dart';
@@ -44,6 +46,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   String? _cityError;
   String? _countryError;
   bool _isPaying = false;
+  bool _isCreating = false;
   String? _paymentKey;
   String? _paymentOrderId;
   int _identityEpoch = 0;
@@ -93,12 +96,54 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     return valid;
   }
 
-  void _onProceed(PaymentMethod method) {
-    if (!_validate()) return;
-
-    ref
-        .read(checkoutProvider.notifier)
-        .createOrder(courseId: widget.courseId, method: method);
+  Future<void> _onProceed(PaymentMethod method) async {
+    if (_isCreating || (method == PaymentMethod.online && !_validate())) return;
+    final actor = ref.read(checkoutActorProvider);
+    final epoch = _identityEpoch;
+    setState(() => _isCreating = true);
+    try {
+      final existing = await ref.refresh(
+        openCourseOrderProvider(widget.courseId).future,
+      );
+      if (!mounted ||
+          epoch != _identityEpoch ||
+          actor != ref.read(checkoutActorProvider))
+        return;
+      if (existing != null) {
+        context.push(
+          RouteNames.orderStatus.replaceFirst(':orderId', existing.id),
+        );
+        return;
+      }
+      await ref
+          .read(checkoutProvider.notifier)
+          .createOrder(courseId: widget.courseId, method: method);
+      if (!mounted ||
+          epoch != _identityEpoch ||
+          actor != ref.read(checkoutActorProvider))
+        return;
+      final order = ref.read(checkoutProvider).asData?.value;
+      ref.invalidate(openCourseOrderProvider(widget.courseId));
+      if (order == null || order.courseId != widget.courseId) return;
+      if (method == PaymentMethod.online) {
+        await _onPayNow();
+      } else {
+        context.push(
+          RouteNames.bankTransfer.replaceFirst(':orderId', order.orderId),
+        );
+      }
+    } catch (_) {
+      if (mounted && epoch == _identityEpoch)
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Payment status could not be checked. Please retry before starting another order.',
+            ),
+          ),
+        );
+    } finally {
+      if (mounted) setState(() => _isCreating = false);
+    }
   }
 
   Future<void> _onPayNow() async {
@@ -108,6 +153,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final epoch = _identityEpoch;
     final order = ref.read(checkoutProvider).value;
     if (order == null ||
+        order.courseId != widget.courseId ||
         order.paymentMethod != PaymentMethod.online ||
         order.status != 'pending_payment') {
       return;
@@ -173,11 +219,115 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     });
     final checkoutState = ref.watch(checkoutProvider);
     final selectedMethod = ref.watch(selectedPaymentMethodProvider);
+    final order = checkoutState.asData?.value;
+    if (order != null && order.courseId != widget.courseId) {
+      return Scaffold(
+        body: Center(
+          child: TextButton(
+            onPressed: () => ref.read(checkoutProvider.notifier).reset(),
+            child: const Text('Load this course checkout'),
+          ),
+        ),
+      );
+    }
+    final course = order == null
+        ? ref.watch(courseDetailProvider(widget.courseId))
+        : null;
+    final existing = order == null
+        ? ref.watch(openCourseOrderProvider(widget.courseId))
+        : null;
+    final waiting =
+        checkoutState.isLoading ||
+        _isCreating ||
+        _isPaying ||
+        (order == null &&
+            (course?.isLoading == true || existing?.isLoading == true));
+    final blocked =
+        order == null &&
+        (course?.hasError == true || existing?.hasError == true);
+    final openOrder = existing?.asData?.value;
+    void back() {
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go(
+          RouteNames.courseDetail.replaceFirst(':courseId', widget.courseId),
+        );
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Checkout'),
-        leading: BackButton(onPressed: () => Navigator.of(context).maybePop()),
+        title: const Text('Secure Checkout'),
+        leading: BackButton(onPressed: back),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          color: Theme.of(context).colorScheme.surface,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Total Amount',
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
+              Text(
+                order?.formattedAmount ??
+                    course?.asData?.value.formattedPrice ??
+                    'Unavailable',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              AppButton(
+                label: openOrder != null
+                    ? 'Payment Status'
+                    : order != null &&
+                          order.paymentMethod == PaymentMethod.online
+                    ? 'Pay Now'
+                    : selectedMethod == PaymentMethod.online
+                    ? 'Continue to PayHere'
+                    : 'Continue to Bank Transfer',
+                isLoading: waiting,
+                onPressed: waiting || blocked
+                    ? null
+                    : () {
+                        if (openOrder != null) {
+                          context.push(
+                            RouteNames.orderStatus.replaceFirst(
+                              ':orderId',
+                              openOrder.id,
+                            ),
+                          );
+                        } else if (order == null) {
+                          _onProceed(selectedMethod);
+                        } else if (order.courseId != widget.courseId) {
+                          ref.read(checkoutProvider.notifier).reset();
+                        } else if (order.paymentMethod ==
+                            PaymentMethod.online) {
+                          _onPayNow();
+                        } else {
+                          context.push(
+                            RouteNames.bankTransfer.replaceFirst(
+                              ':orderId',
+                              order.orderId,
+                            ),
+                          );
+                        }
+                      },
+              ),
+              if (blocked)
+                TextButton(
+                  onPressed: () {
+                    ref.invalidate(courseDetailProvider(widget.courseId));
+                    ref.invalidate(openCourseOrderProvider(widget.courseId));
+                  },
+                  child: const Text('Retry checkout details'),
+                ),
+            ],
+          ),
+        ),
       ),
       body: checkoutState.when(
         loading: () => _buildLoadingBody(),
@@ -225,6 +375,21 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: const [
+                Text('✓ Order'),
+                Text('2 Payment'),
+                Text('3 Confirm'),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Complete Your Purchase',
+              style: theme.textTheme.headlineMedium,
+            ),
+            const Text('Choose how you would like to pay.'),
+            const SizedBox(height: 20),
             // ── Section 1: Order Summary ──────────────────────────────────────
             _SectionCard(
               child: Column(
@@ -250,19 +415,32 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     const SizedBox(height: AppSpacing.sm),
                     _StatusBadge(status: order.status),
                   ] else ...[
-                    Text(
-                      'Course: ${widget.courseId}',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: cs.onSurface.withValues(alpha: 0.7),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      'Review your order before proceeding.',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: cs.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
+                    ref
+                        .watch(courseDetailProvider(widget.courseId))
+                        .when(
+                          loading: () => const CircularProgressIndicator(),
+                          error: (_, _) => const Text(
+                            'Course details are unavailable. Retry below.',
+                          ),
+                          data: (course) => Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const CourseArt(height: 100),
+                              const SizedBox(height: 12),
+                              Text(
+                                course.title,
+                                style: theme.textTheme.titleLarge,
+                              ),
+                              Text(
+                                '${course.totalLessons} lessons · Online Course',
+                              ),
+                              Text(
+                                course.formattedPrice,
+                                style: theme.textTheme.headlineSmall,
+                              ),
+                            ],
+                          ),
+                        ),
                   ],
                 ],
               ),
@@ -296,11 +474,19 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
               const SizedBox(height: AppSpacing.lg),
             ],
+            _SectionCard(
+              child: Text(
+                selectedMethod == PaymentMethod.online
+                    ? 'Continue to PayHere to pay securely. Your card details are entered on PayHere, not in Acedra. Course access starts after payment is verified.'
+                    : 'Continue to bank transfer for our bank details and your order reference. Submit your receipt for review; access starts only after verification.',
+              ),
+            ),
+            const SizedBox(height: 20),
 
             // Keep contact inputs available for an existing pending online
             // order: Pay Now validates and submits these actual controller values.
-            if (order == null ||
-                order.paymentMethod == PaymentMethod.online) ...[
+            if ((order == null && selectedMethod == PaymentMethod.online) ||
+                order?.paymentMethod == PaymentMethod.online) ...[
               // ── Section 3: Customer Info form ─────────────────────────────────
               _SectionCard(
                 child: Column(
@@ -426,37 +612,6 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             ],
 
             const SizedBox(height: AppSpacing.xl),
-
-            // ── Bottom action button ──────────────────────────────────────────
-            if (order == null)
-              AppButton(
-                label: 'Proceed to Payment',
-                onPressed: () => _onProceed(selectedMethod),
-                variant: ButtonVariant.primary,
-                size: ButtonSize.large,
-              )
-            else if (order.paymentMethod == PaymentMethod.online)
-              AppButton(
-                label: _isPaying ? 'Starting payment…' : 'Pay Now',
-                onPressed: _isPaying ? null : _onPayNow,
-                variant: ButtonVariant.primary,
-                size: ButtonSize.large,
-              )
-            else if (order.paymentMethod == PaymentMethod.bankTransfer)
-              AppButton(
-                label: 'Continue Bank Transfer',
-                onPressed: () => context.push(
-                  RouteNames.bankTransfer.replaceFirst(
-                    ':orderId',
-                    order.orderId,
-                  ),
-                ),
-                variant: ButtonVariant.primary,
-                size: ButtonSize.large,
-              ),
-            if (order != null &&
-                order.paymentMethod == PaymentMethod.bankTransfer)
-              ReceiptResubmissionForm(orderId: order.orderId),
 
             const SizedBox(height: AppSpacing.xl),
           ],

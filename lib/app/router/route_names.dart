@@ -19,6 +19,9 @@ abstract final class RouteNames {
   static const String checkoutFailure = '/checkout/:courseId/failure';
   static const String profile = '/profile';
   static const String profileEdit = '/profile/edit';
+  static const String settings = '/profile/settings';
+  static const String courseOverview = '/courses/:courseId/overview';
+  static const String orderStatus = '/orders/:orderId';
 
   // Bank transfer flow (CSA-107, 110, 115)
   static const String bankTransfer = '/bank-transfer/:orderId';

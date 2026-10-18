@@ -15,15 +15,41 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 const double _kSidebarWidth = 280.0;
 const double _kDesktopBreakpoint = 900.0;
 
-class LearningWorkspaceScreen extends ConsumerWidget {
-  const LearningWorkspaceScreen({super.key, required this.courseId});
+class LearningWorkspaceScreen extends ConsumerStatefulWidget {
+  const LearningWorkspaceScreen({
+    super.key,
+    required this.courseId,
+    this.initialLessonId,
+  });
 
   final String courseId;
+  final String? initialLessonId;
+  @override
+  ConsumerState<LearningWorkspaceScreen> createState() =>
+      _LearningWorkspaceScreenState();
+}
+
+class _LearningWorkspaceScreenState
+    extends ConsumerState<LearningWorkspaceScreen> {
+  bool _openedInitialLesson = false;
+  String get courseId => widget.courseId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final state = ref.watch(learningWorkspaceProvider(courseId));
     final notifier = ref.read(learningWorkspaceProvider(courseId).notifier);
+    if (!_openedInitialLesson &&
+        !state.isLoading &&
+        state.currentContent != null) {
+      _openedInitialLesson = true;
+      final requested = widget.initialLessonId;
+      if (requested != null &&
+          state.flatLessons.any((lesson) => lesson.id == requested)) {
+        Future.microtask(() {
+          if (mounted) notifier.selectLesson(requested);
+        });
+      }
+    }
 
     if (state.error != null && !state.isLoading) {
       return AppErrorState(

@@ -1,3 +1,4 @@
+import 'package:acendra/features/authentication/presentation/widgets/recovery_widgets.dart';
 import 'dart:async';
 
 import 'package:acendra/app/router/route_names.dart';
@@ -82,40 +83,12 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
     final coolingDown = _secondsLeft > 0;
 
     return AuthShell(
+      onBack: () => context.go(RouteNames.login),
+      banner: const RecoveryHero(icon: Icons.mail_outline, badge: Icons.check),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 8),
-          Center(
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  width: 112,
-                  height: 112,
-                  decoration: BoxDecoration(
-                    color: cs.primaryContainer,
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                  child: Icon(
-                    Icons.mail_outline_rounded,
-                    size: 56,
-                    color: cs.primary,
-                  ),
-                ),
-                Positioned(
-                  right: -10,
-                  bottom: -10,
-                  child: CircleAvatar(
-                    radius: 18,
-                    backgroundColor: ext.success,
-                    child: Icon(Icons.check, size: 22, color: cs.surface),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 28),
+
           Text(
             'Check your inbox',
             style: tt.headlineSmall?.copyWith(fontWeight: FontWeight.w800),

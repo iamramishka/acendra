@@ -75,6 +75,12 @@ class ProfileScreen extends ConsumerWidget {
               value: email ?? '—',
             ),
             const SizedBox(height: 40),
+            ListTile(
+              leading: const Icon(Icons.settings_outlined),
+              title: const Text('Settings'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push(RouteNames.settings),
+            ),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(

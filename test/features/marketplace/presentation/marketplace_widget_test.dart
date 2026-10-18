@@ -125,7 +125,7 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
-      expect(find.text('All'), findsOneWidget);
+      expect(find.text('All Courses'), findsOneWidget);
       expect(find.text('Flutter'), findsOneWidget);
     });
 
@@ -139,7 +139,7 @@ void main() {
       await tester.tap(find.text('Fake Course'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Enroll Now'), findsOneWidget);
+      expect(find.text('Buy Course'), findsOneWidget);
     });
   });
 
@@ -158,7 +158,7 @@ void main() {
       expect(find.textContaining('LKR'), findsOneWidget);
     });
 
-    testWidgets('shows Enroll Now CTA when not enrolled', (tester) async {
+    testWidgets('shows Buy Course CTA when not enrolled', (tester) async {
       await tester.pumpWidget(
         _wrap(
           const CourseDetailScreen(courseId: 'fake-id-1'),
@@ -168,10 +168,10 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.text('Enroll Now'), findsOneWidget);
+      expect(find.text('Buy Course'), findsOneWidget);
     });
 
-    testWidgets('shows Continue Learning CTA when enrolled', (tester) async {
+    testWidgets('shows Go to Course CTA when enrolled', (tester) async {
       await tester.pumpWidget(
         _wrap(
           const CourseDetailScreen(courseId: 'fake-id-1'),
@@ -181,7 +181,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.text('Continue Learning'), findsOneWidget);
+      expect(find.text('Go to Course'), findsOneWidget);
       expect(find.text('Enrolled'), findsOneWidget);
     });
 

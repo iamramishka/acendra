@@ -1,3 +1,5 @@
+import 'package:acendra/features/marketplace/presentation/providers/marketplace_provider.dart';
+import '../../../marketplace/fakes/fake_course_repository.dart';
 import 'package:acendra/features/checkout/data/repositories/supabase_checkout_repository.dart';
 import 'package:acendra/features/checkout/domain/entities/checkout_order.dart';
 import 'package:acendra/features/checkout/domain/entities/payment_method.dart';
@@ -47,7 +49,7 @@ class _FakeCheckoutRepository implements CheckoutRepository {
 
 Widget _wrap(Widget child, CheckoutRepository repo) {
   return ProviderScope(
-    overrides: [checkoutRepositoryProvider.overrideWithValue(repo)],
+    overrides: [checkoutRepositoryProvider.overrideWithValue(repo), courseDetailProvider('course-123').overrideWith((ref) async => fakeDetail)],
     child: MaterialApp(home: child),
   );
 }
@@ -68,7 +70,7 @@ void main() {
     expect(find.byType(CheckoutScreen), findsOneWidget);
   });
 
-  testWidgets('"Proceed to Payment" button is present initially', (
+  testWidgets('"Continue to PayHere" button is present initially', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -78,9 +80,9 @@ void main() {
       ),
     );
 
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    expect(find.text('Proceed to Payment'), findsOneWidget);
+    expect(find.text('Continue to PayHere'), findsOneWidget);
   });
 
   testWidgets('checkout screen shows Checkout app bar title', (tester) async {
@@ -91,9 +93,9 @@ void main() {
       ),
     );
 
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    expect(find.text('Checkout'), findsOneWidget);
+    expect(find.text('Secure Checkout'), findsOneWidget);
   });
 
   testWidgets('selecting bank transfer shows Bank Transfer label', (
@@ -106,7 +108,7 @@ void main() {
       ),
     );
 
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     // The PaymentMethodSelector shows both options; find Bank Transfer label
     expect(find.text('Bank Transfer'), findsOneWidget);
@@ -122,7 +124,7 @@ void main() {
       ),
     );
 
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(find.text('Billing Details'), findsOneWidget);
   });
@@ -137,11 +139,11 @@ void main() {
       ),
     );
 
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    await tester.ensureVisible(find.text('Proceed to Payment'));
-    await tester.tap(find.text('Proceed to Payment'));
-    await tester.pump();
+    await tester.ensureVisible(find.text('Continue to PayHere'));
+    await tester.tap(find.text('Continue to PayHere'));
+    await tester.pumpAndSettle();
 
     // At least one Required error should appear
     expect(find.text('Required'), findsWidgets);

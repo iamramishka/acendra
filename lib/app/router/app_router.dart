@@ -34,6 +34,9 @@ import 'package:acendra/features/marketplace/presentation/screens/course_detail_
 import 'package:acendra/features/marketplace/presentation/screens/marketplace_screen.dart';
 import 'package:acendra/features/profile/presentation/screens/profile_edit_screen.dart';
 import 'package:acendra/features/profile/presentation/screens/profile_screen.dart';
+import 'package:acendra/features/profile/presentation/screens/settings_screen.dart';
+import 'package:acendra/features/checkout/presentation/screens/order_status_screen.dart';
+import 'package:acendra/features/learning/presentation/screens/course_overview_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -66,6 +69,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       );
 
       if (!isAuthenticated && !isPublic) return RouteNames.login;
+      if (!isAuthenticated &&
+          location == RouteNames.resetPassword &&
+          state.uri.queryParameters['mode'] == 'change')
+        return RouteNames.login;
 
       if (isAuthenticated &&
           (location == RouteNames.login || location == RouteNames.register)) {
@@ -103,7 +110,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: RouteNames.resetPassword,
-            builder: (_, _) => const ResetPasswordScreen(),
+            builder: (_, state) => ResetPasswordScreen(
+              changePassword: state.uri.queryParameters['mode'] == 'change',
+            ),
           ),
         ],
       ),
@@ -196,6 +205,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: RouteNames.profileEdit,
             builder: (_, _) => const ProfileEditScreen(),
           ),
+          GoRoute(
+            path: RouteNames.settings,
+            builder: (_, _) => const SettingsScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.orderStatus,
+            builder: (_, state) =>
+                OrderStatusScreen(orderId: state.pathParameters['orderId']!),
+          ),
+          GoRoute(
+            path: RouteNames.courseOverview,
+            builder: (_, state) => CourseOverviewScreen(
+              courseId: state.pathParameters['courseId']!,
+            ),
+          ),
           // Bank transfer flow (CSA-107, 110, 115)
           GoRoute(
             path: RouteNames.bankTransfer,
@@ -234,6 +258,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: RouteNames.learn,
             builder: (_, state) => LearningWorkspaceScreen(
               courseId: state.pathParameters['courseId']!,
+              initialLessonId: state.uri.queryParameters['lesson'],
             ),
           ),
         ],

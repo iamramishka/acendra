@@ -51,7 +51,12 @@ class AuthRepository {
 
   Future<void> sendPasswordResetEmail({required String email}) async {
     try {
-      await _client!.auth.resetPasswordForEmail(email);
+      await _client!.auth.resetPasswordForEmail(
+        email,
+        // The web app uses Flutter's default hash URL strategy. Preserve the
+        // reset route through PKCE's code query without requiring host rewrites.
+        redirectTo: Uri.base.resolve('/#/reset-password').toString(),
+      );
     } on AuthException catch (e) {
       throw _map(e);
     } catch (_) {
