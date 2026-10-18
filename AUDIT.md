@@ -70,7 +70,7 @@ AGENTS.md are written but not enforced by the repository.
 ## 3. Findings register
 
 ### Audit-001 - Production deploy bypasses the CI gate
-Severity: **P0** · Score: 1/10 · Area: A, E, G
+Severity: **P0** · Score: 1/10 → **fixed in PR #176** · Area: A, E, G
 
 Evidence:
 - `.github/workflows/deploy-production.yml` runs on every push to `dev`
@@ -86,15 +86,14 @@ Gap: AGENTS.md sections 19, 40 and 53 require passing CI before merge or
 release. CLAUDE.md requires no deploy without authorization.
 
 Fix:
-- [ ] Trigger deploy with `workflow_run` on a successful `Flutter baseline`
-      for `dev`, or `workflow_dispatch` only. Remove the commit-message
-      keyword trigger.
-- [ ] Use a GitHub `environment: production` with the owner as a required
-      reviewer.
-- [ ] Deploy the exact commit that CI tested.
+- [x] Trigger deploy with `workflow_run` on a successful `Flutter baseline`
+      for `dev`. Remove the commit-message keyword trigger. (PR #176)
+- [x] Use a GitHub `environment: production` with the owner as a required
+      reviewer. (PR #176 + environment set via API 2026-10-18)
+- [x] Deploy the exact commit that CI tested. (PR #176)
 
 ### Audit-002 - `dev` is unprotected and receives direct pushes
-Severity: **P0** · Score: 1/10 · Area: E, G
+Severity: **P0** · Score: 1/10 → **fixed 2026-10-18** · Area: E, G
 
 Evidence:
 - `gh api repos/iamramishka/acendra/branches/dev/protection` returns
@@ -109,8 +108,9 @@ section 13 forbids direct commits to the default branch. The effective
 default branch is `dev`.
 
 Fix:
-- [ ] Add a ruleset on `dev`: require a PR, require the `Format, analyze,
-      test and build` status check, block force-push and deletion.
+- [x] Branch protection added to `dev`: required PR, required
+      `Format, analyze, test and build` status check, force-push blocked,
+      stale review dismissal on. (set via GitHub API 2026-10-18)
 - [ ] Record in CLAUDE.md and AGENTS.md that `dev` is the protected
       integration branch, since `main` does not exist.
 
@@ -137,7 +137,7 @@ Fix:
       recorded review comment.
 
 ### Audit-004 - Production is served over plain HTTP with no security headers
-Severity: **P0** · Score: 1/10 · Area: F
+Severity: **P0** · Score: 1/10 → **fix in PR (this branch)** · Area: F
 
 Evidence (2026-10-18, two read-only requests):
 - `http://3.25.99.105/` returns `200` with no redirect to HTTPS.
@@ -154,10 +154,19 @@ breaks SECURITY.md transport expectations. The deploy summary claims an
 HTTPS URL that does not work.
 
 Fix:
-- [ ] Issue a TLS certificate, redirect HTTP to HTTPS, and add HSTS.
-- [ ] Add CSP, `X-Frame-Options`/`frame-ancestors`, and
-      `X-Content-Type-Options`. Set `server_tokens off`.
-- [ ] Make the smoke test check HTTPS and the required headers.
+- [x] `server/nginx.conf` added: HTTPS with Let's Encrypt cert, HTTP→HTTPS
+      redirect, HSTS (2 years + preload), CSP tuned for Flutter+Supabase+
+      Google Fonts, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
+      `Referrer-Policy`, `Permissions-Policy`, `server_tokens off`.
+- [x] `server/setup-ssl.sh` added: one-time script the owner runs on the
+      server to obtain the cert, install the config, set up renewal, and
+      grant the deploy user limited sudo to keep the config in sync.
+- [x] Deploy workflow updated: uploads `server/nginx.conf` on every deploy
+      and applies it if HTTPS is provisioned. Smoke test now verifies
+      HTTPS 200, HTTP→HTTPS redirect, HSTS, X-Content-Type-Options, and
+      X-Frame-Options; fails the deploy if any are missing.
+- [ ] Owner must run `sudo bash server/setup-ssl.sh` on the production
+      server before the next deploy for HTTPS to go live.
 
 ### Audit-005 - Secret scanning is off on a public repository
 Severity: **P1** · Score: 3/10 · Area: F
