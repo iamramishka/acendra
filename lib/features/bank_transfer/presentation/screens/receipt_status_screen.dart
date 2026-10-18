@@ -233,6 +233,10 @@ class _Exits extends StatelessWidget {
           child: const Text('Go to Dashboard'),
         ),
         TextButton(
+          onPressed: () => context.go(RouteNames.orders),
+          child: const Text('View Orders'),
+        ),
+        TextButton(
           onPressed: () => context.go(RouteNames.marketplace),
           child: const Text('Explore Courses'),
         ),

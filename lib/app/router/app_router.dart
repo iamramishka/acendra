@@ -34,6 +34,7 @@ import 'package:acendra/features/learning/presentation/screens/learning_workspac
 import 'package:acendra/features/my_courses/presentation/screens/my_courses_screen.dart';
 import 'package:acendra/features/marketplace/presentation/screens/course_detail_screen.dart';
 import 'package:acendra/features/marketplace/presentation/screens/marketplace_screen.dart';
+import 'package:acendra/features/orders/presentation/screens/order_history_screen.dart';
 import 'package:acendra/features/profile/presentation/screens/profile_edit_screen.dart';
 import 'package:acendra/features/profile/presentation/screens/profile_screen.dart';
 import 'package:acendra/features/settings/presentation/screens/change_password_screen.dart';
@@ -199,6 +200,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: RouteNames.profileEdit,
             builder: (_, _) => const ProfileEditScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.orders,
+            builder: (_, _) => const OrderHistoryScreen(),
           ),
           GoRoute(
             path: RouteNames.settings,

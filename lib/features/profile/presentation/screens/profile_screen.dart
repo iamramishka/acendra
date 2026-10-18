@@ -93,6 +93,15 @@ class ProfileScreen extends ConsumerWidget {
             ListTile(
               contentPadding: EdgeInsets.zero,
               minTileHeight: 48,
+              leading: const Icon(Icons.receipt_long_outlined),
+              title: const Text('Order History'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push(RouteNames.orders),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              minTileHeight: 48,
               leading: const Icon(Icons.settings_outlined),
               title: const Text('Settings'),
               trailing: const Icon(Icons.chevron_right),

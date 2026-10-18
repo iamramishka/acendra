@@ -20,6 +20,7 @@ abstract final class RouteNames {
   static const String checkoutFailure = '/checkout/:courseId/failure';
   static const String profile = '/profile';
   static const String profileEdit = '/profile/edit';
+  static const String orders = '/orders';
   static const String settings = '/settings';
   static const String changePassword = '/settings/password';
 
