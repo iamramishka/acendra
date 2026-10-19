@@ -17,3 +17,20 @@ Password decision: after verification that Supabase enforces a six-character flo
 Acceptance: settings sign-out navigates on success and reports failures; displayed lesson and URL/history remain consistent; URL lesson requests cannot cancel initial progress loading; PR 185 browser expectations match the approved tabs; PR 188 restores locked dependencies on Flutter 3.44. Current-head format, analysis, focused regressions and hosted CI are required before a clean review verdict. PR 187 has no code findings and remains subject to required approval.
 
 Verification: regression tests first where practical, focused suites at low concurrency, fresh independent review of the resulting changes, and current-head CI. SDK/pub restoration is serialized across worktrees. Source changes remain IN_REVIEW until required checks and approval are satisfied.
+
+Integration follow-up: current dev 03cf6f0 was merged, preserving both CSA-265 and
+CSA-266 task-registry entries. The repaired PR 185 head is also integrated so
+the two overlapping inputs cannot regress one another. Three password conflicts
+were inspected: PR 185 retained the older reset form and standalone change form,
+while PR 186 has the session-aware shared reset/change flow. Retain PR 186's
+tested shared flow and its tests, using the final six-character/no-composition
+validator; PR 185's five-character client version is not restored. Its decision
+record, seed content, learning and sign-out repairs remain preserved.
+
+Fresh local evidence: 28 auth/Settings tests, 43 affected learning tests and 75
+checkout/Auth tooling tests passed. A configuration regression first failed on
+12 versus the approved 6 and passed after alignment. Dart formatting passes on
+PR 186. Current hosted jobs are rejected before execution by GitHub's account
+billing/spending-limit gate; this is not a code-test failure. Required approval
+is still absent. Local analysis/browser limitations are recorded separately in
+the final review; no production release, hosted settings or spending changed.

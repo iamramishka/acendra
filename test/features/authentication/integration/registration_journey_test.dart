@@ -256,10 +256,7 @@ void main() {
       await tester.tap(find.text('Create account'));
       await tester.pump();
 
-      expect(
-        find.text('Password must be at least 6 characters'),
-        findsOneWidget,
-      );
+      expect(find.text('Use at least 6 characters'), findsOneWidget);
       expect(find.text('Verify your email'), findsNothing);
     });
 
