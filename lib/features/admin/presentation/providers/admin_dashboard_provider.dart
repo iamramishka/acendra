@@ -16,12 +16,14 @@ class PaymentQueueItem {
     required this.currency,
     required this.submittedAt,
     required this.status,
+    this.formattedAmount,
   });
 
   final String id;
   final String studentEmail;
   final String courseTitle;
   final double amount;
+  final String? formattedAmount;
   final String currency;
   final DateTime submittedAt;
   final String status;
@@ -88,9 +90,12 @@ class AdminDashboardNotifier extends AsyncNotifier<AdminDashboardStats> {
         .map(
           (r) => PaymentQueueItem(
             id: r.id,
-            studentEmail: r.studentEmail,
+            studentEmail: r.studentEmail.isEmpty
+                ? r.orderNumber ?? r.orderId
+                : r.studentEmail,
             courseTitle: r.courseTitle,
             amount: r.amount,
+            formattedAmount: r.formattedAmount,
             currency: r.currency,
             submittedAt: r.createdAt,
             status: r.status.name,

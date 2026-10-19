@@ -1,3 +1,4 @@
 import { createHandler } from './handler.mjs';
-// Hard-disabled until a separate reviewed, owner-approved activation release.
-Deno.serve(createHandler({ env: name => Deno.env.get(name), enabled: false }));
+import { reportingEnabled } from '../_shared/reporting-activation.mjs';
+const env = (name: string) => Deno.env.get(name);
+Deno.serve(createHandler({ env, enabled: reportingEnabled(env, 'ACENDRA_ADMIN_PAYMENT_LIST_ENABLED') }));

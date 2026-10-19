@@ -2948,4 +2948,13 @@ INTEGRATION - VERIFIED.
 - Scope, dependencies, shared-file ownership, acceptance and verification: [CSA-265 task record](docs/tasks/CSA-265.md).
 - Financial changes require maintainer review. Production configuration and activation remain gated by issue #160.
 
+## CSA-266 — Authorized payment reporting
+
+- [ ] CSA-266 [P1] [X] [IN_REVIEW]
+  Connect authorized payment rows, shared counts and confirmed receipt reporting.
+  Owner: CODEX; issue #192; branch `fix/csa-266-payment-reporting`.
+  Scope, acceptance and evidence: [task record](docs/tasks/CSA-266-PAYMENT-REPORTING.md).
+  Owner deferred refund/net figures to a separate confirmed-refund ledger task.
+  Production deployment and financial mutations are excluded.
+
 END OF TASKS.md
