@@ -36,10 +36,11 @@ object rows were queried.
 - Its backup API returned zero listed backups and `pitr_enabled: false`.
 - Auth site URL is `https://acendra.vercel.app`; no custom SMTP host is configured.
   Hosted password settings report minimum length **6**, with no required character
-  groups. This differs from the owner's confirmed eight-character letter-and-number
-  rule in [PR #186](https://github.com/iamramishka/acendra/pull/186). Align trusted
-  Auth settings through a reviewed configuration change before treating that rule
-  as enforced beyond the client. No Auth setting was changed.
+  groups. The owner superseded the previous eight-character letter-and-number
+  decision on 2026-10-19 with **six characters and no composition requirement**, the
+  supported Supabase minimum. That matches this dated hosted snapshot; the client
+  and local configuration are being reconciled in PRs #185/#186. Verify current
+  hosted settings again at release; no hosted Auth setting was changed.
 - Vercel team `team_EtrnsK9YUu6vKAJ92xpWe88T` reports active **Hobby** billing.
   Project `prj_xWYJdw35hJGS6caNi8fiQdnxenh2` is `acendra`, with provider production
   branch `dev`. Its domains API returned only verified `acendra.vercel.app`.
@@ -95,7 +96,7 @@ again. The unmet gates are capabilities and evidence:
    complete capture; an isolated full-stack restore with measured RPO/RTO.
 3. Verified operator access/MFA, an actual alternate responder, delivered monitoring
    alerts, SMTP and the existing finance/live-provider acceptance requirements.
-4. Reviewed hosted Auth policy alignment, accepted source revision, migration and
+4. Verified hosted Auth policy alignment, accepted source revision, migration and
    Edge caller ordering, rollback evidence and explicit production release approval.
 
 Branch: `codex/fix/csa-160-issue-reconciliation`. Worktree:
@@ -110,3 +111,10 @@ Markdown target checks and `git diff --check`. No local test suite, recovery dri
 backup transfer, production deployment or notification was executed. Prior test
 results in the linked runbooks remain historical. Hosted CI, if executed for this
 documentation PR, validates source and cannot establish operational readiness.
+
+Review follow-up, 2026-10-19: the owner authorized fixing PR findings and selected
+six characters without strength groups after verification that Supabase enforces
+a six-character floor. CODEX owns only this policy reconciliation in the existing
+decision record, on branch `fix/csa-160-password-decision` in the isolated
+`review-pr187-20261019` worktree. This supersedes the earlier policy statement,
+preserves the dated inventory and all other release holds, and changes no service.
