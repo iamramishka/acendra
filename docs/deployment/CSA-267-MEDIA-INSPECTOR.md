@@ -62,6 +62,11 @@ and [ClamAV protocol](https://docs.clamav.net/manual/Usage/ClamdProtocol.html).
 
 1. Review/accept the versioned policy and new migration; replay the whole migration
    chain and database/Storage tests on disposable Supabase first.
+   Apply both `20261019000200_csa267_course_artwork.sql` and the additive
+   `20261019000300_csa267_artwork_trigger_guard.sql` before releasing updated
+   functions or accepting media uploads. The second migration preserves unrelated
+   validation-audit producers that have no upload reservation. Coordinate the
+   migration window with those producers; do not run with only the first applied.
 2. Build `tool/media_inspector/Dockerfile` with the directory as build context.
    Run on Linux as its unprivileged user, read-only filesystem, capped CPU/memory/
    processes, private temporary filesystem and internal network. Suggested parser

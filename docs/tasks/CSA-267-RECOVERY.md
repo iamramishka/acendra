@@ -1,7 +1,7 @@
 # CSA-267 recovery and integration
 
 Date: 2026-10-19 (Asia/Colombo). Owner: CODEX, Check GitHub issues chat.
-Status: IN_PROGRESS. Authority: project owner requested fixing open issues and
+Status: IN_REVIEW. Authority: project owner requested fixing open issues and
 merging into dev. This is source integration authorization, not live activation.
 
 ## Ownership and preservation
@@ -51,3 +51,38 @@ separate release gates. No live activation is authorized by this record.
 - Executing the previously unverified artwork SQL suite also exposed malformed
   dollar quoting in its rollback-injection helper. Corrected the helper delimiter;
   no assertions were removed or weakened.
+
+## Fresh verification and handoff
+
+Replacement PR: https://github.com/iamramishka/acendra/pull/197 into `dev`.
+Current integrated base: `03cf6f023642064fb3e4726e431aa692c63ac6db` (PR #194).
+The retained PR #195 commits remain ancestors; recovery did not discard them.
+
+- RED: both new widget regressions failed on the recovered source.
+- GREEN: 33 focused Flutter tests passed; full `flutter test --no-pub
+  --concurrency=1 --reporter=compact` passed all **835 tests**.
+- `flutter analyze --no-pub`: no issues (278.4 seconds).
+- `dart format --output=none --set-exit-if-changed lib test`: 304 files unchanged.
+- Focused Node media/reporting checks: 45 passed, zero skips/failures.
+- Python parser/HTTP/scanner-seam checks: seven passed, one Linux-only skip.
+- Disposable native PostgreSQL 17: all **38 migrations** replayed and **40 SQL
+  suites** passed (1,124 assertions), including 24 artwork assertions. Two suites
+  (`000_foundation`, `csa179_bank_reads`) require absent pgTAP and were skipped.
+  The harness uses synthetic Auth/Storage schemas with bucket RLS/client grants;
+  this does not certify actual Supabase services, tokens or managed recovery.
+- Native verification first exposed the trigger defect, then the malformed SQL
+  helper; a later disposable initialization hit a 90-second timeout. The final
+  bounded initialization/replay completed and the task-owned cluster stopped.
+- `git diff --check`: passed. `flutter build web --release --no-pub`: passed
+  (354.4 seconds), including the Wasm dry run. Existing Cupertino font warning
+  remains; no font/dependency change was included in this recovery.
+
+Local verification logs and disposable harness are outside the Git checkout in
+`C:/Users/ramis/.codex/worktrees/csa267-recovery/`. No real accounts/data were used.
+
+Hosted runs 39278196312 and 39278196417 failed **without starting** due to GitHub
+account payment/spending-limit settings (check 118147478011 annotation). Vercel
+preview passed; Supabase Preview skipped. Neither replaces required full CI.
+Required approving review is absent. Keep the PR/issue in review until checks,
+review and merge satisfy repository gates. #193's live scanner/Storage acceptance
+remains separate; do not close it based on source preparation alone.
