@@ -72,7 +72,7 @@ class _PdfSearchBarState extends State<PdfSearchBar> {
               onPressed: _submit,
               iconSize: 20,
               padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
             ),
           ),
         ],

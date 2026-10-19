@@ -22,7 +22,7 @@ class CategoryFilter extends StatelessWidget {
       child: Row(
         children: [
           FilterChip(
-            label: const Text('All'),
+            label: const Text('All Courses'),
             selected: selectedId == null,
             onSelected: (_) => onSelected(null),
           ),

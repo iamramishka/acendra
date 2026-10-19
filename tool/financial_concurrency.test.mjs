@@ -96,6 +96,14 @@ test('financial races on independent real PostgreSQL sessions', { skip: !enabled
     } finally { first.child.stdin.end(); if(first.child.exitCode===null) first.child.kill(); if(second?.child.exitCode===null) second.child.kill(); }
   });
   const orderA=randomUUID(), orderB=randomUUID(), bankOrder=randomUUID();
+  await t.test('CSA-265 different keys for one buyer/course serialize to one open order',async()=>{
+    const guardedCourse=randomUUID();
+    sql(`insert into public.courses(id,slug,title,price_minor,status,published_at) values('${guardedCourse}','guarded-${guardedCourse}','Synthetic guarded course',10000,'published',now());`);
+    const guarded=key=>`select public.csa265_create_checkout_order('${actor}','${session}','aal1','${key}','${guardedCourse}','online')`;
+    await race(guarded('guarded-first'),guarded('guarded-second'),3,'22023');
+    assert.equal(sql(`select count(*) from public.orders where buyer_id='${actor}' and course_id='${guardedCourse}' and status='pending_payment'`),'1');
+    assert.equal(JSON.parse(sql(guarded('guarded-first'))).replayed,true);
+  });
   sql(`insert into public.orders(id,order_number,buyer_id,course_id,course_title_snapshot,amount_minor,currency_code,payment_method) values
     ('${orderA}','race-${orderA}','${actor}','${course}','Synthetic',10000,'LKR','online'),
     ('${orderB}','race-${orderB}','${actor}','${course}','Synthetic',10000,'LKR','online'),

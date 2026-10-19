@@ -1,11 +1,12 @@
 import 'package:acendra/app/router/route_names.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/feedback/app_snackbar.dart';
-import 'package:acendra/core/widgets/inputs/app_text_field.dart';
 import 'package:acendra/core/widgets/navigation/auth_shell.dart';
 import 'package:acendra/features/authentication/data/auth_repository.dart';
 import 'package:acendra/features/authentication/domain/auth_failure.dart';
+import 'package:acendra/features/authentication/domain/auth_input_rules.dart';
 import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
+import 'package:acendra/features/authentication/presentation/widgets/auth_form_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,6 +27,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   String? _emailError;
   String? _passwordError;
   String? _confirmPasswordError;
+  String? _termsError;
+  bool _acceptedTerms = false;
   bool _isLoading = false;
 
   @override
@@ -44,29 +47,30 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final emailVal = _emailController.text.trim();
     final emailErr = emailVal.isEmpty
         ? 'Enter your email'
-        : (!emailVal.contains('@') || !emailVal.contains('.'))
+        : !isValidEmail(emailVal)
         ? 'Enter a valid email'
         : null;
     final pass = _passwordController.text;
-    final passErr = pass.isEmpty
-        ? 'Enter a password'
-        : pass.length < 6
-        ? 'Password must be at least 6 characters'
-        : null;
+    final passErr = validatePassword(pass);
     final confirmErr = _confirmPasswordController.text != pass
         ? 'Passwords do not match'
         : null;
+    final termsErr = _acceptedTerms
+        ? null
+        : 'Accept the terms to create an account.';
 
     setState(() {
       _nameError = nameErr;
       _emailError = emailErr;
       _passwordError = passErr;
       _confirmPasswordError = confirmErr;
+      _termsError = termsErr;
     });
     return nameErr == null &&
         emailErr == null &&
         passErr == null &&
-        confirmErr == null;
+        confirmErr == null &&
+        termsErr == null;
   }
 
   Future<void> _submit() async {
@@ -95,25 +99,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
 
     return AuthShell(
+      onBack: () => context.go(RouteNames.login),
+      banner: const AuthHeroBanner(
+        title: 'Create your\naccount',
+        subtitle: 'Start learning with\nconfidence.',
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'Create your account',
-            style: tt.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Start learning today',
-            style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-          ),
-          const SizedBox(height: 32),
-          AppTextField(
+          AuthIconField(
             label: 'Full name',
+            hint: 'Enter your name',
+            icon: Icons.person_outline_rounded,
             controller: _nameController,
             keyboardType: TextInputType.name,
             textInputAction: TextInputAction.next,
@@ -122,8 +123,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             onChanged: (_) => setState(() => _nameError = null),
           ),
           const SizedBox(height: 16),
-          AppTextField(
-            label: 'Email',
+          AuthIconField(
+            label: 'Email address',
+            hint: 'you@example.com',
+            icon: Icons.mail_outline_rounded,
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
@@ -132,39 +135,96 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             onChanged: (_) => setState(() => _emailError = null),
           ),
           const SizedBox(height: 16),
-          AppPasswordField(
+          AuthPasswordField(
             label: 'Password',
+            hint: 'At least $minPasswordLength characters',
             controller: _passwordController,
-            textInputAction: TextInputAction.next,
+            autofillHints: const [AutofillHints.newPassword],
             errorText: _passwordError,
             onChanged: (_) => setState(() => _passwordError = null),
           ),
           const SizedBox(height: 16),
-          AppPasswordField(
+          AuthPasswordField(
             label: 'Confirm password',
+            hint: 'Re-enter your password',
             controller: _confirmPasswordController,
             textInputAction: TextInputAction.done,
+            autofillHints: const [AutofillHints.newPassword],
             errorText: _confirmPasswordError,
             onChanged: (_) => setState(() => _confirmPasswordError = null),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
+          CheckboxListTile(
+            value: _acceptedTerms,
+            onChanged: (v) => setState(() {
+              _acceptedTerms = v ?? false;
+              _termsError = null;
+            }),
+            controlAffinity: ListTileControlAffinity.leading,
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            title: Text.rich(
+              TextSpan(
+                text: 'I agree to the ',
+                children: [
+                  TextSpan(
+                    text: 'Terms of Service',
+                    style: TextStyle(
+                      color: cs.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const TextSpan(text: ' and '),
+                  TextSpan(
+                    text: 'Privacy Policy',
+                    style: TextStyle(
+                      color: cs.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const TextSpan(text: '.'),
+                ],
+              ),
+              style: tt.bodySmall?.copyWith(color: cs.onSurface),
+            ),
+          ),
+          if (_termsError != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, size: 18, color: cs.error),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _termsError!,
+                      style: tt.bodySmall?.copyWith(color: cs.error),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          const SizedBox(height: 20),
           AppButton(
-            label: 'Create account',
+            label: 'Create Account',
+            size: ButtonSize.large,
             onPressed: _isLoading ? null : _submit,
             isLoading: _isLoading,
+            icon: _isLoading
+                ? null
+                : Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 18,
+                    color: cs.onPrimary,
+                  ),
           ),
-          const SizedBox(height: 24),
-          Wrap(
-            alignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Text('Already have an account?', style: tt.bodyMedium),
-              TextButton(
-                onPressed: () => context.go(RouteNames.login),
-                child: const Text('Sign in'),
-              ),
-            ],
+          const SizedBox(height: 20),
+          AuthSwitchCard(
+            prompt: 'Already have an account?',
+            actionLabel: 'Sign In',
+            onTap: () => context.go(RouteNames.login),
           ),
+          const SizedBox(height: 8),
         ],
       ),
     );

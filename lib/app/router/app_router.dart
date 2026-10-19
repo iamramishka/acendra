@@ -1,4 +1,5 @@
 import 'package:acendra/app/router/route_names.dart';
+import 'package:flutter/widgets.dart' show ValueKey;
 import 'package:acendra/core/widgets/navigation/admin_shell.dart';
 import 'package:acendra/core/widgets/navigation/learning_shell.dart';
 import 'package:acendra/core/widgets/navigation/public_shell.dart';
@@ -23,17 +24,22 @@ import 'package:acendra/features/bank_transfer/presentation/screens/bank_transfe
 import 'package:acendra/features/bank_transfer/presentation/screens/receipt_resubmission_screen.dart';
 import 'package:acendra/features/bank_transfer/presentation/screens/receipt_status_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/checkout_screen.dart';
+import 'package:acendra/features/checkout/presentation/screens/order_status_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_failure_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_pending_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_success_screen.dart';
 import 'package:acendra/features/dashboard/presentation/screens/dashboard_home_screen.dart';
 import 'package:acendra/features/dashboard/presentation/screens/dashboard_saved_screen.dart';
+import 'package:acendra/features/learning/presentation/screens/course_overview_screen.dart';
 import 'package:acendra/features/learning/presentation/screens/learning_workspace_screen.dart';
 import 'package:acendra/features/my_courses/presentation/screens/my_courses_screen.dart';
 import 'package:acendra/features/marketplace/presentation/screens/course_detail_screen.dart';
 import 'package:acendra/features/marketplace/presentation/screens/marketplace_screen.dart';
+import 'package:acendra/features/orders/presentation/screens/order_history_screen.dart';
 import 'package:acendra/features/profile/presentation/screens/profile_edit_screen.dart';
 import 'package:acendra/features/profile/presentation/screens/profile_screen.dart';
+import 'package:acendra/features/settings/presentation/screens/change_password_screen.dart';
+import 'package:acendra/features/settings/presentation/screens/settings_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -66,6 +72,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       );
 
       if (!isAuthenticated && !isPublic) return RouteNames.login;
+      if (!isAuthenticated &&
+          location == RouteNames.resetPassword &&
+          state.uri.queryParameters['mode'] == 'change') {
+        return RouteNames.login;
+      }
 
       if (isAuthenticated &&
           (location == RouteNames.login || location == RouteNames.register)) {
@@ -103,7 +114,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: RouteNames.resetPassword,
-            builder: (_, _) => const ResetPasswordScreen(),
+            builder: (_, state) => ResetPasswordScreen(
+              changePassword: state.uri.queryParameters['mode'] == 'change',
+            ),
           ),
         ],
       ),
@@ -196,6 +209,32 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: RouteNames.profileEdit,
             builder: (_, _) => const ProfileEditScreen(),
           ),
+          GoRoute(
+            path: RouteNames.orders,
+            builder: (_, _) => const OrderHistoryScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.orderStatus,
+            builder: (_, state) =>
+                OrderStatusScreen(orderId: state.pathParameters['orderId']!),
+          ),
+          GoRoute(
+            path: RouteNames.courseOverview,
+            redirect: (_, state) => RouteNames.learn.replaceFirst(
+              ':courseId',
+              Uri.encodeComponent(state.pathParameters['courseId']!),
+            ),
+          ),
+          GoRoute(
+            path: RouteNames.settings,
+            builder: (_, _) => const SettingsScreen(),
+            routes: [
+              GoRoute(
+                path: 'password',
+                builder: (_, _) => const ChangePasswordScreen(),
+              ),
+            ],
+          ),
           // Bank transfer flow (CSA-107, 110, 115)
           GoRoute(
             path: RouteNames.bankTransfer,
@@ -232,8 +271,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: RouteNames.learn,
-            builder: (_, state) => LearningWorkspaceScreen(
+            builder: (_, state) => CourseOverviewScreen(
               courseId: state.pathParameters['courseId']!,
+            ),
+          ),
+          GoRoute(
+            path: RouteNames.learnLesson,
+            builder: (_, state) => LearningWorkspaceScreen(
+              // Keyed so moving between lessons rebuilds the workspace.
+              key: ValueKey(state.pathParameters['lessonId']),
+              courseId: state.pathParameters['courseId']!,
+              initialLessonId: state.pathParameters['lessonId'],
             ),
           ),
         ],

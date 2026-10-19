@@ -73,6 +73,39 @@ class ProfileScreen extends ConsumerWidget {
               icon: Icons.email_outlined,
               label: 'Email',
               value: email ?? '—',
+              trailing: Icon(
+                Icons.lock_outline,
+                size: 18,
+                color: cs.onSurfaceVariant,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 36, bottom: 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Email can't be changed here.",
+                  style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                ),
+              ),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              minTileHeight: 48,
+              leading: const Icon(Icons.receipt_long_outlined),
+              title: const Text('Order History'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push(RouteNames.orders),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              minTileHeight: 48,
+              leading: const Icon(Icons.settings_outlined),
+              title: const Text('Settings'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push(RouteNames.settings),
             ),
             const SizedBox(height: 40),
             SizedBox(
@@ -117,11 +150,13 @@ class _ProfileTile extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.value,
+    this.trailing,
   });
 
   final IconData icon;
   final String label;
   final String value;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -147,6 +182,7 @@ class _ProfileTile extends StatelessWidget {
               ],
             ),
           ),
+          ?trailing,
         ],
       ),
     );

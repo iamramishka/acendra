@@ -9,6 +9,7 @@ import 'package:acendra/features/dashboard/presentation/providers/dashboard_prov
 import 'package:acendra/features/dashboard/presentation/widgets/dashboard_category_row.dart';
 import 'package:acendra/features/dashboard/presentation/widgets/dashboard_featured_courses_grid.dart';
 import 'package:acendra/features/dashboard/presentation/widgets/dashboard_hero_carousel.dart';
+import 'package:acendra/features/dashboard/presentation/widgets/dashboard_personal_section.dart';
 import 'package:acendra/features/dashboard/presentation/widgets/dashboard_why_learn_section.dart';
 import 'package:acendra/features/marketplace/domain/entities/course_summary.dart';
 import 'package:flutter/material.dart';
@@ -72,6 +73,7 @@ class DashboardHomeScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          const DashboardPersonalSection(),
                           Text(
                             DashboardCopy.previewNotice,
                             style: Theme.of(context).textTheme.bodyMedium

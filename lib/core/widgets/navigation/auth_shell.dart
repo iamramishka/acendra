@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AuthShell extends ConsumerWidget {
-  const AuthShell({super.key, required this.child, this.banner});
+  const AuthShell({super.key, required this.child, this.banner, this.onBack});
 
   final Widget child;
   final Widget? banner;
+
+  /// When set, a back button is shown at the start of the header.
+  final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,24 +35,38 @@ class AuthShell extends ConsumerWidget {
                   // Header: logo + app name + theme toggle
                   Row(
                     children: [
-                      Image.asset(
-                        'assets/images/logo_icon.png',
-                        height: 28,
-                        errorBuilder: (_, _, _) => Icon(
-                          Icons.school_rounded,
-                          color: cs.primary,
-                          size: 28,
+                      if (onBack != null)
+                        IconButton(
+                          tooltip: 'Back',
+                          icon: const Icon(Icons.arrow_back),
+                          onPressed: onBack,
+                        ),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              'assets/images/logo_icon.png',
+                              height: 28,
+                              errorBuilder: (_, _, _) => Icon(
+                                Icons.school_rounded,
+                                color: cs.primary,
+                                size: 28,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                'Acedra',
+                                style: tt.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: cs.onSurface,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Text(
-                        'Acedra',
-                        style: tt.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: cs.onSurface,
-                        ),
-                      ),
-                      const Spacer(),
                       _ThemeToggle(isDark: isDark),
                     ],
                   ),

@@ -37,7 +37,9 @@ export async function authSecuritySmoke() {
   assert.ok((await request('/signup', {})).status >= 400);
   const email = `auth-security-${randomBytes(8).toString('hex')}@example.com`;
   assert.equal((await request('/signup', { email, password: 'short' })).status, 422);
-  const password = randomBytes(24).toString('hex') + 'Aa!1';
+  // Synthetic account in this disposable stack: prove the approved minimum
+  // is accepted without digit/case/symbol requirements, after rejecting five.
+  const password = 'aaaaaa';
   stage = 'signup cannot issue session before email confirmation';
   const signup = await request('/signup', { email, password });
   assert.equal(signup.status, 200);

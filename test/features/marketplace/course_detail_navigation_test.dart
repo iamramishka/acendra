@@ -37,7 +37,7 @@ void main() {
           ),
         ),
         GoRoute(
-          path: '/learn/:courseId',
+          path: '/courses/:courseId/overview',
           builder: (_, state) => Scaffold(
             body: Text('Learning ${state.pathParameters['courseId']}'),
           ),
@@ -67,7 +67,7 @@ void main() {
         await tester.tap(
           find.widgetWithText(
             AppButton,
-            enrolled ? 'Continue Learning' : 'Enroll Now',
+            enrolled ? 'Go to Course' : 'Buy Course',
           ),
         );
         await tester.pumpAndSettle();
@@ -87,7 +87,7 @@ void main() {
         find.widgetWithText(AppButton, 'Checking enrollment…'),
       );
       expect(button.onPressed, isNull);
-      expect(find.widgetWithText(AppButton, 'Enroll Now'), findsNothing);
+      expect(find.widgetWithText(AppButton, 'Buy Course'), findsNothing);
       pending.complete(false);
       await tester.pumpAndSettle();
     },

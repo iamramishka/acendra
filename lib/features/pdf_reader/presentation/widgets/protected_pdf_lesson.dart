@@ -10,6 +10,7 @@ import 'package:acendra/features/pdf_reader/data/pdf_transport.dart'
     as transport;
 import 'package:acendra/features/pdf_reader/presentation/widgets/pdf_error_state.dart';
 import 'package:acendra/features/pdf_reader/presentation/widgets/pdf_loading_state.dart';
+import 'package:acendra/features/pdf_reader/presentation/widgets/pdf_reader_footer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pdfx/pdfx.dart' as pdfx;
@@ -72,6 +73,16 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
   bool _loading = true;
   int _page = 1, _pages = 1;
   int _generation = 0;
+  static const _minZoom = 1.0, _maxZoom = 3.0;
+  final _zoomController = TransformationController();
+  double _zoom = 1.0;
+
+  void _setZoom(double zoom) {
+    final clamped = zoom.clamp(_minZoom, _maxZoom);
+    _zoomController.value = Matrix4.diagonal3Values(clamped, clamped, 1);
+    setState(() => _zoom = clamped);
+  }
+
   void _releaseRenderer() {
     _controller?.dispose();
     _controller = null;
@@ -100,6 +111,7 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
     _generation++;
     _transport?.cancel();
     _releaseRenderer();
+    _zoomController.dispose();
     super.dispose();
   }
 
@@ -183,70 +195,71 @@ class _AuthenticatedPdfState extends State<_AuthenticatedPdf> {
     return Column(
       children: [
         Expanded(
-          child: pdfx.PdfView(
-            controller: controller,
-            onDocumentLoaded: (document) {
-              if (mounted &&
-                  generation == _generation &&
-                  _controller == controller) {
-                setState(() {
-                  _pages = document.pagesCount;
-                  _page = 1;
-                });
-                final saved = PdfProgressLocal.loadPage(widget.lessonId);
-                if (saved != null &&
-                    saved > 1 &&
-                    saved <= document.pagesCount) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted &&
-                        generation == _generation &&
-                        _controller == controller) {
-                      controller.jumpToPage(saved);
-                      setState(() => _page = saved);
-                    }
+          child: InteractiveViewer(
+            transformationController: _zoomController,
+            minScale: _minZoom,
+            maxScale: _maxZoom,
+            panEnabled: _zoom > _minZoom,
+            scaleEnabled: false,
+            child: pdfx.PdfView(
+              controller: controller,
+              onDocumentLoaded: (document) {
+                if (mounted &&
+                    generation == _generation &&
+                    _controller == controller) {
+                  setState(() {
+                    _pages = document.pagesCount;
+                    _page = 1;
                   });
+                  final saved = PdfProgressLocal.loadPage(widget.lessonId);
+                  if (saved != null &&
+                      saved > 1 &&
+                      saved <= document.pagesCount) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted &&
+                          generation == _generation &&
+                          _controller == controller) {
+                        controller.jumpToPage(saved);
+                        setState(() => _page = saved);
+                      }
+                    });
+                  }
                 }
-              }
-            },
-            onPageChanged: (page) {
-              if (mounted &&
-                  generation == _generation &&
-                  _controller == controller) {
-                setState(() => _page = page);
-                PdfProgressLocal.savePage(widget.lessonId, page);
-              }
-            },
-            onDocumentError: (_) {
-              if (mounted &&
-                  generation == _generation &&
-                  _controller == controller) {
-                setState(
-                  () =>
-                      _error = 'This PDF could not be rendered. Please retry.',
-                );
-              }
-            },
+              },
+              onPageChanged: (page) {
+                if (mounted &&
+                    generation == _generation &&
+                    _controller == controller) {
+                  setState(() => _page = page);
+                  PdfProgressLocal.savePage(widget.lessonId, page);
+                }
+              },
+              onDocumentError: (_) {
+                if (mounted &&
+                    generation == _generation &&
+                    _controller == controller) {
+                  setState(
+                    () => _error =
+                        'This PDF could not be rendered. Please retry.',
+                  );
+                }
+              },
+            ),
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              tooltip: 'Previous PDF page',
-              onPressed: _page > 1
-                  ? () => controller.jumpToPage(_page - 1)
-                  : null,
-              icon: const Icon(Icons.chevron_left),
-            ),
-            Text('$_page / $_pages'),
-            IconButton(
-              tooltip: 'Next PDF page',
-              onPressed: _page < _pages
-                  ? () => controller.jumpToPage(_page + 1)
-                  : null,
-              icon: const Icon(Icons.chevron_right),
-            ),
-          ],
+        if (kPdfWatermarkApplied) const PdfWatermarkDisclosure(),
+        PdfReaderFooter(
+          currentPage: _page,
+          totalPages: _pages,
+          zoom: _zoom,
+          isFitWidth: _zoom == _minZoom,
+          onPrevious: _page > 1 ? () => controller.jumpToPage(_page - 1) : null,
+          onNext: _page < _pages
+              ? () => controller.jumpToPage(_page + 1)
+              : null,
+          onZoomIn: _zoom < _maxZoom ? () => _setZoom(_zoom + 0.25) : null,
+          onZoomOut: _zoom > _minZoom ? () => _setZoom(_zoom - 0.25) : null,
+          onFitWidth: () => _setZoom(_minZoom),
         ),
       ],
     );

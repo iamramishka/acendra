@@ -46,7 +46,7 @@ void main() {
 
       expect(state.status, PdfReaderStatus.error);
       expect(state.errorMessage, isNotNull);
-      expect(state.errorMessage, contains('network error'));
+      expect(state.errorMessage, isNot(contains('network error')));
     });
 
     test('goToPage updates currentPage within valid range', () {

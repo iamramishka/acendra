@@ -1,3 +1,4 @@
+import 'package:acendra/app/theme/app_theme.dart';
 import 'package:acendra/features/authentication/data/auth_repository.dart';
 import 'package:acendra/features/authentication/domain/auth_failure.dart';
 import 'package:acendra/features/authentication/presentation/screens/forgot_password_screen.dart';
@@ -21,20 +22,21 @@ Widget _wrap({AuthFailure? throws}) => ProviderScope(
       _FakeAuthRepository(shouldThrow: throws),
     ),
   ],
-  child: const MaterialApp(home: ForgotPasswordScreen()),
+  child: MaterialApp(theme: AppTheme.light, home: const ForgotPasswordScreen()),
 );
 
 void main() {
   testWidgets('renders email field and send button', (tester) async {
     await tester.pumpWidget(_wrap());
-    expect(find.text('Email'), findsOneWidget);
-    expect(find.text('Send reset link'), findsOneWidget);
-    expect(find.text('Forgot password?'), findsOneWidget);
+    expect(find.text('Email address'), findsOneWidget);
+    expect(find.text('Send Reset Link'), findsOneWidget);
+    expect(find.text('Forgot your password?'), findsOneWidget);
   });
 
   testWidgets('shows error when submitting empty field', (tester) async {
     await tester.pumpWidget(_wrap());
-    await tester.tap(find.text('Send reset link'));
+    await tester.ensureVisible(find.text('Send Reset Link'));
+    await tester.tap(find.text('Send Reset Link'));
     await tester.pump();
     expect(find.text('Enter your email'), findsOneWidget);
   });
@@ -42,7 +44,8 @@ void main() {
   testWidgets('shows error for invalid email format', (tester) async {
     await tester.pumpWidget(_wrap());
     await tester.enterText(find.byType(TextField), 'notanemail');
-    await tester.tap(find.text('Send reset link'));
+    await tester.ensureVisible(find.text('Send Reset Link'));
+    await tester.tap(find.text('Send Reset Link'));
     await tester.pump();
     expect(find.text('Enter a valid email'), findsOneWidget);
   });
@@ -50,22 +53,24 @@ void main() {
   testWidgets('shows success view after sending reset email', (tester) async {
     await tester.pumpWidget(_wrap());
     await tester.enterText(find.byType(TextField), 'user@example.com');
-    await tester.tap(find.text('Send reset link'));
+    await tester.ensureVisible(find.text('Send Reset Link'));
+    await tester.tap(find.text('Send Reset Link'));
     await tester.pumpAndSettle();
     expect(find.text('Check your inbox'), findsOneWidget);
-    expect(find.textContaining('user@example.com'), findsOneWidget);
+    expect(find.textContaining('If an account exists'), findsOneWidget);
   });
 
   testWidgets('shows snackbar on auth failure', (tester) async {
     await tester.pumpWidget(_wrap(throws: const NetworkError()));
     await tester.enterText(find.byType(TextField), 'user@example.com');
-    await tester.tap(find.text('Send reset link'));
+    await tester.ensureVisible(find.text('Send Reset Link'));
+    await tester.tap(find.text('Send Reset Link'));
     await tester.pumpAndSettle();
     expect(find.textContaining('internet connection'), findsOneWidget);
   });
 
   testWidgets('has back to sign in link', (tester) async {
     await tester.pumpWidget(_wrap());
-    expect(find.text('Back to sign in'), findsOneWidget);
+    expect(find.text('Back to Sign In'), findsOneWidget);
   });
 }
