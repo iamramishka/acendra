@@ -19,3 +19,10 @@ Verification: targeted auth/Settings tests and configuration checks before
 publication. Required CI/review remain merge gates. No production settings,
 deployment, billing or branch protection changes. Agent verification is not
 independent human approval.
+
+Fresh results: 21 targeted auth/reset/recovery/Settings tests pass; 75 backend
+checkout/Auth checks pass; analyzer reports no issues (27.7s); all 339 Dart files
+format cleanly. Locked offline restore and diff checks pass. No production-code
+delta remains against the reviewed #186 source; this record is the only added
+file after reconciliation. Browser/live acceptance is not claimed. Required
+current-head GitHub checks and approving review remain open.
