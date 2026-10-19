@@ -62,6 +62,13 @@ class AdminDashboardScreen extends ConsumerWidget {
                   children: _buildStatCards(context, stats),
                 ),
           const SizedBox(height: AppSpacing.lg),
+          if (stats.confirmedReceipts != null) ...[
+            Text(
+              'Refund and net totals are unavailable until confirmed refund reporting is connected.',
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
           PaymentQueueSummary(
             items: stats.recentPendingPayments,
             totalCount: stats.pendingPayments,

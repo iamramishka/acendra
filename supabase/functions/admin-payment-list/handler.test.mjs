@@ -32,9 +32,9 @@ test('production default is disabled for every method and body without any backe
   const res=await h(r);assert.equal(res.status,503);assert.equal(await errorCode(res),'REPORTING_UNAVAILABLE');assert.equal(res.headers.get('Cache-Control'),'no-store');
  }
 });
-test('production index.ts stays hard-disabled',()=>{
+test('production index.ts uses the explicit server release switch',()=>{
  const src=readFileSync(new URL('./index.ts',import.meta.url),'utf8');
- assert.match(src,/enabled\s*:\s*false/);assert.doesNotMatch(src,/enabled\s*:\s*true/);
+ assert.match(src,/enabled\s*:\s*reportingEnabled\(env, 'ACENDRA_ADMIN_PAYMENT_LIST_ENABLED'\)/);assert.doesNotMatch(src,/enabled\s*:\s*true/);
 });
 
 test('origin, method, media type and auth header are enforced before any backend call',async()=>{
