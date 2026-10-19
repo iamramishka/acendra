@@ -60,22 +60,36 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => context.push(RouteNames.changePassword),
             ),
             const SizedBox(height: 24),
-            OutlinedButton.icon(
-              icon: isSigningOut
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.logout),
-              label: const Text('Sign out'),
-              onPressed: isSigningOut
-                  ? null
-                  : () => ref.read(logoutProvider.notifier).logout(),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: cs.error,
-                side: BorderSide(color: cs.error),
-                minimumSize: const Size(0, 44),
+            Card(
+              color: cs.errorContainer,
+              child: InkWell(
+                onTap: isSigningOut
+                    ? null
+                    : () => ref.read(logoutProvider.notifier).logout(),
+                borderRadius: BorderRadius.circular(12),
+                child: ListTile(
+                  leading: isSigningOut
+                      ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: cs.error,
+                          ),
+                        )
+                      : Icon(Icons.logout_rounded, color: cs.error),
+                  title: Text(
+                    'Sign out',
+                    style: tt.bodyLarge?.copyWith(
+                      color: cs.error,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  trailing: Icon(
+                    Icons.chevron_right_rounded,
+                    color: cs.error.withValues(alpha: 0.6),
+                  ),
+                ),
               ),
             ),
           ],

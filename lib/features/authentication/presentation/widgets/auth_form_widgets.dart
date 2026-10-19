@@ -1,4 +1,3 @@
-import 'package:acendra/app/theme/app_colors.dart';
 import 'package:acendra/app/theme/app_theme_extension.dart';
 import 'package:acendra/core/widgets/inputs/app_text_field.dart';
 import 'package:flutter/material.dart';
@@ -20,17 +19,50 @@ class AuthHeroBanner extends StatelessWidget {
     return Container(
       height: 180,
       decoration: BoxDecoration(
-        color: AppColors.deepNavy,
         borderRadius: BorderRadius.circular(20),
+        gradient: const RadialGradient(
+          center: Alignment(0.7, -0.2),
+          radius: 1.5,
+          colors: [
+            Color(0xFF1E6BFF),
+            Color(0xFF123A9C),
+            Color(0xFF0B1E4F),
+          ],
+          stops: [0.0, 0.35, 0.75],
+        ),
       ),
       clipBehavior: Clip.hardEdge,
       child: Stack(
         children: [
           Positioned(
+            right: -20,
+            top: -30,
+            child: Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.06),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 60,
+            bottom: -40,
+            child: Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.05),
+              ),
+            ),
+          ),
+          Positioned(
             left: 20,
             top: 0,
             bottom: 0,
-            width: 160,
+            width: 200,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +79,7 @@ class AuthHeroBanner extends StatelessWidget {
                 Text(
                   subtitle,
                   style: tt.bodySmall?.copyWith(
-                    color: Colors.white70,
+                    color: Colors.white.withValues(alpha: 0.75),
                     height: 1.4,
                   ),
                 ),
@@ -58,7 +90,7 @@ class AuthHeroBanner extends StatelessWidget {
             right: 0,
             top: 0,
             bottom: 0,
-            width: 200,
+            width: 160,
             child: Image.asset(
               'assets/images/signin_banner.png',
               fit: BoxFit.cover,

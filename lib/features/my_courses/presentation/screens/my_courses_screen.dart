@@ -1,5 +1,7 @@
 import 'package:acendra/app/theme/app_breakpoints.dart';
 import 'package:acendra/app/theme/app_spacing.dart';
+import 'package:acendra/core/widgets/buttons/app_button.dart';
+import 'package:acendra/core/widgets/cards/course_thumbnail.dart';
 import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:acendra/features/my_courses/data/repositories/supabase_course_progress_repository.dart';
 import 'package:acendra/features/my_courses/domain/entities/course_progress.dart';
@@ -81,7 +83,7 @@ class _MyCoursesScreenState extends ConsumerState<MyCoursesScreen> {
                         actionLabel: 'Explore courses',
                         onAction: () => context.go('/marketplace'),
                       )
-                    : _CourseGrid(courses: shown, progress: progress),
+                    : _CourseList(courses: shown, progress: progress),
               ),
             ],
           );
@@ -98,29 +100,41 @@ class _MyCoursesScreenState extends ConsumerState<MyCoursesScreen> {
   };
 }
 
-class _CourseGrid extends StatelessWidget {
-  const _CourseGrid({required this.courses, required this.progress});
+class _CourseList extends StatelessWidget {
+  const _CourseList({required this.courses, required this.progress});
 
   final List<EnrolledCourse> courses;
   final Map<String, CourseProgress> progress;
 
   int _columnCount(double width) {
-    if (width >= AppBreakpoints.medium) return 3;
-    if (width >= 600) return 2;
+    if (width >= AppBreakpoints.medium) return 2;
     return 1;
   }
 
   @override
   Widget build(BuildContext context) {
     final columns = _columnCount(MediaQuery.sizeOf(context).width);
-
+    if (columns == 1) {
+      return ListView.separated(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        itemCount: courses.length,
+        separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+        itemBuilder: (context, index) {
+          final course = courses[index];
+          return _CourseTile(
+            course: course,
+            progress: progress[course.courseId],
+          );
+        },
+      );
+    }
     return GridView.builder(
       padding: const EdgeInsets.all(AppSpacing.md),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: columns,
         crossAxisSpacing: AppSpacing.md,
         mainAxisSpacing: AppSpacing.md,
-        mainAxisExtent: 208,
+        childAspectRatio: 0.72,
       ),
       itemCount: courses.length,
       itemBuilder: (context, index) {
@@ -153,45 +167,60 @@ class _CourseTile extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => context.go(p?.resumePath ?? '/learn/${course.courseId}'),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                course.title,
-                style: tt.titleMedium,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+        onTap: () => context.go('/learn/${course.courseId}'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 170,
+              width: double.infinity,
+              child: CourseThumbnail(
+                title: course.title,
+                imageUrl: course.thumbnailUrl,
               ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                course.shortDescription,
-                style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    course.title,
+                    style: tt.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    course.shortDescription,
+                    style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (p != null) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      '${p.completedLessons} of ${p.totalLessons} lessons completed • ${p.percent}%',
+                      style: tt.labelSmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: AppSpacing.md),
+                  AppButton(
+                    label: label,
+                    size: ButtonSize.small,
+                    variant: p != null && !p.isCompleted
+                        ? ButtonVariant.primary
+                        : ButtonVariant.outlined,
+                    onPressed: () => context.go('/learn/${course.courseId}'),
+                  ),
+                ],
               ),
-              const Spacer(),
-              if (p != null) ...[
-                Text(
-                  '${p.completedLessons} of ${p.totalLessons} lessons completed'
-                  ' • ${p.percent}%',
-                  style: tt.labelMedium,
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                LinearProgressIndicator(value: p.fraction, minHeight: 6),
-                const SizedBox(height: AppSpacing.sm),
-              ],
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  label,
-                  style: tt.labelLarge?.copyWith(color: cs.primary),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

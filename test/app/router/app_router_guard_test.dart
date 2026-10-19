@@ -115,8 +115,8 @@ void main() {
     ).read(appRouterProvider);
     const paths = [
       RouteNames.dashboardHome,
+      RouteNames.marketplace,
       RouteNames.myCourses,
-      RouteNames.savedCourses,
       RouteNames.profile,
     ];
     for (final index in [1, 2, 3, 0]) {
