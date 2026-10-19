@@ -1,12 +1,19 @@
 import 'dart:async';
 
 import 'package:acendra/features/admin/data/repositories/admin_payment_repository.dart';
+import 'package:acendra/features/admin/data/repositories/supabase_admin_payment_repository.dart';
+import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:acendra/features/admin/domain/entities/payment_record.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-final adminPaymentRepositoryProvider = Provider<AdminPaymentRepository>(
-  (_) => const UnavailableAdminPaymentRepository(),
-);
+final adminPaymentRepositoryProvider = Provider<AdminPaymentRepository>((ref) {
+  final session = ref.watch(currentSessionProvider);
+  if (session == null) {
+    return const UnavailableAdminPaymentRepository();
+  }
+  return SupabaseAdminPaymentRepository(Supabase.instance.client);
+});
 
 /// Unfiltered counts shared by the dashboard and payments screen.
 /// Uses a single atomic query to avoid count skew across statuses.
@@ -110,9 +117,12 @@ class AdminPaymentsState {
 
 class AdminPaymentsNotifier extends AsyncNotifier<AdminPaymentsState> {
   static const _pageSize = 20;
+  int _generation = 0;
 
   @override
   FutureOr<AdminPaymentsState> build() async {
+    ref.watch(adminPaymentRepositoryProvider);
+    _generation++;
     return _load(const AdminPaymentsFilter(), page: 0, existing: const []);
   }
 
@@ -135,11 +145,26 @@ class AdminPaymentsNotifier extends AsyncNotifier<AdminPaymentsState> {
     final counts = await ref.read(adminPaymentCountsProvider.future);
 
     return AdminPaymentsState(
-      records: [...existing, ...results],
+      records: [
+        ...existing,
+        ...results.where(
+          (row) => !existing.any((previous) => previous.id == row.id),
+        ),
+      ],
       isLoading: false,
       filter: filter,
       page: page,
-      hasMore: results.length == _pageSize,
+      hasMore: repo is SupabaseAdminPaymentRepository
+          ? repo.hasMore(
+              status: filter.status,
+              method: filter.method,
+              searchQuery: filter.searchQuery,
+              fromDate: filter.fromDate,
+              toDate: filter.toDate,
+              page: page,
+              pageSize: _pageSize,
+            )
+          : results.length == _pageSize,
       pendingCount: counts[PaymentStatus.pending]!,
       approvedCount: counts[PaymentStatus.approved]!,
       rejectedCount: counts[PaymentStatus.rejected]!,
@@ -148,15 +173,18 @@ class AdminPaymentsNotifier extends AsyncNotifier<AdminPaymentsState> {
   }
 
   Future<void> applyFilter(AdminPaymentsFilter filter) async {
+    final generation = ++_generation;
     state = const AsyncLoading();
-    state = await AsyncValue.guard(
+    final next = await AsyncValue.guard(
       () => _load(filter, page: 0, existing: const []),
     );
+    if (ref.mounted && generation == _generation) state = next;
   }
 
   Future<void> loadMore() async {
     final current = state.asData?.value;
     if (current == null || !current.hasMore || current.isLoading) return;
+    final generation = ++_generation;
     state = AsyncData(current.copyWith(isLoading: true));
     final next = await AsyncValue.guard(
       () => _load(
@@ -165,17 +193,14 @@ class AdminPaymentsNotifier extends AsyncNotifier<AdminPaymentsState> {
         existing: current.records,
       ),
     );
-    state = next;
+    if (ref.mounted && generation == _generation) state = next;
   }
 
   Future<void> refresh() async {
     ref.invalidate(adminPaymentCountsProvider);
     final current = state.asData?.value;
     final filter = current?.filter ?? const AdminPaymentsFilter();
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(
-      () => _load(filter, page: 0, existing: const []),
-    );
+    await applyFilter(filter);
   }
 }
 
@@ -188,8 +213,12 @@ final adminPaymentsProvider =
 // Provider for receipt review history (approved + rejected bank transfers).
 final receiptHistoryProvider = FutureProvider.autoDispose
     .family<List<PaymentRecord>, AdminPaymentsFilter>((ref, filter) async {
-      // TODO: Replace with Supabase query filtering processed bank transfer receipts.
-      final repo = ref.read(adminPaymentRepositoryProvider);
+      final repo = ref.watch(adminPaymentRepositoryProvider);
+      // The order-status projection omits review decisions, reviewers and
+      // rejection timestamps. It cannot establish a receipt audit history.
+      if (repo is SupabaseAdminPaymentRepository) {
+        throw const PaymentReportingUnavailable();
+      }
       final all = await repo.listPayments(
         method: PaymentMethod.bankTransfer,
         status: filter.status,
