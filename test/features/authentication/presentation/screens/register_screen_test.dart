@@ -91,6 +91,16 @@ void main() {
     expect(_fake.signUpCalls, 0);
   });
 
+  testWidgets('accepts six letters without a number', (tester) async {
+    // Keep this validation test on its standalone host after the repository
+    // accepts the input; routed success is covered by the journey tests.
+    await tester.pumpWidget(_wrap(throws: const NetworkError()));
+    await _fill(tester, password: 'abcdef', confirm: 'abcdef');
+    await _acceptTerms(tester);
+    await _tapCreate(tester);
+    expect(_fake.signUpCalls, 1);
+  });
+
   testWidgets('blocks sign-up until the terms are accepted', (tester) async {
     await tester.pumpWidget(_wrap());
     await _fill(tester);

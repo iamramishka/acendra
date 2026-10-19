@@ -41,24 +41,32 @@ class AuthShell extends ConsumerWidget {
                           icon: const Icon(Icons.arrow_back),
                           onPressed: onBack,
                         ),
-                      Image.asset(
-                        'assets/images/logo_icon.png',
-                        height: 28,
-                        errorBuilder: (_, _, _) => Icon(
-                          Icons.school_rounded,
-                          color: cs.primary,
-                          size: 28,
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              'assets/images/logo_icon.png',
+                              height: 28,
+                              errorBuilder: (_, _, _) => Icon(
+                                Icons.school_rounded,
+                                color: cs.primary,
+                                size: 28,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                'Acedra',
+                                style: tt.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: cs.onSurface,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Text(
-                        'Acedra',
-                        style: tt.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: cs.onSurface,
-                        ),
-                      ),
-                      const Spacer(),
                       _ThemeToggle(isDark: isDark),
                     ],
                   ),

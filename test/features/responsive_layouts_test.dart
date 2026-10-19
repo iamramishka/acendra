@@ -252,8 +252,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            // SingleChildScrollView gives the grid unconstrained height so
-            // GridView.builder eagerly builds all items, not just visible ones.
+            // Every card receives its natural height, including enlarged text.
             body: SingleChildScrollView(child: CourseGrid(courses: courses)),
           ),
         ),
@@ -295,7 +294,7 @@ void main() {
     });
 
     testWidgets('column count matches breakpoint contract', (tester) async {
-      // Verify column count directly through the grid delegate.
+      // Verify the rendered first row rather than a layout implementation.
       const testCases = [
         (390.0, 1),
         (599.0, 1),
@@ -310,24 +309,21 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
-              body: SizedBox(height: 900, child: CourseGrid(courses: courses)),
+              body: SingleChildScrollView(child: CourseGrid(courses: courses)),
             ),
           ),
         );
-        final gridFinder = find.byType(GridView);
+        final firstRowY = tester.getTopLeft(find.text('Course 0')).dy;
+        final firstRowCount = List.generate(
+          courses.length,
+          (index) => tester.getTopLeft(find.text('Course $index')).dy,
+        ).where((y) => (y - firstRowY).abs() < 1).length;
         expect(
-          gridFinder,
-          findsOneWidget,
-          reason: 'GridView not found at width $width',
-        );
-        final grid = tester.widget<GridView>(gridFinder);
-        final delegate =
-            grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
-        expect(
-          delegate.crossAxisCount,
+          firstRowCount,
           expectedCols,
           reason: 'Expected $expectedCols cols at ${width}px',
         );
+        expect(tester.takeException(), isNull);
       }
     });
   });

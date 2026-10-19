@@ -3,9 +3,14 @@ import 'package:acendra/features/marketplace/domain/entities/lesson_item.dart';
 import 'package:flutter/material.dart';
 
 class CurriculumPreview extends StatelessWidget {
-  const CurriculumPreview({super.key, required this.sections});
+  const CurriculumPreview({
+    super.key,
+    required this.sections,
+    this.isEnrolled = false,
+  });
 
   final List<CurriculumSection> sections;
+  final bool isEnrolled;
 
   @override
   Widget build(BuildContext context) {
@@ -17,14 +22,17 @@ class CurriculumPreview extends StatelessWidget {
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: sections.map((s) => _SectionTile(section: s)).toList(),
+      children: sections
+          .map((s) => _SectionTile(section: s, isEnrolled: isEnrolled))
+          .toList(),
     );
   }
 }
 
 class _SectionTile extends StatelessWidget {
-  const _SectionTile({required this.section});
+  const _SectionTile({required this.section, required this.isEnrolled});
   final CurriculumSection section;
+  final bool isEnrolled;
 
   @override
   Widget build(BuildContext context) {
@@ -35,21 +43,32 @@ class _SectionTile extends StatelessWidget {
         '${section.lessons.length} lesson${section.lessons.length == 1 ? '' : 's'}',
         style: theme.textTheme.bodySmall,
       ),
-      children: section.lessons.map((l) => _LessonTile(lesson: l)).toList(),
+      children: section.lessons
+          .map((l) => _LessonTile(lesson: l, isEnrolled: isEnrolled))
+          .toList(),
     );
   }
 }
 
 class _LessonTile extends StatelessWidget {
-  const _LessonTile({required this.lesson});
+  const _LessonTile({required this.lesson, required this.isEnrolled});
   final LessonItem lesson;
+  final bool isEnrolled;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       dense: true,
-      leading: Icon(_typeIcon(lesson.lessonType), size: 18),
+      leading: Icon(
+        isEnrolled || lesson.isPreview
+            ? _typeIcon(lesson.lessonType)
+            : Icons.lock_outline,
+        size: 18,
+      ),
       title: Text(lesson.title),
+      subtitle: lesson.durationSeconds == null
+          ? null
+          : Text('${(lesson.durationSeconds! / 60).ceil()} min'),
       trailing: lesson.isPreview
           ? Chip(
               label: const Text('Preview'),
