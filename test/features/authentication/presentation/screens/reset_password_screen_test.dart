@@ -45,7 +45,7 @@ void main() {
     await tester.enterText(find.byType(TextField).first, 'abcd');
     await tester.tap(find.text('Update password'));
     await tester.pump();
-    expect(find.text('Password must be at least 5 characters'), findsOneWidget);
+    expect(find.text('Password must be at least 6 characters'), findsOneWidget);
   });
 
   testWidgets('shows error when passwords do not match', (tester) async {
@@ -63,7 +63,7 @@ void main() {
     await tester.enterText(find.byType(TextField).last, 'password123');
     await tester.tap(find.text('Update password'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('at least 5 characters'), findsOneWidget);
+    expect(find.textContaining('at least 6 characters'), findsOneWidget);
   });
 
   testWidgets('has back to sign in link', (tester) async {

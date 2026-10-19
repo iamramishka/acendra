@@ -15,8 +15,10 @@ Logout revokes the provider session/refresh token; ordinary PostgREST access
 with a previously issued JWT can remain possible until expiry. Sensitive
 administrator mutation independently checks the current session in CSA-073.
 
-Minimum password length remains 12; anonymous sign-in/manual linking stay
-disabled. Existing explicit provider rate limits remain enabled (30 sign-in/
+The owner superseded the previous 12-character local baseline on 2026-10-19:
+minimum password length is now **6**, without composition/strength groups.
+Supabase Auth enforces a six-character floor; five is not supported. Anonymous
+sign-in/manual linking stay disabled. Existing explicit provider rate limits remain enabled (30 sign-in/
 signup and token verification requests per five minutes per IP, 150 refresh
 requests; SMTP email limit two/hour where enabled). Confirmation/recovery
 email requests now have a one-minute per-user cooldown and tokens expire
