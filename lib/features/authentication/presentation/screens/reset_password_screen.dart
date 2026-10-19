@@ -21,44 +21,37 @@ class ResetPasswordScreen extends ConsumerStatefulWidget {
 class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
-  String? _passwordError;
-  String? _confirmError;
   bool _isLoading = false;
+
+  bool get _lengthOk =>
+      _passwordController.text.length >= minPasswordLength;
+
+  bool get _matchOk =>
+      _confirmController.text.isNotEmpty &&
+      _confirmController.text == _passwordController.text;
+
+  bool get _canSubmit => _lengthOk && _matchOk;
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(_onChanged);
+    _confirmController.addListener(_onChanged);
+  }
+
+  void _onChanged() => setState(() {});
 
   @override
   void dispose() {
+    _passwordController.removeListener(_onChanged);
+    _confirmController.removeListener(_onChanged);
     _passwordController.dispose();
     _confirmController.dispose();
     super.dispose();
   }
 
-  bool _validate() {
-    final password = _passwordController.text;
-    final confirm = _confirmController.text;
-    String? pErr;
-    String? cErr;
-
-    if (password.isEmpty) {
-      pErr = 'Enter a new password';
-    } else if (password.length < minPasswordLength) {
-      pErr = 'Password must be at least $minPasswordLength characters';
-    }
-
-    if (confirm.isEmpty) {
-      cErr = 'Confirm your password';
-    } else if (password.isNotEmpty && confirm != password) {
-      cErr = 'Passwords do not match';
-    }
-
-    setState(() {
-      _passwordError = pErr;
-      _confirmError = cErr;
-    });
-    return pErr == null && cErr == null;
-  }
-
   Future<void> _submit() async {
-    if (!_validate()) return;
+    if (!_canSubmit) return;
     setState(() => _isLoading = true);
     try {
       await ref
@@ -90,29 +83,40 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Reset your password',
+            'Set a new password',
             style: tt.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text('Choose a new password for your account.', style: tt.bodyMedium),
           const SizedBox(height: 32),
-          AppTextField(
+          AppPasswordField(
             controller: _passwordController,
             label: 'New password',
-            obscureText: true,
-            errorText: _passwordError,
+            textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: 16),
-          AppTextField(
+          AppPasswordField(
             controller: _confirmController,
             label: 'Confirm new password',
-            obscureText: true,
-            errorText: _confirmError,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) {
+              if (_canSubmit) _submit();
+            },
           ),
           const SizedBox(height: 16),
+          _ChecklistRow(
+            label: 'At least $minPasswordLength characters',
+            met: _lengthOk,
+          ),
+          const SizedBox(height: 4),
+          _ChecklistRow(
+            label: 'Passwords match',
+            met: _matchOk,
+          ),
+          const SizedBox(height: 24),
           AppButton(
             label: 'Update password',
-            onPressed: _isLoading ? null : _submit,
+            onPressed: (_isLoading || !_canSubmit) ? null : _submit,
             isLoading: _isLoading,
           ),
           const SizedBox(height: 24),
@@ -124,6 +128,35 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ChecklistRow extends StatelessWidget {
+  const _ChecklistRow({required this.label, required this.met});
+
+  final String label;
+  final bool met;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final color = met ? cs.primary : cs.onSurfaceVariant;
+    return Row(
+      children: [
+        Icon(
+          met
+              ? Icons.check_circle_rounded
+              : Icons.radio_button_unchecked_rounded,
+          size: 16,
+          color: color,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: color),
+        ),
+      ],
     );
   }
 }
