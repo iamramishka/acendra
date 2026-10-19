@@ -22,34 +22,48 @@ class _MediaUploadControlState extends ConsumerState<MediaUploadControl> {
   bool _busy = false;
   String? _message;
   MediaFile? _artwork;
+  int _operation = 0;
+
+  @override
+  void didUpdateWidget(covariant MediaUploadControl oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.courseId != widget.courseId ||
+        oldWidget.lessonId != widget.lessonId) {
+      _operation++;
+      _busy = false;
+      _message = null;
+      _artwork = null;
+    }
+  }
+
   Future<void> _upload() async {
+    final operation = ++_operation;
+    final courseId = widget.courseId;
+    final lessonId = widget.lessonId;
+    bool current() => mounted && operation == _operation;
     setState(() {
       _busy = true;
       _message = null;
     });
     try {
-      final file = await ref.read(mediaPickerProvider)(widget.lessonId != null);
-      if (!mounted || file == null) return;
+      final file = await ref.read(mediaPickerProvider)(lessonId != null);
+      if (!current() || file == null) return;
       await ref
           .read(adminMediaRepositoryProvider)
-          .upload(
-            courseId: widget.courseId,
-            lessonId: widget.lessonId,
-            file: file,
-          );
-      if (!mounted) return;
+          .upload(courseId: courseId, lessonId: lessonId, file: file);
+      if (!current()) return;
       setState(() {
-        _artwork = widget.lessonId == null ? file : null;
-        _message = widget.lessonId == null
+        _artwork = lessonId == null ? file : null;
+        _message = lessonId == null
             ? 'Artwork uploaded and inspected.'
             : 'PDF uploaded and inspected.';
       });
     } on FormatException catch (error) {
-      if (mounted) setState(() => _message = error.message);
+      if (current()) setState(() => _message = error.message);
     } catch (_) {
-      if (mounted) setState(() => _message = 'Upload failed. Retry.');
+      if (current()) setState(() => _message = 'Upload failed. Retry.');
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (current()) setState(() => _busy = false);
     }
   }
 
