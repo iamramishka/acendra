@@ -1,6 +1,6 @@
 library;
 
-enum PaymentMethod { stripe, bankTransfer, adminGrant }
+enum PaymentMethod { online, bankTransfer, adminGrant }
 
 enum PaymentStatus { pending, approved, rejected, processing }
 
@@ -20,10 +20,22 @@ class PaymentRecord {
     this.processedAt,
     this.processorNote,
     this.receiptStoragePath,
+    this.orderNumber,
+    this.amountMinor,
   });
 
   final String id;
   final String orderId;
+  final String? orderNumber;
+
+  /// Exact wire amount for live records. Legacy synthetic fixtures use amount.
+  final BigInt? amountMinor;
+  String get formattedAmount {
+    final minor = amountMinor;
+    if (minor == null) return '$currency ${amount.toStringAsFixed(2)}';
+    return '$currency ${minor ~/ BigInt.from(100)}.${(minor % BigInt.from(100)).toString().padLeft(2, '0')}';
+  }
+
   final String studentId;
   final String studentEmail;
   final String courseId;
@@ -54,10 +66,14 @@ class PaymentRecord {
     DateTime? processedAt,
     String? processorNote,
     String? receiptStoragePath,
+    String? orderNumber,
+    BigInt? amountMinor,
   }) {
     return PaymentRecord(
       id: id ?? this.id,
       orderId: orderId ?? this.orderId,
+      orderNumber: orderNumber ?? this.orderNumber,
+      amountMinor: amountMinor ?? (amount == null ? this.amountMinor : null),
       studentId: studentId ?? this.studentId,
       studentEmail: studentEmail ?? this.studentEmail,
       courseId: courseId ?? this.courseId,

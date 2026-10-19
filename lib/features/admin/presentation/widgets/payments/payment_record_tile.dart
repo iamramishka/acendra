@@ -35,8 +35,8 @@ class PaymentRecordTile extends StatelessWidget {
     };
 
     final methodBadge = switch (record.paymentMethod) {
-      PaymentMethod.stripe => const StatusBadge(
-        label: 'Stripe',
+      PaymentMethod.online => const StatusBadge(
+        label: 'Online',
         variant: BadgeVariant.info,
       ),
       PaymentMethod.bankTransfer => const StatusBadge(
@@ -65,7 +65,7 @@ class PaymentRecordTile extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    record.orderId,
+                    record.orderNumber ?? record.orderId,
                     style: tt.labelLarge?.copyWith(
                       fontFamily: 'monospace',
                       fontWeight: FontWeight.w600,
@@ -77,12 +77,14 @@ class PaymentRecordTile extends StatelessWidget {
                 statusBadge,
               ],
             ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              record.studentEmail,
-              style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-              overflow: TextOverflow.ellipsis,
-            ),
+            if (record.studentEmail.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                record.studentEmail,
+                style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
             const SizedBox(height: AppSpacing.xs),
             Text(
               record.courseTitle,
@@ -94,7 +96,7 @@ class PaymentRecordTile extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  '${record.currency} ${record.amount.toStringAsFixed(2)}',
+                  record.formattedAmount,
                   style: tt.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: ext?.success ?? cs.primary,
