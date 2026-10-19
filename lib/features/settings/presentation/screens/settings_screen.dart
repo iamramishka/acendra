@@ -71,7 +71,21 @@ class SettingsScreen extends ConsumerWidget {
               label: const Text('Sign out'),
               onPressed: isSigningOut
                   ? null
-                  : () => ref.read(logoutProvider.notifier).logout(),
+                  : () async {
+                      await ref.read(logoutProvider.notifier).logout();
+                      if (!context.mounted) return;
+                      if (ref.read(logoutProvider).hasError) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Could not sign out. Please try again.',
+                            ),
+                          ),
+                        );
+                      } else {
+                        context.go(RouteNames.login);
+                      }
+                    },
               style: OutlinedButton.styleFrom(
                 foregroundColor: cs.error,
                 side: BorderSide(color: cs.error),

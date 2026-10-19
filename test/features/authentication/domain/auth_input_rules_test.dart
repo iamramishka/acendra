@@ -7,20 +7,15 @@ void main() {
       expect(validatePassword(''), 'Enter a password');
     });
 
-    test('rejects fewer than 8 characters', () {
-      expect(validatePassword('abc1234'), isNotNull);
+    test('rejects fewer than 6 characters', () {
+      expect(validatePassword('abcde'), isNotNull);
     });
 
-    test('rejects passwords without a number', () {
-      expect(validatePassword('abcdefgh'), isNotNull);
-    });
-
-    test('rejects passwords without a letter', () {
-      expect(validatePassword('12345678'), isNotNull);
-    });
-
-    test('accepts 8+ characters with a letter and a number', () {
-      expect(validatePassword('abcdefg1'), isNull);
+    test('accepts six characters without composition requirements', () {
+      for (final password in ['abcdef', '123456', '!!!!!!', 'abc123']) {
+        expect(validatePassword(password), isNull, reason: password);
+      }
+      expect(minPasswordLength, 6);
     });
   });
 

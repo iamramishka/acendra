@@ -140,13 +140,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           const SizedBox(height: 16),
           Text('Your password needs', style: tt.titleSmall),
           requirement(
-            'At least 8 characters',
+            'At least $minPasswordLength characters',
             _password.text.length >= minPasswordLength,
-          ),
-          requirement(
-            'Letters and at least one number',
-            RegExp(r'[A-Za-z]').hasMatch(_password.text) &&
-                RegExp(r'\d').hasMatch(_password.text),
           ),
           requirement('Both passwords match', _matches),
           const SizedBox(height: 20),

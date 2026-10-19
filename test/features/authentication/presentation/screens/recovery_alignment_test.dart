@@ -76,8 +76,8 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.enterText(find.byType(TextField).at(0), 'Learning123');
-      await tester.enterText(find.byType(TextField).at(1), 'Learning123');
+      await tester.enterText(find.byType(TextField).at(0), 'abcdef');
+      await tester.enterText(find.byType(TextField).at(1), 'abcdef');
       await tester.pump();
       await tester.ensureVisible(find.text('Update Password'));
       await tester.tap(find.text('Update Password'));
@@ -91,7 +91,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
-  testWidgets('reset cannot submit weak or mismatched passwords', (
+  testWidgets('reset cannot submit short or mismatched passwords', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -106,8 +106,8 @@ void main() {
       find.widgetWithText(AppButton, 'Update Password'),
     );
     expect(submit().onPressed, isNull);
-    await tester.enterText(find.byType(TextField).at(0), 'abcdef');
-    await tester.enterText(find.byType(TextField).at(1), 'abcdef');
+    await tester.enterText(find.byType(TextField).at(0), 'abcde');
+    await tester.enterText(find.byType(TextField).at(1), 'abcde');
     await tester.pump();
     expect(submit().onPressed, isNull);
     await tester.enterText(find.byType(TextField).at(0), 'Learning123');

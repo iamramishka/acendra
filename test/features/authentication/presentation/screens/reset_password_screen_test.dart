@@ -55,7 +55,7 @@ void main() {
           .onPressed,
       isNull,
     );
-    expect(find.text('At least 8 characters'), findsOneWidget);
+    expect(find.text('At least 6 characters'), findsOneWidget);
   });
 
   testWidgets('shows error when passwords do not match', (tester) async {
