@@ -50,4 +50,15 @@ now passes. Mobile reports the correct /learn/course/second route, one matching
 content widget and zero sheets, yet the binding still fails the test. Capture and
 print every pending framework exception after those unchanged assertions and
 require the collected list to be empty, so diagnostics cannot suppress a failure.
-No production change is made without the exception evidence.
+The added pending-exception assertion preserves failure reporting rather than
+silently clearing a framework exception.
+
+The closing sheet builder captures its outer workspace context in two Theme.of
+lookups. Selecting a lesson replaces that keyed workspace immediately, while the
+sheet's DraggableScrollableSheet can still rebuild during its closing animation.
+Those lookups can therefore consult a deactivated ancestor even though routing
+and drawer closure succeed. Use the sheet builder's live drawerContext for both
+theme lookups. Remove the unconditional route/count print; retain a conditional
+exception print and explicit null assertion after the unchanged route/content/
+drawer assertions. This bounded lifecycle correction still requires hosted
+Chrome GREEN; local formatting and diff checks pass.

@@ -201,25 +201,17 @@ void registerLessonRouteRegressionTests() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Second lesson'));
       await tester.pumpAndSettle();
-      debugPrint(
-        'Mobile curriculum result: '
-        'route=${router.routeInformationProvider.value.uri.path}, '
-        'content=${find.text('Synthetic second content').evaluate().length}, '
-        'sheets=${find.byType(BottomSheet).evaluate().length}',
-      );
       expect(
         router.routeInformationProvider.value.uri.path,
         '/learn/course/second',
       );
       expect(find.text('Synthetic second content'), findsOneWidget);
       expect(find.byType(BottomSheet), findsNothing);
-      final frameworkErrors = <Object>[];
-      Object? error;
-      while ((error = tester.takeException()) != null) {
-        frameworkErrors.add(error!);
+      final frameworkError = tester.takeException();
+      if (frameworkError != null) {
+        debugPrint('Mobile curriculum framework error: $frameworkError');
       }
-      debugPrint('Mobile curriculum framework errors: $frameworkErrors');
-      expect(frameworkErrors, isEmpty);
+      expect(frameworkError, isNull);
     },
   );
 
