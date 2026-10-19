@@ -9,11 +9,13 @@ class CourseCard extends StatelessWidget {
     this.instructorName,
     required this.price,
     this.imageUrl,
+    this.courseId,
     this.rating,
     this.reviewCount,
     this.onTap,
   });
 
+  final String? courseId;
   final String title;
   final String? instructorName;
   final String price;
@@ -45,7 +47,11 @@ class CourseCard extends StatelessWidget {
             children: [
               AspectRatio(
                 aspectRatio: 16 / 9,
-                child: CourseThumbnail(title: title, imageUrl: imageUrl),
+                child: CourseThumbnail(
+                  title: title,
+                  imageUrl: imageUrl,
+                  courseId: courseId,
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),

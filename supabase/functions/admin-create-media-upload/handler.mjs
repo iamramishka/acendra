@@ -36,13 +36,14 @@ export function createHandler({env,fetch:request=globalThis.fetch,policy,inspect
  if(!config)return respond(503,'MEDIA_UPLOAD_UNAVAILABLE');
  if(mode==='prepare'&&(body.size_bytes>Math.min(config.maxBytes[body.asset_type],body.asset_type==='course_pdf'?MAX_PDF_BYTES:Number.MAX_SAFE_INTEGER)||({pdf:'application/pdf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg'}[body.file_name.split('.').at(-1).toLowerCase()]!==body.content_type)))return respond(400,'INVALID_REQUEST');
  const url=env('SUPABASE_URL'),pub=env('SUPABASE_ANON_KEY'),secret=env('SUPABASE_SERVICE_ROLE_KEY');if(!url||!pub||!secret)return respond(503,'SERVICE_UNAVAILABLE');
- const service={Authorization:`Bearer ${secret}`,apikey:secret};const opts={redirect:'error',signal:AbortSignal.timeout(15000)};
+ // Each backend operation has its own deadline, including commit after inspection.
+ const service={Authorization:`Bearer ${secret}`,apikey:secret};const backendOptions=()=>({redirect:'error',signal:AbortSignal.timeout(15000)});
  try{
- const auth=await request(`${url}/auth/v1/user`,{...opts,headers:{Authorization:authorization,apikey:pub}});if(!auth.ok)return respond(401,'AUTH_REQUIRED');const user=await boundedJson(auth,65536);
+ const auth=await request(`${url}/auth/v1/user`,{...backendOptions(),headers:{Authorization:authorization,apikey:pub}});if(!auth.ok)return respond(401,'AUTH_REQUIRED');const user=await boundedJson(auth,65536);
  let claims;try{const parts=authorization.slice(7).split('.');if(parts.length!==3)throw Error();claims=JSON.parse(Buffer.from(parts[1],'base64url').toString('utf8'));}catch{return respond(401,'AUTH_REQUIRED');}
  if(!uuid(user.id)||user.is_anonymous===true||claims.sub!==user.id||claims.role!=='authenticated'||!uuid(claims.session_id)||!['aal1','aal2'].includes(claims.aal))return respond(401,'AUTH_REQUIRED');
  const identity={p_actor:user.id,p_session_id:claims.session_id,p_aal:claims.aal};
- const rpc=async(name,args)=>{const r=await request(`${url}/rest/v1/rpc/${name}`,{...opts,method:'POST',headers:{...service,'Content-Type':'application/json'},body:JSON.stringify({...identity,...args})});const data=await boundedJson(r,65536);if(!r.ok){const err=new Error();err.sql=data.code;throw err;}return data;};
+ const rpc=async(name,args)=>{const r=await request(`${url}/rest/v1/rpc/${name}`,{...backendOptions(),method:'POST',headers:{...service,'Content-Type':'application/json'},body:JSON.stringify({...identity,...args})});const data=await boundedJson(r,65536);if(!r.ok){const err=new Error();err.sql=data.code;throw err;}return data;};
  const reserved=await rpc(mode==='prepare'?'csa164_prepare_media_upload':'csa164_get_media_upload',mode==='prepare'?{p_request_id:body.request_id,p_course:body.course_id,p_lesson:body.lesson_id??null,p_type:body.asset_type,p_mime:body.content_type,p_size:body.size_bytes,p_policy:config.reference}:{p_asset:body.asset_id});
  const extension=types[reserved?.asset_type]?.[reserved?.mime];
  const expectedBucket=reserved?.asset_type==='course_pdf'?'course-pdfs':'course-media';
@@ -50,10 +51,10 @@ export function createHandler({env,fetch:request=globalThis.fetch,policy,inspect
  if(!uuid(reserved?.asset_id)||!uuid(reserved.course_id)||(reserved.asset_type==='public_thumbnail'?reserved.lesson_id!==null:!uuid(reserved.lesson_id))||!extension||reserved.bucket!==expectedBucket||reserved.path!==expectedPath||reserved.policy_reference!==config.reference||!Number.isSafeInteger(reserved.size)||reserved.size<=0||reserved.size>Math.min(config.maxBytes[reserved.asset_type],reserved.asset_type==='course_pdf'?MAX_PDF_BYTES:Number.MAX_SAFE_INTEGER)||(mode==='finalize'&&reserved.asset_id!==body.asset_id)||(mode==='prepare'&&(reserved.course_id!==body.course_id||reserved.lesson_id!==(body.lesson_id??null)||reserved.mime!==body.content_type||reserved.size!==body.size_bytes)))return respond(503,'SERVICE_UNAVAILABLE');
  if(mode==='prepare'){
  if(reserved.validated)return respond(200,undefined,{asset_id:reserved.asset_id,status:'validated'});
- const signed=await request(`${url}/storage/v1/object/upload/sign/${reserved.bucket}/${reserved.path}`,{...opts,method:'POST',headers:{...service,'Content-Type':'application/json','x-upsert':'false'},body:'{}'});if(!signed.ok)return respond(503,'SERVICE_UNAVAILABLE');const data=await boundedJson(signed,65536);if(typeof data.token!=='string'||!data.token)return respond(503,'SERVICE_UNAVAILABLE');
+ const signed=await request(`${url}/storage/v1/object/upload/sign/${reserved.bucket}/${reserved.path}`,{...backendOptions(),method:'POST',headers:{...service,'Content-Type':'application/json','x-upsert':'false'},body:'{}'});if(!signed.ok)return respond(503,'SERVICE_UNAVAILABLE');const data=await boundedJson(signed,65536);if(typeof data.token!=='string'||!data.token)return respond(503,'SERVICE_UNAVAILABLE');
  return respond(201,undefined,{asset_id:reserved.asset_id,upload:{mode:'supabase_signed_upload',bucket:reserved.bucket,path:reserved.path,token:data.token}});
  }
- const stored=await request(`${url}/storage/v1/object/${reserved.bucket}/${reserved.path}`,{...opts,headers:service});if(!stored.ok)return respond(409,'ASSET_NOT_UPLOADED');
+ const stored=await request(`${url}/storage/v1/object/${reserved.bucket}/${reserved.path}`,{...backendOptions(),headers:service});if(!stored.ok)return respond(409,'ASSET_NOT_UPLOADED');
  if(stored.headers.get('Content-Type')!==reserved.mime)return respond(409,'ASSET_CONFLICT');
  const reader=stored.body?.getReader();if(!reader)return respond(422,'INVALID_MEDIA');let length=0;const chunks=[];try{while(true){const {done,value}=await reader.read();if(done)break;length+=value.length;if(length>reserved.size){await reader.cancel();return respond(409,'ASSET_CONFLICT');}chunks.push(value);}}finally{reader.releaseLock();}
  if(length!==reserved.size)return respond(409,'ASSET_CONFLICT');const bytes=new Uint8Array(length);let offset=0;for(const c of chunks){bytes.set(c,offset);offset+=c.length;}

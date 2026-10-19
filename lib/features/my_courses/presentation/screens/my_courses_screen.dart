@@ -1,3 +1,4 @@
+import 'package:acendra/core/widgets/cards/course_thumbnail.dart';
 import 'package:acendra/app/theme/app_breakpoints.dart';
 import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:acendra/core/widgets/feedback/app_state_views.dart';
@@ -159,11 +160,27 @@ class _CourseTile extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                course.title,
-                style: tt.titleMedium,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+              Row(
+                children: [
+                  SizedBox(
+                    width: 56,
+                    height: 40,
+                    child: CourseThumbnail(
+                      courseId: course.courseId,
+                      title: course.title,
+                      imageUrl: course.thumbnailUrl,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      course.title,
+                      style: tt.titleMedium,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(

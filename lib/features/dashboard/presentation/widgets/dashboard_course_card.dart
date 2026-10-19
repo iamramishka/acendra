@@ -28,7 +28,7 @@ class DashboardCourseCard extends StatelessWidget {
         children: [
           AspectRatio(
             aspectRatio: 16 / 9,
-            child: CourseThumbnail(title: course.title),
+            child: CourseThumbnail(title: course.title, courseId: course.id),
           ),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.md),

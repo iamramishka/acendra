@@ -287,7 +287,7 @@ class _LearningWorkspaceScreenState
                 width: 36,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.outlineVariant,
+                  color: Theme.of(drawerContext).colorScheme.outlineVariant,
                   borderRadius: BorderRadius.circular(AppRadius.chip),
                 ),
               ),
@@ -299,7 +299,7 @@ class _LearningWorkspaceScreenState
               ),
               child: Text(
                 'Curriculum',
-                style: Theme.of(context).textTheme.titleMedium,
+                style: Theme.of(drawerContext).textTheme.titleMedium,
               ),
             ),
             Expanded(

@@ -1,7 +1,7 @@
 import 'package:acendra/app/theme/app_breakpoints.dart';
 import 'package:acendra/features/marketplace/domain/entities/category.dart';
 import 'package:acendra/features/marketplace/domain/entities/course_summary.dart';
-import 'package:acendra/features/marketplace/presentation/widgets/course_art.dart';
+import 'package:acendra/core/widgets/cards/course_thumbnail.dart';
 import 'package:flutter/material.dart';
 
 class CourseGrid extends StatelessWidget {
@@ -43,7 +43,13 @@ class CourseGrid extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const CourseArt(),
+                      SizedBox(
+                        height: 160,
+                        child: CourseThumbnail(
+                          courseId: course.id,
+                          title: course.title,
+                        ),
+                      ),
                       Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(

@@ -80,6 +80,19 @@ Widget _wrap({
 );
 
 void main() {
+  test('artwork URL uses only course UUID, never opaque storage paths', () {
+    const id = '26700000-0000-0000-0000-000000000001';
+    expect(
+      courseArtworkUrl('https://backend.invalid', id),
+      'https://backend.invalid/functions/v1/course-artwork?course_id=$id',
+    );
+    expect(
+      courseArtworkUrl('https://backend.invalid', 'private/path.png'),
+      isNull,
+    );
+    expect(courseArtworkUrl('', id), isNull);
+  });
+
   for (final url in <String?>[
     null,
     '',

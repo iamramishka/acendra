@@ -3,7 +3,7 @@ import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/feedback/status_badge.dart';
 import 'package:acendra/features/admin/domain/entities/admin_course.dart';
 import 'package:flutter/material.dart';
-import 'package:acendra/core/widgets/cards/course_thumbnail.dart';
+import 'admin_course_thumbnail.dart';
 
 class CourseTableRow extends StatelessWidget {
   const CourseTableRow({
@@ -39,7 +39,9 @@ class CourseTableRow extends StatelessWidget {
             child: SizedBox(
               width: 56,
               height: 40,
-              child: CourseThumbnail(
+              child: AdminCourseThumbnail(
+                courseId: course.id,
+                isPublished: course.isPublished,
                 title: course.title,
                 imageUrl: course.thumbnailUrl,
               ),

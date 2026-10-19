@@ -3,7 +3,7 @@ import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:acendra/features/checkout/data/repositories/student_order_repository.dart';
 import 'package:acendra/features/marketplace/presentation/providers/marketplace_provider.dart';
-import 'package:acendra/features/marketplace/presentation/widgets/course_art.dart';
+import 'package:acendra/core/widgets/cards/course_thumbnail.dart';
 import 'package:acendra/features/marketplace/presentation/widgets/curriculum_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -142,7 +142,13 @@ class CourseDetailScreen extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  const CourseArt(height: 220),
+                  SizedBox(
+                    height: 220,
+                    child: CourseThumbnail(
+                      courseId: courseId,
+                      title: detail.title,
+                    ),
+                  ),
                   const SizedBox(height: 20),
                   if (category.isNotEmpty)
                     Text(

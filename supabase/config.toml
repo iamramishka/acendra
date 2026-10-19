@@ -467,3 +467,7 @@ verify_jwt = true
 [functions.admin-payment-list]
 enabled = true
 verify_jwt = true
+
+# Public published artwork; draft authority verified inside the handler.
+[functions.course-artwork]
+verify_jwt = false
