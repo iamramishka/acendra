@@ -1,5 +1,11 @@
 # CSA-205/206: existing hosting and domain readiness
 
+Current selection, 2026-10-18: retain owner-nominated `acendra.vercel.app` and select
+`iamramishka` as release operator. Fresh API inventory still reports Hobby and one
+visible staging backend; no eligible isolated production target was established.
+The [delegated decision record](../operations/CSA-160-TARGET-SELECTION.md) supersedes
+the unanswered hostname/operator selection below, while retaining release gates.
+
 Date: 2026-10-15 (Asia/Colombo). Owner: CODEX hosting worker.
 Documentation: IN_REVIEW. Operational CSA-205 and CSA-206: BLOCKED (held).
 Assignment: [Issue #160](https://github.com/iamramishka/acendra/issues/160) and
