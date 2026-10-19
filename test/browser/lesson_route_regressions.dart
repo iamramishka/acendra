@@ -193,27 +193,20 @@ void registerLessonRouteRegressionTests() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       final router = await mountRoutes(tester);
-      try {
-        await tester.tap(find.byType(FloatingActionButton));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Second lesson'));
-        await tester.pumpAndSettle();
-        expect(
-          router.routeInformationProvider.value.uri.path,
-          '/learn/course/second',
-        );
-        expect(find.text('Synthetic second content'), findsOneWidget);
-        expect(find.byType(BottomSheet), findsNothing);
-      } catch (e, s) {
-        // ignore: avoid_print
-        print(
-          'DIAG mobile drawer: $e\n$s\n'
-          'path=${router.routeInformationProvider.value.uri.path}\n'
-          'exception=${tester.takeException()}\n'
-          'texts=${find.byType(Text).evaluate().map((x) => (x.widget as Text).data).toList()}',
-        );
-        rethrow;
-      }
+      final mountError = tester.takeException();
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Second lesson'));
+      await tester.pumpAndSettle();
+      final actionError = tester.takeException();
+      // Temporary diagnostic: CI shows no framework exception text.
+      expect('$mountError | $actionError', 'null | null');
+      expect(
+        router.routeInformationProvider.value.uri.path,
+        '/learn/course/second',
+      );
+      expect(find.text('Synthetic second content'), findsOneWidget);
+      expect(find.byType(BottomSheet), findsNothing);
     },
   );
 
