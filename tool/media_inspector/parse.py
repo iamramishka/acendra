@@ -82,7 +82,10 @@ def parse(data, mime):
     for object_id in reader.xref_objStm:
         visit(IndirectObject(object_id, 0, reader))
     for page in reader.pages:
-        page.get_contents()
+        contents = page.get_contents()
+        if contents is not None:
+            # pypdf defers operator parsing; force it inside the bounded child.
+            _ = contents.operations
 
 
 if __name__ == "__main__":

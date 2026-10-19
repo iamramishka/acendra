@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 from PIL import Image
 from pypdf import PdfWriter
-from pypdf.generic import NameObject, TextStringObject
+from pypdf.generic import NameObject, TextStringObject, DecodedStreamObject
 import parse
 import server
 
@@ -54,6 +54,21 @@ class ParsingTests(unittest.TestCase):
         for data in [self.pdf(active=True), self.pdf(encrypted=True), b"%PDF-forged"]:
             with self.assertRaises(Exception):
                 parse.parse(data, "application/pdf")
+
+    def test_pdf_content_operators_reject_malformed_stream(self):
+        def document(content):
+            writer = PdfWriter()
+            page = writer.add_blank_page(width=100, height=100)
+            stream = DecodedStreamObject()
+            stream.set_data(content)
+            page[NameObject("/Contents")] = writer._add_object(stream)
+            out = io.BytesIO()
+            writer.write(out)
+            return out.getvalue()
+
+        parse.parse(document(b"q\nQ\n"), "application/pdf")
+        with self.assertRaises(Exception):
+            parse.parse(document(b"q\n(unterminated"), "application/pdf")
 
     def test_metadata_and_digest_fail_before_any_parser_or_scan(self):
         for mime, digest, policy in [("text/plain", "a"*64, server.POLICY),

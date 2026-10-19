@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHandler } from './handler.mjs';
+import { MEDIA_POLICY } from './inspection.mjs';
+import { setTimeout as delay } from 'node:timers/promises';
 const ids={actor:'16400000-0000-0000-0000-000000000001',session:'16400000-0000-0000-0000-000000000002',course:'16400000-0000-0000-0000-000000000003',lesson:'16400000-0000-0000-0000-000000000004',asset:'16400000-0000-0000-0000-000000000005',request:'16400000-0000-0000-0000-000000000006'};
 const token='x.'+Buffer.from(JSON.stringify({sub:ids.actor,session_id:ids.session,aal:'aal1',role:'authenticated'})).toString('base64url')+'.x';
 const env=k=>({SUPABASE_URL:'https://synthetic.invalid',SUPABASE_ANON_KEY:'public',SUPABASE_SERVICE_ROLE_KEY:'private'})[k];
@@ -15,6 +17,21 @@ for(const field of ['bucket','path','uploaded_by','validation_status'])test('rej
 test('revoked assignment SQL denial issues no upload token',async()=>{let calls=0;const h=createHandler({env,policy,inspector,fetch:async()=>++calls===1?Response.json({id:ids.actor}):Response.json({code:'42501'},{status:400})});assert.equal((await h(req(payload))).status,403);assert.equal(calls,2);});
 test('spoofed server path rejected',async()=>{const h=createHandler({env,policy,inspector,fetch:async url=>url.endsWith('/user')?Response.json({id:ids.actor}):Response.json({...reserved,path:'foreign/path'})});assert.equal((await h(req(payload))).status,503);});
 test('finalization validates actual stored bytes before trusted RPC',async()=>{let finalized=false;const h=createHandler({env,policy,inspector,mode:'finalize',fetch:async(url,opts)=>{if(url.endsWith('/user'))return Response.json({id:ids.actor});if(url.endsWith('csa164_get_media_upload'))return Response.json(reserved);if(url.includes('/storage/'))return new Response('%PDF-test',{headers:{'Content-Type':'application/pdf'}});finalized=true;assert.match(JSON.parse(opts.body).p_digest,/^[a-f0-9]{64}$/);return Response.json({asset_id:ids.asset,status:'validated'});}});assert.equal((await h(req({asset_id:ids.asset,request_id:ids.request}))).status,200);assert.equal(finalized,true);});
+
+test('clean inspection can exceed an earlier backend deadline and still finalize', {timeout:30000}, async()=>{
+ let finalized=false;
+ const h=createHandler({env,policy:MEDIA_POLICY,mode:'finalize',
+  inspector:async input=>{await delay(15100);return inspector(input);},
+  fetch:async(url,opts)=>{
+   opts.signal.throwIfAborted();
+   if(url.endsWith('/user'))return Response.json({id:ids.actor});
+   if(url.endsWith('csa164_get_media_upload'))return Response.json({...reserved,policy_reference:MEDIA_POLICY.reference});
+   if(url.includes('/storage/'))return new Response('%PDF-test',{headers:{'Content-Type':'application/pdf'}});
+   finalized=true;return Response.json({asset_id:ids.asset,status:'validated'});
+  }});
+ assert.equal((await h(req({asset_id:ids.asset,request_id:ids.request}))).status,200);
+ assert.equal(finalized,true);
+});
 for(const [name,bytes,mime] of [['magic','forged!!!','application/pdf'],['length','%PDF-longer','application/pdf'],['mime','%PDF-test','image/png']])test('reject stored '+name+' spoof without finalizing',async()=>{let finalized=false;const h=createHandler({env,policy,inspector,mode:'finalize',fetch:async url=>{if(url.endsWith('/user'))return Response.json({id:ids.actor});if(url.endsWith('csa164_get_media_upload'))return Response.json(reserved);if(url.includes('/storage/'))return new Response(bytes,{headers:{'Content-Type':mime}});finalized=true;return Response.json({});}});assert.ok([409,422].includes((await h(req({asset_id:ids.asset,request_id:ids.request}))).status));assert.equal(finalized,false);});
 test('unsafe inspection cannot mark ready',async()=>{const h=createHandler({env,policy,inspector:async input=>({...input,safe:false}),mode:'finalize',fetch:async url=>url.endsWith('/user')?Response.json({id:ids.actor}):url.includes('/rpc/')?Response.json(reserved):new Response('%PDF-test',{headers:{'Content-Type':'application/pdf'}})});assert.equal((await h(req({asset_id:ids.asset,request_id:ids.request}))).status,422);});
 test('invalid authentication never reaches reservation RPC',async()=>{let calls=0;const h=createHandler({env,policy,inspector,fetch:async()=>{calls++;return Response.json({},{status:401});}});assert.equal((await h(req(payload))).status,401);assert.equal(calls,1);});
