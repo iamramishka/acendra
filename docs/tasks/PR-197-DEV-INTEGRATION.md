@@ -24,3 +24,18 @@ The existing Cupertino font warning remains. Repeat affected catalog/progress/
 admin regressions, analysis and migration replay against the combined tree.
 Do not claim earlier full-suite/CI evidence as a current combined-head pass.
 Required CI and approval remain merge gates. No deployment or hosted migration.
+
+Combined-tree verification: 93 affected marketplace, My Courses, draft preview,
+upload and course/lesson editor tests pass. All 116 media/Auth/checkout Node
+checks pass. Native PostgreSQL replay passes all 40 migrations and 42 SQL suites
+(1,129 assertions); two pgTAP suites skipped. The synthetic Auth/Storage harness
+does not establish managed-service acceptance. All 350 Dart files format cleanly;
+diff checks pass. Fresh analyzer and release build are the final local checks.
+
+Combined analyzer passed with no issues (35.5 seconds). Release build remains
+the last local check. The conflict-free combined source is published for review;
+no merge is authorized while required verification/approval is unmet.
+
+PR #196 was closed as superseded after verifying that its only remaining diff
+is the reconciliation record, which is preserved in this PR. PRs #185–188 are
+observed merged into dev; no claim is made that this chat performed those merges.
