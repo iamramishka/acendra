@@ -2940,4 +2940,21 @@ INTEGRATION - VERIFIED.
 - Scope, isolation, acceptance and verification: [Phase 1 handoff](docs/tasks/CSA-DASH-001-PHASE1.md), [Phase 2 handoff](docs/tasks/CSA-DASH-001-PHASE2.md), [Phase 3 handoff](docs/tasks/CSA-DASH-001-PHASE3.md), [Phase 4 handoff](docs/tasks/CSA-DASH-001-PHASE4.md), [Phase 5 handoff](docs/tasks/CSA-DASH-001-PHASE5.md), [Phase 6 evidence](docs/tasks/CSA-DASH-001-PHASE6.md).
 - Acceptance follows the enforced CI browser gate and owner review; live data and saved-course persistence remain future work.
 
+## CSA-265 - COM-005–010 prototype alignment and integration
+
+- Owner: CODEX; issue: https://github.com/iamramishka/acendra/issues/183.
+- Status: IN_REVIEW; owner authorized takeover and reconciliation with PR #185 on 2026-10-18; current-head CI and financial review are required.
+- Branch: feat/csa-265-prototype-alignment; isolated worktree: C:/Users/ramis/.codex/worktrees/com-005-010-alignment/acendra.
+- Scope, dependencies, shared-file ownership, acceptance and verification: [CSA-265 task record](docs/tasks/CSA-265.md).
+- Financial changes require maintainer review. Production configuration and activation remain gated by issue #160.
+
+## CSA-266 — Authorized payment reporting
+
+- [ ] CSA-266 [P1] [X] [IN_REVIEW]
+  Connect authorized payment rows, shared counts and confirmed receipt reporting.
+  Owner: CODEX; issue #192; branch `fix/csa-266-payment-reporting`.
+  Scope, acceptance and evidence: [task record](docs/tasks/CSA-266-PAYMENT-REPORTING.md).
+  Owner deferred refund/net figures to a separate confirmed-refund ledger task.
+  Production deployment and financial mutations are excluded.
+
 END OF TASKS.md

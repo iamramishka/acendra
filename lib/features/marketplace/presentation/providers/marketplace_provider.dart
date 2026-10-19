@@ -16,8 +16,6 @@ final marketplaceSearchRequestProvider = StateProvider<int>((ref) => 0);
 
 final selectedCategoryProvider = StateProvider<String?>((ref) => null);
 
-// ── Sort ──────────────────────────────────────────────────────────────────────
-
 enum CourseSort { newest, priceLow, priceHigh }
 
 final courseSortProvider = StateProvider<CourseSort>(
@@ -52,6 +50,7 @@ final filteredCoursesProvider = Provider<AsyncValue<List<CourseSummary>>>((
   final all = ref.watch(marketplaceProvider);
   final query = ref.watch(searchQueryProvider).trim().toLowerCase();
   final categoryId = ref.watch(selectedCategoryProvider);
+  final sort = ref.watch(courseSortProvider);
 
   return all.whenData((courses) {
     var list = courses;
@@ -67,14 +66,16 @@ final filteredCoursesProvider = Provider<AsyncValue<List<CourseSummary>>>((
     if (categoryId != null) {
       list = list.where((c) => c.categoryId == categoryId).toList();
     }
-    final sort = ref.watch(courseSortProvider);
-    return [...list]..sort(
-      (a, b) => switch (sort) {
+    final sorted = [...list];
+    sorted.sort((a, b) {
+      final order = switch (sort) {
+        CourseSort.newest => b.publishedAt.compareTo(a.publishedAt),
         CourseSort.priceLow => a.priceMinor.compareTo(b.priceMinor),
         CourseSort.priceHigh => b.priceMinor.compareTo(a.priceMinor),
-        CourseSort.newest => b.publishedAt.compareTo(a.publishedAt),
-      },
-    );
+      };
+      return order == 0 ? a.id.compareTo(b.id) : order;
+    });
+    return sorted;
   });
 });
 

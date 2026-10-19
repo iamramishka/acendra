@@ -40,7 +40,7 @@ jobs:
     steps:
       # Build the exact commit CI tested, not the latest dev head.
       - name: Checkout tested commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           persist-credentials: false

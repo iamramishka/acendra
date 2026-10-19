@@ -24,6 +24,7 @@ import 'package:acendra/features/bank_transfer/presentation/screens/bank_transfe
 import 'package:acendra/features/bank_transfer/presentation/screens/receipt_resubmission_screen.dart';
 import 'package:acendra/features/bank_transfer/presentation/screens/receipt_status_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/checkout_screen.dart';
+import 'package:acendra/features/checkout/presentation/screens/order_status_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_failure_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_pending_screen.dart';
 import 'package:acendra/features/checkout/presentation/screens/payment_success_screen.dart';
@@ -71,6 +72,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       );
 
       if (!isAuthenticated && !isPublic) return RouteNames.login;
+      if (!isAuthenticated &&
+          location == RouteNames.resetPassword &&
+          state.uri.queryParameters['mode'] == 'change') {
+        return RouteNames.login;
+      }
 
       if (isAuthenticated &&
           (location == RouteNames.login || location == RouteNames.register)) {
@@ -108,7 +114,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: RouteNames.resetPassword,
-            builder: (_, _) => const ResetPasswordScreen(),
+            builder: (_, state) => ResetPasswordScreen(
+              changePassword: state.uri.queryParameters['mode'] == 'change',
+            ),
           ),
         ],
       ),
@@ -204,6 +212,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: RouteNames.orders,
             builder: (_, _) => const OrderHistoryScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.orderStatus,
+            builder: (_, state) =>
+                OrderStatusScreen(orderId: state.pathParameters['orderId']!),
+          ),
+          GoRoute(
+            path: RouteNames.courseOverview,
+            redirect: (_, state) => RouteNames.learn.replaceFirst(
+              ':courseId',
+              Uri.encodeComponent(state.pathParameters['courseId']!),
+            ),
           ),
           GoRoute(
             path: RouteNames.settings,

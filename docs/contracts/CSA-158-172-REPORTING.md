@@ -1,5 +1,17 @@
 # CSA-158 / CSA-172 reporting
 
+## CSA-266 release configuration — 2026-10-19
+
+Owner requested a reporting fix and PR, explicitly retaining unavailable
+refund/net figures pending a separate trusted refund-ledger task. Confirmed gross
+receipts still use the approved immutable settlement recognition contract.
+Both reporting endpoints now use server-only
+`ACENDRA_ADMIN_SETTLEMENT_REPORTING_ENABLED=true` and validated explicit
+`ACENDRA_ADMIN_ALLOWED_ORIGINS`. Defaults remain unavailable. This supersedes the
+unconditional source disable described below; it does not activate a hosted
+environment. SQL/session/role/MFA checks and refunded-history rejection remain.
+[Release checklist and rollback](../tasks/CSA-266-PAYMENT-REPORTING.md).
+
 ## Current status — 2026-10-13
 
 Foundation reviewed and merged into dev via [PR #107](https://github.com/iamramishka/acendra/pull/107).

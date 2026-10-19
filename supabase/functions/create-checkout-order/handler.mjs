@@ -57,7 +57,7 @@ export function createHandler({ env, fetch: request = globalThis.fetch, onlineCh
       if (!uuid(user.id) || user.is_anonymous === true || claims.sub !== user.id || claims.role !== 'authenticated' || !uuid(claims.session_id) || !['aal1','aal2'].includes(claims.aal)) return respond(401, 'AUTH_REQUIRED');
       const bankVersion = body.payment_method === 'bank_transfer' ? env('ACENDRA_CHECKOUT_BANK_VERSION_ID') : null;
       if (body.payment_method === 'bank_transfer' && !uuid(bankVersion)) return respond(503, 'BANK_CHECKOUT_UNAVAILABLE');
-      const mutation = await request(`${url}/rest/v1/rpc/csa098_create_checkout_order`, {
+      const mutation = await request(`${url}/rest/v1/rpc/csa265_create_checkout_order`, {
         method: 'POST', headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey, 'Content-Type': 'application/json' },
         body: JSON.stringify({ p_actor: user.id, p_session_id: claims.session_id, p_aal: claims.aal, p_key: key, p_course: body.course_id, p_method: body.payment_method, p_bank_version: bankVersion }), signal: AbortSignal.timeout(15000),
       });

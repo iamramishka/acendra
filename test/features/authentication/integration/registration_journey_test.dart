@@ -245,7 +245,7 @@ void main() {
       expect(find.text('Verify your email'), findsNothing);
     });
 
-    testWidgets('password shorter than 5 characters shows error', (
+    testWidgets('password shorter than 6 characters shows error', (
       tester,
     ) async {
       await tester.pumpWidget(_app(repo: _SuccessAuthRepository()));
@@ -256,10 +256,7 @@ void main() {
       await tester.tap(find.text('Create account'));
       await tester.pump();
 
-      expect(
-        find.text('Password must be at least 5 characters'),
-        findsOneWidget,
-      );
+      expect(find.text('Use at least 6 characters'), findsOneWidget);
       expect(find.text('Verify your email'), findsNothing);
     });
 

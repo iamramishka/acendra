@@ -88,7 +88,7 @@ different screen in practice), 3 with CONFLICT items.
 
 ### Owner answers (2026-10-18)
 
-- D-1: minimum 5 characters, no strength rules (no letter/number requirement). Supabase Auth minimum must be set to 5 as well.
+- D-1 (superseded 2026-10-19): the owner selected **6 characters, no strength rules** after verification that Supabase Auth enforces a six-character floor. This replaces the earlier five-character decision; local/client configuration must agree. Hosted settings require separate read-back, not an assumed change from this file.
 - D-3: watermark = "Acendra Product" plus the student's name and ID.
 - D-4: English and Sinhala (no Tamil).
 - D-5: keep billing fields; Country defaults to Sri Lanka, changeable via a searchable country dropdown (suggestions as the user types).

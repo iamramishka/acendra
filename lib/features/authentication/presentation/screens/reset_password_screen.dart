@@ -1,162 +1,165 @@
 import 'package:acendra/app/router/route_names.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/feedback/app_snackbar.dart';
-import 'package:acendra/core/widgets/inputs/app_text_field.dart';
 import 'package:acendra/core/widgets/navigation/auth_shell.dart';
 import 'package:acendra/features/authentication/data/auth_repository.dart';
 import 'package:acendra/features/authentication/domain/auth_failure.dart';
 import 'package:acendra/features/authentication/domain/auth_input_rules.dart';
+import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
+import 'package:acendra/features/authentication/presentation/widgets/auth_form_widgets.dart';
+import 'package:acendra/features/authentication/presentation/widgets/recovery_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class ResetPasswordScreen extends ConsumerStatefulWidget {
-  const ResetPasswordScreen({super.key});
-
+  const ResetPasswordScreen({super.key, this.changePassword = false});
+  final bool changePassword;
   @override
   ConsumerState<ResetPasswordScreen> createState() =>
       _ResetPasswordScreenState();
 }
 
 class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
-  final _passwordController = TextEditingController();
-  final _confirmController = TextEditingController();
-  bool _isLoading = false;
-
-  bool get _lengthOk =>
-      _passwordController.text.length >= minPasswordLength;
-
-  bool get _matchOk =>
-      _confirmController.text.isNotEmpty &&
-      _confirmController.text == _passwordController.text;
-
-  bool get _canSubmit => _lengthOk && _matchOk;
-
-  @override
-  void initState() {
-    super.initState();
-    _passwordController.addListener(_onChanged);
-    _confirmController.addListener(_onChanged);
-  }
-
-  void _onChanged() => setState(() {});
-
+  final _password = TextEditingController();
+  final _confirm = TextEditingController();
+  bool _saving = false;
+  bool get _matches =>
+      _password.text.isNotEmpty && _password.text == _confirm.text;
+  bool get _valid => validatePassword(_password.text) == null && _matches;
   @override
   void dispose() {
-    _passwordController.removeListener(_onChanged);
-    _confirmController.removeListener(_onChanged);
-    _passwordController.dispose();
-    _confirmController.dispose();
+    _password.dispose();
+    _confirm.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
-    if (!_canSubmit) return;
-    setState(() => _isLoading = true);
+    if (!_valid || _saving) return;
+    final actor = ref.read(currentSessionProvider)?.user.id;
+    if (widget.changePassword && actor == null) {
+      context.go(RouteNames.login);
+      return;
+    }
+    setState(() => _saving = true);
     try {
       await ref
           .read(authRepositoryProvider)
-          .updatePassword(newPassword: _passwordController.text);
+          .updatePassword(newPassword: _password.text);
+      if (!mounted || actor != ref.read(currentSessionProvider)?.user.id) {
+        return;
+      }
+      if (!widget.changePassword) {
+        await ref.read(authRepositoryProvider).signOut();
+        if (!mounted) {
+          return;
+        }
+      }
+      AppSnackbar.show(
+        context,
+        'Password updated.',
+        variant: SnackbarVariant.success,
+      );
+      context.go(
+        widget.changePassword ? RouteNames.settings : RouteNames.login,
+      );
+    } on AuthFailure catch (e) {
+      if (mounted) {
+        AppSnackbar.show(context, e.message, variant: SnackbarVariant.error);
+      }
+    } catch (_) {
       if (mounted) {
         AppSnackbar.show(
           context,
-          'Password updated successfully.',
-          variant: SnackbarVariant.success,
+          'Could not update your password. Please retry.',
+          variant: SnackbarVariant.error,
         );
-        context.go(RouteNames.login);
-      }
-    } on AuthFailure catch (f) {
-      if (mounted) {
-        AppSnackbar.show(context, f.message, variant: SnackbarVariant.error);
       }
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) setState(() => _saving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-
+    void back() => context.go(
+      widget.changePassword ? RouteNames.settings : RouteNames.login,
+    );
+    Widget requirement(String text, bool met) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(
+            met ? Icons.check_circle : Icons.radio_button_unchecked,
+            size: 20,
+            color: met ? cs.primary : cs.onSurfaceVariant,
+          ),
+          const SizedBox(width: 8),
+          Expanded(child: Text(text)),
+        ],
+      ),
+    );
     return AuthShell(
+      onBack: back,
+      banner: const RecoveryHero(
+        icon: Icons.shield_outlined,
+        badge: Icons.check,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Set a new password',
-            style: tt.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            widget.changePassword
+                ? 'Change your password'
+                : 'Set a new password',
+            style: tt.headlineSmall,
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          Text('Choose a new password for your account.', style: tt.bodyMedium),
-          const SizedBox(height: 32),
-          AppPasswordField(
-            controller: _passwordController,
+          Text(
+            'Choose a new password for your Acedra account.',
+            textAlign: TextAlign.center,
+            style: tt.bodyMedium,
+          ),
+          const SizedBox(height: 24),
+          AuthPasswordField(
             label: 'New password',
-            textInputAction: TextInputAction.next,
+            controller: _password,
+            autofillHints: const [AutofillHints.newPassword],
+            onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 16),
-          AppPasswordField(
-            controller: _confirmController,
+          AuthPasswordField(
             label: 'Confirm new password',
-            textInputAction: TextInputAction.done,
-            onSubmitted: (_) {
-              if (_canSubmit) _submit();
-            },
+            controller: _confirm,
+            autofillHints: const [AutofillHints.newPassword],
+            onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 16),
-          _ChecklistRow(
-            label: 'At least $minPasswordLength characters',
-            met: _lengthOk,
+          Text('Your password needs', style: tt.titleSmall),
+          requirement(
+            'At least $minPasswordLength characters',
+            _password.text.length >= minPasswordLength,
           ),
-          const SizedBox(height: 4),
-          _ChecklistRow(
-            label: 'Passwords match',
-            met: _matchOk,
-          ),
-          const SizedBox(height: 24),
+          requirement('Both passwords match', _matches),
+          const SizedBox(height: 20),
           AppButton(
-            label: 'Update password',
-            onPressed: (_isLoading || !_canSubmit) ? null : _submit,
-            isLoading: _isLoading,
+            label: 'Update Password',
+            onPressed: _valid && !_saving ? _submit : null,
+            isLoading: _saving,
           ),
-          const SizedBox(height: 24),
-          Center(
-            child: TextButton(
-              onPressed: () => context.go(RouteNames.login),
-              child: const Text('Back to sign in'),
+          if (!widget.changePassword) ...[
+            const SizedBox(height: 12),
+            AppButton(
+              label: 'Back to Sign In',
+              variant: ButtonVariant.outlined,
+              onPressed: back,
             ),
-          ),
+          ],
         ],
       ),
-    );
-  }
-}
-
-class _ChecklistRow extends StatelessWidget {
-  const _ChecklistRow({required this.label, required this.met});
-
-  final String label;
-  final bool met;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final color = met ? cs.primary : cs.onSurfaceVariant;
-    return Row(
-      children: [
-        Icon(
-          met
-              ? Icons.check_circle_rounded
-              : Icons.radio_button_unchecked_rounded,
-          size: 16,
-          color: color,
-        ),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: color),
-        ),
-      ],
     );
   }
 }
