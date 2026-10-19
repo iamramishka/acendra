@@ -172,6 +172,14 @@ void registerLessonRouteRegressionTests() {
       await tester.pumpAndSettle();
       expect(router.routeInformationProvider.value.uri.path, '/learn/course');
       expect(find.text('Course overview'), findsOneWidget);
+      expect(find.text('Module finished'), findsOneWidget);
+      // pumpAndSettle drains animations, not the snackbar's display timer.
+      // Let the module feedback finish before tapping the next lesson footer.
+      await tester.pump(
+        tester.widget<SnackBar>(find.byType(SnackBar)).duration,
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsNothing);
       router.go('/learn/course/third');
       await tester.pumpAndSettle();
       await tester.tap(find.text('Mark Complete'));
@@ -193,6 +201,12 @@ void registerLessonRouteRegressionTests() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Second lesson'));
       await tester.pumpAndSettle();
+      debugPrint(
+        'Mobile curriculum result: '
+        'route=${router.routeInformationProvider.value.uri.path}, '
+        'content=${find.text('Synthetic second content').evaluate().length}, '
+        'sheets=${find.byType(BottomSheet).evaluate().length}',
+      );
       expect(
         router.routeInformationProvider.value.uri.path,
         '/learn/course/second',
