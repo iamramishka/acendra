@@ -40,6 +40,7 @@ class CourseTableRow extends StatelessWidget {
               width: 56,
               height: 40,
               child: CourseThumbnail(
+                courseId: course.id,
                 title: course.title,
                 imageUrl: course.thumbnailUrl,
               ),

@@ -33,6 +33,7 @@ class CourseGrid extends StatelessWidget {
       itemBuilder: (context, index) {
         final course = courses[index];
         return CourseCard(
+          courseId: course.id,
           title: course.title,
           instructorName: course.shortDescription,
           price: course.formattedPrice,

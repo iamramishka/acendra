@@ -1,3 +1,4 @@
+import 'package:acendra/features/admin/presentation/widgets/media_upload_control.dart';
 import 'package:acendra/features/admin/data/repositories/admin_directory_client.dart';
 import 'package:acendra/app/theme/app_breakpoints.dart';
 import 'package:acendra/app/theme/app_spacing.dart';
@@ -26,7 +27,6 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
   final _priceController = TextEditingController();
-  final _thumbnailController = TextEditingController();
 
   String _currency = 'LKR';
   bool _isPublished = false;
@@ -43,7 +43,6 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
     _titleController.dispose();
     _descController.dispose();
     _priceController.dispose();
-    _thumbnailController.dispose();
     super.dispose();
   }
 
@@ -53,7 +52,6 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
     _titleController.text = course.title;
     _descController.text = course.description;
     _priceController.text = course.price.toStringAsFixed(0);
-    _thumbnailController.text = course.thumbnailUrl ?? '';
     _currency = course.currency;
     _isPublished = course.isPublished;
   }
@@ -92,9 +90,6 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
         price: double.parse(_priceController.text.trim()),
         currency: _currency,
         isPublished: _isPublished,
-        thumbnailUrl: _thumbnailController.text.trim().isEmpty
-            ? null
-            : _thumbnailController.text.trim(),
         enrollmentCount: 0,
         sectionCount: 0,
         lessonCount: 0,
@@ -239,11 +234,10 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
-              AppTextField(
-                label: 'Thumbnail URL (optional)',
-                hint: 'https://…',
-                controller: _thumbnailController,
-              ),
+              if (!_isNew)
+                MediaUploadControl(courseId: widget.courseId)
+              else
+                const Text('Save the course before uploading artwork.'),
               const SizedBox(height: AppSpacing.md),
               SwitchListTile(
                 title: const Text('Published'),
