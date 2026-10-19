@@ -42,6 +42,7 @@ class CourseCardTile extends StatelessWidget {
                     width: 64,
                     height: 48,
                     child: CourseThumbnail(
+                      courseId: course.id,
                       title: course.title,
                       imageUrl: course.thumbnailUrl,
                     ),

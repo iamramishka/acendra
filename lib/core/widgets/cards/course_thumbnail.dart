@@ -1,14 +1,22 @@
+import 'package:acendra/core/config/env_config.dart';
 import 'package:flutter/material.dart';
 
 /// A course cover that never treats private storage references as image URLs.
 class CourseThumbnail extends StatelessWidget {
-  const CourseThumbnail({super.key, required this.title, this.imageUrl});
+  const CourseThumbnail({
+    super.key,
+    required this.title,
+    this.imageUrl,
+    this.courseId,
+  });
 
+  final String? courseId;
   final String title;
   final String? imageUrl;
 
   String? get _url {
-    final value = imageUrl?.trim();
+    final artwork = courseArtworkUrl(EnvConfig.supabaseUrl, courseId);
+    final value = artwork ?? imageUrl?.trim();
     final uri = value == null ? null : Uri.tryParse(value);
     if (uri == null ||
         !uri.hasAuthority ||
@@ -101,4 +109,25 @@ class CourseThumbnail extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Only course identities enter the delivery endpoint; storage paths never do.
+String? courseArtworkUrl(String base, String? courseId) {
+  if (base.isEmpty ||
+      courseId == null ||
+      !RegExp(r'^[0-9a-fA-F-]{36}$').hasMatch(courseId)) {
+    return null;
+  }
+  final uri = Uri.tryParse(base);
+  if (uri == null ||
+      !uri.hasAuthority ||
+      !{'http', 'https'}.contains(uri.scheme)) {
+    return null;
+  }
+  return uri
+      .replace(
+        path: '/functions/v1/course-artwork',
+        queryParameters: {'course_id': courseId},
+      )
+      .toString();
 }
