@@ -199,14 +199,23 @@ void registerLessonRouteRegressionTests() {
       await tester.tap(find.text('Second lesson'));
       await tester.pumpAndSettle();
       final actionError = tester.takeException();
-      // Temporary diagnostic: CI shows no framework exception text.
-      expect('$mountError | $actionError', 'null | null');
+      // Temporary diagnostic: CI only forwards print output.
+      // ignore: avoid_print
+      print(
+        'DIAG mobile drawer: mount=$mountError action=$actionError '
+        'path=${router.routeInformationProvider.value.uri.path} '
+        'second=${find.text('Synthetic second content').evaluate().length} '
+        'sheets=${find.byType(BottomSheet).evaluate().length} '
+        'timers=${tester.binding.transientCallbackCount}',
+      );
       expect(
         router.routeInformationProvider.value.uri.path,
         '/learn/course/second',
       );
       expect(find.text('Synthetic second content'), findsOneWidget);
       expect(find.byType(BottomSheet), findsNothing);
+      // ignore: avoid_print
+      print('DIAG mobile drawer: body finished');
     },
   );
 
