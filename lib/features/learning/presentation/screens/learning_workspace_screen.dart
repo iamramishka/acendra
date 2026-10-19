@@ -39,16 +39,49 @@ class _LearningWorkspaceScreenState
   @override
   void initState() {
     super.initState();
+    _requestInitialLesson();
+  }
+
+  @override
+  void didUpdateWidget(covariant LearningWorkspaceScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.courseId != oldWidget.courseId ||
+        widget.initialLessonId != oldWidget.initialLessonId) {
+      _requestInitialLesson();
+    }
+  }
+
+  void _requestInitialLesson() {
     final lessonId = widget.initialLessonId;
+    final courseId = widget.courseId;
     if (lessonId != null) {
       // A retained workspace can already have loaded sections. Selecting then
       // changes notifier state, so wait until this widget finishes mounting.
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
+        if (!mounted ||
+            widget.courseId != courseId ||
+            widget.initialLessonId != lessonId) {
+          return;
+        }
         ref
-            .read(learningWorkspaceProvider(widget.courseId).notifier)
+            .read(learningWorkspaceProvider(courseId).notifier)
             .requestLesson(lessonId);
       });
+    }
+  }
+
+  void _openLesson(String lessonId) {
+    final router = GoRouter.maybeOf(context);
+    if (router != null) {
+      router.go(
+        '/learn/${Uri.encodeComponent(widget.courseId)}/'
+        '${Uri.encodeComponent(lessonId)}',
+      );
+    } else {
+      // Standalone workspace hosts can select lessons without a router.
+      ref
+          .read(learningWorkspaceProvider(widget.courseId).notifier)
+          .requestLesson(lessonId);
     }
   }
 
@@ -57,6 +90,11 @@ class _LearningWorkspaceScreenState
     if (!mounted) return;
     switch (outcome) {
       case ContinueOutcome.advanced:
+        final lessonId = ref
+            .read(learningWorkspaceProvider(widget.courseId))
+            .currentLessonId;
+        if (lessonId != null) _openLesson(lessonId);
+        break;
       case ContinueOutcome.failed:
         break;
       case ContinueOutcome.moduleFinished:
@@ -102,13 +140,13 @@ class _LearningWorkspaceScreenState
 
     void onPrevious() {
       if (currentIndex > 0) {
-        notifier.selectLesson(flat[currentIndex - 1].id);
+        _openLesson(flat[currentIndex - 1].id);
       }
     }
 
     void onNext() {
       if (currentIndex >= 0 && currentIndex < flat.length - 1) {
-        notifier.selectLesson(flat[currentIndex + 1].id);
+        _openLesson(flat[currentIndex + 1].id);
       }
     }
 
@@ -170,7 +208,7 @@ class _LearningWorkspaceScreenState
     final curriculumNav = CurriculumNav(
       sections: state.sections,
       currentLessonId: state.currentLessonId,
-      onLessonTap: (lessonId) => notifier.selectLesson(lessonId),
+      onLessonTap: _openLesson,
     );
 
     return LayoutBuilder(
@@ -209,7 +247,7 @@ class _LearningWorkspaceScreenState
                     context: context,
                     sections: state.sections,
                     currentLessonId: state.currentLessonId,
-                    onLessonTap: (lessonId) => notifier.selectLesson(lessonId),
+                    onLessonTap: _openLesson,
                   ),
                   child: const Icon(Icons.list),
                 ),
@@ -236,7 +274,7 @@ class _LearningWorkspaceScreenState
           top: Radius.circular(AppRadius.dialog),
         ),
       ),
-      builder: (_) => DraggableScrollableSheet(
+      builder: (drawerContext) => DraggableScrollableSheet(
         initialChildSize: 0.6,
         minChildSize: 0.3,
         maxChildSize: 0.9,
@@ -268,7 +306,10 @@ class _LearningWorkspaceScreenState
               child: CurriculumNav(
                 sections: sections,
                 currentLessonId: currentLessonId,
-                onLessonTap: onLessonTap,
+                onLessonTap: (lessonId) {
+                  Navigator.of(drawerContext).pop();
+                  onLessonTap(lessonId);
+                },
                 scrollController: scrollController,
               ),
             ),

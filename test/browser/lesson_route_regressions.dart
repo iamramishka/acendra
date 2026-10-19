@@ -11,6 +11,7 @@ import 'package:acendra/features/marketplace/domain/entities/lesson_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 class _Lessons implements LearningRepository {
   @override
@@ -65,7 +66,7 @@ class _Progress implements LearningProgressRepository {
     String lessonId,
     bool completed,
     SavedLessonProgress? previous,
-  ) => throw UnimplementedError();
+  ) async => SavedLessonProgress(lessonId: lessonId, completed: completed);
 
   @override
   Future<SavedLessonProgress> saveVideoPosition(
@@ -76,6 +77,131 @@ class _Progress implements LearningProgressRepository {
 }
 
 void registerLessonRouteRegressionTests() {
+  Future<GoRouter> mountRoutes(WidgetTester tester) async {
+    final router = GoRouter(
+      initialLocation: '/learn/course/first',
+      routes: [
+        GoRoute(
+          path: '/learn/:courseId',
+          builder: (_, _) => const Scaffold(body: Text('Course overview')),
+        ),
+        GoRoute(
+          path: '/learn/:courseId/:lessonId',
+          builder: (_, state) => Scaffold(
+            body: LearningWorkspaceScreen(
+              key: ValueKey(state.pathParameters['lessonId']),
+              courseId: state.pathParameters['courseId']!,
+              initialLessonId: state.pathParameters['lessonId'],
+            ),
+          ),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          currentSessionProvider.overrideWithValue(null),
+          learningRepositoryProvider.overrideWithValue(_RouteLessons()),
+          learningProgressRepositoryProvider.overrideWithValue(_Progress()),
+        ],
+        child: MaterialApp.router(theme: AppTheme.light, routerConfig: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+    return router;
+  }
+
+  testWidgets(
+    'sidebar updates URL and restored history entries select their lesson',
+    (tester) async {
+      tester.view.physicalSize = const Size(1200, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final router = await mountRoutes(tester);
+      await tester.tap(find.text('Second lesson'));
+      await tester.pumpAndSettle();
+      expect(
+        router.routeInformationProvider.value.uri.path,
+        '/learn/course/second',
+      );
+      expect(find.text('Synthetic second content'), findsOneWidget);
+      // Browser Back/Forward restore route information through this binding API.
+      await tester.binding.handlePushRouteInformation(
+        RouteInformation(uri: Uri.parse('/learn/course/first')),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Synthetic first content'), findsOneWidget);
+      await tester.binding.handlePushRouteInformation(
+        RouteInformation(uri: Uri.parse('/learn/course/second')),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Synthetic second content'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'completion and previous/next keep lesson URLs and completion exits',
+    (tester) async {
+      tester.view.physicalSize = const Size(1200, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final router = await mountRoutes(tester);
+      await tester.tap(find.text('Mark Complete & Continue'));
+      await tester.pumpAndSettle();
+      expect(
+        router.routeInformationProvider.value.uri.path,
+        '/learn/course/second',
+      );
+      expect(find.text('Synthetic second content'), findsOneWidget);
+      await tester.tap(find.text('Previous'));
+      await tester.pumpAndSettle();
+      expect(
+        router.routeInformationProvider.value.uri.path,
+        '/learn/course/first',
+      );
+      await tester.tap(find.text('Next'));
+      await tester.pumpAndSettle();
+      expect(
+        router.routeInformationProvider.value.uri.path,
+        '/learn/course/second',
+      );
+      await tester.tap(find.text('Mark Complete & Continue'));
+      await tester.pumpAndSettle();
+      expect(router.routeInformationProvider.value.uri.path, '/learn/course');
+      expect(find.text('Course overview'), findsOneWidget);
+      router.go('/learn/course/third');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Mark Complete'));
+      await tester.pumpAndSettle();
+      expect(router.routeInformationProvider.value.uri.path, '/learn/course');
+      expect(find.text('Course overview'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'mobile curriculum selection closes the drawer and updates the URL',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final router = await mountRoutes(tester);
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Second lesson'));
+      await tester.pumpAndSettle();
+      expect(
+        router.routeInformationProvider.value.uri.path,
+        '/learn/course/second',
+      );
+      expect(find.text('Synthetic second content'), findsOneWidget);
+      expect(find.byType(BottomSheet), findsNothing);
+    },
+  );
+
   testWidgets(
     'opening a lesson route reuses loaded progress without changing state during build',
     (tester) async {
@@ -122,6 +248,33 @@ void registerLessonRouteRegressionTests() {
         'second',
       );
       expect(find.text('Synthetic second content'), findsOneWidget);
+      await tester.tap(find.text('Previous'));
+      await tester.pumpAndSettle();
+      expect(find.text('Synthetic first content'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     },
   );
+}
+
+class _RouteLessons extends _Lessons {
+  @override
+  Future<List<CurriculumSection>> getCurriculumWithLessons(
+    String courseId,
+  ) async => [
+    ...await super.getCurriculumWithLessons(courseId),
+    const CurriculumSection(
+      id: 'final-section',
+      title: 'Final module',
+      position: 1,
+      lessons: [
+        LessonItem(
+          id: 'third',
+          title: 'Third lesson',
+          lessonType: 'text',
+          position: 0,
+          isPreview: false,
+        ),
+      ],
+    ),
+  ];
 }
