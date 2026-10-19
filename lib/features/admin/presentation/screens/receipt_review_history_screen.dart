@@ -6,6 +6,7 @@ import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:acendra/core/widgets/feedback/status_badge.dart';
 import 'package:acendra/core/widgets/inputs/app_text_field.dart';
 import 'package:acendra/features/admin/domain/entities/payment_record.dart';
+import 'package:acendra/features/admin/data/repositories/admin_payment_repository.dart';
 import 'package:acendra/features/admin/presentation/providers/admin_payments_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -131,8 +132,10 @@ class _ReceiptReviewHistoryScreenState
           Expanded(
             child: historyAsync.when(
               loading: () => _LoadingSkeleton(),
-              error: (_, _) => AppErrorState(
-                message: 'Failed to load receipt history. Please try again.',
+              error: (error, _) => AppErrorState(
+                message: error is PaymentReportingUnavailable
+                    ? 'Receipt review history is unavailable. Please try again later.'
+                    : 'Failed to load receipt history. Please try again.',
                 actionLabel: 'Retry',
                 onRetry: () => ref.invalidate(receiptHistoryProvider(_filter)),
               ),
@@ -192,7 +195,9 @@ class _ReceiptHistoryTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        record.studentEmail,
+                        record.studentEmail.isEmpty
+                            ? record.orderNumber ?? record.orderId
+                            : record.studentEmail,
                         style: tt.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -222,7 +227,7 @@ class _ReceiptHistoryTile extends StatelessWidget {
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
-                  '${record.currency} ${record.amount.toStringAsFixed(2)}',
+                  record.formattedAmount,
                   style: tt.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: ext?.success ?? cs.primary,

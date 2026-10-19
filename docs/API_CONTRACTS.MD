@@ -2,6 +2,28 @@
 # API_CONTRACTS.md
 # Acedra - Frontend and Backend API Contracts
 
+## CSA-266 admin reporting integration (2026-10-19, IN_REVIEW)
+
+`admin-payment-list` POST implements the existing list/detail wire contract for
+current finance_admin/super_admin AAL2 sessions. List body keys are exactly
+`mode`, `page_size` (1–50), `cursor`, `status`, `method`, `from`, `to` and
+`order_number_prefix`; nullable keys remain required. Detail body is exactly
+`{mode:"detail",payment_id:<order UUID>}`. Methods: `online`/`bank_transfer`;
+statuses: `pending`/`processing`/`approved`/`rejected`. Buyer data is omitted.
+Payment/order identity is the order UUID, separate from human order number.
+Amounts/counts are decimal strings; cursors remain opaque. Counts use one current
+snapshot, filtered by method/date and creation cutoff, independent of status and
+prefix. Flutter global totals share an unfiltered count request.
+[Full wire reference](contracts/CSA-PAYMENT-LIST-PROPOSAL.md).
+
+Server flags: `ACENDRA_ADMIN_PAYMENT_LIST_ENABLED` and
+`ACENDRA_ADMIN_SETTLEMENT_REPORTING_ENABLED` (dashboard and financial report).
+Each requires exact `true` and validated explicit allowed origins; otherwise 503.
+Auth, current SQL authority, MFA, no-store, bounded errors, sandbox exclusion and
+unsupported-refund fail-closed semantics remain. Refund/net totals remain
+explicitly unavailable by owner decision.
+[Release procedure, rollback and evidence](tasks/CSA-266-PAYMENT-REPORTING.md).
+
 Document ID: CSA-API-001
 Version: 1.0
 Status: Proposed - Pending Approval

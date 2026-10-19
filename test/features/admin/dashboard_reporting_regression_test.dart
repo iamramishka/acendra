@@ -192,7 +192,14 @@ void main() {
     expect(find.text('Gross Receipts (30 days)'), findsOneWidget);
     expect(find.text('Total Revenue'), findsNothing);
     expect(find.textContaining('Net'), findsNothing);
-    expect(find.textContaining('Refund'), findsNothing);
+    expect(
+      find.text(
+        'Refund and net totals are unavailable until confirmed refund reporting is connected.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Refunds: LKR 0.00'), findsNothing);
+    expect(find.text('Net: LKR 0.00'), findsNothing);
   });
 
   test('dashboard uses the same global status snapshot as Payments', () async {
