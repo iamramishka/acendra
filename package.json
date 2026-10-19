@@ -16,5 +16,5 @@
     "db:test:stop": "node tool/local_supabase.mjs stop test",
     "client:env": "node tool/local_supabase.mjs client-env dev"
   },
-  "devDependencies": { "supabase": "2.120.0" }
+  "devDependencies": { "supabase": "2.121.0" }
 }
