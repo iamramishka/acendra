@@ -72,8 +72,8 @@ No data rollback is needed: no financial mutations, grants or schema changes.
 
 ## Verification
 
-- Initial admin suite: 106 passed. A final rerun includes the subsequent explicit
-  receipt-audit-history boundary regression; result pending at submission.
+- Final admin suite: **107 passed**, including the explicit receipt-audit-history
+  boundary, session switching and stale-response regressions.
 - Reporting/permission boundaries: 210 passed, zero skips (Node concurrency 2).
 - Repository Dart formatting: 298 files, zero changes. Final touched files also
   formatted; `git diff --check` passes.
@@ -82,7 +82,10 @@ No data rollback is needed: no financial mutations, grants or schema changes.
   `tool/deployment_csp.test.mjs` reproduces the same timeout (one passed, one
   cancelled). The tested CSP/browser file and server policy match the base.
 - Full `flutter analyze --no-pub` stalled without diagnostics and was stopped;
-  not a pass. Scoped Dart analysis and standard release web build are pending.
+  not a pass. Scoped `dart analyze lib/features/admin test/features/admin`
+  exited 4: SDK perf-witness shutdown could not delete its Windows performance
+  file (FileSystemException errno 1920). No clean analyzer result is claimed.
+  Standard release web build remains pending.
 - No local Docker/Supabase replay; existing SQL migrations and grants are
   unchanged. Required hosted Supabase CI supplies fresh database verification.
 
