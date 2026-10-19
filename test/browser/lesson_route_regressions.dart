@@ -127,13 +127,13 @@ void registerLessonRouteRegressionTests() {
         '/learn/course/second',
       );
       expect(find.text('Synthetic second content'), findsOneWidget);
-      // Browser Back/Forward restore route information through this binding API.
-      await tester.binding.handlePushRouteInformation(
+      // Browser Back/Forward deliver route information to this provider.
+      await router.routeInformationProvider.didPushRouteInformation(
         RouteInformation(uri: Uri.parse('/learn/course/first')),
       );
       await tester.pumpAndSettle();
       expect(find.text('Synthetic first content'), findsOneWidget);
-      await tester.binding.handlePushRouteInformation(
+      await router.routeInformationProvider.didPushRouteInformation(
         RouteInformation(uri: Uri.parse('/learn/course/second')),
       );
       await tester.pumpAndSettle();

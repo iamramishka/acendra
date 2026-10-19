@@ -1,6 +1,7 @@
 # PR #186 learning review corrections
 
-Owner: CODEX learning worker. Status: IN_PROGRESS. Date: 2026-10-19.
+Owner: CODEX learning worker; coordinating CODEX completed the handoff after an
+interruption. Status: IN_REVIEW. Date: 2026-10-19.
 Authorization: project owner requested fixes and another review of PRs #185–188;
 the coordinating CODEX agent assigned the two learning findings exclusively here.
 Base: PR #186 d996e6f6de9dc186d0a8bf08ce8d01228fdae9e0.
@@ -24,3 +25,13 @@ regressions through the existing browser harness, affected learning tests,
 formatting, analysis and self review. Serialize Flutter SDK/cache use with the
 coordinator; no installs or overlapping Flutter work while another worker owns it.
 Record actual RED/GREEN evidence below before handing off a bounded commit.
+
+Implemented queued URL requests through initial progress loading, latest-request
+selection, lesson route updates, retained widget updates and mobile drawer closure.
+The first local RED attempts failed at Dart VM memory allocation, so no product
+failure is claimed from those attempts. After serializing verification, all 43
+affected learning tests passed in the integrated PR 186 worktree, including the
+three deterministic request-timing regressions. The browser harness uses the
+supported GoRouter route-information provider API; its first compile exposed an
+unsupported Flutter test-binding helper, which was corrected. Browser execution
+and required CI remain separate gates. No payment/access authorization changed.
