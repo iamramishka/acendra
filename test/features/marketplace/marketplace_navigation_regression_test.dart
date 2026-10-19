@@ -102,13 +102,13 @@ void main() {
     expect(find.byType(MarketplaceScreen), findsOneWidget);
   });
 
-  testWidgets('Enroll Now works after opening course through public shell', (
+  testWidgets('Buy Course works after opening course through public shell', (
     tester,
   ) async {
     final router = await mount(tester);
     await tester.tap(find.text('Fake Course'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Enroll Now'));
+    await tester.tap(find.text('Buy Course'));
     await tester.pumpAndSettle();
     expect(
       router.routeInformationProvider.value.uri.path,

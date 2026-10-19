@@ -1,7 +1,9 @@
 import 'package:acendra/features/checkout/data/repositories/supabase_checkout_repository.dart';
+import 'package:acendra/features/checkout/data/repositories/student_order_repository.dart';
 import 'package:acendra/features/checkout/domain/entities/checkout_order.dart';
 import 'package:acendra/features/checkout/domain/entities/customer_info.dart';
 import 'package:acendra/features/checkout/domain/entities/payment_method.dart';
+import 'package:acendra/features/checkout/presentation/providers/checkout_actor_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart' show StateProvider;
 
@@ -11,18 +13,31 @@ export 'package:acendra/features/checkout/data/repositories/supabase_checkout_re
 // ── Checkout order notifier ───────────────────────────────────────────────────
 
 class CheckoutNotifier extends AsyncNotifier<CheckoutOrder?> {
+  final Map<String, String> _requestKeys = {};
+  int _generation = 0;
   @override
-  Future<CheckoutOrder?> build() async => null;
+  Future<CheckoutOrder?> build() async {
+    ref.watch(checkoutActorProvider);
+    _generation++;
+    _requestKeys.clear();
+    return null;
+  }
 
   Future<void> createOrder({
     required String courseId,
     required PaymentMethod method,
   }) async {
+    if (state.isLoading) return;
+    final generation = _generation;
+    final actor = ref.read(checkoutActorProvider);
     state = const AsyncLoading();
 
-    final idempotencyKey = DateTime.now().millisecondsSinceEpoch.toString();
+    final idempotencyKey = _requestKeys.putIfAbsent(
+      '$courseId:${method.name}',
+      () => 'checkout-${DateTime.now().microsecondsSinceEpoch}',
+    );
 
-    state = await AsyncValue.guard(() async {
+    final result = await AsyncValue.guard(() async {
       final repo = ref.read(checkoutRepositoryProvider);
       return repo.createOrder(
         courseId: courseId,
@@ -30,10 +45,54 @@ class CheckoutNotifier extends AsyncNotifier<CheckoutOrder?> {
         idempotencyKey: idempotencyKey,
       );
     });
+    if (ref.mounted &&
+        generation == _generation &&
+        actor == ref.read(checkoutActorProvider)) {
+      state = result;
+    }
   }
 
   void reset() {
+    _generation++;
     state = const AsyncData(null);
+  }
+
+  Future<void> resumeOnlineOrder({
+    required String courseId,
+    required String orderId,
+  }) async {
+    if (state.isLoading) return;
+    final actor = ref.read(checkoutActorProvider);
+    if (actor == null) return;
+    final generation = _generation;
+    state = const AsyncLoading();
+    final result = await AsyncValue.guard(() async {
+      final order = await ref
+          .read(studentOrderRepositoryProvider)
+          .read(actor, orderId);
+      if (order.id != orderId ||
+          order.courseId != courseId ||
+          order.method != 'online' ||
+          order.status != 'pending_payment') {
+        throw StateError('This order cannot resume online payment.');
+      }
+      return CheckoutOrder(
+        orderId: order.id,
+        orderNumber: order.number,
+        courseId: order.courseId,
+        courseTitle: order.title,
+        amountMinor: order.amountMinor,
+        currencyCode: order.currency,
+        paymentMethod: PaymentMethod.online,
+        status: order.status,
+        nextAction: 'initialize_online_payment',
+      );
+    });
+    if (ref.mounted &&
+        generation == _generation &&
+        actor == ref.read(checkoutActorProvider)) {
+      state = result;
+    }
   }
 }
 

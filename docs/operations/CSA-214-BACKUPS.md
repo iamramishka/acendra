@@ -1,5 +1,11 @@
 # CSA-214 — Backup configuration specification
 
+Current selection, 2026-10-18: the owner delegated destination choices. The
+[decision record](CSA-160-TARGET-SELECTION.md) selects an owner-workstation archive
+path for preparation. It is not a verified encrypted store: independent key
+recovery, capacity, complete capture and restore acceptance remain held. Fresh
+provider metadata still lists zero backups with PITR disabled. No export ran.
+
 Status: IN_REVIEW, preparation only. Date: 2026-10-15 (Asia/Colombo).
 Owner: CODEX. Assignment: [preparation board](../tasks/CSA-211-216-PREPARATION.md).
 No production backup, account, destination or provider plan is verified.

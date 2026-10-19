@@ -23,6 +23,7 @@ class _VideoPlayerWidgetState extends ConsumerState<VideoPlayerWidget> {
   bool _controlsVisible = true;
   Timer? _hideTimer;
   bool _isFullscreen = false;
+  double _speed = 1.0;
 
   @override
   void initState() {
@@ -113,6 +114,12 @@ class _VideoPlayerWidgetState extends ConsumerState<VideoPlayerWidget> {
                     },
                     onSeek: (pos) {
                       notifier.seekTo(pos);
+                      _scheduleHideControls();
+                    },
+                    speed: _speed,
+                    onSpeed: (s) {
+                      notifier.setPlaybackSpeed(s);
+                      setState(() => _speed = s);
                       _scheduleHideControls();
                     },
                     onFullscreen: _toggleFullscreen,

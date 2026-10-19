@@ -74,6 +74,22 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
           slivers: [
             SliverToBoxAdapter(
               child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Explore Courses',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    const Text('Discover skills worth mastering.'),
+                  ],
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: SearchBar(
                   controller: _searchController,
@@ -99,10 +115,61 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 16)),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 16,
+                  children: [
+                    Text(
+                      '${courses.length} ${courses.length == 1 ? 'Course' : 'Courses'}',
+                    ),
+                    Material(
+                      type: MaterialType.transparency,
+                      child: SizedBox(
+                        width: 300,
+                        child: DropdownButton<CourseSort>(
+                          isExpanded: true,
+                          itemHeight: null,
+                          value: ref.watch(courseSortProvider),
+                          hint: const Text('Sort courses'),
+                          items: const [
+                            DropdownMenuItem(
+                              value: CourseSort.newest,
+                              child: Text('Newest'),
+                            ),
+                            DropdownMenuItem(
+                              value: CourseSort.priceLow,
+                              child: Text('Price: low to high'),
+                            ),
+                            DropdownMenuItem(
+                              value: CourseSort.priceHigh,
+                              child: Text('Price: high to low'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            if (value != null) {
+                              ref.read(courseSortProvider.notifier).state =
+                                  value;
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             if (courses.isEmpty)
-              const SliverFillRemaining(
+              SliverFillRemaining(
                 child: Center(
-                  child: AppEmptyState(message: 'No courses available yet.'),
+                  child: AppEmptyState(
+                    message: rawState.asData?.value.isEmpty ?? true
+                        ? 'No courses available yet.'
+                        : 'No courses found. Try a different word or category.',
+                  ),
                 ),
               )
             else
@@ -111,6 +178,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                 sliver: SliverToBoxAdapter(
                   child: CourseGrid(
                     courses: courses,
+                    categories: categories.asData?.value ?? [],
                     onCourseTap: (course) => context.go(
                       RouteNames.courseDetail.replaceFirst(
                         ':courseId',

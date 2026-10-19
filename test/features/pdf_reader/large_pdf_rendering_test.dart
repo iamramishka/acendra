@@ -330,7 +330,7 @@ void main() {
       final state = container.read(pdfReaderProvider);
       expect(state.status, PdfReaderStatus.error);
       expect(state.errorMessage, isNotNull);
-      expect(state.errorMessage, contains('network timeout'));
+      expect(state.errorMessage, isNot(contains('network timeout')));
     });
 
     test('progress is 0.5 at page 250 of 500', () {

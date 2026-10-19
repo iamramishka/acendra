@@ -78,7 +78,7 @@ class AppButton extends StatelessWidget {
             children: [
               icon!,
               const SizedBox(width: AppSpacing.sm),
-              Text(label),
+              Flexible(child: Text(label, textAlign: TextAlign.center)),
             ],
           )
         : Text(label);
