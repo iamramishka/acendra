@@ -3,7 +3,7 @@ import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/core/widgets/feedback/status_badge.dart';
 import 'package:acendra/features/admin/domain/entities/admin_course.dart';
 import 'package:flutter/material.dart';
-import 'package:acendra/core/widgets/cards/course_thumbnail.dart';
+import 'admin_course_thumbnail.dart';
 
 class CourseCardTile extends StatelessWidget {
   const CourseCardTile({
@@ -41,8 +41,9 @@ class CourseCardTile extends StatelessWidget {
                   child: SizedBox(
                     width: 64,
                     height: 48,
-                    child: CourseThumbnail(
+                    child: AdminCourseThumbnail(
                       courseId: course.id,
+                      isPublished: course.isPublished,
                       title: course.title,
                       imageUrl: course.thumbnailUrl,
                     ),

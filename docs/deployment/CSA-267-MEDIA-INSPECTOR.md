@@ -35,6 +35,13 @@ bytes cannot be recalled; revocation applies to subsequent server requests.
 
 ## Proposed versioned policy
 
+Admin draft cards fetch through the authenticated Functions SDK with
+`Accept: application/octet-stream`. Only verified Bearer requests can negotiate
+that binary response; public cover requests retain their validated image MIME.
+The SDK path avoids unauthenticated browser image requests and its image-to-text
+decoding behavior. Draft UI bytes are discarded on logout or account reload;
+already delivered client bytes remain subject to the disclosure above.
+
 The existing approved hard caps remain PDF 50 MiB and thumbnail JPG/PNG 5 MiB.
 This PR proposes lesson-image 5 MiB, 16 million image pixels, one image frame,
 PNG text chunk 64 KiB/aggregate 256 KiB; PDF 1,000 pages, 20,000 indirect objects,

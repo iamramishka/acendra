@@ -50,7 +50,8 @@ export function createHandler({env,fetch:request=globalThis.fetch}){
  // Do not serve an asset replaced or revoked during Storage IO.
  const current=await resolve();
  if(!current||current.asset_id!==asset.asset_id||current.sha256!==asset.sha256)return fail(404);
- return new Response(bytes,{headers:{...headers,'Content-Type':asset.mime,'Content-Length':String(bytes.length),
+ const responseMime=identity.p_actor&&incoming.headers.get('Accept')==='application/octet-stream'?'application/octet-stream':asset.mime;
+ return new Response(bytes,{headers:{...headers,'Content-Type':responseMime,'Content-Length':String(bytes.length),
  'Content-Security-Policy':"default-src 'none'; sandbox",'Content-Disposition':'inline'}});
  }catch(error){return fail(error.denied?404:503);}
  };

@@ -7,6 +7,19 @@ const bytes=new Uint8Array([137,80,78,71,13,10,26,10]);
 const record={course_id:course,asset_id:asset,bucket:'course-media',path:course+'/thumbnails/'+asset+'.png',mime:'image/png',size:8,sha256:createHash('sha256').update(bytes).digest('hex')};
 const env=k=>({SUPABASE_URL:'https://backend.invalid',SUPABASE_ANON_KEY:'public',SUPABASE_SERVICE_ROLE_KEY:'secret'})[k];
 const req=()=>new Request('https://function.invalid?course_id='+course);
+
+test('SDK binary preview negotiates octet stream only for verified sessions',async()=>{
+ const actor='26700000-0000-0000-0000-000000000003';
+ const claims={sub:actor,role:'authenticated',session_id:asset,aal:'aal1'};
+ const token='x.'+Buffer.from(JSON.stringify(claims)).toString('base64url')+'.x';
+ const h=createHandler({env,fetch:async url=>url.includes('/auth/')?Response.json({id:actor}):
+ url.includes('/rpc/')?Response.json(record):new Response(bytes)});
+ const r=await h(new Request(req(),{headers:{Authorization:'Bearer '+token,Accept:'application/octet-stream'}}));
+ assert.equal(r.status,200);assert.equal(r.headers.get('Content-Type'),'application/octet-stream');
+ assert.deepEqual(new Uint8Array(await r.arrayBuffer()),bytes);
+ const publicResponse=await h(new Request(req(),{headers:{Accept:'application/octet-stream'}}));
+ assert.equal(publicResponse.headers.get('Content-Type'),'image/png');
+});
 test('published artwork is proxied as bounded digest-verified bytes without exposing paths',async()=>{
  let calls=0;const h=createHandler({env,fetch:async(url,opts)=>{
  calls++;if(url.includes('/rpc/')){assert.equal(JSON.parse(opts.body).p_course,course);return Response.json(record);}

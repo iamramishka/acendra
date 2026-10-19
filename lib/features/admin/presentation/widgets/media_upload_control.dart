@@ -2,6 +2,7 @@ import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/features/admin/data/repositories/admin_media_repository.dart';
 import 'package:acendra/features/admin/data/media_picker.dart'
     if (dart.library.js_interop) 'package:acendra/features/admin/data/media_picker_web.dart';
+import 'courses/admin_course_thumbnail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -52,6 +53,7 @@ class _MediaUploadControlState extends ConsumerState<MediaUploadControl> {
           .read(adminMediaRepositoryProvider)
           .upload(courseId: courseId, lessonId: lessonId, file: file);
       if (!current()) return;
+      if (lessonId == null) ref.invalidate(adminArtworkProvider(courseId));
       setState(() {
         _artwork = lessonId == null ? file : null;
         _message = lessonId == null
