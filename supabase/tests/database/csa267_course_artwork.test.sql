@@ -11,6 +11,16 @@ insert into public.course_staff(course_id,user_id,staff_role) values('26700000-0
 insert into public.course_sections(id,course_id,title,position) values('26700000-0000-0000-0000-000000000004','26700000-0000-0000-0000-000000000003','Synthetic',0);
 insert into public.lessons(id,section_id,title,lesson_type,position) values('26700000-0000-0000-0000-000000000005','26700000-0000-0000-0000-000000000004','Synthetic','pdf',0);
 
+-- Existing audit producers need not have an upload reservation. Such evidence
+-- must neither fail the unrelated transaction nor attach uninspected artwork.
+insert into app_private.media_assets(id,asset_type,storage_provider,bucket_name,object_path,mime_type,size_bytes,uploaded_by)
+ values('26700000-0000-0000-0000-000000000099','public_thumbnail','supabase','course-media',
+ '26700000-0000-0000-0000-000000000003/thumbnails/26700000-0000-0000-0000-000000000099.png',
+ 'image/png',8,'26700000-0000-0000-0000-000000000001');
+insert into app_private.csa164_media_validation_audit(asset_id,actor_id,checksum_sha256,policy_reference)
+ values('26700000-0000-0000-0000-000000000099','26700000-0000-0000-0000-000000000001',repeat('a',64),'synthetic-policy');
+select pg_temp.assert_ok(not exists(select 1 from app_private.course_artwork),'unreserved audit cannot select artwork');
+
 create temporary table thumbnail as select public.csa164_prepare_media_upload('26700000-0000-0000-0000-000000000001','26700000-0000-0000-0000-000000000011','aal1','26700000-0000-0000-0000-000000000097','26700000-0000-0000-0000-000000000003',null,'public_thumbnail','image/png',8,'csa267-media-v1') as data;
 select pg_temp.assert_ok(public.csa267_resolve_artwork('26700000-0000-0000-0000-000000000003') is null,'pending cannot deliver');
 select pg_temp.assert_ok(not exists(select 1 from app_private.course_artwork),'pending never attaches');
@@ -34,7 +44,7 @@ select pg_temp.assert_ok(not has_table_privilege(r,'app_private.course_artwork',
 select pg_temp.assert_ok(not exists(select 1 from app_private.lesson_assets where media_asset_id=(select (data->>'asset_id')::uuid from thumbnail)),'thumbnail cannot become paid lesson content');
 
 create temporary table replacement as select public.csa164_prepare_media_upload('26700000-0000-0000-0000-000000000001','26700000-0000-0000-0000-000000000011','aal1','26700000-0000-0000-0000-000000000096','26700000-0000-0000-0000-000000000003',null,'public_thumbnail','image/png',8,'csa267-media-v1') as data;
-create function pg_temp.fail_artwork() returns trigger language plpgsql as $begin raise exception 'Injected attachment failure';end;$;
+create function pg_temp.fail_artwork() returns trigger language plpgsql as $$begin raise exception 'Injected attachment failure';end;$$;
 create trigger csa267_test_failure before insert or update on app_private.course_artwork for each row execute function pg_temp.fail_artwork();
 select pg_temp.expect_error(format($q$select public.csa164_finalize_media_upload('26700000-0000-0000-0000-000000000001','26700000-0000-0000-0000-000000000011','aal1',%L,%L,8,'image/png','csa267-media-v1')$q$,(select data->>'asset_id' from replacement),repeat('d',64)),'P0001','attachment failure rolls back validation');
 select pg_temp.assert_ok((select validation_status='pending' from app_private.media_assets where id=(select (data->>'asset_id')::uuid from replacement)) and not exists(select 1 from app_private.csa164_media_validation_audit where asset_id=(select (data->>'asset_id')::uuid from replacement)),'attachment and audit are atomic');
