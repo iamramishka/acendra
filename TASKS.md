@@ -2940,4 +2940,13 @@ INTEGRATION - VERIFIED.
 - Scope, isolation, acceptance and verification: [Phase 1 handoff](docs/tasks/CSA-DASH-001-PHASE1.md), [Phase 2 handoff](docs/tasks/CSA-DASH-001-PHASE2.md), [Phase 3 handoff](docs/tasks/CSA-DASH-001-PHASE3.md), [Phase 4 handoff](docs/tasks/CSA-DASH-001-PHASE4.md), [Phase 5 handoff](docs/tasks/CSA-DASH-001-PHASE5.md), [Phase 6 evidence](docs/tasks/CSA-DASH-001-PHASE6.md).
 - Acceptance follows the enforced CI browser gate and owner review; live data and saved-course persistence remain future work.
 
+## CSA-266 — Authorized payment reporting
+
+- [ ] CSA-266 [P1] [X] [IN_REVIEW]
+  Connect authorized payment rows, shared counts and confirmed receipt reporting.
+  Owner: CODEX; issue #192; branch `fix/csa-266-payment-reporting`.
+  Scope, acceptance and evidence: [task record](docs/tasks/CSA-266-PAYMENT-REPORTING.md).
+  Owner deferred refund/net figures to a separate confirmed-refund ledger task.
+  Production deployment and financial mutations are excluded.
+
 END OF TASKS.md
