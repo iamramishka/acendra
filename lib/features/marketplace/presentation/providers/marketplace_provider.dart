@@ -16,6 +16,14 @@ final marketplaceSearchRequestProvider = StateProvider<int>((ref) => 0);
 
 final selectedCategoryProvider = StateProvider<String?>((ref) => null);
 
+// ── Sort ──────────────────────────────────────────────────────────────────────
+
+enum CourseSort { newest, priceLow, priceHigh }
+
+final courseSortProvider = StateProvider<CourseSort>(
+  (ref) => CourseSort.newest,
+);
+
 // ── All published courses (raw) ───────────────────────────────────────────────
 
 class MarketplaceNotifier extends AsyncNotifier<List<CourseSummary>> {
@@ -59,7 +67,14 @@ final filteredCoursesProvider = Provider<AsyncValue<List<CourseSummary>>>((
     if (categoryId != null) {
       list = list.where((c) => c.categoryId == categoryId).toList();
     }
-    return list;
+    final sort = ref.watch(courseSortProvider);
+    return [...list]..sort(
+      (a, b) => switch (sort) {
+        CourseSort.priceLow => a.priceMinor.compareTo(b.priceMinor),
+        CourseSort.priceHigh => b.priceMinor.compareTo(a.priceMinor),
+        CourseSort.newest => b.publishedAt.compareTo(a.publishedAt),
+      },
+    );
   });
 });
 

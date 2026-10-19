@@ -1,3 +1,5 @@
+import 'package:acendra/features/authentication/domain/auth_input_rules.dart';
+
 sealed class AuthFailure {
   const AuthFailure(this.message);
   final String message;
@@ -18,7 +20,8 @@ class EmailNotConfirmed extends AuthFailure {
 }
 
 class WeakPassword extends AuthFailure {
-  const WeakPassword() : super('Password must be at least 6 characters.');
+  const WeakPassword()
+    : super('Password must be at least $minPasswordLength characters.');
 }
 
 class NetworkError extends AuthFailure {

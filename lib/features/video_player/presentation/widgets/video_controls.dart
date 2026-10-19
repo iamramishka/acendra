@@ -9,6 +9,8 @@ class VideoControls extends StatelessWidget {
     required this.onPlayPause,
     required this.onSeek,
     required this.onFullscreen,
+    this.speed = 1.0,
+    this.onSpeed,
     this.isFullscreen = false,
   });
 
@@ -16,6 +18,8 @@ class VideoControls extends StatelessWidget {
   final VoidCallback onPlayPause;
   final ValueChanged<Duration> onSeek;
   final VoidCallback onFullscreen;
+  final double speed;
+  final ValueChanged<double>? onSpeed;
   final bool isFullscreen;
 
   String _formatDuration(Duration d) {
@@ -82,6 +86,23 @@ class VideoControls extends StatelessWidget {
             _formatDuration(progress.duration),
             style: const TextStyle(color: Colors.white, fontSize: 12),
           ),
+          if (onSpeed != null)
+            PopupMenuButton<double>(
+              tooltip: 'Playback speed',
+              initialValue: speed,
+              onSelected: onSpeed,
+              itemBuilder: (_) => [
+                for (final s in const [1.0, 1.25, 1.5, 2.0])
+                  PopupMenuItem(value: s, child: Text('${s}x')),
+              ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  '${speed}x',
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                ),
+              ),
+            ),
           Semantics(
             label: isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen',
             button: true,

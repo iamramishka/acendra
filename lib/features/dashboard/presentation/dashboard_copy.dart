@@ -4,6 +4,8 @@ abstract final class DashboardCopy {
   static const searchCourses = 'Search courses';
   static const home = 'Home';
   static const myLearning = 'My Learning';
+  static const explore = 'Explore';
+  static const myCourses = 'My Courses';
   static const saved = 'Saved';
   static const profile = 'Profile';
   static const savedComingSoon = 'Saved courses are coming soon.';

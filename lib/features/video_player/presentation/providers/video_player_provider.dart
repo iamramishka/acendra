@@ -25,10 +25,10 @@ class VideoPlayerNotifier extends StateNotifier<VideoProgress> {
         status: VideoPlayerStatus.paused,
         duration: _controller!.value.duration,
       );
-    } catch (e) {
-      state = VideoProgress(
+    } catch (_) {
+      state = const VideoProgress(
         status: VideoPlayerStatus.error,
-        errorMessage: e.toString(),
+        errorMessage: 'Could not play this video. Please try again.',
       );
     }
   }
@@ -82,6 +82,10 @@ class VideoPlayerNotifier extends StateNotifier<VideoProgress> {
 
   Future<void> seekTo(Duration position) async {
     await _controller?.seekTo(position);
+  }
+
+  Future<void> setPlaybackSpeed(double speed) async {
+    await _controller?.setPlaybackSpeed(speed);
   }
 
   VideoPlayerController? get controller => _controller;

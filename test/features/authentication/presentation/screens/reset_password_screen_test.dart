@@ -42,7 +42,7 @@ void main() {
 
   testWidgets('shows error when password is too short', (tester) async {
     await tester.pumpWidget(_wrap());
-    await tester.enterText(find.byType(TextField).first, 'abc');
+    await tester.enterText(find.byType(TextField).first, 'abcd');
     await tester.tap(find.text('Update password'));
     await tester.pump();
     expect(find.text('Password must be at least 6 characters'), findsOneWidget);

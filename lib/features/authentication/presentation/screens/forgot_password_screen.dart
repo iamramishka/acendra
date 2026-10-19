@@ -120,12 +120,18 @@ class _FormView extends StatelessWidget {
           onPressed: isLoading ? null : onSubmit,
           isLoading: isLoading,
         ),
-        const SizedBox(height: 24),
-        Center(
-          child: TextButton(
-            onPressed: () => context.go(RouteNames.login),
-            child: const Text('Back to sign in'),
-          ),
+        const SizedBox(height: 12),
+        OutlinedButton(
+          onPressed: () => context.go(RouteNames.login),
+          style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
+          child: const Text('Back to sign in'),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'If an account exists for the address, reset instructions will be '
+          'sent.',
+          style: tt.bodySmall,
+          textAlign: TextAlign.center,
         ),
       ],
     );
@@ -151,7 +157,7 @@ class _SuccessView extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'We sent a password reset link to $email.',
+          'If an account exists for $email, we have sent reset instructions.',
           style: tt.bodyMedium,
           textAlign: TextAlign.center,
         ),
