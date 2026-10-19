@@ -1,4 +1,5 @@
 import 'package:acendra/features/admin/data/repositories/admin_directory_client.dart';
+import 'package:acendra/features/admin/data/repositories/admin_course_repository.dart';
 import 'package:acendra/app/theme/app_breakpoints.dart';
 import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
@@ -43,6 +44,7 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
     String courseId,
     String title,
   ) async {
+    final repository = ref.read(adminCourseRepositoryProvider);
     final confirmed = await AppDialog.show(
       context,
       title: 'Delete Course',
@@ -53,7 +55,15 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
     );
     if (confirmed == true && context.mounted) {
       try {
-        await ref.read(adminCoursesProvider.notifier).deleteCourse(courseId);
+        if (!identical(ref.read(adminCourseRepositoryProvider), repository)) {
+          return;
+        }
+        await repository.deleteCourse(courseId);
+        if (!context.mounted ||
+            !identical(ref.read(adminCourseRepositoryProvider), repository)) {
+          return;
+        }
+        ref.invalidate(adminCoursesProvider);
         if (context.mounted) {
           AppSnackbar.show(
             context,
@@ -122,10 +132,13 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
 
   Widget _buildHeader(BuildContext context) {
     final tt = Theme.of(context).textTheme;
-    return Row(
+    return Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      spacing: AppSpacing.md,
+      runSpacing: AppSpacing.sm,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text('Courses', style: tt.headlineMedium),
-        const Spacer(),
         AppButton(
           label: 'Add Course',
           onPressed: () => context.go('/admin/courses/new/edit'),

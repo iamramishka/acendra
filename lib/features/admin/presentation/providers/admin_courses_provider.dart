@@ -34,17 +34,18 @@ class AdminCoursesNotifier extends AsyncNotifier<List<AdminCourse>> {
 final adminCoursesProvider =
     AsyncNotifierProvider<AdminCoursesNotifier, List<AdminCourse>>(
       AdminCoursesNotifier.new,
+      retry: (retryCount, error) => null,
     );
 
 final adminCourseDetailProvider = FutureProvider.autoDispose
     .family<AdminCourse, String>((ref, courseId) {
       return ref.watch(adminCourseRepositoryProvider).getCourse(courseId);
-    });
+    }, retry: (retryCount, error) => null);
 
 final adminCurriculumProvider = FutureProvider.autoDispose
     .family<List<AdminCurriculumSection>, String>((ref, courseId) {
       return ref.watch(adminCourseRepositoryProvider).getCurriculum(courseId);
-    });
+    }, retry: (retryCount, error) => null);
 
 final adminLessonDetailProvider = FutureProvider.autoDispose
     .family<AdminLesson?, ({String courseId, String lessonId})>((
@@ -52,13 +53,13 @@ final adminLessonDetailProvider = FutureProvider.autoDispose
       args,
     ) async {
       if (args.lessonId == 'new') return null;
-      final sections = await ref
-          .watch(adminCourseRepositoryProvider)
-          .getCurriculum(args.courseId);
+      final sections = await ref.watch(
+        adminCurriculumProvider(args.courseId).future,
+      );
       for (final section in sections) {
         for (final lesson in section.lessons) {
           if (lesson.id == args.lessonId) return lesson;
         }
       }
       return null;
-    });
+    }, retry: (retryCount, error) => null);

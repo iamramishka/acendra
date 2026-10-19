@@ -64,7 +64,7 @@ class CourseCardTile extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        '${course.currency} ${course.price.toStringAsFixed(0)}',
+                        '${course.currency} ${course.priceText}',
                         style: tt.bodySmall?.copyWith(
                           color: cs.onSurfaceVariant,
                         ),
@@ -86,8 +86,10 @@ class CourseCardTile extends StatelessWidget {
               style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
             ),
             const SizedBox(height: AppSpacing.md),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
               children: [
                 AppButton(
                   label: 'Edit',
@@ -95,14 +97,12 @@ class CourseCardTile extends StatelessWidget {
                   variant: ButtonVariant.outlined,
                   size: ButtonSize.small,
                 ),
-                const SizedBox(width: AppSpacing.sm),
                 AppButton(
                   label: 'Curriculum',
                   onPressed: onCurriculum,
                   variant: ButtonVariant.secondary,
                   size: ButtonSize.small,
                 ),
-                const SizedBox(width: AppSpacing.sm),
                 AppButton(
                   label: 'Delete',
                   onPressed: onDelete,

@@ -19,10 +19,12 @@ class LessonEditorScreen extends ConsumerStatefulWidget {
     super.key,
     required this.courseId,
     required this.lessonId,
+    this.sectionId,
   });
 
   final String courseId;
   final String lessonId;
+  final String? sectionId;
 
   @override
   ConsumerState<LessonEditorScreen> createState() => _LessonEditorScreenState();
@@ -35,6 +37,13 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
 
   LessonType _lessonType = LessonType.video;
   bool _isPreviewed = false;
+  bool _isPublished = false;
+  AdminLesson? _original;
+  String? _sectionId;
+  int _sortOrder = 0;
+  String _newLessonId = newAdminCourseId();
+  AdminCourseRepository? _formRepository;
+  String? _durationError;
   bool _saving = false;
   bool _initialized = false;
 
@@ -56,6 +65,10 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
   void _populateFromLesson(AdminLesson lesson) {
     if (_initialized) return;
     _initialized = true;
+    _original = lesson;
+    _sectionId = lesson.sectionId;
+    _sortOrder = lesson.sortOrder;
+    _isPublished = lesson.isPublished;
     _titleController.text = lesson.title;
     _descController.text = lesson.description;
     _lessonType = lesson.lessonType;
@@ -71,41 +84,67 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
       _titleError = _titleController.text.trim().isEmpty
           ? 'Title is required'
           : null;
-      if (_titleError != null) valid = false;
+      final duration = _durationController.text.trim();
+      _durationError =
+          _hasDuration &&
+              duration.isNotEmpty &&
+              (int.tryParse(duration) == null || int.parse(duration) < 0)
+          ? 'Enter a non-negative whole number of seconds'
+          : null;
+      if (_titleError != null || _durationError != null) valid = false;
     });
     return valid;
   }
 
+  bool _isCurrentRepository(AdminCourseRepository repository) {
+    if (!mounted) return false;
+    try {
+      return identical(ref.read(adminCourseRepositoryProvider), repository);
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _save(BuildContext context) async {
-    if (!_validate()) return;
+    if (_saving || !_validate()) return;
     setState(() => _saving = true);
+    AdminCourseRepository? operationRepository;
     try {
       final repo = ref.read(adminCourseRepositoryProvider);
-      final sections =
-          ref.read(adminCurriculumProvider(widget.courseId)).asData?.value ??
-          [];
-      final sectionId = sections.isNotEmpty
-          ? sections.first.id
-          : 'default-section';
+      operationRepository = repo;
+      if (_sectionId == null) {
+        throw const AdminDataException(
+          'Choose an existing section before saving a lesson.',
+        );
+      }
 
       final durationText = _durationController.text.trim();
       final lesson = AdminLesson(
-        id: _isNew
-            ? 'lesson-${DateTime.now().millisecondsSinceEpoch}'
-            : widget.lessonId,
-        sectionId: sectionId,
+        id: _isNew ? _newLessonId : widget.lessonId,
+        sectionId: _sectionId!,
         courseId: widget.courseId,
         title: _titleController.text.trim(),
         description: _descController.text.trim(),
         lessonType: _lessonType,
-        sortOrder: 0,
+        sortOrder: _sortOrder,
+        isPublished: _isPublished,
+        rawCourseUpdatedAt:
+            _original?.rawCourseUpdatedAt ??
+            ref
+                .read(adminCurriculumProvider(widget.courseId))
+                .requireValue
+                .where((s) => s.id == _sectionId)
+                .firstOrNull
+                ?.rawCourseUpdatedAt,
         isPreviewed: _isPreviewed,
         durationSeconds: _hasDuration && durationText.isNotEmpty
             ? int.tryParse(durationText)
             : null,
       );
       await repo.upsertLesson(lesson);
+      if (!_isCurrentRepository(repo)) return;
       ref.invalidate(adminCurriculumProvider(widget.courseId));
+      ref.invalidate(adminCourseDetailProvider(widget.courseId));
       if (context.mounted) {
         AppSnackbar.show(
           context,
@@ -115,7 +154,9 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
         context.go('/admin/courses/${widget.courseId}/curriculum');
       }
     } catch (e) {
-      if (context.mounted) {
+      if (context.mounted &&
+          operationRepository != null &&
+          _isCurrentRepository(operationRepository)) {
         AppSnackbar.show(
           context,
           adminDataError(e, 'Failed to save lesson.'),
@@ -123,14 +164,61 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
         );
       }
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (mounted &&
+          (operationRepository == null ||
+              _isCurrentRepository(operationRepository))) {
+        setState(() => _saving = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final repository = ref.watch(adminCourseRepositoryProvider);
+    if (!identical(repository, _formRepository)) {
+      if (_formRepository != null) {
+        _initialized = false;
+        _saving = false;
+        _original = null;
+        _sectionId = null;
+        _sortOrder = 0;
+        _isPublished = false;
+        _isPreviewed = false;
+        _lessonType = LessonType.video;
+        _newLessonId = newAdminCourseId();
+        _titleController.clear();
+        _descController.clear();
+        _durationController.clear();
+      }
+      _formRepository = repository;
+    }
+    final curriculum = ref.watch(adminCurriculumProvider(widget.courseId));
+    if (curriculum.isLoading) return _buildFormSkeleton();
+    if (curriculum.hasError) {
+      return AppErrorState(
+        message: adminDataError(
+          curriculum.error!,
+          'Unable to load curriculum.',
+        ),
+        actionLabel: 'Retry',
+        onRetry: () => ref.invalidate(adminCurriculumProvider(widget.courseId)),
+      );
+    }
     if (_isNew) {
-      if (!_initialized) _initialized = true;
+      if (!_initialized) {
+        _initialized = true;
+        final sections = curriculum.requireValue;
+        _sectionId =
+            widget.sectionId ?? (sections.isEmpty ? null : sections.first.id);
+        final selected = sections.where((section) => section.id == _sectionId);
+        if (selected.isNotEmpty && selected.first.lessons.isNotEmpty) {
+          _sortOrder =
+              selected.first.lessons
+                  .map((lesson) => lesson.sortOrder)
+                  .reduce((a, b) => a > b ? a : b) +
+              1;
+        }
+      }
       return _buildForm(context);
     }
 
@@ -154,7 +242,12 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
         ),
       ),
       data: (lesson) {
-        if (lesson != null) _populateFromLesson(lesson);
+        if (lesson == null) {
+          return const AppErrorState(
+            message: 'Lesson not found. Return to the curriculum.',
+          );
+        }
+        _populateFromLesson(lesson);
         return _buildForm(context);
       },
     );
@@ -216,6 +309,40 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
                 maxLines: 4,
               ),
               const SizedBox(height: AppSpacing.md),
+              DropdownButtonFormField<String>(
+                initialValue: _sectionId,
+                decoration: const InputDecoration(labelText: 'Section'),
+                items:
+                    (ref
+                                .watch(adminCurriculumProvider(widget.courseId))
+                                .asData
+                                ?.value ??
+                            [])
+                        .map(
+                          (section) => DropdownMenuItem(
+                            value: section.id,
+                            child: Text(section.title),
+                          ),
+                        )
+                        .toList(),
+                onChanged: _original != null
+                    ? null
+                    : (id) => setState(() {
+                        _sectionId = id;
+                        final lessons = ref
+                            .read(adminCurriculumProvider(widget.courseId))
+                            .requireValue
+                            .firstWhere((s) => s.id == id)
+                            .lessons;
+                        _sortOrder = lessons.isEmpty
+                            ? 0
+                            : lessons
+                                      .map((l) => l.sortOrder)
+                                      .reduce((a, b) => a > b ? a : b) +
+                                  1;
+                      }),
+              ),
+              const SizedBox(height: AppSpacing.md),
               Text('Lesson Type', style: tt.labelLarge),
               const SizedBox(height: AppSpacing.sm),
               _buildLessonTypeSelector(context),
@@ -225,6 +352,7 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
                   label: 'Duration (seconds)',
                   hint: 'e.g. 480',
                   controller: _durationController,
+                  errorText: _durationError,
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -239,6 +367,15 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
                 contentPadding: EdgeInsets.zero,
               ),
               const SizedBox(height: AppSpacing.md),
+              SwitchListTile(
+                title: const Text('Published lesson'),
+                value: _isPublished,
+                onChanged: (v) => setState(() => _isPublished = v),
+                contentPadding: EdgeInsets.zero,
+              ),
+              const Text(
+                'Descriptions are public metadata. Do not enter paid lesson content here.',
+              ),
               _buildMediaUploadPlaceholder(context, cs, tt),
               const SizedBox(height: AppSpacing.xl),
               Row(
@@ -268,32 +405,17 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
   }
 
   Widget _buildLessonTypeSelector(BuildContext context) {
-    return SegmentedButton<LessonType>(
-      segments: const [
-        ButtonSegment(
-          value: LessonType.video,
-          label: Text('Video'),
-          icon: Icon(Icons.play_circle_outline),
-        ),
-        ButtonSegment(
-          value: LessonType.pdf,
-          label: Text('PDF'),
-          icon: Icon(Icons.picture_as_pdf_outlined),
-        ),
-        ButtonSegment(
-          value: LessonType.text,
-          label: Text('Text'),
-          icon: Icon(Icons.article_outlined),
-        ),
-        ButtonSegment(
-          value: LessonType.quiz,
-          label: Text('Quiz'),
-          icon: Icon(Icons.quiz_outlined),
-        ),
+    return DropdownButtonFormField<LessonType>(
+      initialValue: _lessonType,
+      decoration: const InputDecoration(labelText: 'Lesson type'),
+      items: const [
+        DropdownMenuItem(value: LessonType.video, child: Text('Video')),
+        DropdownMenuItem(value: LessonType.pdf, child: Text('PDF')),
+        DropdownMenuItem(value: LessonType.text, child: Text('Text')),
+        DropdownMenuItem(value: LessonType.image, child: Text('Image')),
       ],
-      selected: {_lessonType},
-      onSelectionChanged: (s) => setState(() {
-        _lessonType = s.first;
+      onChanged: (value) => setState(() {
+        _lessonType = value!;
         if (!_hasDuration) _durationController.clear();
       }),
     );
@@ -317,6 +439,7 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
       LessonType.pdf => 'PDF',
       LessonType.text => null,
       LessonType.quiz => null,
+      LessonType.image => null,
     };
 
     if (typeLabel == null) return const SizedBox.shrink();
