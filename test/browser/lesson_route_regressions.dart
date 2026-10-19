@@ -172,6 +172,10 @@ void registerLessonRouteRegressionTests() {
       await tester.pumpAndSettle();
       expect(router.routeInformationProvider.value.uri.path, '/learn/course');
       expect(find.text('Course overview'), findsOneWidget);
+      // The "Module finished" snackbar floats over the bottom-right button.
+      ScaffoldMessenger.of(
+        tester.element(find.byType(Scaffold).first),
+      ).hideCurrentSnackBar();
       router.go('/learn/course/third');
       await tester.pumpAndSettle();
       await tester.tap(find.text('Mark Complete'));
