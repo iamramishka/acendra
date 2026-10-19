@@ -44,3 +44,10 @@ untouched. A temporary VM wrapper also cannot execute the web-only PDF imports
 (dart:js_interop is unavailable). The wrapper is removed, no SDK workaround is
 committed, and no local Chrome/VM product pass is claimed. The coordinator will
 use hosted Linux Chrome for the next RED/GREEN and remaining mobile diagnosis.
+
+Hosted follow-up at integrated head 767b8b5 (job 118188092427): desktop completion
+now passes. Mobile reports the correct /learn/course/second route, one matching
+content widget and zero sheets, yet the binding still fails the test. Capture and
+print every pending framework exception after those unchanged assertions and
+require the collected list to be empty, so diagnostics cannot suppress a failure.
+No production change is made without the exception evidence.

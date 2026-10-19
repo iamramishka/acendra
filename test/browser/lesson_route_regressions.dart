@@ -213,6 +213,13 @@ void registerLessonRouteRegressionTests() {
       );
       expect(find.text('Synthetic second content'), findsOneWidget);
       expect(find.byType(BottomSheet), findsNothing);
+      final frameworkErrors = <Object>[];
+      Object? error;
+      while ((error = tester.takeException()) != null) {
+        frameworkErrors.add(error!);
+      }
+      debugPrint('Mobile curriculum framework errors: $frameworkErrors');
+      expect(frameworkErrors, isEmpty);
     },
   );
 
