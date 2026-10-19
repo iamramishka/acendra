@@ -4,6 +4,11 @@ Date: 2026-10-18, Asia/Colombo. Owner: CODEX. Coordination:
 [issue #160](https://github.com/iamramishka/acendra/issues/160).
 Decision preparation: IN_REVIEW. Production operations: BLOCKED.
 
+Review update, 2026-10-19: GitHub reports private repository visibility. Actions
+jobs fail before starting due to account payment/spending-limit settings.
+Earlier public/included-runner observations are historical. Required checks and
+approval remain merge gates; no account or protection setting was changed.
+
 The project owner nominated `acendra.vercel.app`, then delegated the remaining
 target and operator choices to CODEX. These selections resolve that request;
 they do not establish infrastructure that is absent. Existing services only,
@@ -66,7 +71,7 @@ Use the workstation archive path only after authenticated archive encryption,
 owner-only access, sufficient space and independent decryption recovery have been
 configured and tested. A directory name, Windows login or same-account key is not
 evidence of recoverable encryption. Do not invent a key, upload a dump to this
-public repository, reuse the application bucket or create a paid backup service.
+repository, reuse the application bucket or create a paid backup service.
 No directory, encryption key, capture job or archive was created in this task.
 
 The capture manifest must cover consistent database schema/roles/data and Auth
