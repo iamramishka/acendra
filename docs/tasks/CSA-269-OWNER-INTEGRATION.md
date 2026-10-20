@@ -42,3 +42,25 @@ administrative payments; combine incoming course-card presentation with current
 artwork identity, progress and resume paths; keep incoming sign-out presentation
 with dev's error handling and login navigation. Incoming profile, language
 preference, PDF contents sheet, logo and local seed changes are preserved.
+
+## Integration evidence and PR dependency
+
+The first integration run executed 219 focused Flutter cases: 217 passed and
+two curriculum tests exposed duplicate Add Section controls from the incoming
+empty-state CTA. The trusted CSA268 builder was then deliberately integrated
+from exact PR201 head `00859fd`, retaining its original revision/session/parent
+contracts and a single Add Section action. Its default medium buttons retain
+the incoming touch-size improvements. No blanket conflict resolution was used.
+
+This PR is stacked on [PR #201](https://github.com/iamramishka/acendra/pull/201),
+whose immutable source history is included. Review this PR against its course
+completion branch; merge #201 first and retarget this PR to dev before final
+integration and required CI. The original owner and CSA268 worktrees are not
+modified. Combined source verification follows below.
+
+Before the course merge, 41 migrations and three affected PostgreSQL suites
+passed: avatar isolation, existing symmetric profile isolation and the catalog
+permission matrix. The matrix first failed on the new avatar_path grant; its
+allowlist now names that one intended column and asserts a validated own-folder
+constraint plus a private bounded bucket. Other protected columns remain denied.
+Native Auth/Storage are synthetic and do not establish hosted acceptance.
