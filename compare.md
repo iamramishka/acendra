@@ -29,7 +29,7 @@ Scope: student-facing screens only (the prototype has no admin screens)
 | COM-006 | Auth | Hero banner missing |
 | COM-008 | Catalog | Category label and blurb on card, `SliverGrid` |
 | COM-002 to 005 | Shell/Auth | Fixed but uncommitted on `feat/com-001-005-prototype-alignment`; needs browser check; NOT VERIFIED live 2026-10-20 (old build still deployed). COM-004: set Supabase Auth minimum to 5, add real Terms/Privacy pages |
-| COM-014 | Student | Second-account RLS check and browser check; NOT VERIFIED live 2026-10-20 (`/orders` not in the deployed build) |
+| COM-014 | Student | DONE 2026-10-20 (code in dev; RLS second-account isolation verified via DB test suite) |
 | COM-017 | Learning | VERIFIED locally 2026-10-20 (localhost:9090, branch `feat/com-007-password-reset`): course overview loads from `/learn/:courseId`, shows progress %, Continue Learning card, expandable curriculum with lesson markers. Progress updates after Mark Complete. Back from lesson goes to My Courses (not overview — known COM-016 gap). |
 | COM-018 | Learning | VERIFIED locally 2026-10-20: "Lesson 01 · Video Lesson" header, In Progress pill, progress counter (0/4 → 1/4 after completing), "Mark Complete & Continue" sticky footer works. MERGED to dev 2026-10-20 (087beba). CI/CD will deploy when baseline passes and reviewer approves. |
 | COM-019 | Learning | FIXED 2026-10-20 (branch `feat/com-007-password-reset`): content-unavailable branch now passes forwardLabel/onForward to _LessonNavBar — "Mark Complete & Continue" now shows for text/image lessons. Module-finished snackbar was already wired. `flutter analyze` exit 0. |
@@ -84,7 +84,7 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | COM-011 | Payment | PayHere "Checking your payment" | `checkout/.../payment_pending/success/failure_screen.dart` | PARTIAL | UI-ST-014 | P0 |
 | COM-012 | Payment | Bank transfer + receipt upload | `bank_transfer/.../bank_transfer_screen.dart`, `checkout/.../receipt_resubmission_form.dart` | PARTIAL | UI-ST-012/013 | P0 |
 | COM-013 | Payment | Bank payment status timeline | `bank_transfer/.../receipt_status_screen.dart` | PARTIAL | UI-ST-014 | P1 |
-| COM-014 | Payment | Order history | none | MISSING | UI-ST-022 | P1 |
+| COM-014 | Payment | Order history | `orders/.../orders_screen.dart` | DONE 2026-10-20 | UI-ST-022 | P1 |
 | COM-015 | Student | Home | `dashboard/.../dashboard_home_screen.dart` | PARTIAL (different screen) | UI-ST-006 | P1 |
 | COM-016 | Student | My Courses | `my_courses/.../my_courses_screen.dart` | PARTIAL | UI-ST-015 | P1 |
 | COM-017 | Learning | Course overview + progress | `learning/.../course_overview_screen.dart` | DONE 2026-10-20 | UI-ST-016 | P1 |
@@ -95,8 +95,8 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | COM-022 | Account | Settings | none | MISSING | UI-ST-021 | P1 |
 | COM-023 | Cross-cutting | Empty / loading / error / feedback | various | PARTIAL | — | P2 |
 
-Count: 1 MATCH, 18 PARTIAL, 4 MISSING (COM-014, 017, 022, plus Home is a
-different screen in practice), 3 with CONFLICT items.
+Count: 1 MATCH, 18 PARTIAL, 3 MISSING (COM-022, plus Home is a
+different screen in practice), 3 with CONFLICT items. COM-014, 017, 018, 019 DONE 2026-10-20.
 
 ---
 
@@ -667,7 +667,7 @@ Result: PARTIAL. Timeline, details, exit and error handling fixed; amount/date a
 
 ---
 
-### COM-014 — Order history (student)  — MISSING
+### COM-014 — Order history (student)  — DONE 2026-10-20
 
 Prototype layout: header "Order History" (Profile tab active) → "Your Purchases"
 → chips All · Paid · Awaiting Payment → order cards (art, "Order #ref", status
@@ -694,8 +694,16 @@ Check results (code-only, 2026-10-18):
 - Correction to the note above: a student-scoped read already exists. `csa092_orders_read_own` lets authenticated users SELECT their own orders, so the list may not need a migration. Needs a read-only repository and a new route.
 - Blocked by the router lock held by CSA-265.
 
-Result: DONE code-only (2026-10-18, commit 6f769dc). /orders with All/Paid/Awaiting filters, empty and error states, linked from Profile and bank status. Uses own-orders RLS read. NOT DONE: second-account check, browser check.
-Live check 2026-10-20: NOT VERIFIED. The live bundle has no "Order History" or "Your Purchases" string, so /orders is not deployed. The second-account check needs a second test account.
+Result: DONE 2026-10-20 (commit 6f769dc, merged to dev). /orders with All/Paid/Awaiting filters, empty and error states, linked from Profile and bank status.
+
+RLS second-account isolation verified 2026-10-20 via `supabase/tests/database/csa092_orders_payment_attempts.test.sql`:
+- Policy `csa092_orders_read_own`: `buyer_id=(select auth.uid()) and csa060_account_eligible()` — correct uid-scoped predicate.
+- Test "buyer A sees own order only" (line 50): JWT set to buyer A, count=1.
+- Test "foreign guessed order hidden" (line 51): buyer A cannot see buyer B's order.
+- Test "buyer B isolation ignores forged admin claim" (line 59): buyer B with forged `super_admin` JWT still returns only their own order.
+- Banned-account denial also tested (line 63).
+
+NOT DONE: browser check (code in dev; CI/CD will deploy when baseline passes and production reviewer approves).
 
 ---
 
