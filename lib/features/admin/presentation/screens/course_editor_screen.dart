@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:acendra/features/admin/presentation/widgets/media_upload_control.dart';
 import 'package:acendra/features/admin/data/repositories/admin_directory_client.dart';
 import 'package:acendra/app/theme/app_breakpoints.dart';
@@ -28,7 +29,15 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
   final _descController = TextEditingController();
   final _priceController = TextEditingController();
 
-  String _currency = 'LKR';
+  final _slugController = TextEditingController();
+  final _summaryController = TextEditingController();
+  String? _categoryId;
+  AdminCourse? _original;
+  String _newCourseId = newAdminCourseId();
+  AdminCourseRepository? _formRepository;
+  String? _savedMetadata;
+  bool _created = false;
+  bool _persistedPublished = false;
   bool _isPublished = false;
   bool _saving = false;
   bool _initialized = false;
@@ -43,6 +52,8 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
     _titleController.dispose();
     _descController.dispose();
     _priceController.dispose();
+    _slugController.dispose();
+    _summaryController.dispose();
     super.dispose();
   }
 
@@ -51,8 +62,15 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
     _initialized = true;
     _titleController.text = course.title;
     _descController.text = course.description;
-    _priceController.text = course.price.toStringAsFixed(0);
-    _currency = course.currency;
+    _original = course;
+    _priceController.text = adminCoursePriceText(
+      course.priceMinor ??
+          adminCoursePriceMinor(course.price.toStringAsFixed(2))!,
+    );
+    _slugController.text = course.slug;
+    _summaryController.text = course.shortDescription;
+    _categoryId = course.categoryId;
+    _persistedPublished = course.isPublished;
     _isPublished = course.isPublished;
   }
 
@@ -66,8 +84,9 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
       if (priceText.isEmpty) {
         _priceError = 'Price is required';
         valid = false;
-      } else if (double.tryParse(priceText) == null) {
-        _priceError = 'Enter a valid number';
+      } else if (adminCoursePriceMinor(priceText) == null) {
+        _priceError =
+            'Use a non-negative price with at most two decimal places';
         valid = false;
       } else {
         _priceError = null;
@@ -77,30 +96,84 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
     return valid;
   }
 
+  bool _isCurrentRepository(AdminCourseRepository repository) {
+    if (!mounted) return false;
+    try {
+      return identical(ref.read(adminCourseRepositoryProvider), repository);
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _save(BuildContext context) async {
-    if (!_validate()) return;
+    if (_saving || !_validate()) return;
     setState(() => _saving = true);
+    var publicationAttempted = false;
+    AdminCourseRepository? operationRepository;
     try {
       final repo = ref.read(adminCourseRepositoryProvider);
+      operationRepository = repo;
       final now = DateTime.now();
       final course = AdminCourse(
-        id: _isNew ? 'course-${now.millisecondsSinceEpoch}' : widget.courseId,
+        id: _isNew ? _newCourseId : widget.courseId,
+        slug: _slugController.text.trim(),
+        categoryId: _categoryId,
+        shortDescription: _summaryController.text.trim(),
+        priceMinor: adminCoursePriceMinor(_priceController.text)!,
+        rawUpdatedAt: _original?.rawUpdatedAt,
         title: _titleController.text.trim(),
         description: _descController.text.trim(),
         price: double.parse(_priceController.text.trim()),
-        currency: _currency,
-        isPublished: _isPublished,
+        currency: 'LKR',
+        isPublished: _persistedPublished,
         enrollmentCount: 0,
         sectionCount: 0,
         lessonCount: 0,
         createdAt: now,
         updatedAt: now,
       );
-      if (_isNew) {
-        await repo.createCourse(course);
-      } else {
-        await repo.updateCourse(course);
+      final signature = jsonEncode([
+        course.title,
+        course.slug,
+        course.categoryId,
+        course.shortDescription,
+        course.description,
+        course.priceMinor,
+      ]);
+      if (_savedMetadata != signature) {
+        if (_isNew && !_created) {
+          await repo.createCourse(course);
+          if (!_isCurrentRepository(repo)) return;
+          _created = true;
+        } else {
+          await repo.updateCourse(course);
+          if (!_isCurrentRepository(repo)) return;
+        }
+        if (repo is AdminCourseMutationRevisions) {
+          _original = (_original ?? course).copyWith(
+            rawUpdatedAt: (repo as AdminCourseMutationRevisions)
+                .ownMutationRevision(course.id),
+          );
+        }
+        _savedMetadata = signature;
       }
+      if (_isPublished != _persistedPublished) {
+        publicationAttempted = true;
+        if (_isPublished) {
+          await repo.publishCourse(
+            course.id,
+            expectedUpdatedAt: _original?.rawUpdatedAt,
+          );
+        } else {
+          await repo.unpublishCourse(
+            course.id,
+            expectedUpdatedAt: _original?.rawUpdatedAt,
+          );
+        }
+        if (!_isCurrentRepository(repo)) return;
+        _persistedPublished = _isPublished;
+      }
+      ref.invalidate(adminCourseDetailProvider(course.id));
       ref.invalidate(adminCoursesProvider);
       if (context.mounted) {
         AppSnackbar.show(
@@ -111,20 +184,48 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
         context.go('/admin/courses');
       }
     } catch (e) {
-      if (context.mounted) {
+      if (context.mounted &&
+          operationRepository != null &&
+          _isCurrentRepository(operationRepository)) {
         AppSnackbar.show(
           context,
-          adminDataError(e, 'Failed to save course.'),
+          publicationAttempted
+              ? 'Course details saved. ${adminDataError(e, 'Unable to change publication. Retry.')}'
+              : adminDataError(e, 'Failed to save course.'),
           variant: SnackbarVariant.error,
         );
       }
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (mounted &&
+          (operationRepository == null ||
+              _isCurrentRepository(operationRepository))) {
+        setState(() => _saving = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final repository = ref.watch(adminCourseRepositoryProvider);
+    if (!identical(repository, _formRepository)) {
+      if (_formRepository != null) {
+        _initialized = false;
+        _saving = false;
+        _created = false;
+        _savedMetadata = null;
+        _original = null;
+        _categoryId = null;
+        _isPublished = false;
+        _persistedPublished = false;
+        _newCourseId = newAdminCourseId();
+        _titleController.clear();
+        _descController.clear();
+        _priceController.clear();
+        _slugController.clear();
+        _summaryController.clear();
+      }
+      _formRepository = repository;
+    }
     if (_isNew) {
       if (!_initialized) _initialized = true;
       return _buildForm(context);
@@ -222,18 +323,56 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
                   SizedBox(
                     width: 120,
                     child: DropdownButtonFormField<String>(
-                      initialValue: _currency,
+                      initialValue: 'LKR',
                       decoration: const InputDecoration(labelText: 'Currency'),
                       items: const [
                         DropdownMenuItem(value: 'LKR', child: Text('LKR')),
-                        DropdownMenuItem(value: 'USD', child: Text('USD')),
                       ],
-                      onChanged: (v) => setState(() => _currency = v ?? 'LKR'),
+                      onChanged: null,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
+              AppTextField(
+                label: 'Course slug',
+                hint: 'course-web-address',
+                controller: _slugController,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              AppTextField(
+                label: 'Short description',
+                controller: _summaryController,
+                maxLines: 2,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              if (_original != null) ...[
+                DropdownButtonFormField<String>(
+                  initialValue: _categoryId,
+                  decoration: const InputDecoration(labelText: 'Category'),
+                  items: [
+                    const DropdownMenuItem<String>(
+                      value: null,
+                      child: Text('No category'),
+                    ),
+                    if (_categoryId != null &&
+                        !_original!.categories.containsKey(_categoryId))
+                      DropdownMenuItem<String>(
+                        value: _categoryId,
+                        enabled: false,
+                        child: const Text(
+                          'Current category (inactive or unavailable)',
+                        ),
+                      ),
+                    ..._original!.categories.entries.map(
+                      (c) =>
+                          DropdownMenuItem(value: c.key, child: Text(c.value)),
+                    ),
+                  ],
+                  onChanged: (id) => setState(() => _categoryId = id),
+                ),
+                const SizedBox(height: AppSpacing.md),
+              ],
               if (!_isNew)
                 MediaUploadControl(courseId: widget.courseId)
               else
@@ -246,6 +385,15 @@ class _CourseEditorScreenState extends ConsumerState<CourseEditorScreen> {
                 onChanged: (v) => setState(() => _isPublished = v),
                 contentPadding: EdgeInsets.zero,
               ),
+              if (_created)
+                TextButton(
+                  onPressed: _saving
+                      ? null
+                      : () => context.go(
+                          '/admin/courses/$_newCourseId/curriculum',
+                        ),
+                  child: const Text('Edit saved course curriculum'),
+                ),
               const SizedBox(height: AppSpacing.xl),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,

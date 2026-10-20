@@ -471,3 +471,8 @@ verify_jwt = true
 # Public published artwork; draft authority verified inside the handler.
 [functions.course-artwork]
 verify_jwt = false
+
+# CSA268 metadata authoring; explicit server opt-in and trusted SQL authority.
+[functions.admin-course-management]
+enabled = true
+verify_jwt = true
