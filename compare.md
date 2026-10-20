@@ -10,6 +10,33 @@ Scope: student-facing screens only (the prototype has no admin screens)
 
 ---
 
+## Pending index (as of 2026-10-19)
+
+| Task | Area | What's pending |
+|---|---|---|
+| COM-007 | Auth | Not started: live checklist, show/hide toggle, 5-char rule, signed-in "Change password" path |
+| COM-009 | Catalog | Not started: sticky footer, "open order" state, lock/play icons, back navigation |
+| COM-010 | Payment | Not started: step bar, raw course id in summary, single bank screen, sticky total, back button |
+| COM-011 | Payment | Failed, blocked by CSA-265: order loaded from `state.extra`, no Refresh, bank copy on PayHere page |
+| COM-012 | Payment | PNG rejected, instructions lost on refresh, upload on separate screen (CSA-265 files) |
+| COM-013 | Payment | Amount/date not returned by backend, D-6 copy in a CSA-265 file |
+| COM-015 | Student | "Sample content" notice remains, `com015` migration not run |
+| COM-016 | Student | Cards open resume lesson not overview, migration not run |
+| COM-020 | Learning | Contents sheet missing, watermark off (CSA-139) |
+| COM-021 | Account | Photo change, Sinhala language, inline edit |
+| COM-022 | Account | Sinhala language, email-notification toggle (needs backend field) |
+| COM-023 | Cross-cutting | Admin screens not swept |
+| COM-006 | Auth | Hero banner missing |
+| COM-008 | Catalog | Category label and blurb on card, `SliverGrid` |
+| COM-002 to 005 | Shell/Auth | Fixed but uncommitted on `feat/com-001-005-prototype-alignment`; needs browser check; NOT VERIFIED live 2026-10-20 (old build still deployed). COM-004: set Supabase Auth minimum to 5, add real Terms/Privacy pages |
+| COM-014 | Student | Second-account RLS check and browser check; NOT VERIFIED live 2026-10-20 (`/orders` not in the deployed build) |
+| COM-017 | Learning | VERIFIED locally 2026-10-20 (localhost:9090, branch `feat/com-007-password-reset`): course overview loads from `/learn/:courseId`, shows progress %, Continue Learning card, expandable curriculum with lesson markers. Progress updates after Mark Complete. Back from lesson goes to My Courses (not overview — known COM-016 gap). |
+| COM-018 | Learning | VERIFIED locally 2026-10-20: "Lesson 01 · Video Lesson" header, In Progress pill, progress counter (0/4 → 1/4 after completing), "Mark Complete & Continue" sticky footer works. Video player shows access error (no Mux asset in seed — expected, not a code bug). |
+| COM-019 | Learning | PARTIAL locally 2026-10-20: "Lesson 02 · Article Lesson" header ✓, In Progress pill ✓, progress counter ✓. Footer shows "← Previous \| Next →" only — no "Mark Complete & Continue" (video lesson has it; text lesson does not). No "module finished" moment. |
+| COM-001 | Foundation | DONE 2026-10-19 (owner accepted): fonts and Sign in (light) checked on live site; Checkout, dark and Explore not compared |
+
+---
+
 ## 1. How to use this file
 
 1. Work through the COM tasks one at a time, in order.
@@ -118,12 +145,24 @@ Gaps: none in tokens. Individual screens often use raw Material defaults instead
 of the prototype's card/radius/pill styles — tracked in each task below.
 
 Check:
-- [x] Light theme colours match on Sign in, Explore and Checkout. (code: every light token hex equals the prototype's; screens not viewed)
-- [x] Dark theme colours match on the same three screens. (code: every dark token hex equals the prototype's; screens not viewed)
-- [x] Headings render in Manrope, body text in Inter. (code: `app_typography.dart` uses GoogleFonts.manrope / interTextTheme; not seen rendered)
+- [ ] Light theme colours match on Sign in, Explore and Checkout. (code: every light token hex equals the prototype's. Seen 2026-10-19 on the live site: Sign in matches the prototype side by side; Explore renders in light; Checkout not viewed, see below)
+- [ ] Dark theme colours match on the same three screens. (code: every dark token hex equals the prototype's. Seen on the live site: Sign in and Explore render in dark; the prototype's dark screens were not opened; Checkout not viewed)
+- [x] Headings render in Manrope, body text in Inter. (seen 2026-10-19 on the live site: the page fetched Manrope SemiBold, Manrope Bold, Manrope ExtraBold and Inter Regular font files, read from their name tables)
 
-Result: PASS (code-only, 2026-10-18). Light and dark palettes match the
-prototype token for token; fonts match. Still open: a visual pass in the running app.
+Visual check (2026-10-19, http://3.25.99.105, 390 px, the build from the last
+approved production deploy, not this branch):
+- Sign in, light: background, Royal Blue button, navy headings and field styling look the same as the prototype.
+- Sign in and Explore, dark: render with the dark palette; the theme toggle works.
+- Not viewed: Checkout (needs a signed-in student and an order; no test account used).
+- Not viewed: the prototype's Explore and dark screens; 768 and 1440 px.
+- Not measured: Explore's page background looked whiter than Sign in's #F5F8FC in light; check the exact colour.
+- Noticed, outside COM-001: the live Sign in hero banner image carries "Create your account" artwork beside the "Welcome back" text.
+- Deploy: not pushed by this check. A "Deploy to Production" run for `dev` was still waiting for reviewer approval.
+
+Result: DONE (2026-10-19), accepted by the project owner as enough. Verified:
+fonts and Sign in (light) on the live site, plus the code-level token match.
+Not verified: Checkout, the prototype's dark and Explore screens, 768 and 1440 px.
+The unchecked boxes above are left unchecked on purpose.
 
 ---
 
@@ -165,6 +204,7 @@ Check:
 Fixed on `feat/com-001-005-prototype-alignment` (uncommitted): tabs are now
 Home · Explore · My Courses · Profile, learning back falls back to My Courses.
 Theme toggle still in the app bar (needs Settings, COM-022). Tests pass; not yet seen in a browser.
+Live check 2026-10-20 (http://3.25.99.105, Chrome): NOT VERIFIED. The server serves the 17 Oct build, so the new tabs (Home · Explore · My Courses · Profile) are not there. Signed-in screens were not opened.
 Earlier result: FAIL (code-only, 2026-10-18). Tab set differs (blocked on D-2); Explore
 is not a mobile tab; theme toggle still in the app bar; learning back button has
 no fallback. Prototype tabs confirmed in its `NAVS` list.
@@ -209,6 +249,7 @@ Check:
 
 Fixed (uncommitted): fake Remember me and dead Privacy/Terms footer removed, shared
 prototype widgets used, stricter email check. Not yet seen in a browser.
+Live check 2026-10-20 (Chrome): NOT VERIFIED. The old build still shows Remember me and the Privacy Policy / Terms of Service footer, so the fix is not deployed. Hero banner image on the live build carries "Create your account" artwork beside "Welcome back".
 Earlier result: PARTIAL (code-only, 2026-10-18). Layout and copy match the prototype.
 Flow gaps: Remember me is a dead control, Privacy/Terms do nothing, email check
 is only "contains @ and .". Not run in a browser.
@@ -251,6 +292,7 @@ Check:
 Fixed (uncommitted): hero, icons, back button, consent checkbox, "or" + card, password
 rule 8+ with letter and number. Terms/Privacy are plain text (no pages exist);
 consent is not stored server-side. Supabase Auth password policy not changed.
+Live check 2026-10-20 (Chrome): NOT VERIFIED. The old Create account screen has no hero, field icons, consent checkbox, "or" divider or card link, so the new screen is not deployed.
 Earlier result: FAIL (code-only, 2026-10-18). Missing hero, icons, consent checkbox,
 "or" divider and card link; password minimum 6 vs 8 (D-1). Not run in a browser.
 
@@ -287,6 +329,7 @@ Check:
 
 Fixed (uncommitted): hero tile + badge, masked email pill, 30 s resend cooldown, spam
 info box, email field when the address is lost on refresh. Not yet seen in a browser.
+Live check 2026-10-20: NOT VERIFIED. The live bundle has no "Resend available in" string and still says "Verify your email"; reaching the screen would also need a real sign-up.
 Earlier result: FAIL (code-only, 2026-10-18). All four gaps confirmed against the
 prototype source: layout, masking, 30 s cooldown, refresh behaviour. Not run in a browser.
 
@@ -652,6 +695,7 @@ Check results (code-only, 2026-10-18):
 - Blocked by the router lock held by CSA-265.
 
 Result: DONE code-only (2026-10-18, commit 6f769dc). /orders with All/Paid/Awaiting filters, empty and error states, linked from Profile and bank status. Uses own-orders RLS read. NOT DONE: second-account check, browser check.
+Live check 2026-10-20: NOT VERIFIED. The live bundle has no "Order History" or "Your Purchases" string, so /orders is not deployed. The second-account check needs a second test account.
 
 ---
 
@@ -746,7 +790,8 @@ Check:
 - [ ] Module and lesson markers reflect saved progress after reload.
 - [ ] Resume opens the right lesson.
 
-Result: implemented in f8ac6c9 (course overview, lesson header, complete-and-continue); not re-verified this session.
+Result: VERIFIED locally 2026-10-20 (localhost:9090, branch `feat/com-007-password-reset`). Course overview at `/learn/:courseId` shows progress %, "1 of N lessons completed", Continue Learning card with correct next lesson, expandable curriculum with module/lesson markers (✓ for completed, play icon for In Progress, empty circle for not started). Progress updated correctly after Mark Complete. Compilation fix required: `receipt_review_history_screen.dart` lines 235/244 were missing `cs:` param on `_DateRow` — fixed in this session.
+Live (http://3.25.99.105): NOT DEPLOYED. The deployed build has no "Your Learning Progress" string.
 
 ---
 
@@ -776,7 +821,8 @@ Check:
 - [ ] Mark Complete & Continue saves progress and opens the next lesson.
 - [ ] Resources tab opens the PDF in the reader.
 
-Result: see f8ac6c9 (lesson header); not re-verified this session.
+Result: VERIFIED locally 2026-10-20. "Lesson 01 · Video Lesson" header, "In Progress" pill, "1/4 · 25%" progress counter, "Mark Complete & Continue" sticky footer all present and working. Tapping the button marks Lesson 01 complete, advances to Lesson 02, and updates the course overview to 25%. Video player shows "Video access is temporarily unavailable" (no Mux asset in local seed — expected, not a code bug). Speed/CC controls not checked (need a real video stream).
+Live (http://3.25.99.105): NOT DEPLOYED.
 
 ---
 
@@ -799,7 +845,8 @@ Check:
 - [ ] Header shows lesson number, type and status.
 - [ ] Complete & Continue advances; last lesson returns to overview.
 
-Result: see f8ac6c9; not re-verified this session.
+Result: PARTIAL locally 2026-10-20. "Lesson 02 · Article Lesson" header ✓, "In Progress" pill ✓, progress counter ✓. GAP: footer shows "← Previous | Next →" only — text lesson does not have "Mark Complete & Continue" (video lesson does). No "module finished" moment. Content area shows "This lesson content is currently unavailable" (no body in local seed — expected).
+Live (http://3.25.99.105): NOT DEPLOYED.
 
 ---
 

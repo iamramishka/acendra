@@ -79,8 +79,22 @@ class _AdminStudentsScreenState extends ConsumerState<AdminStudentsScreen> {
             ),
             data: (students) {
               if (students.isEmpty) {
-                return const SliverFillRemaining(
-                  child: AppEmptyState(message: 'No students found.'),
+                final searching = _searchController.text.trim().isNotEmpty;
+                return SliverFillRemaining(
+                  child: AppEmptyState(
+                    message: searching
+                        ? 'No students match your search.'
+                        : 'No students found.',
+                    actionLabel: searching ? 'Clear search' : 'Refresh',
+                    onAction: () {
+                      if (searching) {
+                        _searchController.clear();
+                        _onSearch('');
+                      } else {
+                        ref.read(adminStudentsProvider.notifier).refresh();
+                      }
+                    },
+                  ),
                 );
               }
               return SliverToBoxAdapter(
@@ -209,7 +223,7 @@ class _StudentsDataTable extends StatelessWidget {
                     label: 'View Details',
                     onPressed: () => context.go('/admin/students/${s.id}'),
                     variant: ButtonVariant.secondary,
-                    size: ButtonSize.small,
+                    size: ButtonSize.medium,
                   ),
                 ),
               ],
