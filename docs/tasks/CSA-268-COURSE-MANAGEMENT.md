@@ -1,5 +1,10 @@
 # CSA-268 — trusted course management
 
+> Follow-up: the owner selected archival with history preservation on 2026-10-20.
+> Bounded source completion, combined verification and PR status continue in
+> [CSA-268-PR-COMPLETION.md](CSA-268-PR-COMPLETION.md). The earlier unresolved
+> deletion decision below is retained as historical implementation evidence.
+
 Owner: CODEX. Status: IN_PROGRESS. Coordination: GitHub issue #199.
 Authority: project owner requested fixing course save/delete, publication,
 curriculum and lesson editing on 2026-10-20 (Asia/Colombo).

@@ -72,5 +72,21 @@ real persistence, stale edits, ordering and readiness before release. Rollback
 removes the flags; retain all audit/history/schema. No live settings, data, media
 or entitlement state were changed by this implementation.
 
-Course deletion/retention policy awaits the project owner's requested decision;
-no permanent course/audit deletion operation is inferred from draft authoring.
+## Course archival — owner decision 2026-10-20
+
+The owner selected archival with history preservation. `archive` accepts the
+same course UUID, original `expected_updated_at`, UUID `request_id` and empty
+payload through `admin-course-management`. It forwards verified identity to the
+service-only `csa268_archive_course` RPC. The RPC requires current super-admin
+with AAL2, serializes with publication/authoring, checks the original revision,
+sets only the course status/revision, and atomically records previous/new status
+in the immutable authoring audit. Exact retries replay without duplicate audit;
+changed request reuse or stale revisions conflict. Revoked authority cannot
+replay a prior result. Assigned content-manager authority alone is insufficient.
+
+Both draft and published courses may be archived. Archived courses disappear
+from the public catalog and the active admin list. Existing orders, enrollments,
+progress, sections, lessons, media and audit records are retained unchanged.
+There is no physical course deletion, entitlement revocation or restoration
+operation. Apply `20261020000200_csa268_course_archival.sql` after the original
+authoring migration before releasing the archive-capable function/client.

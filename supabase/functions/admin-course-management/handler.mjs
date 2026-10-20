@@ -7,7 +7,7 @@ const timestamp = x => typeof x === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:
 const reads = new Set(['get', 'curriculum']);
 function validPayload(action, p) {
   switch (action) {
-    case 'get': case 'curriculum': return exact(p, []);
+    case 'get': case 'curriculum': case 'archive': return exact(p, []);
     case 'create': case 'update':
       return exact(p, ['title', 'slug', 'category_id', 'short_description', 'description', 'price_minor', 'currency_code']) &&
         text(p.title, 200, true) && typeof p.slug === 'string' && p.slug.length <= 200 && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(p.slug) &&
@@ -67,8 +67,11 @@ export function createHandler({ env, fetch: request = globalThis.fetch, enabled 
       let claims;
       try { const b64 = parts[1].replaceAll('-', '+').replaceAll('_', '/'); claims = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(Uint8Array.from(atob(b64.padEnd(Math.ceil(b64.length / 4) * 4, '=')), c => c.charCodeAt(0)))); } catch { return reply(401, 'AUTH_REQUIRED'); }
       if (!uuid(user.id) || user.is_anonymous === true || claims?.sub !== user.id || claims?.role !== 'authenticated' || !uuid(claims?.session_id) || !['aal1', 'aal2'].includes(claims.aal)) return reply(401, 'AUTH_REQUIRED');
-      const rpc = await request(`${url}/rest/v1/rpc/csa268_manage_course`, { method: 'POST', headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey, 'Content-Type': 'application/json' }, redirect: 'error', signal,
-        body: JSON.stringify({ p_actor: user.id, p_session_id: claims.session_id, p_aal: claims.aal, p_action: body.action, p_course: body.course_id.toLowerCase(), p_expected: body.expected_updated_at ?? null, p_request_id: body.request_id ?? null, p_payload: body.payload ?? {} }),
+      const args = { p_actor: user.id, p_session_id: claims.session_id, p_aal: claims.aal, p_course: body.course_id.toLowerCase(), p_expected: body.expected_updated_at ?? null, p_request_id: body.request_id ?? null };
+      const rpcName = body.action === 'archive' ? 'csa268_archive_course' : 'csa268_manage_course';
+      if (body.action !== 'archive') Object.assign(args, { p_action: body.action, p_payload: body.payload ?? {} });
+      const rpc = await request(`${url}/rest/v1/rpc/${rpcName}`, { method: 'POST', headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey, 'Content-Type': 'application/json' }, redirect: 'error', signal,
+        body: JSON.stringify(args),
       });
       // 1,000 bounded lesson descriptions may contain four-byte Unicode text.
       const result = await readJson(rpc.body, 16 * 1024 * 1024);

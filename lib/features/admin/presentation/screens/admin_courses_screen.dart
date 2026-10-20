@@ -39,17 +39,19 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
     return courses.where((c) => c.title.toLowerCase().contains(q)).toList();
   }
 
-  Future<void> _confirmDelete(
+  Future<void> _confirmArchive(
     BuildContext context,
     String courseId,
     String title,
+    String? expectedUpdatedAt,
   ) async {
     final repository = ref.read(adminCourseRepositoryProvider);
     final confirmed = await AppDialog.show(
       context,
-      title: 'Delete Course',
-      body: 'Delete "$title"? This cannot be undone.',
-      confirmLabel: 'Delete',
+      title: 'Archive Course',
+      body:
+          'Archive "$title"? It will be removed from sale and the active course list. Existing orders, enrollments, progress, media and audit history will be preserved. This requires a super-admin account with MFA.',
+      confirmLabel: 'Archive',
       cancelLabel: 'Cancel',
       confirmVariant: ButtonVariant.destructive,
     );
@@ -58,7 +60,10 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
         if (!identical(ref.read(adminCourseRepositoryProvider), repository)) {
           return;
         }
-        await repository.deleteCourse(courseId);
+        await repository.archiveCourse(
+          courseId,
+          expectedUpdatedAt: expectedUpdatedAt,
+        );
         if (!context.mounted ||
             !identical(ref.read(adminCourseRepositoryProvider), repository)) {
           return;
@@ -67,7 +72,7 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
         if (context.mounted) {
           AppSnackbar.show(
             context,
-            'Course deleted.',
+            'Course archived. Existing history has been preserved.',
             variant: SnackbarVariant.success,
           );
         }
@@ -75,7 +80,7 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
         if (context.mounted) {
           AppSnackbar.show(
             context,
-            adminDataError(e, 'Failed to delete course.'),
+            adminDataError(e, 'Failed to archive course.'),
             variant: SnackbarVariant.error,
           );
         }
@@ -207,8 +212,12 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
         onEdit: () => context.go('/admin/courses/${courses[i].id}/edit'),
         onCurriculum: () =>
             context.go('/admin/courses/${courses[i].id}/curriculum'),
-        onDelete: () =>
-            _confirmDelete(context, courses[i].id, courses[i].title),
+        onDelete: () => _confirmArchive(
+          context,
+          courses[i].id,
+          courses[i].title,
+          courses[i].rawUpdatedAt,
+        ),
       ),
     );
   }
@@ -221,8 +230,12 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
         onEdit: () => context.go('/admin/courses/${courses[i].id}/edit'),
         onCurriculum: () =>
             context.go('/admin/courses/${courses[i].id}/curriculum'),
-        onDelete: () =>
-            _confirmDelete(context, courses[i].id, courses[i].title),
+        onDelete: () => _confirmArchive(
+          context,
+          courses[i].id,
+          courses[i].title,
+          courses[i].rawUpdatedAt,
+        ),
       ),
     );
   }

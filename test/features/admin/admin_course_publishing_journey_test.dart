@@ -68,6 +68,7 @@ class _FakeAdminCourseRepository implements AdminCourseRepository {
   }
 
   final publicationActions = <String>[];
+  final archiveActions = <({String courseId, String? revision})>[];
   final List<AdminCourse> _courses;
   final Map<String, List<AdminCurriculumSection>> _curriculum;
 
@@ -144,7 +145,11 @@ class _FakeAdminCourseRepository implements AdminCourseRepository {
   }
 
   @override
-  Future<void> deleteCourse(String courseId) async {
+  Future<void> archiveCourse(
+    String courseId, {
+    String? expectedUpdatedAt,
+  }) async {
+    archiveActions.add((courseId: courseId, revision: expectedUpdatedAt));
     _courses.removeWhere((c) => c.id == courseId);
   }
 
@@ -426,6 +431,44 @@ Session _session(
 }
 
 void main() {
+  testWidgets(
+    'archive confirmation preserves history and pins the displayed revision',
+    (tester) async {
+      final repo = _FakeAdminCourseRepository();
+      repo._courses[0] = repo._courses[0].copyWith(
+        rawUpdatedAt: '2026-10-20T00:00:00.123456Z',
+      );
+      final retained = await repo.getCurriculum('course-1');
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(_wrap(const AdminCoursesScreen(), repo));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Archive').first);
+      await tester.tap(find.text('Archive').first);
+      await tester.pumpAndSettle();
+      expect(find.text('Archive Course'), findsOneWidget);
+      expect(
+        find.textContaining('audit history will be preserved'),
+        findsOneWidget,
+      );
+      expect(repo.archiveActions, isEmpty);
+      await tester.tap(find.text('Archive').last);
+      await tester.pumpAndSettle();
+      expect(repo.archiveActions.single, (
+        courseId: 'course-1',
+        revision: '2026-10-20T00:00:00.123456Z',
+      ));
+      expect(
+        find.text('Course archived. Existing history has been preserved.'),
+        findsOneWidget,
+      );
+      expect(await repo.getCurriculum('course-1'), retained);
+      expect(find.text('Flutter for Beginners'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
   for (final screen in <Widget>[
     const AdminCoursesScreen(),
     const CourseEditorScreen(courseId: 'course-draft'),

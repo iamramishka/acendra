@@ -37,7 +37,7 @@ abstract interface class AdminCourseRepository {
   Future<AdminCourse> getCourse(String courseId);
   Future<void> createCourse(AdminCourse course);
   Future<void> updateCourse(AdminCourse course);
-  Future<void> deleteCourse(String courseId);
+  Future<void> archiveCourse(String courseId, {String? expectedUpdatedAt});
   Future<void> publishCourse(String courseId, {String? expectedUpdatedAt});
   Future<void> unpublishCourse(String courseId, {String? expectedUpdatedAt});
   Future<List<AdminCurriculumSection>> getCurriculum(String courseId);
@@ -111,8 +111,9 @@ class SupabaseAdminCourseRepository
   }
 
   @override
-  Future<List<AdminCourse>> listCourses() async =>
-      (await _directory.read('courses')).map(_course).toList();
+  Future<List<AdminCourse>> listCourses() async => (await _directory.read(
+    'courses',
+  )).where((row) => row['status'] != 'archived').map(_course).toList();
   @override
   Future<AdminCourse> getCourse(String courseId) async {
     final data = await _invoke('admin-course-management', {
@@ -256,11 +257,13 @@ class SupabaseAdminCourseRepository
   Future<void> updateCourse(AdminCourse course) =>
       _write('update', course.id, _metadata(course), course.rawUpdatedAt);
   @override
-  Future<void> deleteCourse(
-    String courseId,
-  ) async => throw const AdminDataException(
-    'Course deletion requires an approved retention policy. Unpublish the course to remove it from the catalogue.',
-  );
+  Future<void> archiveCourse(String courseId, {String? expectedUpdatedAt}) =>
+      _write(
+        'archive',
+        courseId,
+        const {},
+        expectedUpdatedAt ?? _revision(courseId),
+      );
   Future<void> _publish(
     String courseId,
     String action, {

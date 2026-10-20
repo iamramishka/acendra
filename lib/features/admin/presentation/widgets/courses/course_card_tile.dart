@@ -104,7 +104,7 @@ class CourseCardTile extends StatelessWidget {
                   size: ButtonSize.small,
                 ),
                 AppButton(
-                  label: 'Delete',
+                  label: 'Archive',
                   onPressed: onDelete,
                   variant: ButtonVariant.destructive,
                   size: ButtonSize.small,

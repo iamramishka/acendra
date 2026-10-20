@@ -45,6 +45,21 @@ test('verified actor/session and raw microsecond revision reach service-only RPC
   assert.equal(r.headers.get('Cache-Control'), 'no-store');
   assert.equal(r.headers.get('Access-Control-Allow-Origin'), origin);
 });
+test('archive uses the reviewed retention RPC with current actor and original revision', async () => {
+  const b = backend();
+  const r = await b.handler(req(command('archive')));
+  assert.equal(r.status, 200);
+  assert.ok(b.calls[1].url.endsWith('/rpc/csa268_archive_course'));
+  assert.deepEqual(JSON.parse(b.calls[1].opts.body), {
+    p_actor: actor, p_session_id: session, p_aal: 'aal2', p_course: course,
+    p_expected: stamp, p_request_id: key,
+  });
+});
+test('archive rejects supplied retention overrides before privileged access', async () => {
+  const b = backend();
+  assert.equal((await b.handler(req(command('archive', { delete_history: true })))).status, 400);
+  assert.equal(b.calls.length, 0);
+});
 for (const action of ['get', 'curriculum']) test(`${action} is a bounded authorized read`, async () => {
   const b = backend({ rpcResult: action === 'get' ? { course: { id: course }, categories: [] } : { sections: [], updated_at: stamp } });
   assert.equal((await b.handler(req({ action, course_id: course }))).status, 200);

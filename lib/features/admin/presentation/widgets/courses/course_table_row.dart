@@ -101,7 +101,7 @@ class CourseTableRow extends StatelessWidget {
               ),
               const SizedBox(width: AppSpacing.sm),
               AppButton(
-                label: 'Delete',
+                label: 'Archive',
                 onPressed: onDelete,
                 variant: ButtonVariant.destructive,
                 size: ButtonSize.small,

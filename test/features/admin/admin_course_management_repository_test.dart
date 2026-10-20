@@ -291,6 +291,26 @@ void main() {
     },
   );
   test(
+    'course removal archives using the revision shown before confirmation',
+    () async {
+      await repo.createCourse(course());
+      response = {
+        'course': {
+          ...courseRow(),
+          'updated_at': '2026-10-20T02:00:00.654321+00:00',
+        },
+        'categories': <dynamic>[],
+      };
+      await repo.getCourse(courseId);
+      response = {'course_id': courseId, 'updated_at': revision};
+      await repo.archiveCourse(courseId, expectedUpdatedAt: revision);
+      expect(requests.last.path, '/functions/v1/admin-course-management');
+      expect(requests.last.body['action'], 'archive');
+      expect(requests.last.body['expected_updated_at'], revision);
+      expect(requests.last.body['payload'], isEmpty);
+    },
+  );
+  test(
     'update preserves original raw revision even after another read',
     () async {
       response = {'course': courseRow(), 'categories': <dynamic>[]};

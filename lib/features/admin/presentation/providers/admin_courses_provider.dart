@@ -15,8 +15,13 @@ class AdminCoursesNotifier extends AsyncNotifier<List<AdminCourse>> {
     await future;
   }
 
-  Future<void> deleteCourse(String courseId) async {
-    await ref.read(adminCourseRepositoryProvider).deleteCourse(courseId);
+  Future<void> archiveCourse(
+    String courseId, {
+    String? expectedUpdatedAt,
+  }) async {
+    await ref
+        .read(adminCourseRepositoryProvider)
+        .archiveCourse(courseId, expectedUpdatedAt: expectedUpdatedAt);
     ref.invalidateSelf();
   }
 
