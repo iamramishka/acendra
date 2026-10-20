@@ -307,7 +307,7 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              '${widget.item['currency']} ${widget.item['amount_minor']} minor units',
+              _formatMinorAmount(widget.item['currency'], widget.item['amount_minor']),
               style: tt.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: ext?.success ?? cs.primary,
@@ -423,4 +423,13 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
       ),
     );
   }
+}
+
+String _formatMinorAmount(dynamic currency, dynamic amountMinor) {
+  final cur = currency?.toString() ?? '';
+  final raw = int.tryParse(amountMinor?.toString() ?? '');
+  if (raw == null) return '$cur ${amountMinor ?? '?'}';
+  final major = raw ~/ 100;
+  final cents = (raw % 100).toString().padLeft(2, '0');
+  return '$cur $major.$cents';
 }

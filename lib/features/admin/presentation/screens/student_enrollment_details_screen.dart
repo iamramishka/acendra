@@ -594,10 +594,10 @@ class _PaymentMethodChip extends StatelessWidget {
   final String method;
 
   String _label(String method) => switch (method) {
-    'stripe' => 'Card',
+    'online' => 'Online',
     'bank_transfer' => 'Bank Transfer',
     'admin_grant' => 'Admin Grant',
-    _ => method,
+    _ => 'Payment',
   };
 
   @override

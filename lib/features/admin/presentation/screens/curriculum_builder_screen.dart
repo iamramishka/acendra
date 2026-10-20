@@ -227,7 +227,7 @@ class _CurriculumBuilderScreenState
             child: Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.md,
-                vertical: AppSpacing.sm,
+                vertical: 12,
               ),
               child: Row(
                 children: [
@@ -296,7 +296,7 @@ class _CurriculumBuilderScreenState
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
+          vertical: 12,
         ),
         child: Row(
           children: [

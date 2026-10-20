@@ -25,7 +25,7 @@ Scope: student-facing screens only (the prototype has no admin screens)
 | COM-020 | Learning | Contents sheet missing, watermark off (CSA-139) |
 | COM-021 | Account | Photo change, Sinhala language, inline edit |
 | COM-022 | Account | Sinhala language, email-notification toggle (needs backend field) |
-| COM-023 | Cross-cutting | Admin screens not swept |
+| COM-023 | Cross-cutting | Admin screens swept 2026-10-20: 3 issues fixed (raw payment method code, raw amount_minor display, 2 tap targets < 44 px in curriculum builder). Remaining: error/loading states not swept on all screens. |
 | COM-006 | Auth | Hero banner missing |
 | COM-008 | Catalog | Category label and blurb on card, `SliverGrid` |
 | COM-002 to 005 | Shell/Auth | MERGED to dev 2026-10-20 (PR #186, e0cc143). Browser check pending (CI/CD will deploy when baseline passes and reviewer approves). COM-004: Terms/Privacy pages still plain text (no real pages); Supabase Auth floor confirmed 6 chars (D-1 final decision). |
@@ -93,7 +93,7 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | COM-020 | Learning | PDF reader | `pdf_reader/**` | PARTIAL + CONFLICT | UI-ST-018 | P1 |
 | COM-021 | Account | My profile | `profile/.../profile_screen.dart`, `profile_edit_screen.dart` | PARTIAL | UI-ST-020 | P2 |
 | COM-022 | Account | Settings | none | MISSING | UI-ST-021 | P1 |
-| COM-023 | Cross-cutting | Empty / loading / error / feedback | various | PARTIAL | — | P2 |
+| COM-023 | Cross-cutting | Empty / loading / error / feedback | various | PARTIAL 2026-10-20 | — | P2 |
 
 Count: 1 MATCH, 14 PARTIAL, 3 MISSING (COM-022, plus Home is a
 different screen in practice), 1 with CONFLICT item (COM-020). COM-002–005, 014, 017, 018, 019 DONE 2026-10-20.
@@ -949,7 +949,14 @@ Check:
       currently shows `err.toString()` in `_ErrorBody` — check what that prints).
 - [ ] All tap targets ≥ 44 px at 390 px; keyboard focus visible.
 
-Result: PARTIAL (2026-10-18). Raw exception text removed from PDF, video and lesson errors; My Courses/Order History empty states have actions; PDF search target 44 px. Other list screens (admin) not swept.
+Result: PARTIAL (2026-10-20). Raw exception text removed from PDF, video and lesson errors; My Courses/Order History empty states have actions; PDF search target 44 px.
+
+Admin screen sweep 2026-10-20:
+- FIXED: `_PaymentMethodChip._label()` in `student_enrollment_details_screen.dart` had stale `'stripe' => 'Card'` (DB uses `'online'`); changed to `'online' => 'Online'`, unknown fallback now shows `'Payment'` instead of the raw code.
+- FIXED: `finance_review_screen.dart` showed `amount_minor` as raw integer string "LKR 10000 minor units"; now formatted via `_formatMinorAmount()` (e.g. "LKR 100.00").
+- FIXED: curriculum builder section header and lesson row `InkWell` had `vertical: 8px` padding (~34px total), below 44px minimum; raised to `vertical: 12px` (~44px).
+
+Remaining: full loading/empty/error state sweep of admin_courses, admin_students, admin_payments, admin_dashboard not done; date picker stubs in payment filter bar not wired.
 
 ---
 
