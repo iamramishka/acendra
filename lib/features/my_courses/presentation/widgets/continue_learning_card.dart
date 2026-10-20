@@ -32,7 +32,6 @@ class ContinueLearningCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
     final clampedProgress = progressPercent.clamp(0.0, 1.0);
@@ -41,8 +40,17 @@ class ContinueLearningCard extends StatelessWidget {
     return Semantics(
       label: 'Continue Learning: $courseTitle. $lessonTitle. $percentLabel.',
       button: false,
-      child: Card(
-        color: cs.primaryContainer,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: const RadialGradient(
+            center: Alignment(0.7, -0.2),
+            radius: 1.5,
+            colors: [Color(0xFF1E6BFF), Color(0xFF123A9C), Color(0xFF0B1E4F)],
+            stops: [0.0, 0.35, 0.75],
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
@@ -53,7 +61,7 @@ class ContinueLearningCard extends StatelessWidget {
               Text(
                 'Continue Learning',
                 style: tt.labelMedium?.copyWith(
-                  color: cs.onPrimaryContainer,
+                  color: Colors.white.withValues(alpha: 0.75),
                   letterSpacing: 0.5,
                 ),
               ),
@@ -62,7 +70,7 @@ class ContinueLearningCard extends StatelessWidget {
               Text(
                 courseTitle,
                 style: tt.titleMedium?.copyWith(
-                  color: cs.onPrimaryContainer,
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
                 maxLines: 2,
@@ -73,7 +81,7 @@ class ContinueLearningCard extends StatelessWidget {
               Text(
                 lessonTitle,
                 style: tt.bodySmall?.copyWith(
-                  color: cs.onPrimaryContainer.withAlpha(180),
+                  color: Colors.white.withValues(alpha: 0.65),
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -88,8 +96,10 @@ class ContinueLearningCard extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: clampedProgress,
                     minHeight: 6,
-                    backgroundColor: cs.onPrimaryContainer.withAlpha(40),
-                    valueColor: AlwaysStoppedAnimation<Color>(cs.primary),
+                    backgroundColor: Colors.white.withValues(alpha: 0.2),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      Color(0xFF58D2F4),
+                    ),
                   ),
                 ),
               ),
@@ -97,7 +107,7 @@ class ContinueLearningCard extends StatelessWidget {
               Text(
                 percentLabel,
                 style: tt.labelSmall?.copyWith(
-                  color: cs.onPrimaryContainer.withAlpha(180),
+                  color: Colors.white.withValues(alpha: 0.65),
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
@@ -106,6 +116,10 @@ class ContinueLearningCard extends StatelessWidget {
                 alignment: Alignment.centerRight,
                 child: FilledButton.icon(
                   onPressed: onContinue,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF0B1E4F),
+                  ),
                   icon: const Icon(Icons.play_arrow_rounded),
                   label: const Text('Resume →'),
                 ),

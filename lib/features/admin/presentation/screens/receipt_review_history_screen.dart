@@ -8,6 +8,7 @@ import 'package:acendra/core/widgets/inputs/app_text_field.dart';
 import 'package:acendra/features/admin/domain/entities/payment_record.dart';
 import 'package:acendra/features/admin/data/repositories/admin_payment_repository.dart';
 import 'package:acendra/features/admin/presentation/providers/admin_payments_provider.dart';
+import 'package:acendra/features/admin/presentation/widgets/admin_filter_chip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -81,25 +82,22 @@ class _ReceiptReviewHistoryScreenState
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _FilterChip(
+                AdminFilterChip(
                   label: 'All',
                   selected: _filter.status == null,
                   onTap: () => _onStatusTap(null),
-                  cs: cs,
                 ),
                 const SizedBox(width: AppSpacing.sm),
-                _FilterChip(
+                AdminFilterChip(
                   label: 'Approved',
                   selected: _filter.status == PaymentStatus.approved,
                   onTap: () => _onStatusTap(PaymentStatus.approved),
-                  cs: cs,
                 ),
                 const SizedBox(width: AppSpacing.sm),
-                _FilterChip(
+                AdminFilterChip(
                   label: 'Rejected',
                   selected: _filter.status == PaymentStatus.rejected,
                   onTap: () => _onStatusTap(PaymentStatus.rejected),
-                  cs: cs,
                 ),
               ],
             ),
@@ -312,7 +310,7 @@ class _ReceiptHistoryTile extends StatelessWidget {
                   label: 'View Receipt',
                   onPressed: null,
                   variant: ButtonVariant.outlined,
-                  size: ButtonSize.small,
+                  size: ButtonSize.medium,
                   // TODO: Fetch signed URL from backend and open receipt
                 ),
               ],
@@ -358,46 +356,6 @@ class _DateRow extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    required this.cs,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final ColorScheme cs;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.xs + 2,
-        ),
-        decoration: BoxDecoration(
-          color: selected ? cs.primary : cs.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(AppRadius.chip),
-          border: Border.all(color: selected ? cs.primary : cs.outlineVariant),
-        ),
-        child: Text(
-          label,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: selected ? cs.onPrimary : cs.onSurfaceVariant,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-          ),
-        ),
-      ),
     );
   }
 }

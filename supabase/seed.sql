@@ -56,4 +56,43 @@ insert into public.lessons(id,section_id,title,description,lesson_type,position,
  ('08100000-0000-0000-0000-000000000069','08100000-0000-0000-0000-000000000055','What is marketing?','Core concepts','video',0,420,true,true),
  ('08100000-0000-0000-0000-00000000006a','08100000-0000-0000-0000-000000000055','Positioning worksheet','Exercise handout','pdf',1,null,false,true)
 on conflict do nothing;
+-- Local dev seed: test student enrollments so My Courses screen is non-empty.
+-- Login:  student@acendra.local / Student1
+-- NEVER run against production.
+begin;
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password,
+  email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+  created_at, updated_at,
+  confirmation_token, email_change, email_change_token_new, recovery_token
+) values (
+  '00000000-0000-0000-0000-000000000000',
+  '08100000-0000-0000-0001-000000000001',
+  'authenticated', 'authenticated', 'student@acendra.local',
+  '$2b$10$bIuECIe7/J7P0nRDPRGpPORHiNaONLMOUTdBBvgyForWl2IxiVuIi',
+  now(),
+  '{"provider":"email","providers":["email"]}',
+  '{"full_name":"Sample Student"}',
+  now(), now(), '', '', '', ''
+), (
+  '00000000-0000-0000-0000-000000000000',
+  '08100000-0000-0000-0001-000000000002',
+  'authenticated', 'authenticated', 'granter@acendra.local',
+  '$2b$10$bIuECIe7/J7P0nRDPRGpPORHiNaONLMOUTdBBvgyForWl2IxiVuIi',
+  now(),
+  '{"provider":"email","providers":["email"]}',
+  '{"full_name":"Seed Granter"}',
+  now(), now(), '', '', '', ''
+) on conflict do nothing;
+-- profiles auto-created by csa060_auth_signup_profile trigger on auth.users insert
+insert into public.enrollments (id, user_id, course_id, status, granted_at) values
+  ('08100000-0000-0000-0002-000000000001','08100000-0000-0000-0001-000000000001','08100000-0000-0000-0000-000000000041','active',now()),
+  ('08100000-0000-0000-0002-000000000002','08100000-0000-0000-0001-000000000001','08100000-0000-0000-0000-000000000042','active',now()),
+  ('08100000-0000-0000-0002-000000000003','08100000-0000-0000-0001-000000000001','08100000-0000-0000-0000-000000000043','active',now())
+on conflict do nothing;
+insert into public.enrollment_grants (id, enrollment_id, user_id, course_id, source_type, granted_by, reason, valid_from) values
+  ('08100000-0000-0000-0003-000000000001','08100000-0000-0000-0002-000000000001','08100000-0000-0000-0001-000000000001','08100000-0000-0000-0000-000000000041','admin_grant','08100000-0000-0000-0001-000000000002','Local development seed enrollment',now()),
+  ('08100000-0000-0000-0003-000000000002','08100000-0000-0000-0002-000000000002','08100000-0000-0000-0001-000000000001','08100000-0000-0000-0000-000000000042','admin_grant','08100000-0000-0000-0001-000000000002','Local development seed enrollment',now()),
+  ('08100000-0000-0000-0003-000000000003','08100000-0000-0000-0002-000000000003','08100000-0000-0000-0001-000000000001','08100000-0000-0000-0000-000000000043','admin_grant','08100000-0000-0000-0001-000000000002','Local development seed enrollment',now())
+on conflict do nothing;
 commit;
