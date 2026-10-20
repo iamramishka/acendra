@@ -1,3 +1,9 @@
+String formatAdminCourseMinorPrice(String minor) {
+  final value = BigInt.parse(minor);
+  final cents = (value % BigInt.from(100)).toString().padLeft(2, '0');
+  return '${value ~/ BigInt.from(100)}${cents == '00' ? '' : '.$cents'}';
+}
+
 class AdminCourse {
   const AdminCourse({
     required this.id,
@@ -12,8 +18,28 @@ class AdminCourse {
     required this.updatedAt,
     this.thumbnailUrl,
     this.currency = 'LKR',
+    this.slug = '',
+    this.categoryId,
+    this.shortDescription = '',
+    this.priceMinor,
+    this.rawUpdatedAt,
+    this.categories = const {},
   });
 
+  String get priceText {
+    if (priceMinor != null) return formatAdminCourseMinorPrice(priceMinor!);
+    final decimal = price.toStringAsFixed(2);
+    return decimal.endsWith('.00')
+        ? decimal.substring(0, decimal.length - 3)
+        : decimal;
+  }
+
+  final String slug;
+  final String? categoryId;
+  final String shortDescription;
+  final String? priceMinor;
+  final String? rawUpdatedAt;
+  final Map<String, String> categories;
   final String id;
   final String title;
   final String description;
@@ -28,6 +54,11 @@ class AdminCourse {
   final DateTime updatedAt;
 
   AdminCourse copyWith({
+    String? slug,
+    String? categoryId,
+    String? shortDescription,
+    String? priceMinor,
+    String? rawUpdatedAt,
     String? id,
     String? title,
     String? description,
@@ -42,6 +73,12 @@ class AdminCourse {
     DateTime? updatedAt,
   }) {
     return AdminCourse(
+      slug: slug ?? this.slug,
+      categoryId: categoryId ?? this.categoryId,
+      shortDescription: shortDescription ?? this.shortDescription,
+      priceMinor: priceMinor ?? this.priceMinor,
+      rawUpdatedAt: rawUpdatedAt ?? this.rawUpdatedAt,
+      categories: categories,
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
