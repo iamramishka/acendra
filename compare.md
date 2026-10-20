@@ -31,7 +31,7 @@ Scope: student-facing screens only (the prototype has no admin screens)
 | COM-002 to 005 | Shell/Auth | Fixed but uncommitted on `feat/com-001-005-prototype-alignment`; needs browser check; NOT VERIFIED live 2026-10-20 (old build still deployed). COM-004: set Supabase Auth minimum to 5, add real Terms/Privacy pages |
 | COM-014 | Student | Second-account RLS check and browser check; NOT VERIFIED live 2026-10-20 (`/orders` not in the deployed build) |
 | COM-017 | Learning | VERIFIED locally 2026-10-20 (localhost:9090, branch `feat/com-007-password-reset`): course overview loads from `/learn/:courseId`, shows progress %, Continue Learning card, expandable curriculum with lesson markers. Progress updates after Mark Complete. Back from lesson goes to My Courses (not overview — known COM-016 gap). |
-| COM-018 | Learning | VERIFIED locally 2026-10-20: "Lesson 01 · Video Lesson" header, In Progress pill, progress counter (0/4 → 1/4 after completing), "Mark Complete & Continue" sticky footer works. Video player shows access error (no Mux asset in seed — expected, not a code bug). |
+| COM-018 | Learning | VERIFIED locally 2026-10-20: "Lesson 01 · Video Lesson" header, In Progress pill, progress counter (0/4 → 1/4 after completing), "Mark Complete & Continue" sticky footer works. MERGED to dev 2026-10-20 (087beba). CI/CD will deploy when baseline passes and reviewer approves. |
 | COM-019 | Learning | FIXED 2026-10-20 (branch `feat/com-007-password-reset`): content-unavailable branch now passes forwardLabel/onForward to _LessonNavBar — "Mark Complete & Continue" now shows for text/image lessons. Module-finished snackbar was already wired. `flutter analyze` exit 0. |
 | COM-001 | Foundation | DONE 2026-10-19 (owner accepted): fonts and Sign in (light) checked on live site; Checkout, dark and Explore not compared |
 
@@ -88,7 +88,7 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | COM-015 | Student | Home | `dashboard/.../dashboard_home_screen.dart` | PARTIAL (different screen) | UI-ST-006 | P1 |
 | COM-016 | Student | My Courses | `my_courses/.../my_courses_screen.dart` | PARTIAL | UI-ST-015 | P1 |
 | COM-017 | Learning | Course overview + progress | none (workspace opens straight into a lesson) | MISSING | UI-ST-016 | P1 |
-| COM-018 | Learning | Video lesson | `learning/.../learning_workspace_screen.dart`, `video_player/**` | PARTIAL | UI-ST-017 | P2 |
+| COM-018 | Learning | Video lesson | `learning/.../learning_workspace_screen.dart`, `video_player/**` | DONE 2026-10-20 | UI-ST-017 | P2 |
 | COM-019 | Learning | Text & image lesson | `learning/.../text_lesson_viewer.dart` | DONE 2026-10-20 | UI-ST-019 | P2 |
 | COM-020 | Learning | PDF reader | `pdf_reader/**` | PARTIAL + CONFLICT | UI-ST-018 | P1 |
 | COM-021 | Account | My profile | `profile/.../profile_screen.dart`, `profile_edit_screen.dart` | PARTIAL | UI-ST-020 | P2 |
@@ -821,8 +821,7 @@ Check:
 - [ ] Mark Complete & Continue saves progress and opens the next lesson.
 - [ ] Resources tab opens the PDF in the reader.
 
-Result: VERIFIED locally 2026-10-20. "Lesson 01 · Video Lesson" header, "In Progress" pill, "1/4 · 25%" progress counter, "Mark Complete & Continue" sticky footer all present and working. Tapping the button marks Lesson 01 complete, advances to Lesson 02, and updates the course overview to 25%. Video player shows "Video access is temporarily unavailable" (no Mux asset in local seed — expected, not a code bug). Speed/CC controls not checked (need a real video stream).
-Live (http://3.25.99.105): NOT DEPLOYED.
+Result: VERIFIED locally 2026-10-20. "Lesson 01 · Video Lesson" header, "In Progress" pill, "1/4 · 25%" progress counter, "Mark Complete & Continue" sticky footer all present and working. Tapping the button marks Lesson 01 complete, advances to Lesson 02, and updates the course overview to 25%. Video player shows "Video access is temporarily unavailable" (no Mux asset in local seed — expected, not a code bug). Speed/CC controls not checked (need a real video stream). MERGED to dev 2026-10-20 (087beba). Deploy pending CI pass + production reviewer approval.
 
 ---
 
