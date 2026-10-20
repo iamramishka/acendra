@@ -42,7 +42,7 @@ test('verified Auth identity and exact token supply session provenance to servic
   assert.equal(calls[0].url, 'https://synthetic.invalid/auth/v1/user');
   assert.equal(calls[0].options.headers.Authorization, `Bearer ${token()}`);
   assert.equal(calls[0].options.headers.apikey, 'synthetic-public');
-  assert.equal(calls[1].url, 'https://synthetic.invalid/rest/v1/rpc/csa098_create_checkout_order');
+  assert.equal(calls[1].url, 'https://synthetic.invalid/rest/v1/rpc/csa265_create_checkout_order');
   assert.equal(calls[1].options.headers.Authorization, 'Bearer synthetic-private');
   assert.equal(calls[1].options.headers.apikey, 'synthetic-private');
   assert.equal(calls[1].options.method, 'POST');

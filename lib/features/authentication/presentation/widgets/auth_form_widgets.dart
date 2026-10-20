@@ -17,7 +17,6 @@ class AuthHeroBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
     return Container(
-      height: 180,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         gradient: const RadialGradient(
@@ -32,75 +31,67 @@ class AuthHeroBanner extends StatelessWidget {
         ),
       ),
       clipBehavior: Clip.hardEdge,
-      child: Stack(
-        children: [
-          Positioned(
-            right: -20,
-            top: -30,
-            child: Container(
-              width: 140,
-              height: 140,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.06),
-              ),
-            ),
-          ),
-          Positioned(
-            right: 60,
-            bottom: -40,
-            child: Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.05),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 20,
-            top: 0,
-            bottom: 0,
-            width: 200,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: tt.headlineSmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    height: 1.15,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final showImage =
+              constraints.maxWidth >= 320 &&
+              MediaQuery.textScalerOf(context).scale(14) <= 21;
+          final imageWidth = constraints.maxWidth * .42;
+          return Stack(
+            children: [
+              if (showImage)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: imageWidth,
+                  child: Image.asset(
+                    'assets/images/signin_banner.png',
+                    fit: BoxFit.cover,
+                    alignment: Alignment.centerLeft,
+                    excludeFromSemantics: true,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const SizedBox.shrink(),
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  subtitle,
-                  style: tt.bodySmall?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.75),
-                    height: 1.4,
+              ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 180),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: tt.headlineSmall?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                height: 1.15,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              subtitle,
+                              style: tt.bodySmall?.copyWith(
+                                color: Colors.white70,
+                                height: 1.4,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (showImage) SizedBox(width: imageWidth + 12),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
-          Positioned(
-            right: 0,
-            top: 0,
-            bottom: 0,
-            width: 160,
-            child: Image.asset(
-              'assets/images/signin_banner.png',
-              fit: BoxFit.cover,
-              alignment: Alignment.centerLeft,
-              excludeFromSemantics: true,
-              errorBuilder: (context, error, stackTrace) =>
-                  const SizedBox.shrink(),
-            ),
-          ),
-        ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }

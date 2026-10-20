@@ -1,5 +1,15 @@
 # Phase9 existing-service readiness and operational holds
 
+Current selection, 2026-10-18: the owner delegated target/operator choices. See the
+[selected configuration and fresh inventory](../operations/CSA-160-TARGET-SELECTION.md).
+`iamramishka` is selected as release operator; the nominated hostname is retained.
+The single visible backend remains staging, and encryption/full recovery are not
+verified. Production tasks remain BLOCKED on capabilities, not unanswered names.
+Current GitHub check, 2026-10-19: the repository is private. Actions jobs fail
+before execution due to account payment/spending-limit settings. The public
+observation in the [earlier review](../reviews/CSA-160-CURRENT-INTEGRATION.md)
+is historical. Required CI and approval remain held; no settings were changed.
+
 Date: 2026-10-15 Asia/Colombo. Owner: CODEX root. Coordination: [issue160](https://github.com/iamramishka/acendra/issues/160) and [parallel board](CSA-PHASE9-EXISTING-FREE-BOARD.md).
 
 The owner authorized parallel work, no new services and no spending, with missing prerequisites held. All three isolated workers completed bounded documentation/preflight work. Production tasks remain BLOCKED until their operational requirements are met. No staging environment is reclassified as production.
@@ -32,6 +42,9 @@ The owner authorized parallel work, no new services and no spending, with missin
 No new service/account, paid plan, scheduled automation, production deployment, migration, secret injection, DNS change, live charge, alert message or backup transfer was performed. Existing phase8 owner acceptance remains separate from production release approval.
 
 ## Verification and cost boundary
+
+The allowance figures below are historical 2026-10-15 evidence; they do not
+establish current included capacity or remove the current Actions block.
 
 All scoped diffs reviewed with git diff --check; no local test suite ran. Source links and SQL identities were checked against the repository. Remote metadata preflight succeeded without mutations.
 

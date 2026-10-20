@@ -1,5 +1,11 @@
 # CSA-216 — Operator recovery runbook
 
+Current selection, 2026-10-18: `iamramishka` is the selected release operator and
+recovery lead. The [decision record](CSA-160-TARGET-SELECTION.md) selects existing
+local PostgreSQL for synthetic rehearsal and records its limits. No isolated
+production full-stack recovery target, complete encrypted set or named alternate
+is verified; operational acceptance remains held.
+
 Status: IN_REVIEW; operational acceptance pending. Date: 2026-10-15 (Asia/Colombo).
 Owner: CODEX; incident/recovery authority: project owner or designated maintainer.
 Assignment: [preparation board](../tasks/CSA-211-216-PREPARATION.md).

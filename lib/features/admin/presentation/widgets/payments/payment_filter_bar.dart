@@ -68,7 +68,7 @@ class _PaymentFilterBarState extends State<PaymentFilterBar> {
       children: [
         AppTextField(
           label: 'Search',
-          hint: 'Email or order ID',
+          hint: 'Order number starts with',
           controller: _searchController,
           prefixIcon: const Icon(Icons.search_outlined, size: 20),
           onChanged: (value) {
@@ -128,9 +128,9 @@ class _PaymentFilterBarState extends State<PaymentFilterBar> {
               ),
               const SizedBox(width: AppSpacing.sm),
               AdminFilterChip(
-                label: 'Stripe',
-                selected: widget.filter.method == PaymentMethod.stripe,
-                onTap: () => _onMethodTap(PaymentMethod.stripe),
+                label: 'Online',
+                selected: widget.filter.method == PaymentMethod.online,
+                onTap: () => _onMethodTap(PaymentMethod.online),
               ),
               const SizedBox(width: AppSpacing.sm),
               AdminFilterChip(

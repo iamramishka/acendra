@@ -1,3 +1,4 @@
+import 'package:acendra/features/admin/presentation/widgets/media_upload_control.dart';
 import 'package:acendra/features/admin/data/repositories/admin_directory_client.dart';
 import 'package:acendra/app/theme/app_breakpoints.dart';
 import 'package:acendra/app/theme/app_spacing.dart';
@@ -303,6 +304,14 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
     ColorScheme cs,
     TextTheme tt,
   ) {
+    if (_lessonType == LessonType.pdf) {
+      return _isNew
+          ? const Text('Save the lesson before uploading its PDF.')
+          : MediaUploadControl(
+              courseId: widget.courseId,
+              lessonId: widget.lessonId,
+            );
+    }
     final typeLabel = switch (_lessonType) {
       LessonType.video => 'Video',
       LessonType.pdf => 'PDF',

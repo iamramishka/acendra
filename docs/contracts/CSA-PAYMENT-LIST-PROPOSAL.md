@@ -1,5 +1,21 @@
 # Admin payment-list reporting — contract PROPOSAL
 
+## CSA-266 implementation addendum — 2026-10-19
+
+Owner requested connecting reporting and a PR (issue #192). The section 17 wire
+shape, finance/super-admin AAL2 authority, privacy omissions, status mapping and
+fail-closed conditions remain unchanged. Flutter now adapts these rows; search is
+order-number-prefix only, `online` displays as Online, and grants are excluded.
+Buyer email/id are not fabricated; minor-unit strings are exact for display.
+
+The unconditional entrypoint disable is replaced by the server-only
+`ACENDRA_ADMIN_PAYMENT_LIST_ENABLED=true` opt-in and validated explicit
+`ACENDRA_ADMIN_ALLOWED_ORIGINS`. Defaults remain unavailable. Owner explicitly
+retained unavailable refund/net totals pending a separate confirmed-refund ledger
+task. [Scope, release checklist and rollback](../tasks/CSA-266-PAYMENT-REPORTING.md).
+This addendum supersedes historical hard-coded-disable/missing-adapter statements
+below; it does not claim hosted activation or final financial acceptance.
+
 Status: **PROPOSED / IN_REVIEW. Contract approval pending; inactive implementation in PR #181 (section 17).**
 Prepared by: CLAUDE (proposal and initial backend). Review-fix owner: CODEX (payment/reporting backend).
 Review-fix task: PR-181, GitHub #184 (original placeholder `CSA-PAYLIST-TBD`). Resolves finderror finding 004

@@ -37,6 +37,7 @@ class StudentShell extends ConsumerWidget {
     } else if (location == RouteNames.profile ||
         location.startsWith('${RouteNames.profile}/') ||
         location == RouteNames.orders ||
+        location.startsWith('${RouteNames.orders}/') ||
         location == RouteNames.settings ||
         location.startsWith('${RouteNames.settings}/')) {
       selectedIndex = 3;

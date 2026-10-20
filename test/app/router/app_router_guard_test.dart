@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../features/my_courses/fakes/fake_my_courses_repository.dart';
+import '../../browser/lesson_route_regressions.dart';
 
 class _UnavailableLearningRepository implements LearningRepository {
   @override
@@ -59,6 +60,7 @@ Widget _app({required bool sessionRestored, required bool isAuthenticated}) =>
     );
 
 void main() {
+  registerLessonRouteRegressionTests();
   for (final path in [RouteNames.dashboardHome, RouteNames.savedCourses]) {
     testWidgets('signed-out deep link $path requires login', (tester) async {
       await tester.pumpWidget(
@@ -222,7 +224,7 @@ void main() {
     ).read(appRouterProvider);
     router.go('/forgot-password');
     await tester.pumpAndSettle();
-    expect(find.text('Forgot password?'), findsOneWidget);
+    expect(find.text('Forgot your password?'), findsOneWidget);
   });
 
   testWidgets('unauthenticated user is redirected from dashboard to login', (

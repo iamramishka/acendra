@@ -138,8 +138,13 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Continue Bank Transfer'));
-    await tester.tap(find.text('Continue Bank Transfer'));
+    expect(find.text('Continue to PayHere'), findsNothing);
+    expect(
+      find.textContaining('Continue to PayHere to pay securely.'),
+      findsNothing,
+    );
+    await tester.ensureVisible(find.text('Continue to Bank Transfer'));
+    await tester.tap(find.text('Continue to Bank Transfer'));
     await tester.pumpAndSettle();
     expect(find.text('Trusted Bank'), findsOneWidget);
     await tester.ensureVisible(find.text("I've made the transfer"));

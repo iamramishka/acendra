@@ -7,14 +7,15 @@ void main() {
       expect(validatePassword(''), 'Enter a password');
     });
 
-    test('rejects fewer than 5 characters', () {
-      expect(validatePassword('abcd'), 'Use at least 5 characters');
+    test('rejects fewer than 6 characters', () {
+      expect(validatePassword('abcde'), isNotNull);
     });
 
-    test('accepts 5 characters of any kind', () {
-      expect(validatePassword('abcde'), isNull);
-      expect(validatePassword('12345'), isNull);
-      expect(validatePassword('     '), isNull);
+    test('accepts six characters without composition requirements', () {
+      for (final password in ['abcdef', '123456', '!!!!!!', 'abc123']) {
+        expect(validatePassword(password), isNull, reason: password);
+      }
+      expect(minPasswordLength, 6);
     });
   });
 

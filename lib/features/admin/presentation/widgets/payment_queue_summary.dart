@@ -200,7 +200,8 @@ class _PaymentQueueRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '${item.currency} ${item.amount.toStringAsFixed(2)}',
+                item.formattedAmount ??
+                    '${item.currency} ${item.amount.toStringAsFixed(2)}',
                 style: theme.textTheme.labelLarge,
               ),
               const SizedBox(height: AppSpacing.xs),

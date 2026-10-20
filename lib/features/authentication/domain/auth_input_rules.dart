@@ -1,13 +1,13 @@
 /// Client-side input rules for the auth forms. These only give fast feedback;
 /// Supabase Auth remains the authority on what it accepts.
-const int minPasswordLength = 5;
+const int minPasswordLength = 6;
 
 final _emailPattern = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]{2,}$');
 
 bool isValidEmail(String value) => _emailPattern.hasMatch(value.trim());
 
 /// Returns an error message, or null when [value] meets the password rule
-/// (at least [minPasswordLength] characters; owner decision D-1, no other rule).
+/// (at least six characters, with no composition requirement).
 String? validatePassword(String value) {
   if (value.isEmpty) return 'Enter a password';
   if (value.length < minPasswordLength) {

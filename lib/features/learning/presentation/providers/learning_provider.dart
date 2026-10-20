@@ -90,20 +90,23 @@ class LearningNotifier extends StateNotifier<LearningState> {
   final Ref _ref;
   int _requestId = 0;
   String? _requestedLessonId;
+  bool _isLoadingCourse = true;
 
   /// Opens [lessonId] instead of the saved resume lesson. Safe to call before
   /// the course has loaded.
   Future<void> requestLesson(String lessonId) async {
-    if (state.sections.isEmpty) {
-      _requestedLessonId = lessonId;
-      return;
-    }
+    if (!mounted) return;
+    _requestedLessonId = lessonId;
+    // Curriculum is published before the progress read finishes. Keep URL
+    // requests queued until both have loaded so they cannot cancel that read.
+    if (_isLoadingCourse) return;
     await selectLesson(lessonId);
   }
 
   Future<void> loadCourse(String courseId) async {
     if (!mounted || state.isSavingProgress) return;
     final requestId = ++_requestId;
+    _isLoadingCourse = true;
     state = state.copyWith(
       isLoading: true,
       clearError: true,
@@ -117,9 +120,7 @@ class LearningNotifier extends StateNotifier<LearningState> {
 
       final flat = state.flatLessons;
       if (flat.isNotEmpty) {
-        String selected = flat.any((l) => l.id == _requestedLessonId)
-            ? _requestedLessonId!
-            : flat.first.id;
+        String selected = flat.first.id;
         try {
           final saved = await _ref
               .read(learningProgressRepositoryProvider)
@@ -142,20 +143,26 @@ class LearningNotifier extends StateNotifier<LearningState> {
             clearProgressError: true,
             progressReady: true,
           );
-          if (valid.isNotEmpty &&
-              !flat.any((l) => l.id == _requestedLessonId)) {
-            selected = valid.first.lessonId;
-          }
+          if (valid.isNotEmpty) selected = valid.first.lessonId;
         } catch (_) {
           if (!mounted || requestId != _requestId) return;
           state = state.copyWith(
             progressError: 'Saved progress is unavailable. Retry to load it.',
           );
         }
+        // Read the latest request after the asynchronous progress read, so a
+        // restored history entry wins over both earlier requests and resume.
+        if (flat.any((lesson) => lesson.id == _requestedLessonId)) {
+          selected = _requestedLessonId!;
+        }
+        _isLoadingCourse = false;
         await selectLesson(selected);
+      } else {
+        _isLoadingCourse = false;
       }
     } catch (e) {
       if (!mounted || requestId != _requestId) return;
+      _isLoadingCourse = false;
       state = state.copyWith(
         isLoading: false,
         error: 'Could not load this lesson. Please try again.',

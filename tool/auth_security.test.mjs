@@ -29,7 +29,11 @@ test('public signup cannot use anonymous or manually linked identities', () => {
   assert.equal(setting('auth', 'enable_signup'), 'true');
   assert.equal(setting('auth', 'enable_anonymous_sign_ins'), 'false');
   assert.equal(setting('auth', 'enable_manual_linking'), 'false');
-  assert.ok(Number(setting('auth', 'minimum_password_length')) >= 12);
+});
+
+test('password policy matches the owner-approved six-character rule without strength groups', () => {
+  assert.equal(Number(setting('auth', 'minimum_password_length')), 6);
+  assert.equal(setting('auth', 'password_requirements'), '""');
 });
 test('email tokens are bounded and repeated mail requests are throttled', () => {
   assert.equal(setting('auth.email', 'max_frequency'), '"1m"');
