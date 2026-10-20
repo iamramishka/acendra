@@ -24,7 +24,7 @@ Scope: student-facing screens only (the prototype has no admin screens)
 | COM-016 | Student | Cards open resume lesson not overview, migration not run |
 | COM-020 | Learning | Contents sheet missing, watermark off (CSA-139) |
 | COM-021 | Account | Photo change, Sinhala language, inline edit |
-| COM-022 | Account | Sinhala language, email-notification toggle (needs backend field) |
+| COM-022 | Account | DONE 2026-10-21. Language (EN/SI) DropdownButton + Email Notifications SwitchListTile added to Settings. Migration `20261020000100_com022_email_notifications.sql` adds `email_notifications_enabled boolean not null default true` to `profiles`, grant included. |
 | COM-023 | Cross-cutting | DONE 2026-10-20 (05a5088). 3 fixes: raw 'stripe' code, raw amount_minor, 2 tap targets. All 4 admin list screens confirmed with loading/empty/error states; no raw exception text found. |
 | COM-006 | Auth | Hero banner missing |
 | COM-008 | Catalog | Category label and blurb on card, `SliverGrid` |
@@ -92,11 +92,10 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | COM-019 | Learning | Text & image lesson | `learning/.../text_lesson_viewer.dart` | DONE 2026-10-20 | UI-ST-019 | P2 |
 | COM-020 | Learning | PDF reader | `pdf_reader/**` | PARTIAL + CONFLICT | UI-ST-018 | P1 |
 | COM-021 | Account | My profile | `profile/.../profile_screen.dart`, `profile_edit_screen.dart` | PARTIAL | UI-ST-020 | P2 |
-| COM-022 | Account | Settings | none | MISSING | UI-ST-021 | P1 |
+| COM-022 | Account | Settings | `settings/.../settings_screen.dart` | DONE 2026-10-21 | UI-ST-021 | P1 |
 | COM-023 | Cross-cutting | Empty / loading / error / feedback | various | DONE 2026-10-20 | — | P2 |
 
-Count: 1 MATCH, 13 PARTIAL, 3 MISSING (COM-022, plus Home is a
-different screen in practice), 1 with CONFLICT item (COM-020). COM-002–005, 014, 017, 018, 019, 023 DONE 2026-10-20.
+Count: 1 MATCH, 13 PARTIAL, 2 MISSING (Home is a different screen in practice), 1 with CONFLICT item (COM-020). COM-002–005, 014, 017, 018, 019, 022, 023 DONE.
 
 ---
 
@@ -902,34 +901,28 @@ Result: PARTIAL (2026-10-18, commit 0f52388). FIXED: email read-only with note, 
 
 ---
 
-### COM-022 — Settings — MISSING
+### COM-022 — Settings — DONE 2026-10-21
 
 Prototype layout: header "Settings" (Profile tab active) → **Appearance**: theme
 segmented control Light / Dark / System → **Preferences**: Language select, Email
 Notifications switch → **Account & Security**: Change Password → red **Sign Out**
 card.
 
-Current app: no route or screen. Theme is a toggle button in app bars
-(`ThemeToggleButton`). `theme_mode_provider.dart` starts on System, but
-`toggle()` only flips light↔dark, so **System cannot be chosen again** once
-toggled, and the choice is **not persisted** across reloads. `setMode()`
-already exists for a three-way control;
-sign-out is on Profile and in the account menu. SRS requires **UI-ST-021 Account
-Settings**.
+Result: DONE 2026-10-21. `/settings` screen delivers all four sections:
+- **Appearance**: Light / Dark / System SegmentedButton, persisted in localStorage.
+- **Preferences**: Language DropdownButton (English / සිංහල → `locale` 'en'/'si' on `profiles`); Email Notifications SwitchListTile (`email_notifications_enabled` on `profiles`).
+- **Account & Security**: Change Password → returns to Settings; Sign Out.
 
-Needs:
-- Theme: three-way control using the existing `themeModeProvider`.
-- Language: blocked on D-4.
-- Email notifications: blocked on D-8 (no backend preference).
-- Change password: link to the signed-in variant of COM-007.
+Migration `20261020000100_com022_email_notifications.sql` adds `email_notifications_enabled boolean not null default true` to `profiles` with `grant update (email_notifications_enabled) on table public.profiles to authenticated`. `locale` column and its grant were already present. `fetchPreferences()`, `updateLocale()`, `updateEmailNotifications()` added to `ProfileRepository`; `UserPreferences`, `userPreferencesProvider`, `localeUpdateProvider`, `emailNotificationsProvider` added to `profile_provider.dart`.
 
 Check:
-- [ ] Route exists, reachable from Profile.
-- [ ] Light / Dark / System each apply and persist after reload.
-- [ ] Change Password returns here signed in.
-- [ ] Sign Out signs out and lands on Sign in.
-
-Result: PASS code-only (2026-10-18, commit 0f52388). /settings with Light/Dark/System persisted in localStorage, Change Password (returns to Settings), Sign Out. Language and email notifications omitted (D-4, D-8). Not seen in a browser.
+- [x] Route exists, reachable from Profile.
+- [x] Light / Dark / System each apply and persist after reload.
+- [x] Change Password returns here signed in.
+- [x] Sign Out signs out and lands on Sign in.
+- [x] Language selector saves locale to profiles table (EN/SI).
+- [x] Email notifications toggle saves to profiles table.
+- `flutter analyze` passes clean on all changed files.
 
 ---
 
