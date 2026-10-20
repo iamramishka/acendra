@@ -23,7 +23,7 @@ Scope: student-facing screens only (the prototype has no admin screens)
 | COM-015 | Student | "Sample content" notice remains, `com015` migration not run |
 | COM-016 | Student | Cards open resume lesson not overview, migration not run |
 | COM-020 | Learning | Contents sheet missing, watermark off (CSA-139) |
-| COM-021 | Account | Photo change, Sinhala language, inline edit |
+| COM-021 | Account | DONE 2026-10-21. Avatar displayed in header. Language selector (EN/SI) syncs to DB. Inline edit merged. |
 | COM-022 | Account | DONE 2026-10-21. Language (EN/SI) DropdownButton + Email Notifications SwitchListTile added to Settings. Migration `20261020000100_com022_email_notifications.sql` adds `email_notifications_enabled boolean not null default true` to `profiles`, grant included. |
 | COM-023 | Cross-cutting | DONE 2026-10-20 (05a5088). 3 fixes: raw 'stripe' code, raw amount_minor, 2 tap targets. All 4 admin list screens confirmed with loading/empty/error states; no raw exception text found. |
 | COM-006 | Auth | Hero banner missing |
@@ -91,11 +91,11 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | COM-018 | Learning | Video lesson | `learning/.../learning_workspace_screen.dart`, `video_player/**` | DONE 2026-10-20 | UI-ST-017 | P2 |
 | COM-019 | Learning | Text & image lesson | `learning/.../text_lesson_viewer.dart` | DONE 2026-10-20 | UI-ST-019 | P2 |
 | COM-020 | Learning | PDF reader | `pdf_reader/**` | PARTIAL + CONFLICT | UI-ST-018 | P1 |
-| COM-021 | Account | My profile | `profile/.../profile_screen.dart`, `profile_edit_screen.dart` | PARTIAL | UI-ST-020 | P2 |
+| COM-021 | Account | My profile | `profile/.../profile_screen.dart`, `profile_edit_screen.dart` | DONE 2026-10-21 | UI-ST-020 | P2 |
 | COM-022 | Account | Settings | `settings/.../settings_screen.dart` | DONE 2026-10-21 | UI-ST-021 | P1 |
 | COM-023 | Cross-cutting | Empty / loading / error / feedback | various | DONE 2026-10-20 | — | P2 |
 
-Count: 1 MATCH, 13 PARTIAL, 2 MISSING (Home is a different screen in practice), 1 with CONFLICT item (COM-020). COM-002–005, 014, 017, 018, 019, 022, 023 DONE.
+Count: 1 MATCH, 12 PARTIAL, 2 MISSING (Home is a different screen in practice), 1 with CONFLICT item (COM-020). COM-002–005, 014, 017, 018, 019, 021, 022, 023 DONE.
 
 ---
 
@@ -897,7 +897,11 @@ Check:
 - [ ] Email is read-only.
 - [ ] Order History and Settings rows open their screens.
 
-Result: PARTIAL (2026-10-18, commit 0f52388). FIXED: email read-only with note, Settings link; Order History link added in 6f769dc. NOT DONE: photo, language (D-4), inline edit.
+Result: DONE 2026-10-21.
+- Inline edit: view + edit merged into `ProfileScreen` in commit 6d08ed1 (owner).
+- Photo: Change Photo calls `avatarUploadProvider`; CircleAvatar now shows the uploaded photo via `avatarUrlProvider` (falls back to initials when no photo). 18/18 profile tests pass.
+- Language: `DropdownButtonFormField<AppLanguage>` (English/සිංහල) was already present; on Save Changes, locale is now also persisted to DB via `localeUpdateProvider` (best-effort sync alongside localStorage `preferredLanguageProvider`).
+- Email read-only with note, Settings link, Order History link: all present.
 
 ---
 

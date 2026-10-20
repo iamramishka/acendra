@@ -65,6 +65,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       ref
           .read(preferredLanguageProvider.notifier)
           .setLanguage(_pendingLanguage!);
+      // Best-effort DB sync (failures are swallowed; localStorage is the local source).
+      await ref
+          .read(localeUpdateProvider.notifier)
+          .setLocale(_pendingLanguage!.code);
     }
     setState(() => _pendingLanguage = null);
     if (mounted) {
@@ -109,6 +113,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final email = ref.watch(currentEmailProvider);
     final logoutState = ref.watch(logoutProvider);
     final currentLang = ref.watch(preferredLanguageProvider);
+    final avatarUrl = ref.watch(avatarUrlProvider).asData?.value;
 
     final initials = _initials(displayName ?? email);
     final cs = Theme.of(context).colorScheme;
@@ -142,13 +147,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   CircleAvatar(
                     radius: 48,
                     backgroundColor: Colors.white.withValues(alpha: 0.15),
-                    child: Text(
-                      initials,
-                      style: tt.headlineMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                    backgroundImage: avatarUrl != null
+                        ? NetworkImage(avatarUrl)
+                        : null,
+                    child: avatarUrl == null
+                        ? Text(
+                            initials,
+                            style: tt.headlineMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          )
+                        : null,
                   ),
                   const SizedBox(height: 8),
                   TextButton(
