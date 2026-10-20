@@ -320,7 +320,13 @@ class _LessonContentArea extends StatelessWidget {
               child: Text('This lesson content is currently unavailable.'),
             ),
           ),
-          _LessonNavBar(onPrevious: onPrevious, onNext: onNext),
+          _LessonNavBar(
+            onPrevious: onPrevious,
+            onNext: onNext,
+            forwardLabel: forwardLabel,
+            onForward: onForward,
+            forwardBusy: forwardBusy,
+          ),
         ],
       );
     }

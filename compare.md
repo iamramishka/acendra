@@ -32,7 +32,7 @@ Scope: student-facing screens only (the prototype has no admin screens)
 | COM-014 | Student | Second-account RLS check and browser check; NOT VERIFIED live 2026-10-20 (`/orders` not in the deployed build) |
 | COM-017 | Learning | VERIFIED locally 2026-10-20 (localhost:9090, branch `feat/com-007-password-reset`): course overview loads from `/learn/:courseId`, shows progress %, Continue Learning card, expandable curriculum with lesson markers. Progress updates after Mark Complete. Back from lesson goes to My Courses (not overview — known COM-016 gap). |
 | COM-018 | Learning | VERIFIED locally 2026-10-20: "Lesson 01 · Video Lesson" header, In Progress pill, progress counter (0/4 → 1/4 after completing), "Mark Complete & Continue" sticky footer works. Video player shows access error (no Mux asset in seed — expected, not a code bug). |
-| COM-019 | Learning | PARTIAL locally 2026-10-20: "Lesson 02 · Article Lesson" header ✓, In Progress pill ✓, progress counter ✓. Footer shows "← Previous \| Next →" only — no "Mark Complete & Continue" (video lesson has it; text lesson does not). No "module finished" moment. |
+| COM-019 | Learning | FIXED 2026-10-20 (branch `feat/com-007-password-reset`): content-unavailable branch now passes forwardLabel/onForward to _LessonNavBar — "Mark Complete & Continue" now shows for text/image lessons. Module-finished snackbar was already wired. `flutter analyze` exit 0. |
 | COM-001 | Foundation | DONE 2026-10-19 (owner accepted): fonts and Sign in (light) checked on live site; Checkout, dark and Explore not compared |
 
 ---
@@ -845,8 +845,7 @@ Check:
 - [ ] Header shows lesson number, type and status.
 - [ ] Complete & Continue advances; last lesson returns to overview.
 
-Result: PARTIAL locally 2026-10-20. "Lesson 02 · Article Lesson" header ✓, "In Progress" pill ✓, progress counter ✓. GAP: footer shows "← Previous | Next →" only — text lesson does not have "Mark Complete & Continue" (video lesson does). No "module finished" moment. Content area shows "This lesson content is currently unavailable" (no body in local seed — expected).
-Live (http://3.25.99.105): NOT DEPLOYED.
+Result: FIXED 2026-10-20 (branch `feat/com-007-password-reset`). Root cause: the "content unavailable" early-return branch in `_LessonContentArea` called `_LessonNavBar` without `forwardLabel`/`onForward`/`forwardBusy`, so only Previous/Next showed. Fixed by passing all three. Module-finished snackbar ("Module finished" toast + navigate to `/learn/:courseId`) was already wired in `_completeAndContinue`. `flutter analyze` exit 0. NOT VERIFIED in browser (staging Supabase; local seed user not seeded into staging). NOT DEPLOYED to http://3.25.99.105.
 
 ---
 
