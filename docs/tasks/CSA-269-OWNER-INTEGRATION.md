@@ -1,6 +1,6 @@
 # CSA-269 — integrate committed owner changes with current dev
 
-Owner: CODEX. Status: IN_PROGRESS. Authority: project owner requested fixing the
+Owner: CODEX. Status: IN_REVIEW. Authority: project owner requested fixing the
 finderror review's remaining source/integration issues and opening PRs on
 2026-10-20 (Asia/Colombo).
 
@@ -64,3 +64,36 @@ permission matrix. The matrix first failed on the new avatar_path grant; its
 allowlist now names that one intended column and asserts a validated own-folder
 constraint plus a private bounded bucket. Other protected columns remain denied.
 Native Auth/Storage are synthetic and do not establish hosted acceptance.
+
+## Final combined checks
+
+- Exact combined source: `7f8ae80` (subsequent commits change documentation only).
+- `flutter test --no-pub --concurrency=1 test/features/admin
+  test/features/profile/avatar_session_test.dart
+  test/features/profile/presentation/screens/profile_screen_test.dart
+  test/features/my_courses test/features/settings --reporter expanded`: exit 0,
+  **197 passed**. Both original duplicate-action failures now pass. The added
+  profile account-switch/disposal regressions pass. Earlier navigation, recovery,
+  artwork, reporting and PDF cases are retained as incremental evidence above;
+  this is not a claim that the earlier failed invocation was green.
+- All **43 migrations** replayed together in a new disposable PostgreSQL 17
+  cluster; **six SQL suites passed**: course authoring, publication, archival,
+  avatar isolation, profile isolation and the catalog permission matrix. Native
+  Auth/Storage shims do not certify a managed-service deployment.
+- `dart format --output=none --set-exit-if-changed lib test`: exit 0, **366 files**,
+  zero changes. `git diff --check` passes.
+- PRs: [#201](https://github.com/iamramishka/acendra/pull/201) and the dependent
+  [#202](https://github.com/iamramishka/acendra/pull/202), both draft. Both required
+  #201 jobs executed zero steps: their annotations report failed account payments
+  or a spending-limit block. Vercel previews passed. No billing or protection
+  setting was changed. #202's stacked base is outside the existing dev/main CI
+  event filter; retarget to dev after #201 merges and require checks there.
+- Local full analysis crashed creating a Windows Dart worker thread in this
+  worktree; the separate course-worktree analyzer stalled and was stopped. No
+  clean analyzer/full Flutter/Chrome CI result or production acceptance is
+  inferred. Release-build outcome is recorded separately below when available.
+
+The primary checkout advanced independently after snapshot `31aaddc`; those later
+local changes are not silently copied into this PR. Original worktrees and the
+primary checkout remain untouched by this task. No source merge, deployment,
+hosted activation, sandbox cleanup or production acceptance was performed.
