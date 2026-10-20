@@ -1,4 +1,3 @@
-import 'package:acendra/app/theme/app_colors.dart';
 import 'package:acendra/app/theme/app_theme_extension.dart';
 import 'package:acendra/core/widgets/inputs/app_text_field.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +18,13 @@ class AuthHeroBanner extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.deepNavy,
         borderRadius: BorderRadius.circular(20),
+        gradient: const RadialGradient(
+          center: Alignment(0.7, -0.2),
+          radius: 1.5,
+          colors: [Color(0xFF1E6BFF), Color(0xFF123A9C), Color(0xFF0B1E4F)],
+          stops: [0.0, 0.35, 0.75],
+        ),
       ),
       clipBehavior: Clip.hardEdge,
       child: LayoutBuilder(

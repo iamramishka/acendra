@@ -60,36 +60,50 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => context.push(RouteNames.changePassword),
             ),
             const SizedBox(height: 24),
-            OutlinedButton.icon(
-              icon: isSigningOut
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.logout),
-              label: const Text('Sign out'),
-              onPressed: isSigningOut
-                  ? null
-                  : () async {
-                      await ref.read(logoutProvider.notifier).logout();
-                      if (!context.mounted) return;
-                      if (ref.read(logoutProvider).hasError) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Could not sign out. Please try again.',
+            Card(
+              color: cs.errorContainer,
+              child: InkWell(
+                onTap: isSigningOut
+                    ? null
+                    : () async {
+                        await ref.read(logoutProvider.notifier).logout();
+                        if (!context.mounted) return;
+                        if (ref.read(logoutProvider).hasError) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Could not sign out. Please try again.',
+                              ),
                             ),
+                          );
+                        } else {
+                          context.go(RouteNames.login);
+                        }
+                      },
+                borderRadius: BorderRadius.circular(12),
+                child: ListTile(
+                  leading: isSigningOut
+                      ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: cs.error,
                           ),
-                        );
-                      } else {
-                        context.go(RouteNames.login);
-                      }
-                    },
-              style: OutlinedButton.styleFrom(
-                foregroundColor: cs.error,
-                side: BorderSide(color: cs.error),
-                minimumSize: const Size(0, 44),
+                        )
+                      : Icon(Icons.logout_rounded, color: cs.error),
+                  title: Text(
+                    'Sign out',
+                    style: tt.bodyLarge?.copyWith(
+                      color: cs.error,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  trailing: Icon(
+                    Icons.chevron_right_rounded,
+                    color: cs.error.withValues(alpha: 0.6),
+                  ),
+                ),
               ),
             ),
           ],

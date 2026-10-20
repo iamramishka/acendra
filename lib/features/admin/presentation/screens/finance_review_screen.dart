@@ -91,7 +91,7 @@ class FinanceReviewScreen extends ConsumerWidget {
                         label: 'View Payment History',
                         onPressed: () => context.go('/admin/payments/history'),
                         variant: ButtonVariant.secondary,
-                        size: ButtonSize.small,
+                        size: ButtonSize.medium,
                         icon: const Icon(Icons.history_outlined, size: 16),
                       ),
                       const SizedBox(width: AppSpacing.sm),
@@ -99,15 +99,19 @@ class FinanceReviewScreen extends ConsumerWidget {
                         label: 'All Payments',
                         onPressed: () => context.go('/admin/payments'),
                         variant: ButtonVariant.outlined,
-                        size: ButtonSize.small,
+                        size: ButtonSize.medium,
                         icon: const Icon(Icons.payments_outlined, size: 16),
                       ),
                     ],
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   if (items.isEmpty)
-                    const Expanded(
-                      child: AppEmptyState(message: 'No receipts to review'),
+                    Expanded(
+                      child: AppEmptyState(
+                        message: 'No receipts to review',
+                        actionLabel: 'View Payment History',
+                        onAction: () => context.go('/admin/payments/history'),
+                      ),
                     )
                   else
                     Expanded(
