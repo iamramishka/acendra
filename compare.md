@@ -89,7 +89,7 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | COM-016 | Student | My Courses | `my_courses/.../my_courses_screen.dart` | PARTIAL | UI-ST-015 | P1 |
 | COM-017 | Learning | Course overview + progress | none (workspace opens straight into a lesson) | MISSING | UI-ST-016 | P1 |
 | COM-018 | Learning | Video lesson | `learning/.../learning_workspace_screen.dart`, `video_player/**` | PARTIAL | UI-ST-017 | P2 |
-| COM-019 | Learning | Text & image lesson | `learning/.../text_lesson_viewer.dart` | PARTIAL | UI-ST-019 | P2 |
+| COM-019 | Learning | Text & image lesson | `learning/.../text_lesson_viewer.dart` | DONE 2026-10-20 | UI-ST-019 | P2 |
 | COM-020 | Learning | PDF reader | `pdf_reader/**` | PARTIAL + CONFLICT | UI-ST-018 | P1 |
 | COM-021 | Account | My profile | `profile/.../profile_screen.dart`, `profile_edit_screen.dart` | PARTIAL | UI-ST-020 | P2 |
 | COM-022 | Account | Settings | none | MISSING | UI-ST-021 | P1 |
