@@ -69,7 +69,11 @@ class BankTransferScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Bank Transfer'),
-        leading: BackButton(onPressed: () => Navigator.of(context).maybePop()),
+        leading: BackButton(
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.go(RouteNames.dashboard),
+        ),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -84,19 +88,29 @@ class BankTransferScreen extends ConsumerWidget {
               children: [
                 // ── Order badge ───────────────────────────────────────────
                 Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.xs,
-                    ),
-                    decoration: BoxDecoration(
-                      color: cs.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(AppRadius.chip),
-                    ),
-                    child: Text(
-                      'Order #$orderNumber  •  $formattedAmount',
-                      style: tt.bodySmall?.copyWith(color: ext.textSecondary),
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.md,
+                            vertical: AppSpacing.xs,
+                          ),
+                          decoration: BoxDecoration(
+                            color: cs.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(AppRadius.chip),
+                          ),
+                          child: Text(
+                            'Order #$orderNumber  •  $formattedAmount',
+                            style: tt.bodySmall?.copyWith(
+                              color: ext.textSecondary,
+                            ),
+                          ),
+                        ),
+                      ),
+                      _CopyButton(label: 'order reference', value: orderNumber),
+                    ],
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -150,15 +164,19 @@ class BankTransferScreen extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.xl),
 
                 // ── Bank account details ──────────────────────────────────
-                ...[
-                  _BankDetailsCard(
-                    instructions: bankInstructions,
-                    ext: ext,
-                    tt: tt,
-                    cs: cs,
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-                ],
+                _BankDetailsCard(
+                  instructions: bankInstructions,
+                  ext: ext,
+                  tt: tt,
+                  cs: cs,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  'Use the exact amount and put your order reference '
+                  '($orderNumber) in the payment description.',
+                  style: tt.bodySmall?.copyWith(color: ext.textSecondary),
+                ),
+                const SizedBox(height: AppSpacing.xl),
 
                 // ── Disclaimer ────────────────────────────────────────────
                 Container(
@@ -309,14 +327,14 @@ class _BankDetailsCard extends StatelessWidget {
           _DetailRow(
             label: 'Bank',
             value: instructions.bankName,
-            copyable: false,
+            copyable: true,
             tt: tt,
             ext: ext,
           ),
           _DetailRow(
             label: 'Account Holder',
             value: instructions.accountHolder,
-            copyable: false,
+            copyable: true,
             tt: tt,
             ext: ext,
           ),
@@ -382,24 +400,34 @@ class _DetailRow extends StatelessWidget {
               style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
           ),
-          if (copyable)
-            GestureDetector(
-              onTap: () {
-                Clipboard.setData(ClipboardData(text: value));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Copied to clipboard'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              },
-              child: const Padding(
-                padding: EdgeInsets.only(left: AppSpacing.xs),
-                child: Icon(Icons.copy_outlined, size: 16),
-              ),
-            ),
+          if (copyable) _CopyButton(label: label.toLowerCase(), value: value),
         ],
       ),
+    );
+  }
+}
+
+class _CopyButton extends StatelessWidget {
+  const _CopyButton({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: 'Copy $label',
+      constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+      icon: const Icon(Icons.copy_outlined, size: 18),
+      onPressed: () {
+        Clipboard.setData(ClipboardData(text: value));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Copied to clipboard'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      },
     );
   }
 }

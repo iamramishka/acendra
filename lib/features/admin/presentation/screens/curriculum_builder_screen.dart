@@ -161,8 +161,10 @@ class _CurriculumBuilderScreenState
                     ref.invalidate(adminCurriculumProvider(widget.courseId)),
               ),
               data: (sections) => sections.isEmpty && !_addingSection
-                  ? const AppEmptyState(
-                      message: 'No sections yet. Add your first section below.',
+                  ? AppEmptyState(
+                      message: 'No sections yet. Add your first section.',
+                      actionLabel: 'Add Section',
+                      onAction: () => setState(() => _addingSection = true),
                     )
                   : _buildSectionList(context, sections),
             ),
@@ -273,7 +275,7 @@ class _CurriculumBuilderScreenState
                   '/admin/courses/${widget.courseId}/curriculum/new/edit',
                 ),
                 variant: ButtonVariant.outlined,
-                size: ButtonSize.small,
+                size: ButtonSize.medium,
                 icon: const Icon(Icons.add, size: 16),
               ),
             ),
@@ -349,14 +351,14 @@ class _CurriculumBuilderScreenState
                     setState(() => _addingSection = false);
                   },
                   variant: ButtonVariant.outlined,
-                  size: ButtonSize.small,
+                  size: ButtonSize.medium,
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 AppButton(
                   label: 'Add',
                   onPressed: _savingSection ? null : _addSection,
                   variant: ButtonVariant.primary,
-                  size: ButtonSize.small,
+                  size: ButtonSize.medium,
                   isLoading: _savingSection,
                 ),
               ],

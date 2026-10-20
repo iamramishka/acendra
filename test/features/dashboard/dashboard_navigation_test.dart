@@ -38,11 +38,11 @@ Future<GoRouter> _pump(
             path: RouteNames.savedCourses,
             builder: (_, _) => const DashboardSavedScreen(),
           ),
+          GoRoute(
+            path: RouteNames.marketplace,
+            builder: (_, _) => const Text('Catalog'),
+          ),
         ],
-      ),
-      GoRoute(
-        path: RouteNames.marketplace,
-        builder: (_, _) => const Text('Catalog'),
       ),
     ],
   );
@@ -117,11 +117,11 @@ void main() {
               3,
             );
           } else {
-            await tester.tap(find.text(DashboardCopy.saved));
+            await tester.tap(find.text(DashboardCopy.explore));
             await tester.pumpAndSettle();
             expect(
               router.routeInformationProvider.value.uri.path,
-              RouteNames.savedCourses,
+              RouteNames.marketplace,
             );
             await tester.tap(find.text(DashboardCopy.home));
             await tester.pumpAndSettle();
@@ -146,7 +146,7 @@ void main() {
     expect(find.text(DashboardCopy.savedExplanation), findsOneWidget);
     expect(
       tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-      2,
+      0,
     );
     await tester.tap(find.text(DashboardCopy.exploreCourses));
     await tester.pumpAndSettle();

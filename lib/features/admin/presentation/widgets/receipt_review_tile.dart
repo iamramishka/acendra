@@ -170,7 +170,7 @@ class ReceiptReviewTile extends StatelessWidget {
                   label: 'View Receipt',
                   onPressed: onViewReceipt,
                   variant: ButtonVariant.outlined,
-                  size: ButtonSize.small,
+                  size: ButtonSize.medium,
                 ),
                 // Approve / Reject only for pending items
                 if (item.status == ReceiptStatus.pending) ...[
@@ -180,7 +180,7 @@ class ReceiptReviewTile extends StatelessWidget {
                       label: 'Approve',
                       onPressed: isProcessing ? null : onApprove,
                       variant: ButtonVariant.primary,
-                      size: ButtonSize.small,
+                      size: ButtonSize.medium,
                       isLoading: isProcessing,
                     ),
                   ),
@@ -192,7 +192,7 @@ class ReceiptReviewTile extends StatelessWidget {
                           ? null
                           : () => _showRejectDialog(context),
                       variant: ButtonVariant.destructive,
-                      size: ButtonSize.small,
+                      size: ButtonSize.medium,
                       isLoading: isProcessing,
                     ),
                   ),
@@ -282,13 +282,13 @@ class _RejectDialogState extends State<_RejectDialog> {
           label: 'Cancel',
           onPressed: () => Navigator.of(context).pop(),
           variant: ButtonVariant.outlined,
-          size: ButtonSize.small,
+          size: ButtonSize.medium,
         ),
         AppButton(
           label: 'Confirm Rejection',
           onPressed: _onConfirm,
           variant: ButtonVariant.destructive,
-          size: ButtonSize.small,
+          size: ButtonSize.medium,
         ),
       ],
     );

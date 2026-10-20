@@ -32,38 +32,54 @@ void main() {
     expect(find.text('Update password'), findsOneWidget);
   });
 
-  testWidgets('shows errors when submitting empty fields', (tester) async {
+  testWidgets('renders live checklist items', (tester) async {
     await tester.pumpWidget(_wrap());
-    await tester.tap(find.text('Update password'));
-    await tester.pump();
-    expect(find.text('Enter a new password'), findsOneWidget);
-    expect(find.text('Confirm your password'), findsOneWidget);
+    expect(find.text('At least 5 characters'), findsOneWidget);
+    expect(find.text('Passwords match'), findsOneWidget);
   });
 
-  testWidgets('shows error when password is too short', (tester) async {
+  testWidgets('button is disabled until both rules pass', (tester) async {
     await tester.pumpWidget(_wrap());
-    await tester.enterText(find.byType(TextField).first, 'abc');
-    await tester.tap(find.text('Update password'));
-    await tester.pump();
-    expect(find.text('Password must be at least 6 characters'), findsOneWidget);
+    // Button disabled with empty fields
+    final btn = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+    expect(btn.onPressed, isNull);
   });
 
-  testWidgets('shows error when passwords do not match', (tester) async {
+  testWidgets('button enables when length and match both pass', (tester) async {
     await tester.pumpWidget(_wrap());
-    await tester.enterText(find.byType(TextField).first, 'password123');
-    await tester.enterText(find.byType(TextField).last, 'different');
-    await tester.tap(find.text('Update password'));
+    await tester.enterText(find.byType(TextField).first, 'abcde');
+    await tester.enterText(find.byType(TextField).last, 'abcde');
     await tester.pump();
-    expect(find.text('Passwords do not match'), findsOneWidget);
+    final btn = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+    expect(btn.onPressed, isNotNull);
+  });
+
+  testWidgets('button stays disabled when passwords do not match', (tester) async {
+    await tester.pumpWidget(_wrap());
+    await tester.enterText(find.byType(TextField).first, 'abcde');
+    await tester.enterText(find.byType(TextField).last, 'xxxxx');
+    await tester.pump();
+    final btn = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+    expect(btn.onPressed, isNull);
+  });
+
+  testWidgets('button stays disabled when password is too short', (tester) async {
+    await tester.pumpWidget(_wrap());
+    await tester.enterText(find.byType(TextField).first, 'ab');
+    await tester.enterText(find.byType(TextField).last, 'ab');
+    await tester.pump();
+    final btn = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+    expect(btn.onPressed, isNull);
   });
 
   testWidgets('shows snackbar on auth failure', (tester) async {
     await tester.pumpWidget(_wrap(throws: const WeakPassword()));
-    await tester.enterText(find.byType(TextField).first, 'password123');
-    await tester.enterText(find.byType(TextField).last, 'password123');
+    await tester.enterText(find.byType(TextField).first, 'abcde');
+    await tester.enterText(find.byType(TextField).last, 'abcde');
+    await tester.pump();
     await tester.tap(find.text('Update password'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('at least 6 characters'), findsOneWidget);
+    expect(find.textContaining('at least 5 characters'), findsOneWidget);
   });
 
   testWidgets('has back to sign in link', (tester) async {

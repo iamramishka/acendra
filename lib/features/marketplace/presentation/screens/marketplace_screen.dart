@@ -74,6 +74,26 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
           slivers: [
             SliverToBoxAdapter(
               child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Explore Courses',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    Text(
+                      'Discover skills worth mastering.',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: SearchBar(
                   controller: _searchController,
@@ -98,11 +118,57 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                 error: (err, _) => const SizedBox.shrink(),
               ),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          courses.length == 1
+                              ? '1 Course'
+                              : '${courses.length} Courses',
+                        ),
+                      ),
+                      DropdownButton<CourseSort>(
+                        value: ref.watch(courseSortProvider),
+                        underline: const SizedBox.shrink(),
+                        onChanged: (s) {
+                          if (s != null) {
+                            ref.read(courseSortProvider.notifier).state = s;
+                          }
+                        },
+                        items: const [
+                          DropdownMenuItem(
+                            value: CourseSort.newest,
+                            child: Text('Newest'),
+                          ),
+                          DropdownMenuItem(
+                            value: CourseSort.priceLow,
+                            child: Text('Price: low to high'),
+                          ),
+                          DropdownMenuItem(
+                            value: CourseSort.priceHigh,
+                            child: Text('Price: high to low'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 8)),
             if (courses.isEmpty)
-              const SliverFillRemaining(
+              SliverFillRemaining(
                 child: Center(
-                  child: AppEmptyState(message: 'No courses available yet.'),
+                  child: AppEmptyState(
+                    message: (rawState.asData?.value.isEmpty ?? true)
+                        ? 'No courses available yet.'
+                        : 'No courses found. Try a different word or category.',
+                  ),
                 ),
               )
             else
