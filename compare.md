@@ -87,7 +87,7 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | COM-014 | Payment | Order history | none | MISSING | UI-ST-022 | P1 |
 | COM-015 | Student | Home | `dashboard/.../dashboard_home_screen.dart` | PARTIAL (different screen) | UI-ST-006 | P1 |
 | COM-016 | Student | My Courses | `my_courses/.../my_courses_screen.dart` | PARTIAL | UI-ST-015 | P1 |
-| COM-017 | Learning | Course overview + progress | none (workspace opens straight into a lesson) | MISSING | UI-ST-016 | P1 |
+| COM-017 | Learning | Course overview + progress | `learning/.../course_overview_screen.dart` | DONE 2026-10-20 | UI-ST-016 | P1 |
 | COM-018 | Learning | Video lesson | `learning/.../learning_workspace_screen.dart`, `video_player/**` | DONE 2026-10-20 | UI-ST-017 | P2 |
 | COM-019 | Learning | Text & image lesson | `learning/.../text_lesson_viewer.dart` | DONE 2026-10-20 | UI-ST-019 | P2 |
 | COM-020 | Learning | PDF reader | `pdf_reader/**` | PARTIAL + CONFLICT | UI-ST-018 | P1 |
@@ -790,8 +790,7 @@ Check:
 - [ ] Module and lesson markers reflect saved progress after reload.
 - [ ] Resume opens the right lesson.
 
-Result: VERIFIED locally 2026-10-20 (localhost:9090, branch `feat/com-007-password-reset`). Course overview at `/learn/:courseId` shows progress %, "1 of N lessons completed", Continue Learning card with correct next lesson, expandable curriculum with module/lesson markers (✓ for completed, play icon for In Progress, empty circle for not started). Progress updated correctly after Mark Complete. Compilation fix required: `receipt_review_history_screen.dart` lines 235/244 were missing `cs:` param on `_DateRow` — fixed in this session.
-Live (http://3.25.99.105): NOT DEPLOYED. The deployed build has no "Your Learning Progress" string.
+Result: VERIFIED locally 2026-10-20 (localhost:9090, branch `feat/com-007-password-reset`). Course overview at `/learn/:courseId` shows progress %, "1 of N lessons completed", Continue Learning card with correct next lesson, expandable curriculum with module/lesson markers (✓ for completed, play icon for In Progress, empty circle for not started). Progress updated correctly after Mark Complete. Compilation fix required: `receipt_review_history_screen.dart` lines 235/244 were missing `cs:` param on `_DateRow` — fixed in this session. MERGED to dev 2026-10-20 (8ddfda2). Deploy pending CI pass + production reviewer approval.
 
 ---
 
