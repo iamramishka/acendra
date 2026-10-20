@@ -51,8 +51,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       await ref
           .read(profileEditProvider.notifier)
           .updateDisplayName(displayName: name);
-      if (!mounted || actor != ref.read(currentSessionProvider)?.user.id)
+      if (!mounted || actor != ref.read(currentSessionProvider)?.user.id) {
         return;
+      }
       final editState = ref.read(profileEditProvider);
       if (editState.hasError) {
         final err = profileEditError(editState);

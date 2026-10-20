@@ -74,8 +74,9 @@ class AvatarUploadNotifier extends AsyncNotifier<void> {
         );
       }
       await ref.read(profileRepositoryProvider).uploadAvatar(file);
-      if (!ref.mounted || actor != ref.read(currentSessionProvider)?.user.id)
+      if (!ref.mounted || actor != ref.read(currentSessionProvider)?.user.id) {
         return;
+      }
       uploaded = true;
     });
     if (!ref.mounted) return false;

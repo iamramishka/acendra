@@ -67,7 +67,8 @@ Native Auth/Storage are synthetic and do not establish hosted acceptance.
 
 ## Final combined checks
 
-- Exact combined source: `7f8ae80` (subsequent commits change documentation only).
+- Functional combined source: `7f8ae80`; two later profile guards received
+  braces only to satisfy the default analyzer. Their behavior is unchanged.
 - `flutter test --no-pub --concurrency=1 test/features/admin
   test/features/profile/avatar_session_test.dart
   test/features/profile/presentation/screens/profile_screen_test.dart
@@ -92,6 +93,24 @@ Native Auth/Storage are synthetic and do not establish hosted acceptance.
   worktree; the separate course-worktree analyzer stalled and was stopped. No
   clean analyzer/full Flutter/Chrome CI result or production acceptance is
   inferred. Release-build outcome is recorded separately below when available.
+
+Final combined Node handlers: **75 passed**, zero skips/failures, exit 0.
+Standard `flutter build web --release --no-pub`: **passed**, exit 0 (345.3s),
+including the normal Wasm dry run. The existing missing Cupertino icon-font
+warning remains; it is not hidden by adding a dependency. The combined source
+compiles for release; this is not a deployed-environment acceptance claim.
+
+After host memory became available, default `flutter analyze --no-pub` completed
+and identified two missing-block lints in the new profile guards. Adding braces
+fixed those without suppression; the fresh default rerun passed with **no issues**
+(28.8s, exit 0). The earlier Windows failures remain historical evidence and are
+not relabeled as passes. Affected profile tests were rerun after this lint-only
+change; no observable behavior or API changed. Hosted full Flutter/Chrome and
+managed Supabase CI remain required and are not replaced by these local checks.
+
+Final post-lint profile rerun: **17 tests passed**, exit 0, covering dirty-field
+discard, pending picker account/logout/disposal, same-account refresh, rendering,
+save success/failure, language preference and photo upload/cancellation/errors.
 
 The primary checkout advanced independently after snapshot `31aaddc`; those later
 local changes are not silently copied into this PR. Original worktrees and the
