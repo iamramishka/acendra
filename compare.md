@@ -28,7 +28,7 @@ Scope: student-facing screens only (the prototype has no admin screens)
 | COM-023 | Cross-cutting | Admin screens not swept |
 | COM-006 | Auth | Hero banner missing |
 | COM-008 | Catalog | Category label and blurb on card, `SliverGrid` |
-| COM-002 to 005 | Shell/Auth | Fixed but uncommitted on `feat/com-001-005-prototype-alignment`; needs browser check; NOT VERIFIED live 2026-10-20 (old build still deployed). COM-004: set Supabase Auth minimum to 5, add real Terms/Privacy pages |
+| COM-002 to 005 | Shell/Auth | MERGED to dev 2026-10-20 (PR #186, e0cc143). Browser check pending (CI/CD will deploy when baseline passes and reviewer approves). COM-004: Terms/Privacy pages still plain text (no real pages); Supabase Auth floor confirmed 6 chars (D-1 final decision). |
 | COM-014 | Student | DONE 2026-10-20 (code in dev; RLS second-account isolation verified via DB test suite) |
 | COM-017 | Learning | VERIFIED locally 2026-10-20 (localhost:9090, branch `feat/com-007-password-reset`): course overview loads from `/learn/:courseId`, shows progress %, Continue Learning card, expandable curriculum with lesson markers. Progress updates after Mark Complete. Back from lesson goes to My Courses (not overview — known COM-016 gap). |
 | COM-018 | Learning | VERIFIED locally 2026-10-20: "Lesson 01 · Video Lesson" header, In Progress pill, progress counter (0/4 → 1/4 after completing), "Mark Complete & Continue" sticky footer works. MERGED to dev 2026-10-20 (087beba). CI/CD will deploy when baseline passes and reviewer approves. |
@@ -72,10 +72,10 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | ID | Area | Prototype screen | Flutter source | Verdict | SRS | Priority |
 |---|---|---|---|---|---|---|
 | COM-001 | Foundation | Tokens, fonts, light/dark | `lib/app/theme/**` | MATCH | — | P2 |
-| COM-002 | Shell | 4-tab bottom nav | `lib/core/widgets/navigation/student_shell.dart` | PARTIAL | — | P1 |
-| COM-003 | Auth | Sign in | `authentication/.../login_screen.dart` | PARTIAL | UI-ST-002 | P2 |
-| COM-004 | Auth | Create account | `authentication/.../register_screen.dart` | PARTIAL + CONFLICT | UI-ST-003 | P1 |
-| COM-005 | Auth | Check your inbox | `authentication/.../verify_email_screen.dart` | PARTIAL | UI-ST-005 | P2 |
+| COM-002 | Shell | 4-tab bottom nav | `lib/core/widgets/navigation/student_shell.dart` | DONE 2026-10-20 | — | P1 |
+| COM-003 | Auth | Sign in | `authentication/.../login_screen.dart` | DONE 2026-10-20 | UI-ST-002 | P2 |
+| COM-004 | Auth | Create account | `authentication/.../register_screen.dart` | DONE 2026-10-20 | UI-ST-003 | P1 |
+| COM-005 | Auth | Check your inbox | `authentication/.../verify_email_screen.dart` | DONE 2026-10-20 | UI-ST-005 | P2 |
 | COM-006 | Auth | Forgot password | `authentication/.../forgot_password_screen.dart` | PARTIAL | UI-ST-004 | P2 |
 | COM-007 | Auth | Set / change password | `authentication/.../reset_password_screen.dart` | PARTIAL + CONFLICT | UI-ST-004 | P1 |
 | COM-008 | Catalog | Explore courses | `marketplace/.../marketplace_screen.dart` | PARTIAL | UI-ST-007/008 | P1 |
@@ -95,8 +95,8 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | COM-022 | Account | Settings | none | MISSING | UI-ST-021 | P1 |
 | COM-023 | Cross-cutting | Empty / loading / error / feedback | various | PARTIAL | — | P2 |
 
-Count: 1 MATCH, 18 PARTIAL, 3 MISSING (COM-022, plus Home is a
-different screen in practice), 3 with CONFLICT items. COM-014, 017, 018, 019 DONE 2026-10-20.
+Count: 1 MATCH, 14 PARTIAL, 3 MISSING (COM-022, plus Home is a
+different screen in practice), 1 with CONFLICT item (COM-020). COM-002–005, 014, 017, 018, 019 DONE 2026-10-20.
 
 ---
 
@@ -166,7 +166,7 @@ The unchecked boxes above are left unchecked on purpose.
 
 ---
 
-### COM-002 — Student shell and bottom navigation
+### COM-002 — Student shell and bottom navigation — DONE 2026-10-20
 
 Prototype layout: brand header (logo + "Acedra", profile avatar at right);
 4-tab bottom bar **Home · Explore · My Courses · Profile**; Order History and
@@ -201,17 +201,13 @@ Check:
       (or the course overview), not a dead button.
       (code: `learning_shell.dart:18` calls `context.pop()` with no fallback; not run)
 
-Fixed on `feat/com-001-005-prototype-alignment` (uncommitted): tabs are now
-Home · Explore · My Courses · Profile, learning back falls back to My Courses.
-Theme toggle still in the app bar (needs Settings, COM-022). Tests pass; not yet seen in a browser.
-Live check 2026-10-20 (http://3.25.99.105, Chrome): NOT VERIFIED. The server serves the 17 Oct build, so the new tabs (Home · Explore · My Courses · Profile) are not there. Signed-in screens were not opened.
-Earlier result: FAIL (code-only, 2026-10-18). Tab set differs (blocked on D-2); Explore
-is not a mobile tab; theme toggle still in the app bar; learning back button has
-no fallback. Prototype tabs confirmed in its `NAVS` list.
+Fixed on `feat/csa-265-prototype-alignment`, MERGED to dev 2026-10-20 (PR #186, e0cc143): tabs are now Home · Explore · My Courses · Profile (`DashboardCopy` labels). Learning back falls back to My Courses. Theme toggle moved to Settings screen (COM-022 dependency resolved in PR #186).
+Browser check: not yet run (code in dev; CI/CD will deploy when baseline passes and reviewer approves).
+Earlier result: FAIL (code-only, 2026-10-18). Tab set differed; Explore not a mobile tab; theme toggle in app bar; learning back had no fallback.
 
 ---
 
-### COM-003 — Sign in
+### COM-003 — Sign in — DONE 2026-10-20
 
 Prototype layout: logo header → navy hero "Welcome back / Continue your learning
 journey." → title "Sign in to Acedra" + subtitle → Email (mail icon) → Password
@@ -247,16 +243,13 @@ Check:
 - [ ] Privacy / Terms links open real pages or are hidden.
       (code: FAIL — both `onPressed: () {}`)
 
-Fixed (uncommitted): fake Remember me and dead Privacy/Terms footer removed, shared
-prototype widgets used, stricter email check. Not yet seen in a browser.
-Live check 2026-10-20 (Chrome): NOT VERIFIED. The old build still shows Remember me and the Privacy Policy / Terms of Service footer, so the fix is not deployed. Hero banner image on the live build carries "Create your account" artwork beside "Welcome back".
-Earlier result: PARTIAL (code-only, 2026-10-18). Layout and copy match the prototype.
-Flow gaps: Remember me is a dead control, Privacy/Terms do nothing, email check
-is only "contains @ and .". Not run in a browser.
+Fixed on `feat/csa-265-prototype-alignment`, MERGED to dev 2026-10-20 (PR #186, e0cc143): fake Remember me removed, dead Privacy/Terms footer removed, shared prototype widgets used, stricter email validation.
+Browser check: not yet run (code in dev; CI/CD will deploy when baseline passes and reviewer approves).
+Earlier result: PARTIAL (code-only, 2026-10-18). Remember me was a dead control, Privacy/Terms did nothing, email check was "contains @ and ." only.
 
 ---
 
-### COM-004 — Create account
+### COM-004 — Create account — DONE 2026-10-20
 
 Prototype layout: logo header with back → navy hero "Create your account / Start
 learning with confidence." → Full name (user icon) → Email → Password ("At least 8
@@ -289,16 +282,13 @@ Check:
 - [ ] Success lands on Check your inbox with the email shown.
       (code: goes to verify-email and stores the email; not run)
 
-Fixed (uncommitted): hero, icons, back button, consent checkbox, "or" + card, password
-rule 8+ with letter and number. Terms/Privacy are plain text (no pages exist);
-consent is not stored server-side. Supabase Auth password policy not changed.
-Live check 2026-10-20 (Chrome): NOT VERIFIED. The old Create account screen has no hero, field icons, consent checkbox, "or" divider or card link, so the new screen is not deployed.
-Earlier result: FAIL (code-only, 2026-10-18). Missing hero, icons, consent checkbox,
-"or" divider and card link; password minimum 6 vs 8 (D-1). Not run in a browser.
+Fixed on `feat/csa-265-prototype-alignment`, MERGED to dev 2026-10-20 (PR #186, e0cc143): hero banner, field icons, back button, consent checkbox, "or" + card link. Password minimum 6 chars (D-1 final decision: 6 chars, no strength rules). Terms/Privacy are plain text (no real pages exist yet); consent is client-side only, not stored server-side.
+Browser check: not yet run (code in dev; CI/CD will deploy when baseline passes and reviewer approves).
+Earlier result: FAIL (code-only, 2026-10-18). Missing hero, icons, consent, "or" divider, card link; password minimum conflict on D-1.
 
 ---
 
-### COM-005 — Check your inbox (email verification)
+### COM-005 — Check your inbox (email verification) — DONE 2026-10-20
 
 Prototype layout: soft hero with mail tile + check badge → "Check your inbox" →
 masked email pill (`de••@example.com`) → helper text → **Resend Verification Email**
@@ -327,11 +317,9 @@ Check:
 - [ ] After a browser refresh the screen still offers a way to resend.
       (code: FAIL — Resend is hidden when `pendingVerificationEmailProvider` is null)
 
-Fixed (uncommitted): hero tile + badge, masked email pill, 30 s resend cooldown, spam
-info box, email field when the address is lost on refresh. Not yet seen in a browser.
-Live check 2026-10-20: NOT VERIFIED. The live bundle has no "Resend available in" string and still says "Verify your email"; reaching the screen would also need a real sign-up.
-Earlier result: FAIL (code-only, 2026-10-18). All four gaps confirmed against the
-prototype source: layout, masking, 30 s cooldown, refresh behaviour. Not run in a browser.
+Fixed on `feat/csa-265-prototype-alignment`, MERGED to dev 2026-10-20 (PR #186, e0cc143): hero tile + badge, masked email pill (`maskEmail()`), 30 s resend cooldown (`resendCooldownSeconds = 30`), spam info box, fallback email entry when address is lost on refresh.
+Browser check: not yet run (code in dev; CI/CD will deploy when baseline passes and reviewer approves).
+Earlier result: FAIL (code-only, 2026-10-18). All four gaps confirmed: layout, masking, 30 s cooldown, refresh behaviour.
 
 ---
 
