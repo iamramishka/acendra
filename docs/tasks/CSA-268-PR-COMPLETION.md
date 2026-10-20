@@ -69,3 +69,12 @@ SQL suites, including the new archive and avatar/profile isolation boundaries.
 All 366 combined Dart files pass formatting. The earlier local analyzer
 limitations remain explicit. Merge/release and real managed-service acceptance
 remain pending; no hosted activation or live data cleanup was performed.
+
+Final standalone `flutter analyze --no-pub` rerun: **no issues**, exit 0 (47.5s).
+The earlier stalled run is historical, not relabeled. Combined #202 source also
+passes default analysis (28.8s) and the standard release web build (345.3s),
+including the normal Wasm dry run. Its existing Cupertino font warning remains.
+After two brace-only profile lint fixes, all 17 affected profile tests passed
+again; the preceding 197-case combined run and six SQL suites remain recorded
+with their exact scope. Hosted full suites/approval and managed-service acceptance
+remain separate requirements.
