@@ -1,6 +1,6 @@
 # CSA-268 — bounded PR completion
 
-Owner: CODEX. Status: IN_PROGRESS. Current project-owner authority: fix the
+Owner: CODEX. Status: IN_REVIEW. Current project-owner authority: fix the
 remaining source issues identified in the finderror review and open PRs,
 2026-10-20 (Asia/Colombo).
 
@@ -54,3 +54,18 @@ before required acceptance. Approval authority remains the project owner.
   analyzer attempt in the sibling integration worktree crashed creating a Windows
   Dart worker thread. Neither is a clean analyzer result. Hosted analysis, full
   Flutter/Chrome suites and release build remain required PR checks.
+
+## Review handoff
+
+Draft [PR #201](https://github.com/iamramishka/acendra/pull/201) is open against
+dev. Both required hosted jobs executed zero steps and report an account
+payment/spending-limit block; neither is a code-test failure or a passing check.
+Vercel preview passed. No billing/protection/workflow setting was changed.
+
+The dependent [PR #202](https://github.com/iamramishka/acendra/pull/202) integrates
+the committed owner UI changes with this exact implementation. Its combined
+verification passed 197 focused Flutter cases, 43 migrations and six affected
+SQL suites, including the new archive and avatar/profile isolation boundaries.
+All 366 combined Dart files pass formatting. The earlier local analyzer
+limitations remain explicit. Merge/release and real managed-service acceptance
+remain pending; no hosted activation or live data cleanup was performed.
