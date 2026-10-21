@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../tool/catalog_preview.dart';
+import 'fixtures/catalog_preview_app.dart';
 
 const _captureKey = ValueKey('catalog-capture');
 
