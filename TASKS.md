@@ -2957,4 +2957,12 @@ INTEGRATION - VERIFIED.
   Owner deferred refund/net figures to a separate confirmed-refund ledger task.
   Production deployment and financial mutations are excluded.
 
+## CSA-270 — COM-008 lazy catalog and browser verification
+
+- [ ] CSA-270 [P1] [X] [IN_PROGRESS]
+  Owner: CODEX; issue #203; branch `feat/csa-270-catalog-sliver`.
+  Isolated worktree: C:/Users/ramis/.codex/worktrees/csa270-catalog-sliver/acendra.
+  Scope, dependencies, acceptance and evidence: [task record](docs/tasks/CSA-270.md).
+  Owner requested PR and merge to dev; CI/review remain gates. Production excluded.
+
 END OF TASKS.md
