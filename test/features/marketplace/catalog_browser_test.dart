@@ -82,11 +82,15 @@ void main() {
     'catalog search, category, price sort and real detail navigation',
     (tester) async {
       await _mount(tester);
+      await tester.ensureVisible(find.widgetWithText(FilterChip, 'Design'));
       await tester.tap(find.widgetWithText(FilterChip, 'Design'));
       await tester.pumpAndSettle();
       expect(find.text('2 Courses'), findsOneWidget);
       expect(find.text('Flutter Development Essentials'), findsNothing);
 
+      await tester.ensureVisible(
+        find.widgetWithText(FilterChip, 'All Courses'),
+      );
       await tester.tap(find.widgetWithText(FilterChip, 'All Courses'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Newest'));
@@ -110,6 +114,9 @@ void main() {
         'Flutter Development Essentials',
       );
 
+      // Category navigation may have scrolled the search field out of view.
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, 600));
+      await tester.pumpAndSettle();
       await tester.enterText(find.byType(SearchBar), 'no matching course');
       await tester.pumpAndSettle();
       expect(find.text('0 Courses'), findsOneWidget);
@@ -126,6 +133,12 @@ void main() {
       expect(find.text('Course Details'), findsOneWidget);
       expect(find.textContaining('Synthetic course details'), findsOneWidget);
       expect(find.text('Buy Course'), findsOneWidget);
+      await tester.tap(find.text('Buy Course'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('No order has been created.'), findsOneWidget);
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+      expect(find.text('Course Details'), findsOneWidget);
       await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
       expect(find.text('Explore Courses'), findsOneWidget);

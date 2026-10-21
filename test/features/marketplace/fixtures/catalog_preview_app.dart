@@ -36,18 +36,45 @@ class _CatalogPreviewAppState extends State<CatalogPreviewApp> {
                 icon: const Icon(Icons.brightness_6_outlined),
               ),
             ],
-            bottom: const PreferredSize(
-              preferredSize: Size.fromHeight(24),
-              child: Text('Local preview · synthetic course data'),
-            ),
           ),
-          body: const MarketplaceScreen(),
+          body: const Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Text(
+                  'Local preview · synthetic course data',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Expanded(child: MarketplaceScreen()),
+            ],
+          ),
         ),
       ),
       GoRoute(
         path: '/marketplace/:courseId',
         builder: (_, state) =>
             CourseDetailScreen(courseId: state.pathParameters['courseId']!),
+      ),
+      GoRoute(
+        path: '/checkout/:courseId',
+        builder: (context, state) => Scaffold(
+          appBar: AppBar(
+            title: const Text('Local preview'),
+            leading: BackButton(
+              onPressed: () => context.go(
+                '/marketplace/${state.pathParameters['courseId']}',
+              ),
+            ),
+          ),
+          body: const Padding(
+            padding: EdgeInsets.all(24),
+            child: Text(
+              'Checkout is unavailable in this offline preview. '
+              'No order has been created.',
+            ),
+          ),
+        ),
       ),
     ],
   );
