@@ -2,6 +2,8 @@
 
 Owner: CODEX. Status: IN_REVIEW. Priority: P1.
 Issue: https://github.com/iamramishka/acendra/issues/205
+PR: https://github.com/iamramishka/acendra/pull/206 (base dev).
+Requirements: COM-020, UI-ST-018, FR-PDF-SEC-005/006, CSA-010.
 Branch: feat/csa-271-pdf-reader. Base: dev e4ab889.
 Worktree: C:/Users/ramis/.codex/worktrees/csa271-pdf-reader/acendra.
 Approval authority: project owner and required maintainer review.
@@ -108,7 +110,7 @@ spending-limit failures are not permission to bypass protections.
 
 ## Browser/prototype result and release gates
 
-Two automated Chrome attempts compiled but stalled before the suite loaded;
+Two automated Chrome attempts stalled before the suite loaded;
 **zero browser assertions or browser screenshots passed**. The second attempt
 ran serially with task-local Dart state. Stopped only the owned test trees.
 An earlier concurrent VM attempt exhausted Windows resources; the fresh serial
@@ -130,3 +132,26 @@ PR #202 repeats an older contents component already present on dev. Future
 integration must retain CSA-271's active wiring, compatible optional parameters
 and owned modal cleanup. Other comparison tasks (including catalog #204) are
 preserved. Dev merge remains contingent on actual CI and required review.
+
+## Final handoff
+
+Full `flutter analyze --no-pub`: **no issues**, exit 0 (13.0 s), using the
+task-local Dart data directory. Final standard `flutter build web --release
+--no-pub`: **passed**, exit 0, **241.2 s**, including Wasm dry run. The existing
+Cupertino font-family warning remains. Changed-file formatting and diff hygiene
+pass; the nine unrelated baseline formatting failures remain documented above.
+
+Source commits: b7ccfc5 (pinned runtime) and f81308e (reader/server integration).
+This final documentation follow-up changes no application behavior or tests.
+PR #206 is open and attached to the Codex chat. Its initial Flutter and Supabase
+runs 39651751119 / 39651751019 failed before execution: GitHub reports account
+payment/spending-limit restrictions. Required review is absent; merge is BLOCKED.
+No settings were changed or requirements bypassed. The PR checks tab is the
+authority for subsequent heads. Vercel reported success; this does not verify
+protected PDF runtime behavior.
+
+Next actions: resolve CI account restriction, integrate the owned baseline
+formatting work, obtain required review, and execute the browser test with a
+working browser environment. Merge through the protected dev workflow only
+after checks/review pass. Complete hosted PDF operational acceptance separately
+before activation; no production migration, worker launch or release is claimed.

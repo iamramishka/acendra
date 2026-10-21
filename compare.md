@@ -850,7 +850,7 @@ page on grey canvas with **personal diagonal watermark** → disclosure
 ‹ page / total › · − zoom % + · fit-to-width. Contents lists chapters
 (current highlighted) and bookmarks. No download/print controls.
 
-Result: **IN_REVIEW — CSA-271 / issue #205, 2026-10-21**. This supersedes the
+Result: **IN_REVIEW — CSA-271 / issue #205 / [PR #206](https://github.com/iamramishka/acendra/pull/206), 2026-10-21**. This supersedes the
 2026-10-18 “contents missing / global watermark flag off” implementation note.
 
 - The active `ProtectedPdfLesson` now connects `PdfLessonReader` to the existing
@@ -886,9 +886,9 @@ Verified locally:
 - [x] Active reader/repository/progress and existing PDF widget suites: 128 passed
   serially, including chapter/bookmark jumps, zoom/reset, page restoration,
   account/lesson storage separation, dark theme, sheet disposal and 320/390/768/1440 px with 1×/2× text.
-- [x] Scoped Dart analyzer: no issues with a task-local `DART_DATA_HOME` after
+- [x] Full Dart analyzer: no issues with a task-local `DART_DATA_HOME` after
   Windows performance-socket cleanup crashed the default analyzer process.
-- [x] Initial release web build passed, including Wasm dry run (235.8 s); final verification is recorded in the task handoff.
+- [x] Final release web build passed, including Wasm dry run (241.2 s).
 - [x] 43 ordered migrations applied in disposable PostgreSQL 17; private-storage
   and entitlement/policy-version SQL suites passed with synthetic Auth/Storage.
 
