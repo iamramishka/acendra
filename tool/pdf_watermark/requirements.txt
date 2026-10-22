@@ -1,4 +1,4 @@
 # Only this local worker uses these dependencies; Flutter/Edge dependencies unchanged.
-pypdf==6.20.1
+pypdf==6.21.1
 reportlab==4.4.9
 uharfbuzz==0.53.3
