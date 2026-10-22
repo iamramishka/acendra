@@ -26,7 +26,7 @@ Scope: student-facing screens only (the prototype has no admin screens)
 | COM-021 | Account | DONE 2026-10-21. Avatar displayed in header. Language selector (EN/SI) syncs to DB. Inline edit merged. |
 | COM-022 | Account | DONE 2026-10-21. Language (EN/SI) DropdownButton + Email Notifications SwitchListTile added to Settings. Migration `20261020000100_com022_email_notifications.sql` adds `email_notifications_enabled boolean not null default true` to `profiles`, grant included. |
 | COM-023 | Cross-cutting | DONE 2026-10-20 (05a5088). 3 fixes: raw 'stripe' code, raw amount_minor, 2 tap targets. All 4 admin list screens confirmed with loading/empty/error states; no raw exception text found. |
-| COM-006 | Auth | Hero banner missing |
+| COM-006 | Auth | Hero aligned and browser-verified 2026-10-22 (CSA-272, PR #209); IN_REVIEW, CI billing restriction blocks merge |
 | COM-008 | Catalog | Category label and blurb on card, `SliverGrid` |
 | COM-002 to 005 | Shell/Auth | MERGED to dev 2026-10-20 (PR #186, e0cc143). Browser check pending (CI/CD will deploy when baseline passes and reviewer approves). COM-004: Terms/Privacy pages still plain text (no real pages); Supabase Auth floor confirmed 6 chars (D-1 final decision). |
 | COM-014 | Student | DONE 2026-10-20 (code in dev; RLS second-account isolation verified via DB test suite) |
@@ -76,7 +76,7 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | COM-003 | Auth | Sign in | `authentication/.../login_screen.dart` | DONE 2026-10-20 | UI-ST-002 | P2 |
 | COM-004 | Auth | Create account | `authentication/.../register_screen.dart` | DONE 2026-10-20 | UI-ST-003 | P1 |
 | COM-005 | Auth | Check your inbox | `authentication/.../verify_email_screen.dart` | DONE 2026-10-20 | UI-ST-005 | P2 |
-| COM-006 | Auth | Forgot password | `authentication/.../forgot_password_screen.dart` | PARTIAL | UI-ST-004 | P2 |
+| COM-006 | Auth | Forgot password | `authentication/.../forgot_password_screen.dart` | IN_REVIEW (CSA-272) | UI-ST-004 | P2 |
 | COM-007 | Auth | Set / change password | `authentication/.../reset_password_screen.dart` | PARTIAL + CONFLICT | UI-ST-004 | P1 |
 | COM-008 | Catalog | Explore courses | `marketplace/.../marketplace_screen.dart` | PARTIAL | UI-ST-007/008 | P1 |
 | COM-009 | Catalog | Course details | `marketplace/.../course_detail_screen.dart` | PARTIAL | UI-ST-009/010 | P1 |
@@ -345,7 +345,20 @@ Check:
 - [ ] Success message does not confirm whether the account exists.
 - [ ] Reset link in the email opens `/reset-password` and works.
 
-Result: PARTIAL (2026-10-18, commit 3852c6e). FIXED: neutral success wording (no account confirmation), outlined Back to sign in, info text. NOT DONE: hero. Overlaps Codex CSA-265 (#183).
+Current result: IN_REVIEW (2026-10-22), CSA-272, [PR #209](https://github.com/iamramishka/acendra/pull/209).
+Hero now follows the observed artifact: gradient blue lock tile, cyan send badge,
+two floating dots and curved blue ribbon. Browser comparison passed at 390, 768
+and 1440 pixels in light and dark themes. Empty/malformed-email validation and
+Back to Sign In were verified in the local release app. Neutral success wording
+is covered by the synthetic repository test. The banner is a Flutter recreation;
+Material icons and existing form typography are retained, not a pixel-identical
+export. Actual reset-email delivery/link consumption remains unverified.
+Screenshots and exact command results: [CSA-272 evidence](docs/tasks/CSA-272.md).
+CI did not start because GitHub reports failed account payments/spending limit;
+Vercel preview also failed. No merge or completed end-to-end recovery is claimed.
+
+Historical result: PARTIAL (2026-10-18, commit 3852c6e); generic recovery hero was
+subsequently integrated via CSA-265. This follow-up changes only its artwork.
 
 ---
 
