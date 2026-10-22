@@ -13,7 +13,7 @@ test('protected PDF reader uses the actual bundled renderer in Chrome', {
 }, async () => {
   await import('./prepare_pdf_browser.mjs');
   const result = await new Promise(resolve => {
-    const child = spawn('flutter', ['test', '--no-pub', '--platform', 'chrome', '--timeout', '60s',
+    const child = spawn('flutter', ['test', '--no-pub', '--platform', 'chrome', '--timeout', '60s', '--reporter', 'expanded',
       'test/browser/protected_pdf_reader.browser.dart'], {
       cwd: fileURLToPath(new URL('../', import.meta.url)), detached: true,
       stdio: ['ignore', 'pipe', 'pipe'],

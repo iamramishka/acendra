@@ -339,6 +339,25 @@ remain unchanged and protected timestamps remain forbidden. Fixed diagnostic
 stage labels contain no private response data. JavaScript syntax and diff checks
 passed locally; real API verification remains the final head's hosted CI gate.
 
+### Actual PDF.js lifecycle compatibility finding
+
+Head `f74b254` passed hosted Supabase end to end, full Flutter tests, the Chrome
+route/receipt checks and the release build. Its final tooling step failed in the
+real protected-PDF browser suite: pdfx 2.11 calls `PDFDocumentProxy.destroy()`,
+which is absent from the pinned PDF.js 6 proxy. Cleanup belongs to its retained
+loading task. This is an actual PDF runtime finding, not a shared CI baseline
+failure, and supersedes the preceding no-findings review for this head.
+
+A same-origin compatibility adapter now supplies the missing document cleanup
+method using the original loading task. Parser cancellation and renderer/late
+document cleanup share one promise, with failures propagated. Three lifecycle
+regressions reproduced the missing-method failure before the adapter and now
+pass: ordinary repeated cleanup, cancellation before late opening, and observable
+opening/cleanup failure. No library pin, dependency, entitlement contract or CSP
+policy changes. The browser staging script includes the adapter, and expanded
+test reporting preserves assertion diagnostics. Real browser acceptance of the
+repair remains required; no pass is inferred from the Node boundary tests.
+
 Review of `a1cfab8`: 132 PDF Flutter tests, 150 Node checks, 15 real-byte Python
 watermark tests, changed-file formatting and full analysis passed. The Linux
 supervisor and hosted browser wrapper were skipped on Windows. Browser, SQL and
