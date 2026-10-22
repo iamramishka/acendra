@@ -205,7 +205,10 @@ class _PaymentQueueRow extends StatelessWidget {
                 style: theme.textTheme.labelLarge,
               ),
               const SizedBox(height: AppSpacing.xs),
-              StatusBadge(label: _statusLabel(item.status), variant: badgeVariant),
+              StatusBadge(
+                label: _statusLabel(item.status),
+                variant: badgeVariant,
+              ),
             ],
           ),
         ],
