@@ -165,19 +165,24 @@ void main() {
         fail('Real PDF page did not render');
       }
 
+      Future<void> openContents() async {
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(TextButton, 'Contents'));
+        await tester.pumpAndSettle();
+      }
+
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       tester.view.physicalSize = const Size(390, 1000);
       await tester.pumpWidget(host());
       await rendered(1);
       expect(find.textContaining('watermark on every page'), findsOneWidget);
-      await tester.tap(find.text('Contents'));
-      await tester.pumpAndSettle();
+      await openContents();
       await tester.tap(find.text('Practice'));
+      await tester.pumpAndSettle();
       await rendered(3);
       expect(find.text('3 / 4'), findsOneWidget);
-      await tester.tap(find.text('Contents'));
-      await tester.pumpAndSettle();
+      await openContents();
       await tester.tap(find.byTooltip('Close contents'));
       await tester.pumpAndSettle();
       expect(find.text('3 / 4'), findsOneWidget);
@@ -201,8 +206,7 @@ void main() {
       await tester.pumpWidget(host());
       await rendered(3);
       expect(find.text('3 / 4'), findsOneWidget);
-      await tester.tap(find.text('Contents'));
-      await tester.pumpAndSettle();
+      await openContents();
       await tester.tap(find.text('Page 3'));
       await tester.pumpAndSettle();
       expect(find.text('3 / 4'), findsOneWidget);
@@ -234,9 +238,9 @@ void main() {
         Theme.of(tester.element(find.byType(PdfLessonReader))).brightness,
         Brightness.dark,
       );
-      await tester.tap(find.text('Contents'));
-      await tester.pumpAndSettle();
+      await openContents();
       await tester.tap(find.text('Introduction'));
+      await tester.pumpAndSettle();
       await rendered(1);
       await tester.pumpWidget(const SizedBox());
       await tester.pumpWidget(host());

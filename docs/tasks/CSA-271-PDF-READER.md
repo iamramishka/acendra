@@ -358,6 +358,15 @@ policy changes. The browser staging script includes the adapter, and expanded
 test reporting preserves assertion diagnostics. Real browser acceptance of the
 repair remains required; no pass is inferred from the Node boundary tests.
 
+Hosted `052c9c0` confirms cleanup no longer throws, but still fails the browser
+test. Diagnostic-only `38f1a0c` identifies its actual assertion: reopening
+Contents before the previous sheet's dismissal completes matches both the
+header action and sheet title. The browser test now targets the header
+TextButton and settles modal transitions before reopening or inspecting pages.
+Its chapters/bookmarks/zoom/account/restoration assertions remain unchanged.
+The diagnostic head again passed Supabase, full Flutter tests, general Chrome
+checks and release build; none of those substitutes for the repaired PDF suite.
+
 Review of `a1cfab8`: 132 PDF Flutter tests, 150 Node checks, 15 real-byte Python
 watermark tests, changed-file formatting and full analysis passed. The Linux
 supervisor and hosted browser wrapper were skipped on Windows. Browser, SQL and
