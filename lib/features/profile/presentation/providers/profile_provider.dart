@@ -88,10 +88,7 @@ ProfileFailure? profileEditError(AsyncValue<void> state) {
 // ---------------------------------------------------------------------------
 
 class UserPreferences {
-  const UserPreferences({
-    this.locale,
-    this.emailNotificationsEnabled = true,
-  });
+  const UserPreferences({this.locale, this.emailNotificationsEnabled = true});
   final String? locale;
   final bool emailNotificationsEnabled;
 }
@@ -99,8 +96,7 @@ class UserPreferences {
 /// Fetches locale and email notification preference from the profiles table.
 final userPreferencesProvider = FutureProvider<UserPreferences>((ref) async {
   ref.watch(currentSessionProvider);
-  final prefs =
-      await ref.read(profileRepositoryProvider).fetchPreferences();
+  final prefs = await ref.read(profileRepositoryProvider).fetchPreferences();
   return UserPreferences(
     locale: prefs.locale,
     emailNotificationsEnabled: prefs.emailNotificationsEnabled,
@@ -121,8 +117,7 @@ class LocaleUpdateNotifier extends AsyncNotifier<void> {
   }
 }
 
-final localeUpdateProvider =
-    AsyncNotifierProvider<LocaleUpdateNotifier, void>(
+final localeUpdateProvider = AsyncNotifierProvider<LocaleUpdateNotifier, void>(
   LocaleUpdateNotifier.new,
 );
 
@@ -144,5 +139,5 @@ class EmailNotificationsNotifier extends AsyncNotifier<void> {
 
 final emailNotificationsProvider =
     AsyncNotifierProvider<EmailNotificationsNotifier, void>(
-  EmailNotificationsNotifier.new,
-);
+      EmailNotificationsNotifier.new,
+    );
