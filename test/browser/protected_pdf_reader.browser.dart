@@ -58,6 +58,18 @@ class _SyntheticTransport implements PdfTransport {
 }
 
 void main() {
+  // Browser debugPrint output can be absent when Flutter is launched through
+  // the Node CI wrapper. Preserve normal failure registration while forwarding
+  // the synthetic fixture's actual exception through the test print channel.
+  final originalReporter = reportTestException;
+  reportTestException = (details, description) {
+    // ignore: avoid_print
+    print(
+      'PDF browser failure: ${details.exceptionAsString()}\n${details.stack}',
+    );
+    originalReporter(details, description);
+  };
+  tearDownAll(() => reportTestException = originalReporter);
   setUpAll(() async {
     final loaded = Completer<void>();
     final script = web.HTMLScriptElement()
