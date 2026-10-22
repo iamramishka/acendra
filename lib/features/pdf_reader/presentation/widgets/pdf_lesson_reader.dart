@@ -110,6 +110,10 @@ class _PdfLessonReaderState extends State<PdfLessonReader> {
               ),
               Flexible(
                 child: TextButton.icon(
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size.square(48),
+                    visualDensity: VisualDensity.standard,
+                  ),
                   onPressed: () => showPdfContentsSheet(
                     context,
                     entries: widget.outline,
@@ -124,6 +128,10 @@ class _PdfLessonReaderState extends State<PdfLessonReader> {
                 ),
               ),
               IconButton(
+                style: IconButton.styleFrom(
+                  minimumSize: const Size.square(48),
+                  visualDensity: VisualDensity.standard,
+                ),
                 tooltip: _bookmarks.contains(_page)
                     ? 'Remove bookmark'
                     : 'Bookmark page',

@@ -882,13 +882,13 @@ Verified locally:
   original selectable text and internal chapter destinations preserved.
 - [x] Python worker: 15 passed, one non-root Linux-only test skipped on Windows.
   A supported v1 sample remains byte-identical to the dev generator.
-- [x] Node PDF authorization/proxy/worker/assets and request regressions: 145 passed.
-- [x] Active reader/repository/progress and existing PDF widget suites: 129 passed
+- [x] Node PDF authorization/proxy/worker/assets/request and runtime-gate regressions: 150 passed; hosted-only wrapper explicitly skipped on Windows.
+- [x] Active reader/repository/progress and existing PDF widget suites: 132 passed
   serially, including chapter/bookmark jumps, zoom/reset, page restoration,
   account/lesson storage separation, dark theme, sheet disposal and 320/390/768/1440 px with 1×/2× text.
 - [x] Full Dart analyzer: no issues with a task-local `DART_DATA_HOME` after
   Windows performance-socket cleanup crashed the default analyzer process.
-- [x] 2026-10-22 final release web build passed, including Wasm dry run (384.0 s).
+- [x] Finding-repair release web build passed, including Wasm dry run (290.1 s).
 - [x] 43 ordered migrations applied in disposable PostgreSQL 17; private-storage
   and entitlement/policy-version SQL suites passed with synthetic Auth/Storage.
 
@@ -900,6 +900,10 @@ Verified locally:
   controls at 320/390/768/1440px. [Screenshots and evidence](docs/tasks/CSA-271-PDF-READER.md#2026-10-22-browser-follow-up).
   This is local interactive verification; the automated Chrome runner did not
   reach assertions. Sample document content and prototype phone chrome differ.
+- [x] Follow-up: corrected 40px desktop buttons to 48px minima; Windows, Linux
+  and macOS regressions passed. The CI wrapper now skips only an absent Flutter
+  SDK, and rejects broken installations. Earlier browser captures are f722d55;
+  the new direct UI check was blocked by browser URL security policy.
 
 Acceptance still open:
 - [ ] Hosted migration, private Storage, updated policy-aware non-root worker,

@@ -239,3 +239,53 @@ Reference contents and finished contents with the saved bookmark:
 ![Verified contents](CSA-271-PDF-READER/reader-contents.jpg)
 
 ![Verified dark reader](CSA-271-PDF-READER/reader-dark.jpg)
+
+## Finding repair follow-up
+
+The owner requested fixes to findings/issues after f722d55. CODEX retains
+issue #205 and this isolated branch. GitHub has no inline review comments or
+submitted reviews; #201/#202/#204 remain separate tasks. Inspect the actual
+desktop-platform control sizes and automated browser-test gap, repair confirmed
+PDF-reader defects, then run focused regressions, analysis and browser checks.
+Scope: existing PDF components/tests and bounded browser test tooling, fixture
+instructions and this record. Do not modify another task's baseline formatting,
+hosting configuration, billing or branch protections. Hosted delivery/release
+acceptance stays separate from local code repair.
+
+Confirmed repairs:
+- Desktop Material defaults rendered the reader's buttons at 40px (Contents
+  was 32px high), despite the previous mobile-default widget tests passing.
+  Three new regressions failed at 40px on Windows/Linux/macOS. The header,
+  footer and sheet Close now explicitly use a 48px minimum and standard visual
+  density. Global theme tokens and other features are unchanged. The tests use
+  Flutter's platform variant so platform state is restored by the framework.
+- `npm run tool:test` runs in both CI workflows. The Supabase workflow has no
+  Flutter installation, but the PDF wrapper previously ran on every Linux CI
+  host and would fail with ENOENT. The wrapper now probes Flutter only in hosted
+  Linux CI, skips with an explicit reason only when the executable is absent,
+  and fails for installed-but-broken SDKs, permission errors or timeouts. Three
+  new gate regressions failed before this correction; all five now pass.
+
+Fresh repair verification so far: **132 PDF widget/unit tests passed** including
+all desktop target regressions and the existing responsive/large-text cases;
+**150 Node PDF/runtime-gate checks passed**, with the actual hosted-only wrapper
+explicitly skipped on Windows. The direct automated Chrome suite is separate.
+
+Full `flutter analyze --no-pub` passed with no issues (321.9 s). Two fresh
+automated Chrome attempts did not reach assertions; the diagnostic attempt
+compiled, launched Chrome and logged `Running test suite`, but suite loading
+did not complete. Only the owned stalled process trees were stopped. No browser
+pass is inferred from this. The in-app connection recovered after a timeout,
+but its URL security policy then rejected access to the existing local preview.
+No alternate browser/control path was used around that rejection. The earlier
+22 checks and screenshots belong to f722d55; the repaired 48px controls are
+freshly verified by the three desktop-platform regressions, not by a new direct
+browser pass. The CI SDK gate is separately verified by the five Node tests.
+
+The standard `flutter build web --release --no-pub` passed, exit 0 (290.1 s),
+including the Wasm dry run. The pre-existing Cupertino font warning remains.
+All four changed Dart files passed formatting; diff hygiene passed. No hosted
+configuration, billing, branch protection or another task's formatting changed.
+Vercel log access still needs account authentication; its integration was
+suggested but no connection was confirmed. Status remains **IN_REVIEW**, with
+the same CI/account, required-review and hosted-release gates retained.

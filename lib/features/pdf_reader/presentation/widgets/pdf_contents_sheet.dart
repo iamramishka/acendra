@@ -87,6 +87,10 @@ class PdfContentsSheet extends StatelessWidget {
                     child: Text('Contents', style: theme.textTheme.titleMedium),
                   ),
                   IconButton(
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size.square(48),
+                      visualDensity: VisualDensity.standard,
+                    ),
                     tooltip: 'Close contents',
                     onPressed: () => Navigator.of(context).pop(),
                     icon: const Icon(Icons.close),

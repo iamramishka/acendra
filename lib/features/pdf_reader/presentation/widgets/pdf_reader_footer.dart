@@ -73,6 +73,10 @@ class PdfReaderFooter extends StatelessWidget {
                 children: [
                   IconButton(
                     tooltip: 'Previous page',
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size.square(48),
+                      visualDensity: VisualDensity.standard,
+                    ),
                     onPressed: onPrevious,
                     icon: const Icon(Icons.chevron_left),
                   ),
@@ -84,6 +88,10 @@ class PdfReaderFooter extends StatelessWidget {
                   ),
                   IconButton(
                     tooltip: 'Next page',
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size.square(48),
+                      visualDensity: VisualDensity.standard,
+                    ),
                     onPressed: onNext,
                     icon: const Icon(Icons.chevron_right),
                   ),
@@ -96,6 +104,10 @@ class PdfReaderFooter extends StatelessWidget {
                 children: [
                   IconButton(
                     tooltip: 'Zoom out',
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size.square(48),
+                      visualDensity: VisualDensity.standard,
+                    ),
                     onPressed: onZoomOut,
                     icon: const Icon(Icons.remove),
                   ),
@@ -109,6 +121,10 @@ class PdfReaderFooter extends StatelessWidget {
                   ),
                   IconButton(
                     tooltip: 'Zoom in',
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size.square(48),
+                      visualDensity: VisualDensity.standard,
+                    ),
                     onPressed: onZoomIn,
                     icon: const Icon(Icons.add),
                   ),
@@ -118,6 +134,10 @@ class PdfReaderFooter extends StatelessWidget {
             _ControlGroup(
               child: IconButton(
                 tooltip: 'Fit to width',
+                style: IconButton.styleFrom(
+                  minimumSize: const Size.square(48),
+                  visualDensity: VisualDensity.standard,
+                ),
                 isSelected: isFitWidth,
                 onPressed: onFitWidth,
                 icon: const Icon(Icons.swap_horiz),

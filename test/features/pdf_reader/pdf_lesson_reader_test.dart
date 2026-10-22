@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:acendra/app/theme/app_theme.dart';
 import 'package:acendra/features/pdf_reader/data/pdf_reading_store.dart';
 import 'package:acendra/features/pdf_reader/domain/entities/pdf_outline_entry.dart';
 import 'package:acendra/features/pdf_reader/presentation/widgets/pdf_lesson_reader.dart';
@@ -69,25 +70,64 @@ void main() {
     read: (key) => storage[key],
     write: (key, value) => storage[key] = value,
   );
-  Widget host({bool watermarked = true, double scale = 1, bool dark = false}) =>
-      MaterialApp(
-        theme: dark ? ThemeData.dark() : null,
-        home: MediaQuery(
-          data: MediaQueryData(textScaler: TextScaler.linear(scale)),
-          child: Scaffold(
-            body: PdfLessonReader(
-              document: _Document(),
-              store: store(),
-              outline: const [
-                PdfOutlineEntry(title: 'Introduction', page: 1),
-                PdfOutlineEntry(title: 'Practice', page: 3),
-              ],
-              watermarkApplied: watermarked,
-            ),
-          ),
+  Widget host({
+    bool watermarked = true,
+    double scale = 1,
+    bool dark = false,
+    bool appTheme = false,
+  }) => MaterialApp(
+    theme: appTheme
+        ? (dark ? AppTheme.dark : AppTheme.light)
+        : (dark ? ThemeData.dark() : null),
+    home: MediaQuery(
+      data: MediaQueryData(textScaler: TextScaler.linear(scale)),
+      child: Scaffold(
+        body: PdfLessonReader(
+          document: _Document(),
+          store: store(),
+          outline: const [
+            PdfOutlineEntry(title: 'Introduction', page: 1),
+            PdfOutlineEntry(title: 'Practice', page: 3),
+          ],
+          watermarkApplied: watermarked,
         ),
-      );
+      ),
+    ),
+  );
   setUp(storage.clear);
+  for (final platform in [
+    TargetPlatform.windows,
+    TargetPlatform.linux,
+    TargetPlatform.macOS,
+  ]) {
+    testWidgets(
+      'reader controls keep 44px targets on $platform',
+      (tester) async {
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        await tester.pumpWidget(host(appTheme: true));
+        await tester.pumpAndSettle();
+        for (final element in find.byType(IconButton).evaluate()) {
+          final size = tester.getSize(
+            find.byElementPredicate((e) => e == element),
+          );
+          expect(size.width, greaterThanOrEqualTo(44));
+          expect(size.height, greaterThanOrEqualTo(44));
+        }
+        expect(
+          tester.getSize(find.widgetWithText(TextButton, 'Contents')).height,
+          greaterThanOrEqualTo(44),
+        );
+        await tester.tap(find.text('Contents'));
+        await tester.pumpAndSettle();
+        final closeSize = tester.getSize(find.byTooltip('Close contents'));
+        expect(closeSize.width, greaterThanOrEqualTo(44));
+        expect(closeSize.height, greaterThanOrEqualTo(44));
+      },
+      variant: TargetPlatformVariant.only(platform),
+    );
+  }
   testWidgets(
     'removing the authenticated reader also clears its open contents',
     (tester) async {

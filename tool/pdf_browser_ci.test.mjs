@@ -4,9 +4,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { pdfBrowserRuntimeStatus } from './pdf_browser_runtime.mjs';
+
+const runtime = pdfBrowserRuntimeStatus();
 
 test('protected PDF reader uses the actual bundled renderer in Chrome', {
-  skip: process.platform !== 'linux' || process.env.CI !== 'true', timeout: 200000,
+  skip: runtime.skip ? runtime.reason : false, timeout: 200000,
 }, async () => {
   await import('./prepare_pdf_browser.mjs');
   const result = await new Promise(resolve => {
