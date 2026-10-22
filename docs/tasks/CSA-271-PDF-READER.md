@@ -374,6 +374,19 @@ or the sheet's removal, pumping real async work between bounded frames. This
 waits for the action under test rather than requiring the whole UI to become
 animation-free. No assertion is removed or converted to a skip.
 
+The `f91198c` Supabase tooling run exposes an intermittent shared CSP harness
+timeout before any browser policy assertion: no result arrived within its old
+20-second launch-to-result deadline. CSA-275 explicitly handed exclusive harness
+ownership to this repair; the handoff is recorded in issues #215/#205. The local
+server now distinguishes launch, page served, script started and result received.
+Startup has a bounded 60-second budget; after script start the original separate
+20-second execution budget applies. Synthetic headless background throttling is
+disabled. Policy/host mapping/denial assertions remain identical; no retry or
+skip is added. This is a bounded startup allowance with better evidence, not a
+claim that the earlier logs established Chrome startup as the precise cause.
+The actual Chrome check passed locally (2 tests); aggregate CI acceptance remains
+required. No production CSP, browser settings or runtime configuration changes.
+
 Review of `a1cfab8`: 132 PDF Flutter tests, 150 Node checks, 15 real-byte Python
 watermark tests, changed-file formatting and full analysis passed. The Linux
 supervisor and hosted browser wrapper were skipped on Windows. Browser, SQL and
