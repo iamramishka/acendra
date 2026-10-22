@@ -13,6 +13,7 @@ import 'package:acendra/features/admin/presentation/screens/course_editor_screen
 import 'package:acendra/features/admin/presentation/screens/curriculum_builder_screen.dart';
 import 'package:acendra/features/admin/presentation/screens/lesson_editor_screen.dart';
 import 'package:acendra/core/widgets/feedback/app_skeleton.dart';
+import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -458,7 +459,7 @@ void main() {
       expect(find.text('Getting Started'), findsOneWidget);
     });
 
-    testWidgets('tapping Add Section reveals the section title form', (
+    testWidgets('empty-state Add Section reveals the section title form', (
       tester,
     ) async {
       final repo = _FakeAdminCourseRepository();
@@ -467,7 +468,12 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Add Section'));
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AppEmptyState),
+          matching: find.text('Add Section'),
+        ),
+      );
       await tester.pump();
 
       expect(find.text('Section Title'), findsOneWidget);
@@ -482,7 +488,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Add Section'));
+      // The empty-state shortcut and persistent footer expose the same action.
+      expect(find.text('Add Section'), findsNWidgets(2));
+      await tester.tap(find.text('Add Section').last);
       await tester.pump();
 
       await tester.enterText(find.byType(TextField), 'Module 1: Foundations');

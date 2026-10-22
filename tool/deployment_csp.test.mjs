@@ -52,33 +52,57 @@ test('browser allows Mux and blob playback while blocking unrelated media and fe
     const video = document.createElement('video');
     video.src = URL.createObjectURL(new Blob([], { type: 'video/mp4' }));
     document.body.append(video); video.load();
-    setTimeout(() => document.querySelector('#result').textContent = JSON.stringify(violations), 1000);
+    setTimeout(() => fetch('/results', {
+      method: 'POST', body: JSON.stringify(violations),
+    }), 1000);
   </script></body></html>`;
-  const server = createServer((_request, response) => {
+  let completeResult;
+  const received = new Promise(resolveResult => { completeResult = resolveResult; });
+  const server = createServer((request, response) => {
+    if (request.method === 'POST' && request.url === '/results') {
+      let body = '';
+      request.on('data', chunk => {
+        body += chunk;
+        if (body.length > 65536) request.destroy();
+      });
+      request.on('end', () => {
+        response.writeHead(204, { Connection: 'close' });
+        response.end();
+        completeResult(body);
+      });
+      return;
+    }
     response.writeHead(200, { 'Content-Type': 'text/html', 'Content-Security-Policy': policy });
     response.end(html);
   });
   await new Promise(resolveListen => server.listen(0, '127.0.0.1', resolveListen));
   const profile = mkdtempSync(join(tmpdir(), 'acendra-csp-test-'));
+  let child;
+  let timer;
   try {
-    const child = spawn(chrome, ['--headless=new', '--disable-gpu', '--no-sandbox',
+    child = spawn(chrome, ['--headless=new', '--disable-gpu', '--no-sandbox',
+      '--disable-dev-shm-usage',
       '--no-first-run', '--disable-background-networking', '--disable-extensions',
       '--no-proxy-server', `--user-data-dir=${profile}`,
       // All synthetic external destinations resolve locally, even if allowed
       // by CSP. No Mux media, credentials or external network is involved.
-      '--host-resolver-rules=MAP * 127.0.0.1', '--dump-dom', '--virtual-time-budget=2000',
+      '--host-resolver-rules=MAP * 127.0.0.1',
       `http://127.0.0.1:${server.address().port}`], { windowsHide: true });
-    let stdout = '', stderr = '';
-    child.stdout.on('data', data => { stdout += data; });
+    let stderr = '';
+    child.stdout.resume();
     child.stderr.on('data', data => { stderr += data; });
-    const timer = setTimeout(() => child.kill(), 20000);
-    const code = await new Promise((resolveExit, reject) => {
+    const earlyExit = new Promise((_, reject) => {
       child.once('error', reject);
-      child.once('close', resolveExit);
-    }).finally(() => clearTimeout(timer));
-    assert.equal(code, 0, stderr);
-    const result = stdout.match(/<pre id="result">([^<]+)<\/pre>/)?.[1];
-    assert.ok(result && result !== 'pending', stdout);
+      child.once('close', code => {
+        reject(new Error(`Chrome exited before reporting CSP results (${code}): ${stderr}`));
+      });
+    });
+    // Wait for an actual browser result rather than Chrome's best-effort DOM
+    // dump, which may be empty when virtual time advances during startup.
+    const deadline = new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error('Chrome did not report CSP results within 20 seconds')), 20000);
+    });
+    const result = await Promise.race([received, earlyExit, deadline]);
     const violations = JSON.parse(result);
     for (const host of hosts.slice(0, 2)) {
       assert.ok(!violations.some(item => item.url === `https://${host}/synthetic.mp4`),
@@ -93,6 +117,13 @@ test('browser allows Mux and blob playback while blocking unrelated media and fe
       }
     }
   } finally {
+    clearTimeout(timer);
+    if (child && child.exitCode === null) {
+      const stopped = new Promise(resolveExit => child.once('close', resolveExit));
+      child.kill();
+      await stopped;
+    }
+    server.closeAllConnections();
     await new Promise(resolveClose => server.close(resolveClose));
     // Only remove the unique profile created above, inside the OS temp folder.
     assert.equal(resolve(profile).startsWith(resolve(tmpdir()) + '\\') ||

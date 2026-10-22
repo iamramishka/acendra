@@ -26,7 +26,7 @@ select pg_temp.assert_ok((select count(*)=6 from public.profiles where id::text 
 select pg_temp.assert_ok((select display_name='Student A' from public.profiles where id='06000000-0000-0000-0000-000000000001'),'safe signup name copied');
 select pg_temp.assert_ok((select count(*)=3 from public.profiles where id::text like '06000000-%' and display_name='Student'),'malformed blank overlong metadata falls back');
 select pg_temp.assert_ok((select char_length(display_name)=100 from public.profiles where id='06000000-0000-0000-0000-000000000006'),'Unicode boundary preserved');
-select pg_temp.assert_ok((select count(*)=0 from public.user_roles),'signup metadata grants no roles');
+select pg_temp.assert_ok((select count(*)=0 from public.user_roles where user_id::text like '06000000-%'),'signup metadata grants no roles');
 select pg_temp.assert_ok(not has_function_privilege('anon','public.csa060_account_eligible()','EXECUTE'),'anonymous cannot query eligibility');
 select pg_temp.assert_ok(not has_function_privilege('authenticated','public.csa060_create_profile()','EXECUTE'),'trigger is not a client RPC');
 set local role anon;

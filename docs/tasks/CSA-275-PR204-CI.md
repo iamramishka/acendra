@@ -69,6 +69,34 @@ database checks; publish current-head CI results and limitations honestly.
   a shim pass. Hosted Supabase remains the acceptance check for these suites.
 - `dart format --output=none --set-exit-if-changed lib test`: 368 files, zero
   changes, passed. The nine Dart modifications are formatter output only.
-- Full Flutter, financial concurrency and aggregate tooling checks are running.
+- Financial concurrency: all 27 checks passed against independent native PG17
+  sessions, including checkout idempotency, payment finalization, bank review,
+  entitlement and publication interleavings. CSA060's no-role assertion now
+  selects only its fixture identities as well; its final 29 assertions pass
+  even with unrelated committed concurrency fixtures present.
+- Initial aggregate Node run: 867 passed, 11 skipped, one CSP browser check
+  timed out. Its isolated rerun passed both cases. The hosted aggregate run
+  separately failed when Chrome returned an empty DOM dump (line 81), before
+  policy assertions ran. The browser harness now waits for a loopback HTTP
+  result callback; the 20-second deadline and all policy assertions remain.
+  No production CSP changes or browser-check skips. Fresh local handshake run:
+  both CSP cases passed, zero skips.
+
+## Follow-up baseline test repair
+
+First published repair: 2d77aa9. Both hosted jobs started; Flutter formatting and
+analysis passed, then full Flutter tests exposed two ambiguous Add Section
+finders. The empty-state shortcut and persistent footer intentionally both
+expose that action. Tests now exercise the empty-state action and footer
+separately and retain the form/save/list assertions. Production curriculum
+behavior is unchanged; PR201/202 authoring work remains owned by its task.
+This bounded test-only extension and CSP-harness scope were recorded in #215.
+
+The user authorized sharing the common repair through the PR206 chat. PR206
+and PR209 confirmed they defer SQL/tooling ownership to CSA275 and integrate
+only the finalized nine-file formatting subset until the test fixes pass.
+Their original source worktrees remain untouched.
+
+Full local Flutter verification and fresh hosted checks remain in progress.
 
 Status remains IN_PROGRESS until current-head hosted verification is available.
