@@ -328,6 +328,17 @@ Fresh combined-branch checks: all 12 local-wrapper/CSP tests passed, including
 the actual Chrome callback and denied-host assertions. Full-tree Dart formatting
 and diff hygiene passed. The published head's CI results are the merge authority.
 
+At combined head `f57bb5e`, hosted formatting and analysis passed; the Supabase
+job passed migration replay, SQL/concurrency checks and reached database lint.
+The shared owner's hosted job additionally exposed a stale API smoke assertion
+that still forbade every avatar update. Its finalized correction, approved for
+reuse from `ee6a23762888d0559575d71f467f5c6dc0e93bea`, updates only
+`tool/supabase_smoke.mjs`: malformed/foreign avatar references fail with the
+approved check-constraint response, own avatar/preferences succeed, foreign rows
+remain unchanged and protected timestamps remain forbidden. Fixed diagnostic
+stage labels contain no private response data. JavaScript syntax and diff checks
+passed locally; real API verification remains the final head's hosted CI gate.
+
 Review of `a1cfab8`: 132 PDF Flutter tests, 150 Node checks, 15 real-byte Python
 watermark tests, changed-file formatting and full analysis passed. The Linux
 supervisor and hosted browser wrapper were skipped on Windows. Browser, SQL and
