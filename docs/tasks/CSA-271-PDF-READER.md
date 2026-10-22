@@ -387,6 +387,15 @@ claim that the earlier logs established Chrome startup as the precise cause.
 The actual Chrome check passed locally (2 tests); aggregate CI acceptance remains
 required. No production CSP, browser settings or runtime configuration changes.
 
+With targeted modal waits, hosted `f91198c` advances through actual chapters,
+bookmarks, zoom/reset, reopen/account and responsive checks. It then reports
+dark mode as light because the test inspects the start of AnimatedTheme's
+transition. The same bounded real-async/frame helper now waits for actual dark
+brightness before asserting it; production theming and the assertion stay
+unchanged. The intermediate browser run remains a failure, not a partial pass.
+The coordinated CSP follow-up's full local tooling run passes 885 tests with
+12 documented platform/runtime skips (897 discovered), zero failures.
+
 Review of `a1cfab8`: 132 PDF Flutter tests, 150 Node checks, 15 real-byte Python
 watermark tests, changed-file formatting and full analysis passed. The Linux
 supervisor and hosted browser wrapper were skipped on Windows. Browser, SQL and

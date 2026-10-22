@@ -256,6 +256,12 @@ void main() {
       }
       await tester.pumpWidget(host(dark: true));
       await rendered(3);
+      await waitFor(
+        () =>
+            Theme.of(tester.element(find.byType(PdfLessonReader))).brightness ==
+            Brightness.dark,
+        'dark theme transition',
+      );
       expect(
         Theme.of(tester.element(find.byType(PdfLessonReader))).brightness,
         Brightness.dark,
