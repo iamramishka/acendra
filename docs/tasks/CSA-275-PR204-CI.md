@@ -97,6 +97,22 @@ and PR209 confirmed they defer SQL/tooling ownership to CSA275 and integrate
 only the finalized nine-file formatting subset until the test fixes pass.
 Their original source worktrees remain untouched.
 
-Full local Flutter verification and fresh hosted checks remain in progress.
+Final aggregate local Node run after the callback repair: 868 passed, 11 expected
+skips, no failures/cancellations. Hosted run 39832227621 passed tooling, real
+Supabase migration/SQL/concurrency checks and database lint, then exposed the
+same obsolete blanket avatar-write denial in tool/supabase_smoke.mjs. That API
+probe now checks malformed/foreign-folder rejection, successful own avatar and
+notification updates, foreign-row isolation, and protected created_at denial.
+Only fixed stage names are added to sanitized smoke diagnostics; responses,
+identities, tokens and SQL errors remain private. This is test-contract
+maintenance, not a production grant or policy change.
+
+Hosted Flutter run 39832227635 passed the complete unit/widget suite and reached
+Chrome checks. The initial local full run retains its two historical ambiguous
+finder failures; a focused final journey rerun verifies their repaired source.
+
+Status: IN_REVIEW. The code repairs are published for current-head CI and fresh
+required reviewer approval. Live final results and remaining blockers are tracked
+in issue #215 and PR #204; no merge or production deployment is claimed.
 
 Status remains IN_PROGRESS until current-head hosted verification is available.
