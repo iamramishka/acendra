@@ -10,6 +10,7 @@ import 'package:acendra/features/pdf_reader/data/pdf_outline_web.dart';
 import 'package:acendra/features/pdf_reader/data/pdf_reading_store.dart';
 import 'package:acendra/features/pdf_reader/data/protected_pdf_repository.dart';
 import 'package:acendra/features/pdf_reader/presentation/widgets/pdf_lesson_reader.dart';
+import 'package:acendra/features/pdf_reader/presentation/widgets/pdf_contents_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pdfx/pdfx.dart' as pdfx;
@@ -165,10 +166,31 @@ void main() {
         fail('Real PDF page did not render');
       }
 
+      Future<void> waitFor(bool Function() ready, String description) async {
+        for (var attempt = 0; attempt < 100; attempt++) {
+          await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 50)),
+          );
+          await tester.pump(const Duration(milliseconds: 50));
+          if (ready()) return;
+        }
+        fail('Timed out waiting for $description');
+      }
+
+      Future<void> contentsClosed() => waitFor(
+        () => find.byType(PdfContentsSheet).evaluate().isEmpty,
+        'contents dismissal',
+      );
+
       Future<void> openContents() async {
-        await tester.pumpAndSettle();
+        await contentsClosed();
         await tester.tap(find.widgetWithText(TextButton, 'Contents'));
-        await tester.pumpAndSettle();
+        await waitFor(() {
+          final sheet = find.byType(PdfContentsSheet).evaluate();
+          return sheet.length == 1 &&
+              ModalRoute.of(sheet.single)!.animation!.status ==
+                  AnimationStatus.completed;
+        }, 'contents opening');
       }
 
       tester.view.devicePixelRatio = 1;
@@ -179,12 +201,12 @@ void main() {
       expect(find.textContaining('watermark on every page'), findsOneWidget);
       await openContents();
       await tester.tap(find.text('Practice'));
-      await tester.pumpAndSettle();
+      await contentsClosed();
       await rendered(3);
       expect(find.text('3 / 4'), findsOneWidget);
       await openContents();
       await tester.tap(find.byTooltip('Close contents'));
-      await tester.pumpAndSettle();
+      await contentsClosed();
       expect(find.text('3 / 4'), findsOneWidget);
       await tester.tap(find.byTooltip('Bookmark page'));
       await tester.pump();
@@ -208,7 +230,7 @@ void main() {
       expect(find.text('3 / 4'), findsOneWidget);
       await openContents();
       await tester.tap(find.text('Page 3'));
-      await tester.pumpAndSettle();
+      await contentsClosed();
       expect(find.text('3 / 4'), findsOneWidget);
       expect(
         PdfReadingStore(
@@ -240,7 +262,7 @@ void main() {
       );
       await openContents();
       await tester.tap(find.text('Introduction'));
-      await tester.pumpAndSettle();
+      await contentsClosed();
       await rendered(1);
       await tester.pumpWidget(const SizedBox());
       await tester.pumpWidget(host());

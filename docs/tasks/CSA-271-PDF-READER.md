@@ -367,6 +367,13 @@ Its chapters/bookmarks/zoom/account/restoration assertions remain unchanged.
 The diagnostic head again passed Supabase, full Flutter tests, general Chrome
 checks and release build; none of those substitutes for the repaired PDF suite.
 
+`382c5d6` exposes a second test-wait issue: global `pumpAndSettle` times out
+while asynchronous PDF rasterization keeps an indeterminate loading indicator
+active. The fixture now waits for the actual modal animation's completed state
+or the sheet's removal, pumping real async work between bounded frames. This
+waits for the action under test rather than requiring the whole UI to become
+animation-free. No assertion is removed or converted to a skip.
+
 Review of `a1cfab8`: 132 PDF Flutter tests, 150 Node checks, 15 real-byte Python
 watermark tests, changed-file formatting and full analysis passed. The Linux
 supervisor and hosted browser wrapper were skipped on Windows. Browser, SQL and
