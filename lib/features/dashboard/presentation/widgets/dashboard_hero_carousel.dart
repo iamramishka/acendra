@@ -136,11 +136,7 @@ class _DashboardHeroCarouselState extends State<DashboardHeroCarousel>
             gradient: const RadialGradient(
               center: Alignment(0.7, -0.2),
               radius: 1.5,
-              colors: [
-                Color(0xFF1E6BFF),
-                Color(0xFF123A9C),
-                Color(0xFF0B1E4F),
-              ],
+              colors: [Color(0xFF1E6BFF), Color(0xFF123A9C), Color(0xFF0B1E4F)],
               stops: [0.0, 0.35, 0.75],
             ),
           ),
