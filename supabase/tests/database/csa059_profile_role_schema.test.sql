@@ -33,8 +33,10 @@ select pg_temp.assert_ok(
   (select array_agg(code order by code) = array['content_manager','finance_admin','student','super_admin']
     from public.roles), 'exact approved role vocabulary seeded');
 select pg_temp.assert_ok(
-  (select count(*) = 6 from information_schema.columns where table_schema = 'public'
-    and table_name = 'profiles'), 'minimal profile fields without credentials or roles');
+  (select array_agg(column_name::text order by column_name) =
+    array['avatar_path','created_at','display_name','email_notifications_enabled','id','locale','updated_at']
+    from information_schema.columns where table_schema = 'public'
+    and table_name = 'profiles'), 'approved profile fields without credentials or roles');
 select pg_temp.assert_ok(
   not has_function_privilege('authenticated','public.csa059_set_profile_updated_at()','EXECUTE')
   and not has_function_privilege('anon','public.csa059_set_profile_updated_at()','EXECUTE'),

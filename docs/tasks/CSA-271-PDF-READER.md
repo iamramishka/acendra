@@ -307,8 +307,26 @@ review chats. CSA-275 / issue #215 owns the common SQL/tooling repair and nine
 formatting-only changes. Duplicate local formatting edits were discarded before
 integration. Its owner approved the nine-file formatting subset of immutable
 commit `2d77aa94411f2ee2c8ffc98a5752d41536effecf` for reuse here; feature behavior,
-original implementation worktrees and other PR branches are untouched. Full
-shared SQL/tooling integration awaits the owner's final verified commit.
+original implementation worktrees and other PR branches are untouched.
+
+The CSA-275 owner subsequently approved the seven finalized SQL/test/tooling
+paths at `5bcdf3204fc7423d1b60645396ac5497d13efc1e` for reuse. They reconcile the
+exact approved profile fields/update grants, scope signup assertions to their
+fixtures, exclude NOTICEs from error-location summaries, distinguish the two
+existing curriculum actions and wait for a real CSP browser callback. The
+cross-user, forbidden-field and CSP-denial assertions remain. No application
+policy, migration or production behavior changes in this common repair.
+
+Provenance and the shared owner's RED/GREEN/native evidence are maintained in
+[CSA-275](https://github.com/iamramishka/acendra/blob/5bcdf3204fc7423d1b60645396ac5497d13efc1e/docs/tasks/CSA-275-PR204-CI.md)
+on PR204, not copied into this branch. That owner
+reports 868 aggregate Node passes / 11 skips, 27 financial concurrency passes,
+and 29 final CSA060 assertions. Native shims do not establish hosted Supabase
+acceptance. PR206 must pass its own combined-head CI before integration.
+
+Fresh combined-branch checks: all 12 local-wrapper/CSP tests passed, including
+the actual Chrome callback and denied-host assertions. Full-tree Dart formatting
+and diff hygiene passed. The published head's CI results are the merge authority.
 
 Review of `a1cfab8`: 132 PDF Flutter tests, 150 Node checks, 15 real-byte Python
 watermark tests, changed-file formatting and full analysis passed. The Linux
