@@ -292,27 +292,26 @@ void main() {
       },
     );
 
-    testWidgets(
-      'shows "Mark Complete" for the last incomplete text lesson',
-      (tester) async {
-        await tester.pumpWidget(
-          _wrap(
-            const LearningWorkspaceScreen(courseId: _testCourseId),
-            const LearningState(
-              courseId: _testCourseId,
-              sections: _sections,
-              currentLessonId: 'les-2',
-              currentContent: _lessonContent2,
-              progressReady: true,
-            ),
+    testWidgets('shows "Mark Complete" for the last incomplete text lesson', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          const LearningWorkspaceScreen(courseId: _testCourseId),
+          const LearningState(
+            courseId: _testCourseId,
+            sections: _sections,
+            currentLessonId: 'les-2',
+            currentContent: _lessonContent2,
+            progressReady: true,
           ),
-        );
-        await tester.pump();
+        ),
+      );
+      await tester.pump();
 
-        expect(find.text('Mark Complete'), findsOneWidget);
-        expect(find.text('Mark Complete & Continue'), findsNothing);
-      },
-    );
+      expect(find.text('Mark Complete'), findsOneWidget);
+      expect(find.text('Mark Complete & Continue'), findsNothing);
+    });
 
     testWidgets(
       'hides forward button when the current lesson is already completed',

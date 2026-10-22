@@ -289,3 +289,30 @@ configuration, billing, branch protection or another task's formatting changed.
 Vercel log access still needs account authentication; its integration was
 suggested but no connection was confirmed. Status remains **IN_REVIEW**, with
 the same CI/account, required-review and hosted-release gates retained.
+
+## PR206 CI repair integration
+
+The project owner requested fixing the reported CI blockers, renewed review and
+dev integration. CODEX uses the isolated `fix/csa-271-ci-review` branch at
+`C:/Users/ramis/.codex/worktrees/repair-pr206/acendra`, based on reviewed
+`a1cfab8`. The scope extension and ownership were recorded on issue #205.
+
+Hosted attempt 2 now starts successfully: the previous billing startup failure
+is superseded. Flutter fails on nine unchanged baseline formatting files.
+The original database summary overstates failures because it includes NOTICE
+locations; it is not evidence that every listed suite failed.
+
+The owner explicitly authorized coordination between the PR204, PR206 and PR209
+review chats. CSA-275 / issue #215 owns the common SQL/tooling repair and nine
+formatting-only changes. Duplicate local formatting edits were discarded before
+integration. Its owner approved the nine-file formatting subset of immutable
+commit `2d77aa94411f2ee2c8ffc98a5752d41536effecf` for reuse here; feature behavior,
+original implementation worktrees and other PR branches are untouched. Full
+shared SQL/tooling integration awaits the owner's final verified commit.
+
+Review of `a1cfab8`: 132 PDF Flutter tests, 150 Node checks, 15 real-byte Python
+watermark tests, changed-file formatting and full analysis passed. The Linux
+supervisor and hosted browser wrapper were skipped on Windows. Browser, SQL and
+release-build checks were not rerun as part of that review. This is AI review,
+not independent human approval. Required current-head CI and reviewer approval
+remain merge gates; no admin bypass or production activation is authorized.
