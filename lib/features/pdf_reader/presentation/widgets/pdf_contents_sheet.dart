@@ -81,7 +81,18 @@ class PdfContentsSheet extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-              child: Text('Contents', style: theme.textTheme.titleMedium),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text('Contents', style: theme.textTheme.titleMedium),
+                  ),
+                  IconButton(
+                    tooltip: 'Close contents',
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
             ),
             const Divider(height: 1),
             Flexible(
@@ -106,12 +117,31 @@ class PdfContentsSheet extends StatelessWidget {
                       final e = entries[i];
                       return ListTile(
                         selected: i == current,
+                        leading: ExcludeSemantics(
+                          child: CircleAvatar(
+                            radius: 16,
+                            backgroundColor: i == current
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.primaryContainer,
+                            foregroundColor: i == current
+                                ? theme.colorScheme.onPrimary
+                                : theme.colorScheme.onPrimaryContainer,
+                            child: Text(
+                              '$i',
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: i == current
+                                    ? theme.colorScheme.onPrimary
+                                    : theme.colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                          ),
+                        ),
                         contentPadding: EdgeInsets.only(
                           left: 16.0 + 16 * e.level.clamp(0, 8),
                           right: 16,
                         ),
                         title: Text(e.title),
-                        trailing: Text('${e.page}'),
+                        trailing: Text('p. ${e.page}'),
                         onTap: () => onGoToPage(e.page),
                       );
                     }),

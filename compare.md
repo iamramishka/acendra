@@ -22,7 +22,7 @@ Scope: student-facing screens only (the prototype has no admin screens)
 | COM-013 | Payment | Amount/date not returned by backend, D-6 copy in a CSA-265 file |
 | COM-015 | Student | "Sample content" notice remains, `com015` migration not run |
 | COM-016 | Student | Cards open resume lesson not overview, migration not run |
-| COM-020 | Learning | IN_REVIEW — CSA-271: v2 server watermark, active contents/bookmarks and reader controls implemented; browser, deployment, CI/review and dev merge gates remain. |
+| COM-020 | Learning | IN_REVIEW — CSA-271: v2 watermark and active reader implemented; 22 local browser checks and artifact comparison passed. Hosted deployment, CI/review and dev merge gates remain. |
 | COM-021 | Account | DONE 2026-10-21. Avatar displayed in header. Language selector (EN/SI) syncs to DB. Inline edit merged. |
 | COM-022 | Account | DONE 2026-10-21. Language (EN/SI) DropdownButton + Email Notifications SwitchListTile added to Settings. Migration `20261020000100_com022_email_notifications.sql` adds `email_notifications_enabled boolean not null default true` to `profiles`, grant included. |
 | COM-023 | Cross-cutting | DONE 2026-10-20 (05a5088). 3 fixes: raw 'stripe' code, raw amount_minor, 2 tap targets. All 4 admin list screens confirmed with loading/empty/error states; no raw exception text found. |
@@ -850,7 +850,7 @@ page on grey canvas with **personal diagonal watermark** → disclosure
 ‹ page / total › · − zoom % + · fit-to-width. Contents lists chapters
 (current highlighted) and bookmarks. No download/print controls.
 
-Result: **IN_REVIEW — CSA-271 / issue #205 / [PR #206](https://github.com/iamramishka/acendra/pull/206), 2026-10-21**. This supersedes the
+Result: **IN_REVIEW — CSA-271 / issue #205 / [PR #206](https://github.com/iamramishka/acendra/pull/206), 2026-10-22**. This supersedes the
 2026-10-18 “contents missing / global watermark flag off” implementation note.
 
 - The active `ProtectedPdfLesson` now connects `PdfLessonReader` to the existing
@@ -883,21 +883,25 @@ Verified locally:
 - [x] Python worker: 15 passed, one non-root Linux-only test skipped on Windows.
   A supported v1 sample remains byte-identical to the dev generator.
 - [x] Node PDF authorization/proxy/worker/assets and request regressions: 145 passed.
-- [x] Active reader/repository/progress and existing PDF widget suites: 128 passed
+- [x] Active reader/repository/progress and existing PDF widget suites: 129 passed
   serially, including chapter/bookmark jumps, zoom/reset, page restoration,
   account/lesson storage separation, dark theme, sheet disposal and 320/390/768/1440 px with 1×/2× text.
 - [x] Full Dart analyzer: no issues with a task-local `DART_DATA_HOME` after
   Windows performance-socket cleanup crashed the default analyzer process.
-- [x] Final release web build passed, including Wasm dry run (241.2 s).
+- [x] 2026-10-22 final release web build passed, including Wasm dry run (384.0 s).
 - [x] 43 ordered migrations applied in disposable PostgreSQL 17; private-storage
   and entitlement/policy-version SQL suites passed with synthetic Auth/Storage.
 
+- [x] 2026-10-22: reference artifact inspected in the working in-app browser;
+  inset page, grouped footer, numbered chapters and explicit Close aligned to it.
+  **22 browser checks passed** with the production reader/PDF.js and real v2
+  synthetic fixture: chapters, bookmarks, 100–300% zoom, fit width, reopening,
+  page-1 reload, separate student progress, keyboard Close, dark theme and visible
+  controls at 320/390/768/1440px. [Screenshots and evidence](docs/tasks/CSA-271-PDF-READER.md#2026-10-22-browser-follow-up).
+  This is local interactive verification; the automated Chrome runner did not
+  reach assertions. Sample document content and prototype phone chrome differ.
+
 Acceptance still open:
-- [ ] Browser renderer assertions and exact artifact visual parity. Browser
-  control is disabled in Work settings and the reference artifact URL is
-  inaccessible. The first automated Chrome run stalled before assertions;
-  the serial follow-up also stalled before assertions (task evidence records both attempts). VM widget results do
-  not establish actual browser rendering or accessibility.
 - [ ] Hosted migration, private Storage, updated policy-aware non-root worker,
   licensed locale font, isolation, retention/purge and representative content /
   accessibility acceptance. Stop old workers before adopting v2 reservations.

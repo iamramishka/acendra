@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:acendra/app/theme/app_theme_extension.dart';
 import 'package:pdfx/pdfx.dart' as pdfx;
 import '../../data/pdf_reading_store.dart';
 import '../../domain/entities/pdf_outline_entry.dart';
@@ -136,7 +137,11 @@ class _PdfLessonReaderState extends State<PdfLessonReader> {
         ),
         Expanded(
           child: ColoredBox(
-            color: colors.surfaceContainerHighest,
+            color:
+                Theme.of(
+                  context,
+                ).extension<AppThemeExtension>()?.surfaceSecondary ??
+                colors.surfaceContainerHighest,
             child: PageView.builder(
               controller: _controller,
               itemCount: _pages,
@@ -146,12 +151,15 @@ class _PdfLessonReaderState extends State<PdfLessonReader> {
                 _transform.value = Matrix4.diagonal3Values(_zoom, _zoom, 1);
                 widget.store.savePage(_page);
               },
-              itemBuilder: (context, index) => _PdfCanvas(
-                key: ValueKey((widget.document.id, index)),
-                document: widget.document,
-                page: index + 1,
-                zoom: _zoom,
-                transform: _transform,
+              itemBuilder: (context, index) => Padding(
+                padding: const EdgeInsets.all(12),
+                child: _PdfCanvas(
+                  key: ValueKey((widget.document.id, index)),
+                  document: widget.document,
+                  page: index + 1,
+                  zoom: _zoom,
+                  transform: _transform,
+                ),
               ),
             ),
           ),

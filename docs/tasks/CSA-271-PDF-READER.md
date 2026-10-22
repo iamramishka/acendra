@@ -155,3 +155,87 @@ formatting work, obtain required review, and execute the browser test with a
 working browser environment. Merge through the protected dev workflow only
 after checks/review pass. Complete hosted PDF operational acceptance separately
 before activation; no production migration, worker launch or release is claimed.
+
+## 2026-10-22 browser follow-up
+
+The project owner renewed browser verification and artifact comparison. CODEX
+continues issue #205 / PR #206 in the same isolated branch. Remote dev is still
+e4ab889 and the PR head was d26b578 before this follow-up; no competing PDF
+change/review was present. Scope remains the PDF components, associated browser/
+widget tests, fixture instructions, this evidence and the COM-020 comparison.
+
+The previously unavailable browser and reference are accessible in this chat.
+The reference artifact was inspected directly: compact header, inset PDF page,
+disclosure, grouped page/zoom/fit-width controls, and a chapter sheet with round
+chapter markers, current selection and explicit Close control. Local changes
+bring those details closer to the reference using existing theme tokens, while
+retaining the constrained header at large text sizes. No global tokens change.
+The synthetic preview uses the actual production PdfLessonReader, PDF.js,
+outline parser and browser storage, with the generated four-page v2 fixture.
+It is a separate test entry point, not a hosted or production test-data route.
+
+Fresh checks:
+- The new Close-contents regression failed for the missing control before the
+  fix, then the five contents-sheet tests passed.
+- A visual header adjustment caused the existing 320px/200% text test to fail;
+  the constrained header was restored. The final serial PDF suite passed
+  **129/129**, including all 320/390/768/1440 widths at 100%/200% text.
+- The PDF proxy/shared worker/assets/request Node suites passed **145/145**.
+- Real-byte watermark Python tests passed **15**, with the existing non-root
+  Linux-only supervisor test skipped on Windows (16 discovered).
+- Full `flutter analyze --no-pub`: **no issues**, exit 0 (20.5 s). Its initial
+  run found one missing-braces lint in the new preview harness; that was fixed.
+- Final synthetic preview release build: **passed**, exit 0 (126.2 s), using
+  local web resources and the production reader. The existing Cupertino font
+  warning remains. This build is separate from the normal application entry.
+- Standard `flutter build web --release --no-pub`: **passed**, exit 0 (384.0 s),
+  including the Wasm dry run. Only the existing Cupertino font warning remains.
+- Final changed-file `dart format --output=none --set-exit-if-changed` check:
+  **six Dart files clean**, exit 0. `git diff --check` passed. The nine previously
+  documented unrelated full-format baseline failures were not changed.
+- The first browser runner attempt did not reach assertions. Overlapping SDK
+  compilation hit memory exhaustion; only owned test processes were stopped
+  and subsequent SDK work ran serially. No automated Chrome pass is inferred.
+
+Final-build interactive browser observations: actual PDF rasterization and burned
+diagonal/footer identity, chapter extraction and page-3 jump, bookmark and its
+contents entry, zoom through 300% with the upper control disabled, fit-width
+reset to 100%, reopen at page 3, student B starting at page 1 without A's
+bookmark, and A restoring its own page/bookmark. Keyboard Close preserved
+the reading page. Dark mode kept the original white PDF page readable. Every
+control stayed within the viewport at 320/390/768/1440px. Returning to page 1
+and fully reloading restored page 1; the reloaded page logged no browser console
+errors. **22 assertions passed**, recorded in
+[browser-checks.json](CSA-271-PDF-READER/browser-checks.json).
+These exercise synthetic local state, not hosted authentication or entitlement.
+
+Selected reference and final-build screenshots are checked in under
+`docs/tasks/CSA-271-PDF-READER/`; other viewport captures remain under ignored
+`build/pdf-browser-evidence/`. This supersedes the earlier claim that the
+reference could not be opened; historical automated-run failures remain above.
+Exact document content and phone chrome are reference sample data, not copied
+course material. Local browser success does not establish hosted delivery,
+representative locale-font/screen-reader acceptance or production readiness.
+
+GitHub's dev protection requires one approval and the Flutter baseline check.
+The current check annotation again states that the job was not started because
+of account payments/spending-limit restrictions. There are no PR reviews.
+These are retained merge gates; no admin bypass or configuration change is
+authorized by this follow-up.
+
+Final follow-up status: **IN_REVIEW**. The browser verification gap is closed
+for the synthetic local production reader. The automated Chrome run, hosted
+operational acceptance, required CI/review and dev merge remain distinct gates.
+Owned browser tabs and the loopback preview server were closed after capture.
+
+Reference reader and finished synthetic mobile reader:
+
+![Reference reader](CSA-271-PDF-READER/reference-reader.jpg)
+![Verified production reader with synthetic PDF](CSA-271-PDF-READER/reader-mobile.jpg)
+
+Reference contents and finished contents with the saved bookmark:
+
+![Reference contents](CSA-271-PDF-READER/reference-contents.jpg)
+![Verified contents](CSA-271-PDF-READER/reader-contents.jpg)
+
+![Verified dark reader](CSA-271-PDF-READER/reader-dark.jpg)

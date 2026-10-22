@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:js_interop';
 import 'dart:typed_data';
+import 'package:acendra/app/theme/app_theme.dart';
 import 'package:acendra/features/pdf_reader/data/pdf_outline_web.dart';
 import 'package:acendra/features/pdf_reader/data/pdf_reading_store.dart';
 import 'package:acendra/features/pdf_reader/data/protected_pdf_repository.dart';
@@ -116,7 +117,10 @@ void main() {
       );
       student.savePage(1);
       student.saveBookmarks([]);
-      Widget host({double textScale = 1}) => MaterialApp(
+      Widget host({double textScale = 1, bool dark = false}) => MaterialApp(
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        themeMode: dark ? ThemeMode.dark : ThemeMode.light,
         home: MediaQuery(
           data: MediaQueryData(textScaler: TextScaler.linear(textScale)),
           child: Scaffold(
@@ -159,6 +163,11 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Practice'));
       await rendered(3);
+      expect(find.text('3 / 4'), findsOneWidget);
+      await tester.tap(find.text('Contents'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Close contents'));
+      await tester.pumpAndSettle();
       expect(find.text('3 / 4'), findsOneWidget);
       await tester.tap(find.byTooltip('Bookmark page'));
       await tester.pump();
@@ -207,7 +216,21 @@ void main() {
           }
         }
       }
-      student.savePage(1);
+      await tester.pumpWidget(host(dark: true));
+      await rendered(3);
+      expect(
+        Theme.of(tester.element(find.byType(PdfLessonReader))).brightness,
+        Brightness.dark,
+      );
+      await tester.tap(find.text('Contents'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Introduction'));
+      await rendered(1);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpWidget(host());
+      await rendered(1);
+      expect(find.text('1 / 4'), findsOneWidget);
+      expect(student.loadPage(4), 1);
       student.saveBookmarks([]);
       await tester.pumpWidget(const SizedBox());
     },

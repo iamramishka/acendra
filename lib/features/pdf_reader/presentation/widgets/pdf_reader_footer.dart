@@ -60,65 +60,87 @@ class PdfReaderFooter extends StatelessWidget {
     return Material(
       color: theme.colorScheme.surface,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+        padding: const EdgeInsets.all(AppSpacing.sm),
         child: Wrap(
           alignment: WrapAlignment.center,
           crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  tooltip: 'Previous page',
-                  onPressed: onPrevious,
-                  icon: const Icon(Icons.chevron_left),
-                ),
-                Semantics(
-                  label: 'Page $currentPage of $totalPages',
-                  child: ExcludeSemantics(
-                    child: Text('$currentPage / $totalPages', style: style),
+            _ControlGroup(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    tooltip: 'Previous page',
+                    onPressed: onPrevious,
+                    icon: const Icon(Icons.chevron_left),
                   ),
-                ),
-                IconButton(
-                  tooltip: 'Next page',
-                  onPressed: onNext,
-                  icon: const Icon(Icons.chevron_right),
-                ),
-              ],
-            ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  tooltip: 'Zoom out',
-                  onPressed: onZoomOut,
-                  icon: const Icon(Icons.remove),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    '${(zoom * 100).round()}%',
-                    textAlign: TextAlign.center,
-                    style: style,
+                  Semantics(
+                    label: 'Page $currentPage of $totalPages',
+                    child: ExcludeSemantics(
+                      child: Text('$currentPage / $totalPages', style: style),
+                    ),
                   ),
-                ),
-                IconButton(
-                  tooltip: 'Zoom in',
-                  onPressed: onZoomIn,
-                  icon: const Icon(Icons.add),
-                ),
-              ],
+                  IconButton(
+                    tooltip: 'Next page',
+                    onPressed: onNext,
+                    icon: const Icon(Icons.chevron_right),
+                  ),
+                ],
+              ),
             ),
-            IconButton(
-              tooltip: 'Fit to width',
-              isSelected: isFitWidth,
-              onPressed: onFitWidth,
-              icon: const Icon(Icons.fit_screen_outlined),
-              selectedIcon: const Icon(Icons.fit_screen),
+            _ControlGroup(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    tooltip: 'Zoom out',
+                    onPressed: onZoomOut,
+                    icon: const Icon(Icons.remove),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      '${(zoom * 100).round()}%',
+                      textAlign: TextAlign.center,
+                      style: style,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Zoom in',
+                    onPressed: onZoomIn,
+                    icon: const Icon(Icons.add),
+                  ),
+                ],
+              ),
+            ),
+            _ControlGroup(
+              child: IconButton(
+                tooltip: 'Fit to width',
+                isSelected: isFitWidth,
+                onPressed: onFitWidth,
+                icon: const Icon(Icons.swap_horiz),
+                selectedIcon: const Icon(Icons.swap_horiz),
+              ),
             ),
           ],
         ),
       ),
     );
   }
+}
+
+class _ControlGroup extends StatelessWidget {
+  const _ControlGroup({required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+      borderRadius: BorderRadius.circular(14),
+    ),
+    child: child,
+  );
 }
