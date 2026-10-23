@@ -402,3 +402,16 @@ supervisor and hosted browser wrapper were skipped on Windows. Browser, SQL and
 release-build checks were not rerun as part of that review. This is AI review,
 not independent human approval. Required current-head CI and reviewer approval
 remain merge gates; no admin bypass or production activation is authorized.
+
+### Integration after PR204 merge
+
+Owner renewed review/merge authorization after independent approval of 3e0f740.
+Dev advanced to 5433b89 (PR204). Deliberate integration preserves both catalog
+and PDF comparison records, reconciles their summary counts, and retains the
+exclusively handed-off CSP phase/deadline harness from 920e19f: inspection shows
+the dev variant is the earlier callback implementation without those additions.
+No CSP production policy or denial assertions change. Five actual Chrome/CSP and
+PDF lifecycle checks pass locally after conflict resolution. Both full hosted
+workflows must pass on the resulting combined commit; the previous green runs
+39841636269/39841636136 and approval apply to 3e0f740. GitHub dismisses stale
+approval on push, so fresh independent approval remains required.

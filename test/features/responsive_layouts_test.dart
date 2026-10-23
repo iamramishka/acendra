@@ -252,15 +252,13 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            // Every card receives its natural height, including enlarged text.
-            body: SingleChildScrollView(child: CourseGrid(courses: courses)),
+            body: CustomScrollView(slivers: [CourseGrid(courses: courses)]),
           ),
         ),
       );
-      // All 6 courses rendered in 1 column: each row holds exactly one card.
-      // We verify by checking that the grid has 1 cross-axis item by confirming
-      // all course titles are present and no overflow is thrown.
       expect(find.text('Course 0'), findsOneWidget);
+      expect(find.text('Course 5'), findsNothing);
+      await tester.scrollUntilVisible(find.text('Course 5'), 400);
       expect(find.text('Course 5'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
@@ -270,7 +268,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(child: CourseGrid(courses: courses)),
+            body: CustomScrollView(slivers: [CourseGrid(courses: courses)]),
           ),
         ),
       );
@@ -284,7 +282,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(child: CourseGrid(courses: courses)),
+            body: CustomScrollView(slivers: [CourseGrid(courses: courses)]),
           ),
         ),
       );
@@ -309,15 +307,16 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
-              body: SingleChildScrollView(child: CourseGrid(courses: courses)),
+              body: CustomScrollView(slivers: [CourseGrid(courses: courses)]),
             ),
           ),
         );
         final firstRowY = tester.getTopLeft(find.text('Course 0')).dy;
-        final firstRowCount = List.generate(
-          courses.length,
-          (index) => tester.getTopLeft(find.text('Course $index')).dy,
-        ).where((y) => (y - firstRowY).abs() < 1).length;
+        final firstRowCount = [
+          for (var index = 0; index < courses.length; index++)
+            if (find.text('Course $index').evaluate().isNotEmpty)
+              tester.getTopLeft(find.text('Course $index')).dy,
+        ].where((y) => (y - firstRowY).abs() < 1).length;
         expect(
           firstRowCount,
           expectedCols,

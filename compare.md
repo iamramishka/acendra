@@ -10,7 +10,7 @@ Scope: student-facing screens only (the prototype has no admin screens)
 
 ---
 
-## Pending index (as of 2026-10-19)
+## Pending index (baseline 2026-10-19; COM-008 updated 2026-10-21)
 
 | Task | Area | What's pending |
 |---|---|---|
@@ -27,7 +27,7 @@ Scope: student-facing screens only (the prototype has no admin screens)
 | COM-022 | Account | DONE 2026-10-21. Language (EN/SI) DropdownButton + Email Notifications SwitchListTile added to Settings. Migration `20261020000100_com022_email_notifications.sql` adds `email_notifications_enabled boolean not null default true` to `profiles`, grant included. |
 | COM-023 | Cross-cutting | DONE 2026-10-20 (05a5088). 3 fixes: raw 'stripe' code, raw amount_minor, 2 tap targets. All 4 admin list screens confirmed with loading/empty/error states; no raw exception text found. |
 | COM-006 | Auth | Hero banner missing |
-| COM-008 | Catalog | Category label and blurb on card, `SliverGrid` |
+| COM-008 | Catalog | IN_REVIEW — implemented in [PR #204](https://github.com/iamramishka/acendra/pull/204) (CSA-270): lazy `SliverGrid`, category dot/label, title/blurb, responsive cards and offline preview. 19 widget checks, analysis and release build pass locally. Browser/prototype comparison, hosted CI, required approval and merge to dev remain pending. |
 | COM-002 to 005 | Shell/Auth | MERGED to dev 2026-10-20 (PR #186, e0cc143). Browser check pending (CI/CD will deploy when baseline passes and reviewer approves). COM-004: Terms/Privacy pages still plain text (no real pages); Supabase Auth floor confirmed 6 chars (D-1 final decision). |
 | COM-014 | Student | DONE 2026-10-20 (code in dev; RLS second-account isolation verified via DB test suite) |
 | COM-017 | Learning | VERIFIED locally 2026-10-20 (localhost:9090, branch `feat/com-007-password-reset`): course overview loads from `/learn/:courseId`, shows progress %, Continue Learning card, expandable curriculum with lesson markers. Progress updates after Mark Complete. Back from lesson goes to My Courses (not overview — known COM-016 gap). |
@@ -64,6 +64,7 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | PARTIAL | Screen exists; layout and/or flow differ |
 | MISSING | Prototype screen has no Flutter equivalent |
 | CONFLICT | Prototype and app disagree on a rule; owner decision needed |
+| IN_REVIEW | Implementation submitted; remaining acceptance, review and merge gates are not complete |
 
 ---
 
@@ -78,7 +79,7 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | COM-005 | Auth | Check your inbox | `authentication/.../verify_email_screen.dart` | DONE 2026-10-20 | UI-ST-005 | P2 |
 | COM-006 | Auth | Forgot password | `authentication/.../forgot_password_screen.dart` | PARTIAL | UI-ST-004 | P2 |
 | COM-007 | Auth | Set / change password | `authentication/.../reset_password_screen.dart` | PARTIAL + CONFLICT | UI-ST-004 | P1 |
-| COM-008 | Catalog | Explore courses | `marketplace/.../marketplace_screen.dart` | PARTIAL | UI-ST-007/008 | P1 |
+| COM-008 | Catalog | Explore courses | `marketplace/.../marketplace_screen.dart` | IN_REVIEW (PR #204) | UI-ST-007/008 | P1 |
 | COM-009 | Catalog | Course details | `marketplace/.../course_detail_screen.dart` | PARTIAL | UI-ST-009/010 | P1 |
 | COM-010 | Payment | Secure checkout | `checkout/.../checkout_screen.dart` | PARTIAL | UI-ST-011 | P0 |
 | COM-011 | Payment | PayHere "Checking your payment" | `checkout/.../payment_pending/success/failure_screen.dart` | PARTIAL | UI-ST-014 | P0 |
@@ -95,7 +96,9 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | COM-022 | Account | Settings | `settings/.../settings_screen.dart` | DONE 2026-10-21 | UI-ST-021 | P1 |
 | COM-023 | Cross-cutting | Empty / loading / error / feedback | various | DONE 2026-10-20 | — | P2 |
 
-Count: 1 MATCH, 11 PARTIAL, 1 IN_REVIEW, 2 MISSING (Home is a different screen in practice), COM-020 implementation is in review (CSA-271); operational acceptance remains open. COM-002–005, 014, 017, 018, 019, 021, 022, 023 DONE.
+Summary table: 1 MATCH, 11 recorded DONE, 9 PARTIAL (including 1 with CONFLICT),
+ and 2 IN_REVIEW (COM-008 and COM-020). These totals reflect the table's recorded labels;
+ they do not establish fresh browser verification or release acceptance.
 
 ---
 
@@ -379,7 +382,7 @@ Result: —
 
 ---
 
-### COM-008 — Explore courses (catalog + search)
+### COM-008 — Explore courses (catalog + search) — IN_REVIEW 2026-10-21
 
 Prototype layout: brand header → "Explore Courses / Discover skills worth
 mastering." → rounded search field → category chips (All Courses, …) → row with
@@ -389,27 +392,63 @@ price, chevron).
 Prototype flow: search and chips filter live; no results → "No courses found —
 Try a different word or category."
 
-Current app: `marketplace/presentation/screens/marketplace_screen.dart`
-- `SearchBar` + `FilterChip` row + `CourseGrid` (1/2/3 columns).
+Implementation: **CSA-270**, [issue #203](https://github.com/iamramishka/acendra/issues/203),
+[PR #204](https://github.com/iamramishka/acendra/pull/204), branch
+`feat/csa-270-catalog-sliver`. Source and verification recorded through `5a94172`.
+The PR is ready for review and **has not merged into dev**.
 
-Gaps:
-- Layout: no page title/subtitle, no result count, **no sort control**.
-- Layout: card shows `shortDescription` in the instructor slot
-  (`course_grid.dart` passes `instructorName: course.shortDescription`); no
-  category label on the card.
-- Flow: empty state always says "No courses available yet." (`:105`) even when
-  a search simply has no matches. Needs a separate "No courses found" state.
-- Flow: chip "All" vs prototype "All Courses" (copy only).
-- Performance: grid uses `shrinkWrap` inside a sliver; fine for small catalogs,
-  should become a `SliverGrid` before the catalog grows.
+Implemented in the PR:
+- `SliverLayoutBuilder` + `SliverGrid.builder` build visible/cached cards instead
+  of eagerly building the entire catalog. Actual available width selects 1/2/3
+  columns, including when the catalog is narrower than the browser window.
+- Title/subtitle, rounded search, category chips, count and sorting remain in
+  the recorded prototype order. Sorting supports Newest and both price directions;
+  Popular is not added because no popularity data contract exists.
+- Cards preserve real artwork delivery and its gradient fallback, category
+  dot/label, title, separate description, formatted price and chevron. Card height
+  accounts for enlarged text; titles and descriptions have bounded lines.
+- Search misses use "No courses found" separately from an empty catalog.
+  Card navigation opens the real course-detail screen.
+- `tool/catalog_preview.dart` supplies six clearly labeled synthetic courses and
+  matching curriculum details for offline QA. Checkout explicitly creates no
+  order. This preview is not used by production; its marker was checked absent
+  from the release JavaScript bundle.
 
-Check:
+Local automated verification (Flutter widget runner, **not Chrome**):
+- All **19 focused tests pass**, including search, category filters, both price
+  sort directions, detail navigation, offline checkout refusal, lazy scrolling
+  through 100 courses and a narrow container in a wide viewport.
+- The layout matrix covers **320, 390, 768 and 1440 px**, light/dark themes and
+  100%/200% text. This establishes widget-layout behavior, not artifact parity.
+- Full `flutter analyze --no-pub` passes. All eight changed/new Dart files format
+  cleanly. `flutter build web --release --no-pub` passes, including the Wasm
+  compatibility dry run; the pre-existing CupertinoIcons font warning remains.
+
+Browser acceptance checklist (left open until seen in the running browser):
 - [ ] Title, search, chips, count, sort and cards appear in prototype order.
 - [ ] Sort changes order correctly for both price directions.
 - [ ] Search with no match shows "No courses found", not "No courses available yet".
 - [ ] Tapping a card opens Course details.
 
-Result: PARTIAL (2026-10-18, commit 3852c6e). FIXED: title and subtitle, course count, sort (Newest, price both ways; no Popular, no data), separate "No courses found" state. NOT DONE: category label and blurb on card, SliverGrid. Overlaps Codex CSA-265 (#183).
+Remaining gates:
+- The remote artifact could not be opened, and interactive browser access is
+  disabled in Work settings. Chrome tests compiled after an import correction
+  but stalled before suite loading; a minimal standalone smoke test also stalled
+  before assertions. No browser checks or screenshots passed. Exact visual
+  comparison remains **INCONCLUSIVE**.
+- GitHub Actions cannot start because of an account-level billing/spending
+  restriction. Required approving review is outstanding. The full local format
+  check also finds nine unchanged baseline files outside CSA-270's scope.
+- Complete browser/prototype comparison, restore hosted checks, resolve baseline
+  formatting through the respective owners, obtain approval and merge PR #204.
+
+Result: **IN_REVIEW (2026-10-21)** — implementation and local checks complete;
+browser acceptance, CI, review and merge remain pending. Detailed commands,
+evidence and ownership are in [the CSA-270 task record](docs/tasks/CSA-270.md).
+
+Historical result (2026-10-18, `3852c6e`): header, count, sort and search-miss copy
+were fixed; card metadata and lazy-grid work were still recorded as pending.
+The newer CSA-270 entry above supersedes that pending-work description.
 
 ---
 
@@ -1018,8 +1057,9 @@ progress summary, avatar storage, notification preference).
 
 ## 6. Audit limits
 
-- Code review only. The app was **not run** for this audit; every **Check** box
-  is still open. Line numbers refer to commit `9ba9c0d`.
+- The original 2026-10-18 audit was code review only; its line numbers refer to
+  commit `9ba9c0d`. Later dated entries record additional evidence only for their
+  named screens. COM-008's 2026-10-21 widget tests are not browser acceptance.
 - Admin screens were not compared (the prototype has none).
 - Widths 768 and 1440 were not compared against the prototype (prototype is a
   phone mockup only).
