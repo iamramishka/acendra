@@ -27,6 +27,7 @@ PdfTransportResponse descriptor({
   String id = lesson,
   String? resourceId = resource,
   int status = 200,
+  Object? watermarkApplied = true,
 }) => PdfTransportResponse(
   status,
   'application/json',
@@ -38,6 +39,7 @@ PdfTransportResponse descriptor({
           'mode': 'proxied_stream',
           'state': state,
           'resource_id': resourceId,
+          'watermark_applied': ?watermarkApplied,
         },
       }),
     ),
@@ -48,6 +50,20 @@ ProtectedPdfRepository _repo(_Transport transport) => ProtectedPdfRepository(
   transport,
 );
 void main() {
+  for (final evidence in [true, false, null, 'true']) {
+    test('watermark disclosure trusts only boolean true: $evidence', () async {
+      final transport = _Transport([
+        descriptor(watermarkApplied: evidence),
+        PdfTransportResponse(
+          200,
+          'application/pdf',
+          Uint8List.fromList(ascii.encode('%PDF-synthetic')),
+        ),
+      ]);
+      final data = await _repo(transport).loadDocument(lesson, 'token');
+      expect(data!.watermarkApplied, evidence == true);
+    });
+  }
   test('only authenticated bound derivative bytes reach renderer', () async {
     final bytes = Uint8List.fromList(ascii.encode('%PDF-synthetic'));
     final transport = _Transport([

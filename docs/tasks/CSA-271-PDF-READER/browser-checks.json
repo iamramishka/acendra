@@ -1,0 +1,99 @@
+{
+  "environment": "in-app Chromium; production reader and same-origin PDF.js; synthetic v2 fixture; local storage only, no hosted Auth/Storage",
+  "widths": [
+    320,
+    390,
+    768,
+    1440
+  ],
+  "checks": [
+    {
+      "check": "final build: rendered derivative and restored page 1",
+      "result": "PASS"
+    },
+    {
+      "check": "watermark disclosure visible",
+      "result": "PASS"
+    },
+    {
+      "check": "final build: real outline page destinations",
+      "result": "PASS"
+    },
+    {
+      "check": "final build: chapter jump reaches page 3",
+      "result": "PASS"
+    },
+    {
+      "check": "final build: bookmark saved and zoom increases to 125%",
+      "result": "PASS"
+    },
+    {
+      "check": "zoom stops at 300%",
+      "result": "PASS"
+    },
+    {
+      "check": "fit width resets zoom to 100% minimum",
+      "result": "PASS"
+    },
+    {
+      "check": "reopen restores page 3 and bookmark",
+      "result": "PASS"
+    },
+    {
+      "check": "bookmark appears in contents",
+      "result": "PASS"
+    },
+    {
+      "check": "bookmark destination renders page 3",
+      "result": "PASS"
+    },
+    {
+      "check": "student B starts at page 1 without A bookmark",
+      "result": "PASS"
+    },
+    {
+      "check": "student B cannot see A saved bookmark",
+      "result": "PASS"
+    },
+    {
+      "check": "keyboard Close preserves page 1",
+      "result": "PASS"
+    },
+    {
+      "check": "switching back restores A own page and bookmark",
+      "result": "PASS"
+    },
+    {
+      "check": "all controls visible at 320px",
+      "result": "PASS"
+    },
+    {
+      "check": "all controls visible at 390px",
+      "result": "PASS"
+    },
+    {
+      "check": "all controls visible at 768px",
+      "result": "PASS"
+    },
+    {
+      "check": "all controls visible at 1440px",
+      "result": "PASS"
+    },
+    {
+      "check": "dark reader retains readable page and controls",
+      "result": "PASS"
+    },
+    {
+      "check": "dark chapter navigation returns to page 1",
+      "result": "PASS"
+    },
+    {
+      "check": "page 1 survives full reload and replaces older progress",
+      "result": "PASS"
+    },
+    {
+      "check": "final page reload has no browser console errors",
+      "result": "PASS"
+    }
+  ]
+}

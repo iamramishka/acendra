@@ -34,11 +34,12 @@ const chrome = [process.env.ACENDRA_CSP_CHROME,
 
 test('browser allows Mux and blob playback while blocking unrelated media and fetches', {
   skip: !chrome && 'Chrome/Chromium unavailable; set ACENDRA_CSP_CHROME to run browser verification',
-  timeout: 30000,
+  timeout: 100000,
 }, async () => {
   const hosts = ['stream.mux.com', 'cdn.mux.com', 'unrelated.invalid',
     'stream.mux.com.evil.invalid', 'evilmux.com'];
   const html = `<!doctype html><html><body><pre id="result">pending</pre><script>
+    fetch('/started', { method: 'POST' });
     const violations = [];
     document.addEventListener('securitypolicyviolation', event => {
       violations.push({ directive: event.effectiveDirective, url: event.blockedURI });
@@ -58,7 +59,17 @@ test('browser allows Mux and blob playback while blocking unrelated media and fe
   </script></body></html>`;
   let completeResult;
   const received = new Promise(resolveResult => { completeResult = resolveResult; });
+  let reportStarted;
+  const started = new Promise(resolveStarted => { reportStarted = resolveStarted; });
+  let phase = 'launch';
   const server = createServer((request, response) => {
+    if (request.method === 'POST' && request.url === '/started') {
+      phase = 'script-started';
+      response.writeHead(204, { Connection: 'close' });
+      response.end();
+      reportStarted();
+      return;
+    }
     if (request.method === 'POST' && request.url === '/results') {
       let body = '';
       request.on('data', chunk => {
@@ -66,12 +77,17 @@ test('browser allows Mux and blob playback while blocking unrelated media and fe
         if (body.length > 65536) request.destroy();
       });
       request.on('end', () => {
+        phase = 'result-received';
         response.writeHead(204, { Connection: 'close' });
         response.end();
         completeResult(body);
       });
       return;
     }
+    if (request.url !== '/') {
+      response.writeHead(404); response.end(); return;
+    }
+    phase = 'page-served';
     response.writeHead(200, { 'Content-Type': 'text/html', 'Content-Security-Policy': policy });
     response.end(html);
   });
@@ -82,6 +98,8 @@ test('browser allows Mux and blob playback while blocking unrelated media and fe
   try {
     child = spawn(chrome, ['--headless=new', '--disable-gpu', '--no-sandbox',
       '--disable-dev-shm-usage',
+      '--disable-background-timer-throttling', '--disable-renderer-backgrounding',
+      '--disable-backgrounding-occluded-windows',
       '--no-first-run', '--disable-background-networking', '--disable-extensions',
       '--no-proxy-server', `--user-data-dir=${profile}`,
       // All synthetic external destinations resolve locally, even if allowed
@@ -99,10 +117,14 @@ test('browser allows Mux and blob playback while blocking unrelated media and fe
     });
     // Wait for an actual browser result rather than Chrome's best-effort DOM
     // dump, which may be empty when virtual time advances during startup.
-    const deadline = new Promise((_, reject) => {
-      timer = setTimeout(() => reject(new Error('Chrome did not report CSP results within 20 seconds')), 20000);
+    const deadline = (milliseconds, label) => new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`CSP browser ${label} timed out at phase ${phase}`)), milliseconds);
     });
-    const result = await Promise.race([received, earlyExit, deadline]);
+    // Give process startup its own bounded budget under aggregate CI load;
+    // the script must then produce its result within a separate 20 seconds.
+    await Promise.race([started, earlyExit, deadline(60000, 'startup')]);
+    clearTimeout(timer);
+    const result = await Promise.race([received, earlyExit, deadline(20000, 'execution')]);
     const violations = JSON.parse(result);
     for (const host of hosts.slice(0, 2)) {
       assert.ok(!violations.some(item => item.url === `https://${host}/synthetic.mp4`),

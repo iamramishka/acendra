@@ -22,7 +22,7 @@ Scope: student-facing screens only (the prototype has no admin screens)
 | COM-013 | Payment | Amount/date not returned by backend, D-6 copy in a CSA-265 file |
 | COM-015 | Student | "Sample content" notice remains, `com015` migration not run |
 | COM-016 | Student | Cards open resume lesson not overview, migration not run |
-| COM-020 | Learning | Contents sheet missing, watermark off (CSA-139) |
+| COM-020 | Learning | IN_REVIEW — CSA-271: v2 watermark and active reader implemented; 22 local browser checks and artifact comparison passed. Hosted deployment, CI/review and dev merge gates remain. |
 | COM-021 | Account | DONE 2026-10-21. Avatar displayed in header. Language selector (EN/SI) syncs to DB. Inline edit merged. |
 | COM-022 | Account | DONE 2026-10-21. Language (EN/SI) DropdownButton + Email Notifications SwitchListTile added to Settings. Migration `20261020000100_com022_email_notifications.sql` adds `email_notifications_enabled boolean not null default true` to `profiles`, grant included. |
 | COM-023 | Cross-cutting | DONE 2026-10-20 (05a5088). 3 fixes: raw 'stripe' code, raw amount_minor, 2 tap targets. All 4 admin list screens confirmed with loading/empty/error states; no raw exception text found. |
@@ -91,14 +91,14 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | COM-017 | Learning | Course overview + progress | `learning/.../course_overview_screen.dart` | DONE 2026-10-20 | UI-ST-016 | P1 |
 | COM-018 | Learning | Video lesson | `learning/.../learning_workspace_screen.dart`, `video_player/**` | DONE 2026-10-20 | UI-ST-017 | P2 |
 | COM-019 | Learning | Text & image lesson | `learning/.../text_lesson_viewer.dart` | DONE 2026-10-20 | UI-ST-019 | P2 |
-| COM-020 | Learning | PDF reader | `pdf_reader/**` | PARTIAL + CONFLICT | UI-ST-018 | P1 |
+| COM-020 | Learning | PDF reader | `pdf_reader/**` | IN_REVIEW | UI-ST-018 | P1 |
 | COM-021 | Account | My profile | `profile/.../profile_screen.dart`, `profile_edit_screen.dart` | DONE 2026-10-21 | UI-ST-020 | P2 |
 | COM-022 | Account | Settings | `settings/.../settings_screen.dart` | DONE 2026-10-21 | UI-ST-021 | P1 |
 | COM-023 | Cross-cutting | Empty / loading / error / feedback | various | DONE 2026-10-20 | — | P2 |
 
-Summary table: 1 MATCH, 11 recorded DONE, 10 PARTIAL (including 2 with CONFLICT),
-and 1 IN_REVIEW (COM-008). These totals reflect the table's recorded labels;
-they do not establish fresh browser verification or release acceptance.
+Summary table: 1 MATCH, 11 recorded DONE, 9 PARTIAL (including 1 with CONFLICT),
+ and 2 IN_REVIEW (COM-008 and COM-020). These totals reflect the table's recorded labels;
+ they do not establish fresh browser verification or release acceptance.
 
 ---
 
@@ -108,7 +108,7 @@ they do not establish fresh browser verification or release acceptance.
 |---|---|---|---|---|
 | D-1 | Minimum password length | 8 chars + letter + number | 6 chars, no other rule | COM-004, COM-007 |
 | D-2 | Bottom-nav tabs | Home · Explore · My Courses · Profile | Home · My Learning · Saved · Profile | COM-002 |
-| D-3 | Watermark format (SRS DEC-008 still open) | "Licensed to <name> · <id>" diagonal | none in reader | COM-020 |
+| D-3 | Owner format recorded; v2 implementation in review | Personal diagonal watermark | Acendra Product + display name + opaque licence ID in server bytes; hosted delivery disabled by default | COM-020 |
 | D-4 | Interface languages (SRS DEC-013 still open) | English / Sinhala / Tamil selector | none | COM-021, COM-022 |
 | D-5 | Billing details on checkout | not shown | First/Last/Phone/Address/City/Country required (PayHere fields) | COM-010 |
 | D-6 | Receipt review time copy | none | "1–2 business days" | COM-013 |
@@ -884,33 +884,75 @@ Result: DONE 2026-10-21. The code was correct (merged in `f44526a`). Added 4 wid
 ### COM-020 — PDF reader
 
 Prototype layout: header (back, document title, **Contents**, **Bookmark**) →
-page on grey canvas with **personal watermark** → note "This guide shows your name
-as a watermark on every page." → **footer**: ‹ page / total › · − zoom % + ·
-fit-to-width. Contents sheet lists chapters (current highlighted) and bookmarks.
+page on grey canvas with **personal diagonal watermark** → disclosure
+“This guide shows your name as a watermark on every page.” → footer:
+‹ page / total › · − zoom % + · fit-to-width. Contents lists chapters
+(current highlighted) and bookmarks. No download/print controls.
 
-Current app: `pdf_reader/presentation/widgets/**`
-- Page navigation, zoom presets (fit page, fit width, 100/150/200),
-  bookmarks + bookmarks panel, search bar, loading/error states, reading position.
+Result: **IN_REVIEW — CSA-271 / issue #205 / [PR #206](https://github.com/iamramishka/acendra/pull/206), 2026-10-22**. This supersedes the
+2026-10-18 “contents missing / global watermark flag off” implementation note.
 
-Gaps:
-- **No watermark and no watermark disclosure** in the reader (no "watermark"
-  string anywhere in `pdf_reader/`). SRS FR-PDF-SEC-005/006 are MUST; SRS also
-  says delivery uses **server-watermarked derivatives**, so the watermark should
-  come from the backend file, not a Flutter overlay. Format is open (D-3 /
-  DEC-008). The disclosure line can be added now.
-- Layout: no document **contents/outline** sheet (only bookmarks).
-- Layout: controls placement differs (prototype puts nav + zoom in one bottom bar).
-- App has search, which the prototype lacks — keep.
-- Do not add download/print controls (SRS: avoid unnecessary download/print).
+- The active `ProtectedPdfLesson` now connects `PdfLessonReader` to the existing
+  contents sheet. It reads internal chapters from the authenticated derivative,
+  highlights the closest current chapter, jumps to pages and saves bookmarks.
+- Owner D-3 branding is implemented as a new immutable **v2** server policy:
+  **Acendra Product - Licensed to <display name> - <opaque licence ID>**.
+  Both the translucent diagonal mark and footer are permanent PDF page content.
+  No auth UUID, email or client overlay is substituted. V1 generation remains
+  compatible; migration `20261021000100_csa271_pdf_policy_v2.sql` reserves fresh
+  v2 objects and refuses v1 resource reuse, without rewriting existing objects.
+- The worker preserves inspected internal GoTo outlines/named destinations for
+  v2. External, scripted and chained actions remain rejected. Every proxy request
+  still rechecks current authorization; originals/signed URLs are never fallback.
+- Disclosure requires `watermark_applied: true` in the authenticated ready
+  descriptor **and** successful derivative delivery. Older descriptors remain
+  readable without claiming a watermark. Delivery is disabled by default;
+  explicit server opt-in is gated on the approved worker/runtime deployment.
+- Header Contents/Bookmark, grey canvas, page navigation, 100–300% zoom and true
+  fit-to-width use the active reader. Footer groups wrap at narrow widths while
+  retaining touch targets. Legacy search components remain intact.
+- Reading position and bookmarks are scoped to student + lesson. Page 1 now
+  replaces an older saved page; stale/out-of-range positions safely reset.
+- The missing PDF.js runtime is bundled at the same origin with pinned integrity
+  and notices; no CDN allowance, dependency lockfile or CSP weakening is added.
 
-Check:
-- [ ] Watermark visible and readable on every page (after D-3), not covering text.
-- [ ] Disclosure line shown.
-- [ ] Contents sheet jumps to chapters; bookmarks list works.
-- [ ] Zoom, fit-to-width, page nav work at 390 px without horizontal page scroll.
-- [ ] Reopening the PDF returns to the last page.
+Verified locally:
+- [x] Real generated v2 fixture: four pages, branded diagonal/footer watermark,
+  original selectable text and internal chapter destinations preserved.
+- [x] Python worker: 15 passed, one non-root Linux-only test skipped on Windows.
+  A supported v1 sample remains byte-identical to the dev generator.
+- [x] Node PDF authorization/proxy/worker/assets/request and runtime-gate regressions: 150 passed; hosted-only wrapper explicitly skipped on Windows.
+- [x] Active reader/repository/progress and existing PDF widget suites: 132 passed
+  serially, including chapter/bookmark jumps, zoom/reset, page restoration,
+  account/lesson storage separation, dark theme, sheet disposal and 320/390/768/1440 px with 1×/2× text.
+- [x] Full Dart analyzer: no issues with a task-local `DART_DATA_HOME` after
+  Windows performance-socket cleanup crashed the default analyzer process.
+- [x] Finding-repair release web build passed, including Wasm dry run (290.1 s).
+- [x] 43 ordered migrations applied in disposable PostgreSQL 17; private-storage
+  and entitlement/policy-version SQL suites passed with synthetic Auth/Storage.
 
-Result: PARTIAL (2026-10-18, commit e67a76e + follow-up). DONE: single footer bar (page, zoom, fit-to-width), 44 px targets. Watermark disclosure is built but switched OFF (kPdfWatermarkApplied=false) because delivered PDFs are not watermarked yet (CSA-139, D-3). NOT DONE: contents sheet. Zoom not seen in a browser.
+- [x] 2026-10-22: reference artifact inspected in the working in-app browser;
+  inset page, grouped footer, numbered chapters and explicit Close aligned to it.
+  **22 browser checks passed** with the production reader/PDF.js and real v2
+  synthetic fixture: chapters, bookmarks, 100–300% zoom, fit width, reopening,
+  page-1 reload, separate student progress, keyboard Close, dark theme and visible
+  controls at 320/390/768/1440px. [Screenshots and evidence](docs/tasks/CSA-271-PDF-READER.md#2026-10-22-browser-follow-up).
+  This is local interactive verification; the automated Chrome runner did not
+  reach assertions. Sample document content and prototype phone chrome differ.
+- [x] Follow-up: corrected 40px desktop buttons to 48px minima; Windows, Linux
+  and macOS regressions passed. The CI wrapper now skips only an absent Flutter
+  SDK, and rejects broken installations. Earlier browser captures are f722d55;
+  the new direct UI check was blocked by browser URL security policy.
+
+Acceptance still open:
+- [ ] Hosted migration, private Storage, updated policy-aware non-root worker,
+  licensed locale font, isolation, retention/purge and representative content /
+  accessibility acceptance. Stop old workers before adopting v2 reservations.
+- [ ] Required CI/review, then approved PR merge to dev. No gate is bypassed.
+
+Exact commands, SQL evidence, browser outcome and PR link are maintained in
+`docs/tasks/CSA-271-PDF-READER.md`. This follow-up changes COM-020 only; other
+comparison rows retain their existing task owners and pending PRs.
 
 ---
 
