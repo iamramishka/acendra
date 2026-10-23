@@ -18,6 +18,16 @@ class LessonItem {
   final bool isPreview;
   final int? durationSeconds;
 
+  /// Display metadata only; backend authorization remains authoritative.
+  String? get durationLabel {
+    final seconds = durationSeconds;
+    return seconds == null || seconds <= 0
+        ? null
+        : '${(seconds + 59) ~/ 60} min';
+  }
+
+  bool isUnlockedFor({required bool owned}) => owned || isPreview;
+
   String get typeLabel => switch (lessonType) {
     'video' => 'Video',
     'pdf' => 'PDF',

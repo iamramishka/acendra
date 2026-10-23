@@ -28,10 +28,17 @@ class CourseDetailScreen extends ConsumerWidget {
       }
     }
 
+    final appBar = AppBar(
+      title: const Text('Course Details'),
+      leading: BackButton(onPressed: back),
+    );
     return detailState.when(
-      loading: () =>
-          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () => Scaffold(
+        appBar: appBar,
+        body: const Center(child: CircularProgressIndicator()),
+      ),
       error: (_, _) => Scaffold(
+        appBar: appBar,
         body: AppErrorState(
           message: 'Failed to load course details.',
           actionLabel: 'Retry',
@@ -72,10 +79,7 @@ class CourseDetailScreen extends ConsumerWidget {
           ),
         );
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('Course Details'),
-            leading: BackButton(onPressed: back),
-          ),
+          appBar: appBar,
           bottomNavigationBar: SafeArea(
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -92,6 +96,7 @@ class CourseDetailScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   AppButton(
+                    size: ButtonSize.large,
                     label: label,
                     onPressed: waiting || failed
                         ? null
@@ -152,7 +157,7 @@ class CourseDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 20),
                   if (category.isNotEmpty)
                     Text(
-                      category.first.name,
+                      category.first.name.toUpperCase(),
                       style: theme.textTheme.labelLarge,
                     ),
                   Text(detail.title, style: theme.textTheme.headlineMedium),
@@ -165,7 +170,11 @@ class CourseDetailScreen extends ConsumerWidget {
                   Wrap(
                     spacing: 12,
                     children: [
-                      Chip(label: Text('${detail.sections.length} modules')),
+                      Chip(
+                        label: Text(
+                          '${detail.sections.length} module${detail.sections.length == 1 ? '' : 's'}',
+                        ),
+                      ),
                       Chip(label: Text('${detail.totalLessons} lessons')),
                     ],
                   ),
