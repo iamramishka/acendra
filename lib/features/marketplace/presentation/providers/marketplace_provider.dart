@@ -1,4 +1,5 @@
 import 'package:acendra/features/marketplace/data/repositories/supabase_course_repository.dart';
+import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:acendra/features/marketplace/domain/entities/category.dart';
 import 'package:acendra/features/marketplace/domain/entities/course_detail.dart';
 import 'package:acendra/features/marketplace/domain/entities/course_summary.dart';
@@ -94,6 +95,10 @@ final courseDetailProvider = FutureProvider.family<CourseDetail, String>(
 
 // ── Enrollment status (CSA-088) ───────────────────────────────────────────────
 
-final isEnrolledProvider = FutureProvider.family<bool, String>(
-  (ref, courseId) => ref.read(courseRepositoryProvider).isEnrolled(courseId),
-);
+final isEnrolledProvider = FutureProvider.autoDispose.family<bool, String>((
+  ref,
+  courseId,
+) {
+  ref.watch(currentSessionProvider.select((session) => session?.user.id));
+  return ref.read(courseRepositoryProvider).isEnrolled(courseId);
+});
