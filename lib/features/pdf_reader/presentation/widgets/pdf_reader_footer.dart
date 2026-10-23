@@ -1,11 +1,6 @@
 import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
 
-/// Flip to true only once delivered PDFs actually carry the watermark
-/// (CSA-139 private storage + watermark worker, and decision D-3). Showing
-/// the disclosure before then would be a false protection claim.
-const kPdfWatermarkApplied = false;
-
 /// Note shown under the page. The watermark itself is burned into the
 /// server-delivered file; this only discloses it (SRS FR-PDF-SEC-005/006).
 class PdfWatermarkDisclosure extends StatelessWidget {
@@ -32,7 +27,7 @@ class PdfWatermarkDisclosure extends StatelessWidget {
 
 /// Single bottom bar: ‹ page / total › · − zoom % + · fit-to-width.
 ///
-/// Scales down instead of scrolling when the viewport is very narrow.
+/// Wraps control groups at narrow widths without shrinking touch targets.
 class PdfReaderFooter extends StatelessWidget {
   const PdfReaderFooter({
     super.key,
@@ -65,59 +60,107 @@ class PdfReaderFooter extends StatelessWidget {
     return Material(
       color: theme.colorScheme.surface,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                tooltip: 'Previous page',
-                onPressed: onPrevious,
-                icon: const Icon(Icons.chevron_left),
+        padding: const EdgeInsets.all(AppSpacing.sm),
+        child: Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: [
+            _ControlGroup(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    tooltip: 'Previous page',
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size.square(48),
+                      visualDensity: VisualDensity.standard,
+                    ),
+                    onPressed: onPrevious,
+                    icon: const Icon(Icons.chevron_left),
+                  ),
+                  Semantics(
+                    label: 'Page $currentPage of $totalPages',
+                    child: ExcludeSemantics(
+                      child: Text('$currentPage / $totalPages', style: style),
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Next page',
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size.square(48),
+                      visualDensity: VisualDensity.standard,
+                    ),
+                    onPressed: onNext,
+                    icon: const Icon(Icons.chevron_right),
+                  ),
+                ],
               ),
-              Semantics(
-                label: 'Page $currentPage of $totalPages',
-                child: ExcludeSemantics(
-                  child: Text('$currentPage / $totalPages', style: style),
-                ),
+            ),
+            _ControlGroup(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    tooltip: 'Zoom out',
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size.square(48),
+                      visualDensity: VisualDensity.standard,
+                    ),
+                    onPressed: onZoomOut,
+                    icon: const Icon(Icons.remove),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      '${(zoom * 100).round()}%',
+                      textAlign: TextAlign.center,
+                      style: style,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Zoom in',
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size.square(48),
+                      visualDensity: VisualDensity.standard,
+                    ),
+                    onPressed: onZoomIn,
+                    icon: const Icon(Icons.add),
+                  ),
+                ],
               ),
-              IconButton(
-                tooltip: 'Next page',
-                onPressed: onNext,
-                icon: const Icon(Icons.chevron_right),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              IconButton(
-                tooltip: 'Zoom out',
-                onPressed: onZoomOut,
-                icon: const Icon(Icons.remove),
-              ),
-              SizedBox(
-                width: 48,
-                child: Text(
-                  '${(zoom * 100).round()}%',
-                  textAlign: TextAlign.center,
-                  style: style,
-                ),
-              ),
-              IconButton(
-                tooltip: 'Zoom in',
-                onPressed: onZoomIn,
-                icon: const Icon(Icons.add),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              IconButton(
+            ),
+            _ControlGroup(
+              child: IconButton(
                 tooltip: 'Fit to width',
+                style: IconButton.styleFrom(
+                  minimumSize: const Size.square(48),
+                  visualDensity: VisualDensity.standard,
+                ),
                 isSelected: isFitWidth,
                 onPressed: onFitWidth,
-                icon: const Icon(Icons.fit_screen_outlined),
-                selectedIcon: const Icon(Icons.fit_screen),
+                icon: const Icon(Icons.swap_horiz),
+                selectedIcon: const Icon(Icons.swap_horiz),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
+}
+
+class _ControlGroup extends StatelessWidget {
+  const _ControlGroup({required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+      borderRadius: BorderRadius.circular(14),
+    ),
+    child: child,
+  );
 }

@@ -7,6 +7,14 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const commands = ['prepare', 'start', 'stop', 'status', 'reset', 'test', 'lint', 'client-env'];
 
+export function safeTestErrorLocations(output, knownTests) {
+  const locations = [];
+  for (const match of output.matchAll(/(csa[0-9]{3}(?:_[0-9]{3})?_[a-z_]+\.test\.sql):(\d+):\s*(?:ERROR|FATAL):/g)) {
+    if (knownTests.has(match[1])) locations.push(`SQL location ${match[1]}:${match[2]}`);
+  }
+  return locations;
+}
+
 // Hosted diagnostics expose identifiers/categories, never raw SQL or messages.
 export function safeLintSummary(output, knownFunctions) {
   let rows;
@@ -201,10 +209,7 @@ function run(layout, args, { json = false } = {}) {
         }
         const knownTests = new Set(fs.readdirSync(path.join(root, 'supabase', 'tests', 'database'))
           .filter(file => /^csa[0-9]{3}(?:_[0-9]{3})?_[a-z_]+\.test\.sql$/.test(file)));
-        for (const location of diagnostics.matchAll(/(csa[0-9]{3}(?:_[0-9]{3})?_[a-z_]+\.test\.sql):(\d+):/g)) {
-          if (!knownTests.has(location[1])) continue;
-          testFailures.push(`SQL location ${location[1]}:${location[2]}`);
-        }
+        testFailures.push(...safeTestErrorLocations(diagnostics, knownTests));
         for (const file of fs.readdirSync(path.join(root, 'supabase', 'tests', 'database'))) {
           if (!knownTests.has(file)) continue;
           const source = fs.readFileSync(path.join(root, 'supabase', 'tests', 'database', file), 'utf8');

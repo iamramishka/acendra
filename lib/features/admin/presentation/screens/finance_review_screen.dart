@@ -307,7 +307,10 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              _formatMinorAmount(widget.item['currency'], widget.item['amount_minor']),
+              _formatMinorAmount(
+                widget.item['currency'],
+                widget.item['amount_minor'],
+              ),
               style: tt.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: ext?.success ?? cs.primary,

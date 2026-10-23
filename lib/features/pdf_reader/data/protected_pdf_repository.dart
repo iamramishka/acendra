@@ -18,6 +18,12 @@ abstract class PdfTransport {
   void cancel();
 }
 
+class ProtectedPdfData {
+  const ProtectedPdfData(this.bytes, {required this.watermarkApplied});
+  final Uint8List bytes;
+  final bool watermarkApplied;
+}
+
 class ProtectedPdfRepository {
   const ProtectedPdfRepository(this.endpoint, this.transport);
   final Uri endpoint;
@@ -28,6 +34,10 @@ class ProtectedPdfRepository {
   );
 
   Future<Uint8List?> load(String lessonId, String bearer) async {
+    return (await loadDocument(lessonId, bearer))?.bytes;
+  }
+
+  Future<ProtectedPdfData?> loadDocument(String lessonId, String bearer) async {
     if (!uuid.hasMatch(lessonId) || bearer.isEmpty) {
       throw const ProtectedPdfFailure('Sign in to access this PDF.');
     }
@@ -80,7 +90,10 @@ class ProtectedPdfRepository {
         ascii.decode(bytes.sublist(0, 5), allowInvalid: true) != '%PDF-') {
       throw const ProtectedPdfFailure('PDF delivery could not be verified.');
     }
-    return bytes;
+    return ProtectedPdfData(
+      bytes,
+      watermarkApplied: data['watermark_applied'] == true,
+    );
   }
 
   static void _checkStatus(int status, {bool preparing = false}) {

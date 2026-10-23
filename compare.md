@@ -10,7 +10,7 @@ Scope: student-facing screens only (the prototype has no admin screens)
 
 ---
 
-## Pending index (as of 2026-10-19)
+## Pending index (baseline 2026-10-19; COM-008 updated 2026-10-21)
 
 | Task | Area | What's pending |
 |---|---|---|
@@ -22,12 +22,12 @@ Scope: student-facing screens only (the prototype has no admin screens)
 | COM-013 | Payment | Amount/date not returned by backend, D-6 copy in a CSA-265 file |
 | COM-015 | Student | "Sample content" notice remains, `com015` migration not run |
 | COM-016 | Student | Cards open resume lesson not overview, migration not run |
-| COM-020 | Learning | Contents sheet missing, watermark off (CSA-139) |
+| COM-020 | Learning | IN_REVIEW — CSA-271: v2 watermark and active reader implemented; 22 local browser checks and artifact comparison passed. Hosted deployment, CI/review and dev merge gates remain. |
 | COM-021 | Account | DONE 2026-10-21. Avatar displayed in header. Language selector (EN/SI) syncs to DB. Inline edit merged. |
 | COM-022 | Account | DONE 2026-10-21. Language (EN/SI) DropdownButton + Email Notifications SwitchListTile added to Settings. Migration `20261020000100_com022_email_notifications.sql` adds `email_notifications_enabled boolean not null default true` to `profiles`, grant included. |
 | COM-023 | Cross-cutting | DONE 2026-10-20 (05a5088). 3 fixes: raw 'stripe' code, raw amount_minor, 2 tap targets. All 4 admin list screens confirmed with loading/empty/error states; no raw exception text found. |
 | COM-006 | Auth | Hero banner missing |
-| COM-008 | Catalog | Category label and blurb on card, `SliverGrid` |
+| COM-008 | Catalog | IN_REVIEW — implemented in [PR #204](https://github.com/iamramishka/acendra/pull/204) (CSA-270): lazy `SliverGrid`, category dot/label, title/blurb, responsive cards and offline preview. 19 widget checks, analysis and release build pass locally. Browser/prototype comparison, hosted CI, required approval and merge to dev remain pending. |
 | COM-002 to 005 | Shell/Auth | MERGED to dev 2026-10-20 (PR #186, e0cc143). Browser check pending (CI/CD will deploy when baseline passes and reviewer approves). COM-004: Terms/Privacy pages still plain text (no real pages); Supabase Auth floor confirmed 6 chars (D-1 final decision). |
 | COM-014 | Student | DONE 2026-10-20 (code in dev; RLS second-account isolation verified via DB test suite) |
 | COM-017 | Learning | VERIFIED locally 2026-10-20 (localhost:9090, branch `feat/com-007-password-reset`): course overview loads from `/learn/:courseId`, shows progress %, Continue Learning card, expandable curriculum with lesson markers. Progress updates after Mark Complete. Back from lesson goes to My Courses (not overview — known COM-016 gap). |
@@ -64,6 +64,7 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | PARTIAL | Screen exists; layout and/or flow differ |
 | MISSING | Prototype screen has no Flutter equivalent |
 | CONFLICT | Prototype and app disagree on a rule; owner decision needed |
+| IN_REVIEW | Implementation submitted; remaining acceptance, review and merge gates are not complete |
 
 ---
 
@@ -78,7 +79,7 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | COM-005 | Auth | Check your inbox | `authentication/.../verify_email_screen.dart` | DONE 2026-10-20 | UI-ST-005 | P2 |
 | COM-006 | Auth | Forgot password | `authentication/.../forgot_password_screen.dart` | PARTIAL | UI-ST-004 | P2 |
 | COM-007 | Auth | Set / change password | `authentication/.../reset_password_screen.dart` | PARTIAL + CONFLICT | UI-ST-004 | P1 |
-| COM-008 | Catalog | Explore courses | `marketplace/.../marketplace_screen.dart` | PARTIAL | UI-ST-007/008 | P1 |
+| COM-008 | Catalog | Explore courses | `marketplace/.../marketplace_screen.dart` | IN_REVIEW (PR #204) | UI-ST-007/008 | P1 |
 | COM-009 | Catalog | Course details | `marketplace/.../course_detail_screen.dart` | PARTIAL | UI-ST-009/010 | P1 |
 | COM-010 | Payment | Secure checkout | `checkout/.../checkout_screen.dart` | PARTIAL | UI-ST-011 | P0 |
 | COM-011 | Payment | PayHere "Checking your payment" | `checkout/.../payment_pending/success/failure_screen.dart` | PARTIAL | UI-ST-014 | P0 |
@@ -90,12 +91,14 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | COM-017 | Learning | Course overview + progress | `learning/.../course_overview_screen.dart` | DONE 2026-10-20 | UI-ST-016 | P1 |
 | COM-018 | Learning | Video lesson | `learning/.../learning_workspace_screen.dart`, `video_player/**` | DONE 2026-10-20 | UI-ST-017 | P2 |
 | COM-019 | Learning | Text & image lesson | `learning/.../text_lesson_viewer.dart` | DONE 2026-10-20 | UI-ST-019 | P2 |
-| COM-020 | Learning | PDF reader | `pdf_reader/**` | PARTIAL + CONFLICT | UI-ST-018 | P1 |
+| COM-020 | Learning | PDF reader | `pdf_reader/**` | IN_REVIEW | UI-ST-018 | P1 |
 | COM-021 | Account | My profile | `profile/.../profile_screen.dart`, `profile_edit_screen.dart` | DONE 2026-10-21 | UI-ST-020 | P2 |
 | COM-022 | Account | Settings | `settings/.../settings_screen.dart` | DONE 2026-10-21 | UI-ST-021 | P1 |
 | COM-023 | Cross-cutting | Empty / loading / error / feedback | various | DONE 2026-10-20 | — | P2 |
 
-Count: 1 MATCH, 12 PARTIAL, 2 MISSING (Home is a different screen in practice), 1 with CONFLICT item (COM-020). COM-002–005, 014, 017, 018, 019, 021, 022, 023 DONE.
+Summary table: 1 MATCH, 11 recorded DONE, 9 PARTIAL (including 1 with CONFLICT),
+ and 2 IN_REVIEW (COM-008 and COM-020). These totals reflect the table's recorded labels;
+ they do not establish fresh browser verification or release acceptance.
 
 ---
 
@@ -105,7 +108,7 @@ Count: 1 MATCH, 12 PARTIAL, 2 MISSING (Home is a different screen in practice), 
 |---|---|---|---|---|
 | D-1 | Minimum password length | 8 chars + letter + number | 6 chars, no other rule | COM-004, COM-007 |
 | D-2 | Bottom-nav tabs | Home · Explore · My Courses · Profile | Home · My Learning · Saved · Profile | COM-002 |
-| D-3 | Watermark format (SRS DEC-008 still open) | "Licensed to <name> · <id>" diagonal | none in reader | COM-020 |
+| D-3 | Owner format recorded; v2 implementation in review | Personal diagonal watermark | Acendra Product + display name + opaque licence ID in server bytes; hosted delivery disabled by default | COM-020 |
 | D-4 | Interface languages (SRS DEC-013 still open) | English / Sinhala / Tamil selector | none | COM-021, COM-022 |
 | D-5 | Billing details on checkout | not shown | First/Last/Phone/Address/City/Country required (PayHere fields) | COM-010 |
 | D-6 | Receipt review time copy | none | "1–2 business days" | COM-013 |
@@ -379,7 +382,7 @@ Result: —
 
 ---
 
-### COM-008 — Explore courses (catalog + search)
+### COM-008 — Explore courses (catalog + search) — IN_REVIEW 2026-10-21
 
 Prototype layout: brand header → "Explore Courses / Discover skills worth
 mastering." → rounded search field → category chips (All Courses, …) → row with
@@ -389,27 +392,63 @@ price, chevron).
 Prototype flow: search and chips filter live; no results → "No courses found —
 Try a different word or category."
 
-Current app: `marketplace/presentation/screens/marketplace_screen.dart`
-- `SearchBar` + `FilterChip` row + `CourseGrid` (1/2/3 columns).
+Implementation: **CSA-270**, [issue #203](https://github.com/iamramishka/acendra/issues/203),
+[PR #204](https://github.com/iamramishka/acendra/pull/204), branch
+`feat/csa-270-catalog-sliver`. Source and verification recorded through `5a94172`.
+The PR is ready for review and **has not merged into dev**.
 
-Gaps:
-- Layout: no page title/subtitle, no result count, **no sort control**.
-- Layout: card shows `shortDescription` in the instructor slot
-  (`course_grid.dart` passes `instructorName: course.shortDescription`); no
-  category label on the card.
-- Flow: empty state always says "No courses available yet." (`:105`) even when
-  a search simply has no matches. Needs a separate "No courses found" state.
-- Flow: chip "All" vs prototype "All Courses" (copy only).
-- Performance: grid uses `shrinkWrap` inside a sliver; fine for small catalogs,
-  should become a `SliverGrid` before the catalog grows.
+Implemented in the PR:
+- `SliverLayoutBuilder` + `SliverGrid.builder` build visible/cached cards instead
+  of eagerly building the entire catalog. Actual available width selects 1/2/3
+  columns, including when the catalog is narrower than the browser window.
+- Title/subtitle, rounded search, category chips, count and sorting remain in
+  the recorded prototype order. Sorting supports Newest and both price directions;
+  Popular is not added because no popularity data contract exists.
+- Cards preserve real artwork delivery and its gradient fallback, category
+  dot/label, title, separate description, formatted price and chevron. Card height
+  accounts for enlarged text; titles and descriptions have bounded lines.
+- Search misses use "No courses found" separately from an empty catalog.
+  Card navigation opens the real course-detail screen.
+- `tool/catalog_preview.dart` supplies six clearly labeled synthetic courses and
+  matching curriculum details for offline QA. Checkout explicitly creates no
+  order. This preview is not used by production; its marker was checked absent
+  from the release JavaScript bundle.
 
-Check:
+Local automated verification (Flutter widget runner, **not Chrome**):
+- All **19 focused tests pass**, including search, category filters, both price
+  sort directions, detail navigation, offline checkout refusal, lazy scrolling
+  through 100 courses and a narrow container in a wide viewport.
+- The layout matrix covers **320, 390, 768 and 1440 px**, light/dark themes and
+  100%/200% text. This establishes widget-layout behavior, not artifact parity.
+- Full `flutter analyze --no-pub` passes. All eight changed/new Dart files format
+  cleanly. `flutter build web --release --no-pub` passes, including the Wasm
+  compatibility dry run; the pre-existing CupertinoIcons font warning remains.
+
+Browser acceptance checklist (left open until seen in the running browser):
 - [ ] Title, search, chips, count, sort and cards appear in prototype order.
 - [ ] Sort changes order correctly for both price directions.
 - [ ] Search with no match shows "No courses found", not "No courses available yet".
 - [ ] Tapping a card opens Course details.
 
-Result: PARTIAL (2026-10-18, commit 3852c6e). FIXED: title and subtitle, course count, sort (Newest, price both ways; no Popular, no data), separate "No courses found" state. NOT DONE: category label and blurb on card, SliverGrid. Overlaps Codex CSA-265 (#183).
+Remaining gates:
+- The remote artifact could not be opened, and interactive browser access is
+  disabled in Work settings. Chrome tests compiled after an import correction
+  but stalled before suite loading; a minimal standalone smoke test also stalled
+  before assertions. No browser checks or screenshots passed. Exact visual
+  comparison remains **INCONCLUSIVE**.
+- GitHub Actions cannot start because of an account-level billing/spending
+  restriction. Required approving review is outstanding. The full local format
+  check also finds nine unchanged baseline files outside CSA-270's scope.
+- Complete browser/prototype comparison, restore hosted checks, resolve baseline
+  formatting through the respective owners, obtain approval and merge PR #204.
+
+Result: **IN_REVIEW (2026-10-21)** — implementation and local checks complete;
+browser acceptance, CI, review and merge remain pending. Detailed commands,
+evidence and ownership are in [the CSA-270 task record](docs/tasks/CSA-270.md).
+
+Historical result (2026-10-18, `3852c6e`): header, count, sort and search-miss copy
+were fixed; card metadata and lazy-grid work were still recorded as pending.
+The newer CSA-270 entry above supersedes that pending-work description.
 
 ---
 
@@ -845,33 +884,75 @@ Result: DONE 2026-10-21. The code was correct (merged in `f44526a`). Added 4 wid
 ### COM-020 — PDF reader
 
 Prototype layout: header (back, document title, **Contents**, **Bookmark**) →
-page on grey canvas with **personal watermark** → note "This guide shows your name
-as a watermark on every page." → **footer**: ‹ page / total › · − zoom % + ·
-fit-to-width. Contents sheet lists chapters (current highlighted) and bookmarks.
+page on grey canvas with **personal diagonal watermark** → disclosure
+“This guide shows your name as a watermark on every page.” → footer:
+‹ page / total › · − zoom % + · fit-to-width. Contents lists chapters
+(current highlighted) and bookmarks. No download/print controls.
 
-Current app: `pdf_reader/presentation/widgets/**`
-- Page navigation, zoom presets (fit page, fit width, 100/150/200),
-  bookmarks + bookmarks panel, search bar, loading/error states, reading position.
+Result: **IN_REVIEW — CSA-271 / issue #205 / [PR #206](https://github.com/iamramishka/acendra/pull/206), 2026-10-22**. This supersedes the
+2026-10-18 “contents missing / global watermark flag off” implementation note.
 
-Gaps:
-- **No watermark and no watermark disclosure** in the reader (no "watermark"
-  string anywhere in `pdf_reader/`). SRS FR-PDF-SEC-005/006 are MUST; SRS also
-  says delivery uses **server-watermarked derivatives**, so the watermark should
-  come from the backend file, not a Flutter overlay. Format is open (D-3 /
-  DEC-008). The disclosure line can be added now.
-- Layout: no document **contents/outline** sheet (only bookmarks).
-- Layout: controls placement differs (prototype puts nav + zoom in one bottom bar).
-- App has search, which the prototype lacks — keep.
-- Do not add download/print controls (SRS: avoid unnecessary download/print).
+- The active `ProtectedPdfLesson` now connects `PdfLessonReader` to the existing
+  contents sheet. It reads internal chapters from the authenticated derivative,
+  highlights the closest current chapter, jumps to pages and saves bookmarks.
+- Owner D-3 branding is implemented as a new immutable **v2** server policy:
+  **Acendra Product - Licensed to <display name> - <opaque licence ID>**.
+  Both the translucent diagonal mark and footer are permanent PDF page content.
+  No auth UUID, email or client overlay is substituted. V1 generation remains
+  compatible; migration `20261021000100_csa271_pdf_policy_v2.sql` reserves fresh
+  v2 objects and refuses v1 resource reuse, without rewriting existing objects.
+- The worker preserves inspected internal GoTo outlines/named destinations for
+  v2. External, scripted and chained actions remain rejected. Every proxy request
+  still rechecks current authorization; originals/signed URLs are never fallback.
+- Disclosure requires `watermark_applied: true` in the authenticated ready
+  descriptor **and** successful derivative delivery. Older descriptors remain
+  readable without claiming a watermark. Delivery is disabled by default;
+  explicit server opt-in is gated on the approved worker/runtime deployment.
+- Header Contents/Bookmark, grey canvas, page navigation, 100–300% zoom and true
+  fit-to-width use the active reader. Footer groups wrap at narrow widths while
+  retaining touch targets. Legacy search components remain intact.
+- Reading position and bookmarks are scoped to student + lesson. Page 1 now
+  replaces an older saved page; stale/out-of-range positions safely reset.
+- The missing PDF.js runtime is bundled at the same origin with pinned integrity
+  and notices; no CDN allowance, dependency lockfile or CSP weakening is added.
 
-Check:
-- [ ] Watermark visible and readable on every page (after D-3), not covering text.
-- [ ] Disclosure line shown.
-- [ ] Contents sheet jumps to chapters; bookmarks list works.
-- [ ] Zoom, fit-to-width, page nav work at 390 px without horizontal page scroll.
-- [ ] Reopening the PDF returns to the last page.
+Verified locally:
+- [x] Real generated v2 fixture: four pages, branded diagonal/footer watermark,
+  original selectable text and internal chapter destinations preserved.
+- [x] Python worker: 15 passed, one non-root Linux-only test skipped on Windows.
+  A supported v1 sample remains byte-identical to the dev generator.
+- [x] Node PDF authorization/proxy/worker/assets/request and runtime-gate regressions: 150 passed; hosted-only wrapper explicitly skipped on Windows.
+- [x] Active reader/repository/progress and existing PDF widget suites: 132 passed
+  serially, including chapter/bookmark jumps, zoom/reset, page restoration,
+  account/lesson storage separation, dark theme, sheet disposal and 320/390/768/1440 px with 1×/2× text.
+- [x] Full Dart analyzer: no issues with a task-local `DART_DATA_HOME` after
+  Windows performance-socket cleanup crashed the default analyzer process.
+- [x] Finding-repair release web build passed, including Wasm dry run (290.1 s).
+- [x] 43 ordered migrations applied in disposable PostgreSQL 17; private-storage
+  and entitlement/policy-version SQL suites passed with synthetic Auth/Storage.
 
-Result: PARTIAL (2026-10-18, commit e67a76e + follow-up). DONE: single footer bar (page, zoom, fit-to-width), 44 px targets. Watermark disclosure is built but switched OFF (kPdfWatermarkApplied=false) because delivered PDFs are not watermarked yet (CSA-139, D-3). NOT DONE: contents sheet. Zoom not seen in a browser.
+- [x] 2026-10-22: reference artifact inspected in the working in-app browser;
+  inset page, grouped footer, numbered chapters and explicit Close aligned to it.
+  **22 browser checks passed** with the production reader/PDF.js and real v2
+  synthetic fixture: chapters, bookmarks, 100–300% zoom, fit width, reopening,
+  page-1 reload, separate student progress, keyboard Close, dark theme and visible
+  controls at 320/390/768/1440px. [Screenshots and evidence](docs/tasks/CSA-271-PDF-READER.md#2026-10-22-browser-follow-up).
+  This is local interactive verification; the automated Chrome runner did not
+  reach assertions. Sample document content and prototype phone chrome differ.
+- [x] Follow-up: corrected 40px desktop buttons to 48px minima; Windows, Linux
+  and macOS regressions passed. The CI wrapper now skips only an absent Flutter
+  SDK, and rejects broken installations. Earlier browser captures are f722d55;
+  the new direct UI check was blocked by browser URL security policy.
+
+Acceptance still open:
+- [ ] Hosted migration, private Storage, updated policy-aware non-root worker,
+  licensed locale font, isolation, retention/purge and representative content /
+  accessibility acceptance. Stop old workers before adopting v2 reservations.
+- [ ] Required CI/review, then approved PR merge to dev. No gate is bypassed.
+
+Exact commands, SQL evidence, browser outcome and PR link are maintained in
+`docs/tasks/CSA-271-PDF-READER.md`. This follow-up changes COM-020 only; other
+comparison rows retain their existing task owners and pending PRs.
 
 ---
 
@@ -976,8 +1057,9 @@ progress summary, avatar storage, notification preference).
 
 ## 6. Audit limits
 
-- Code review only. The app was **not run** for this audit; every **Check** box
-  is still open. Line numbers refer to commit `9ba9c0d`.
+- The original 2026-10-18 audit was code review only; its line numbers refer to
+  commit `9ba9c0d`. Later dated entries record additional evidence only for their
+  named screens. COM-008's 2026-10-21 widget tests are not browser acceptance.
 - Admin screens were not compared (the prototype has none).
 - Widths 768 and 1440 were not compared against the prototype (prototype is a
   phone mockup only).
