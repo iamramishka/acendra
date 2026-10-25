@@ -21,11 +21,29 @@ void select(String name, Uint8List bytes) {
 void main() {
   test('browser picker reads exact bytes and removes the input', () async {
     final pending = pickReceiptFile();
-    expect(input.accept, '.jpg,.jpeg,.pdf');
+    expect(input.accept, '.jpg,.jpeg,.png,.pdf');
     select('receipt.jpg', Uint8List.fromList([255, 216, 255, 1]));
     final file = await pending;
     expect(file!.name, 'receipt.jpg');
     expect(file.bytes, [255, 216, 255, 1]);
+    expect(web.document.querySelector('input[type=file]'), isNull);
+  });
+  test('browser picker accepts PNG bytes through exactly 5 MiB', () async {
+    final pending = pickReceiptFile();
+    final bytes = Uint8List(5 * 1024 * 1024);
+    bytes.setRange(0, 8, [137, 80, 78, 71, 13, 10, 26, 10]);
+    select('receipt.PNG', bytes);
+    final file = await pending;
+    expect(file!.name, 'receipt.PNG');
+    expect(file.bytes.length, 5 * 1024 * 1024);
+    expect(file.bytes.take(8), [137, 80, 78, 71, 13, 10, 26, 10]);
+    expect(web.document.querySelector('input[type=file]'), isNull);
+  });
+  test('browser picker rejects receipts above 5 MiB', () async {
+    final pending = pickReceiptFile();
+    final assertion = expectLater(pending, throwsFormatException);
+    select('receipt.png', Uint8List(5 * 1024 * 1024 + 1));
+    await assertion;
     expect(web.document.querySelector('input[type=file]'), isNull);
   });
   test('browser cancel returns null and removes the input', () async {
