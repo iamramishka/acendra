@@ -20,6 +20,9 @@ function validatedJob(raw) {
       Number(source[2]) > 2147483647 || !Number.isSafeInteger(job.size_bytes) || job.size_bytes <= 0 || job.size_bytes > MAX_BYTES ||
       typeof job.source_digest !== 'string' || !/^[0-9a-f]{64}$/.test(job.source_digest) ||
       typeof job.display_name !== 'string' || job.display_name.length > 200 || !job.display_name.trim() || /[\x00-\x1f\x7f]/.test(job.display_name)) fail();
+  // The immutable trusted derivative path selects its policy; never a browser
+  // option or a conflicting extra field in the RPC payload.
+  job.policy_id = target[4];
   return Object.freeze(job);
 }
 async function bytesOf(value, maximum) {
@@ -53,7 +56,7 @@ export async function runPdfJob({ rpc, storage, generate } = {}) {
     const job = validatedJob(raw);
     const source = await bytesOf(await storage.download({bucket: job.bucket, path: job.source_path}), job.size_bytes);
     if (source.byteLength !== job.size_bytes || digest(source) !== job.source_digest) fail();
-    const output = await bytesOf(await generate(source, {display_name: job.display_name, license_id: job.license_id, source_sha256: job.source_digest}), MAX_BYTES);
+    const output = await bytesOf(await generate(source, {display_name: job.display_name, license_id: job.license_id, source_sha256: job.source_digest, policy_id: job.policy_id}), MAX_BYTES);
     const outputDigest = digest(output);
     const target = {bucket: job.bucket, path: job.object_path};
     const uploaded = await storage.upload({...target, bytes: output, upsert: false});

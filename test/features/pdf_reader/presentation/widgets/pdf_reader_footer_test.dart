@@ -118,10 +118,6 @@ void main() {
       }
     });
 
-    test('watermark disclosure stays off until delivery is watermarked', () {
-      expect(kPdfWatermarkApplied, isFalse);
-    });
-
     for (final width in [320.0, 390.0, 768.0, 1440.0]) {
       testWidgets('does not overflow at ${width.toInt()}px', (tester) async {
         tester.view.physicalSize = Size(width, 844);

@@ -34,6 +34,22 @@ Widget _host({
 }
 
 void main() {
+  testWidgets('Close contents dismisses without changing the reading page', (
+    tester,
+  ) async {
+    int? jumped;
+    await tester.pumpWidget(
+      _host(entries: _entries, onGoToPage: (page) => jumped = page),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Close contents'));
+    await tester.pumpAndSettle();
+    expect(find.text('Contents'), findsNothing);
+    expect(jumped, isNull);
+    expect(find.text('open'), findsOneWidget);
+  });
+
   test('currentChapterIndex picks the last entry at or before the page', () {
     expect(currentChapterIndex(_entries, 1), 0);
     expect(currentChapterIndex(_entries, 6), 1);

@@ -2,9 +2,11 @@ import 'package:acendra/app/theme/app_theme.dart';
 import 'package:acendra/features/authentication/data/auth_repository.dart';
 import 'package:acendra/features/authentication/domain/auth_failure.dart';
 import 'package:acendra/features/authentication/presentation/screens/forgot_password_screen.dart';
+import 'package:acendra/features/authentication/presentation/widgets/forgot_password_hero.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 class _FakeAuthRepository extends AuthRepository {
   _FakeAuthRepository({this.shouldThrow}) : super.forTesting();
@@ -26,6 +28,65 @@ Widget _wrap({AuthFailure? throws}) => ProviderScope(
 );
 
 void main() {
+  for (final width in [320.0, 390.0, 768.0, 1440.0]) {
+    for (final dark in [false, true]) {
+      testWidgets('hero and form fit $width, dark=$dark', (tester) async {
+        tester.view.physicalSize = Size(width, 900);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        await tester.pumpWidget(
+          ProviderScope(
+            child: MaterialApp(
+              theme: dark ? AppTheme.dark : AppTheme.light,
+              home: const ForgotPasswordScreen(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byType(ForgotPasswordHero), findsOneWidget);
+        final hero = tester.getRect(find.byType(ForgotPasswordHero));
+        final heading = tester.getRect(find.text('Forgot your password?'));
+        expect(hero.left, greaterThanOrEqualTo(0));
+        expect(hero.right, lessThanOrEqualTo(width));
+        expect(hero.bottom, lessThan(heading.top));
+        expect(find.byIcon(Icons.lock_outline_rounded), findsOneWidget);
+        expect(find.byIcon(Icons.send_outlined), findsOneWidget);
+        await tester.ensureVisible(find.text('Back to Sign In'));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
+
+  testWidgets('outlined back button returns to login', (tester) async {
+    final router = GoRouter(
+      initialLocation: '/forgot-password',
+      routes: [
+        GoRoute(
+          path: '/forgot-password',
+          builder: (_, _) => const ForgotPasswordScreen(),
+        ),
+        GoRoute(
+          path: '/login',
+          builder: (_, _) => const Scaffold(body: Text('Login destination')),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(theme: AppTheme.light, routerConfig: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Back to Sign In'));
+    await tester.tap(find.text('Back to Sign In'));
+    await tester.pumpAndSettle();
+    expect(find.text('Login destination'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('renders email field and send button', (tester) async {
     await tester.pumpWidget(_wrap());
     expect(find.text('Email address'), findsOneWidget);
@@ -58,6 +119,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Check your inbox'), findsOneWidget);
     expect(find.textContaining('If an account exists'), findsOneWidget);
+    expect(find.textContaining('user@example.com'), findsNothing);
+    expect(find.byType(ForgotPasswordHero), findsOneWidget);
   });
 
   testWidgets('shows snackbar on auth failure', (tester) async {
