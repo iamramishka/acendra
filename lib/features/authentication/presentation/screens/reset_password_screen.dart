@@ -24,6 +24,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   final _password = TextEditingController();
   final _confirm = TextEditingController();
   bool _saving = false;
+  int _sessionRevision = 0;
   bool get _matches =>
       _password.text.isNotEmpty && _password.text == _confirm.text;
   bool get _valid => validatePassword(_password.text) == null && _matches;
@@ -37,8 +38,17 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   Future<void> _submit() async {
     if (!_valid || _saving) return;
     final actor = ref.read(currentSessionProvider)?.user.id;
-    if (widget.changePassword && actor == null) {
-      context.go(RouteNames.login);
+    final revision = _sessionRevision;
+    if (actor == null) {
+      if (widget.changePassword) {
+        context.go(RouteNames.login);
+      } else {
+        AppSnackbar.show(
+          context,
+          'Your session has expired. Request a new password reset link.',
+          variant: SnackbarVariant.error,
+        );
+      }
       return;
     }
     setState(() => _saving = true);
@@ -46,12 +56,21 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       await ref
           .read(authRepositoryProvider)
           .updatePassword(newPassword: _password.text);
-      if (!mounted || actor != ref.read(currentSessionProvider)?.user.id) {
+      if (!mounted || !_isCurrentSession(actor, revision)) {
         return;
       }
       if (!widget.changePassword) {
         await ref.read(authRepositoryProvider).signOut();
         if (!mounted) {
+          return;
+        }
+        // The expected recovery sign-out changes identity once, to null.
+        // A different transition means this completion belongs to an old form.
+        final currentActor = ref.read(currentSessionProvider)?.user.id;
+        if (!_isCurrentSession(
+          currentActor == null ? null : actor,
+          currentActor == null ? revision + 1 : revision,
+        )) {
           return;
         }
       }
@@ -64,11 +83,11 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         widget.changePassword ? RouteNames.settings : RouteNames.login,
       );
     } on AuthFailure catch (e) {
-      if (mounted) {
+      if (mounted && _isCurrentSession(actor, revision)) {
         AppSnackbar.show(context, e.message, variant: SnackbarVariant.error);
       }
     } catch (_) {
-      if (mounted) {
+      if (mounted && _isCurrentSession(actor, revision)) {
         AppSnackbar.show(
           context,
           'Could not update your password. Please retry.',
@@ -80,8 +99,19 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     }
   }
 
+  bool _isCurrentSession(String? actor, int revision) =>
+      mounted &&
+      revision == _sessionRevision &&
+      actor == ref.read(currentSessionProvider)?.user.id;
+
   @override
   Widget build(BuildContext context) {
+    ref.listen(currentSessionProvider, (previous, next) {
+      if (previous?.user.id == next?.user.id) return;
+      _password.clear();
+      _confirm.clear();
+      setState(() => _sessionRevision++);
+    });
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     void back() => context.go(
@@ -125,6 +155,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           ),
           const SizedBox(height: 24),
           AuthPasswordField(
+            key: ValueKey('password-$_sessionRevision'),
             label: 'New password',
             controller: _password,
             autofillHints: const [AutofillHints.newPassword],
@@ -132,6 +163,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           ),
           const SizedBox(height: 16),
           AuthPasswordField(
+            key: ValueKey('confirm-$_sessionRevision'),
             label: 'Confirm new password',
             controller: _confirm,
             autofillHints: const [AutofillHints.newPassword],
