@@ -33,11 +33,11 @@ class _BoundedOutput(io.BytesIO):
 
 # Reject interactive content, signatures/forms and structures whose semantic
 # fidelity has not been validated. Inspect reachable objects including resources.
-_FORBIDDEN = {'/JS','/JavaScript','/AA','/OpenAction','/A','/EmbeddedFiles',
+_FORBIDDEN = {'/JS','/JavaScript','/AA','/OpenAction','/EmbeddedFiles',
               '/EF','/AcroForm','/StructTreeRoot','/MarkInfo','/RichMedia',
               '/XFA','/Collection','/Launch','/SubmitForm','/ImportData'}
 
-def _inspect(root, limit):
+def _inspect(root, limit, allow_internal_navigation=False):
     pending=[root]; seen=set(); count=0
     while pending:
         item=pending.pop()
@@ -55,6 +55,14 @@ def _inspect(root, limit):
         if isinstance(item,DictionaryObject):
             if _FORBIDDEN.intersection(item.keys()):
                 raise WatermarkError('Unsupported active or semantic PDF content')
+            if '/A' in item:
+                action = item['/A']
+                # Internal page navigation is inert. Never preserve remote,
+                # scripted, launch, chained or unknown actions.
+                if (not allow_internal_navigation or not isinstance(action, DictionaryObject) or
+                        action.get('/S') != '/GoTo' or '/D' not in action or
+                        set(action.keys()) - {'/S', '/D', '/Type'}):
+                    raise WatermarkError('Unsupported PDF action')
             if str(item.get('/Type','')) in {'/Filespec','/EmbeddedFile'} or str(item.get('/Subtype','')) in {'/FileAttachment','/Screen','/Movie','/Sound','/RichMedia','/Widget'}:
                 raise WatermarkError('Unsupported embedded content')
             pending.extend(item.values())
@@ -81,8 +89,20 @@ def _shaped_parts(label,font_name,size):
             for part in parts]
     return parts,widths
 
+def _draw_label(canvas, label, font_name, font_size, width, baseline):
+    canvas.setFont(font_name,font_size)
+    if font_name=='Helvetica':
+        canvas.drawCentredString(width/2,baseline,label)
+    else:
+        parts,widths=_shaped_parts(label,font_name,font_size)
+        cursor=(width-sum(widths))/2
+        for part,part_width in zip(parts,widths):
+            canvas.drawString(cursor,baseline,part)
+            cursor+=part_width
+
 def generate(source: bytes, *, display_name: str, license_id: str,
-             source_sha256: str, limits: Limits = Limits(), trusted_font_path: str | None = None) -> bytes:
+             source_sha256: str, limits: Limits = Limits(), trusted_font_path: str | None = None,
+             policy_id: str = '14000000-0000-4000-8000-000000000001') -> bytes:
     """Use ONLY backend-trusted identity and the immutable asset digest.
 
     Preserves page boxes/rotation and text for supported untagged PDFs.
@@ -90,6 +110,9 @@ def generate(source: bytes, *, display_name: str, license_id: str,
     Unicode is shaped using the pinned HarfBuzz runtime and embedded font.
     """
     try:
+        if policy_id not in {'14000000-0000-4000-8000-000000000001', '14000000-0000-4000-8000-000000000002'}:
+            raise WatermarkError('Unsupported watermark policy')
+        branded = policy_id == '14000000-0000-4000-8000-000000000002'
         if not isinstance(limits, Limits) or any(type(v) is not int or v<=0 for v in vars(limits).values()):
             raise WatermarkError('Invalid bounds')
         if type(source) is not bytes or not source or len(source)>limits.max_input_bytes:
@@ -114,13 +137,18 @@ def generate(source: bytes, *, display_name: str, license_id: str,
             registerFont(font)
         reader=PdfReader(io.BytesIO(source),strict=True)
         if reader.is_encrypted: raise WatermarkError('Encrypted PDF unsupported')
-        _inspect(reader.trailer,limits.max_objects)
+        _inspect(reader.trailer,limits.max_objects,allow_internal_navigation=branded)
         if not 1<=len(reader.pages)<=limits.max_pages: raise WatermarkError('Page bound exceeded')
         writer=PdfWriter()
+        # Clone the inspected document, including local named destinations and
+        # chapter hierarchy. Copying only pages silently discarded the outline.
+        if branded:
+            writer.clone_document_from_reader(reader)
         label=f'Licensed to {display_name.strip()} - {license_id}'
+        if branded: label = 'Acendra Product - ' + label
         unit_width=sum(_shaped_parts(label,font_name,1)[1]) if font_name!='Helvetica' else stringWidth(label,font_name,1)
-        for original_page in reader.pages:
-            page = writer.add_page(original_page)
+        for original_page in (writer.pages if branded else reader.pages):
+            page = original_page if branded else writer.add_page(original_page)
             box=page.cropbox
             x,y,w,h=float(box.left),float(box.bottom),float(box.width),float(box.height)
             if not all(math.isfinite(v) for v in (x,y,w,h)) or min(w,h)<100 or max(w,h)>14400 or page.rotation%90 or page.get('/UserUnit',1)!=1:
@@ -132,25 +160,29 @@ def generate(source: bytes, *, display_name: str, license_id: str,
             if font_size<4: raise WatermarkError('Watermark would be unreadable')
             canvas.setFillColorRGB(.35,.35,.35)
             canvas.setFillAlpha(.6)
-            canvas.setFont(font_name,font_size)
-            if font_name=='Helvetica':
-                canvas.drawCentredString(w/2,12,label)
-            else:
-                parts,widths=_shaped_parts(label,font_name,font_size)
-                cursor=(w-sum(widths))/2
-                for part,width in zip(parts,widths):
-                    canvas.drawString(cursor,12,part)
-                    cursor+=width
+            _draw_label(canvas,label,font_name,font_size,w,12)
+            if branded:
+                # Prototype-style diagonal identity, kept translucent so the
+                # original lesson remains readable. The footer stays legible.
+                canvas.saveState()
+                canvas.translate(w/2,h/2)
+                canvas.rotate(math.degrees(math.atan2(h,w)))
+                canvas.setFillAlpha(.14)
+                diagonal_size=min(28,math.hypot(w,h)*.75/unit_width)
+                _draw_label(canvas,label,font_name,diagonal_size,0,0)
+                canvas.restoreState()
             canvas.save()
             stamp=PdfReader(overlay,strict=True).pages[0]
             page.merge_translated_page(stamp,x,y,expand=False)
-        writer.add_metadata({'/Producer':'Acedra watermark policy v1', '/SourceSHA256':source_sha256})
+        writer.add_metadata({'/Producer':'Acedra watermark policy v2' if branded else 'Acedra watermark policy v1', '/SourceSHA256':source_sha256})
         output=_BoundedOutput(limits.max_output_bytes); writer.write(output)
         data=output.getvalue()
         # Reparse all pages and verify identity content prior to returning bytes.
         check=PdfReader(io.BytesIO(data),strict=True)
         if len(check.pages)!=len(reader.pages) or any(license_id not in p.extract_text() for p in check.pages):
             raise WatermarkError('Derivative verification failed')
+        if branded and any('Acendra Product' not in p.extract_text() for p in check.pages):
+            raise WatermarkError('Branded derivative verification failed')
         return data
     except WatermarkError:
         raise

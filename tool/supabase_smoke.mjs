@@ -17,6 +17,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dev = createLayout(root, 'dev', process.env.ACENDRA_LOCAL_PORT_BASE);
 const test = createLayout(root, 'test', process.env.ACENDRA_LOCAL_PORT_BASE);
 const dockerEnv = { ...process.env };
+let smokeStage = 'local-isolation';
 
 function docker(args) {
   const result = spawnSync('docker', args, { env: dockerEnv, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
@@ -77,6 +78,7 @@ async function main() {
 
   const base = config.SUPABASE_URL;
   const key = config.SUPABASE_PUBLISHABLE_KEY;
+  smokeStage = 'auth-health';
   const health = await request(base, key, '/auth/v1/health');
   assert.equal(health.status, 200, 'Real Auth health endpoint');
   const anonymous = await request(base, key, '/rest/v1/profiles?select=id');
@@ -84,6 +86,7 @@ async function main() {
   assert.equal(anonymous.body.code, '42501');
   const email = `foundation-${randomBytes(6).toString('hex')}@example.com`;
   const password = randomBytes(24).toString('hex') + 'Aa!1';
+  smokeStage = 'signup';
   const signup = await request(base, key, '/auth/v1/signup', {
     method: 'POST', body: { email, password },
   });
@@ -94,6 +97,7 @@ async function main() {
   // This API/RLS fixture confirms only its own synthetic user via the operator.
   // The separate Auth security smoke exercises the actual verification token.
   sql(devDb, `update auth.users set email_confirmed_at=now() where id='${studentId}';`);
+  smokeStage = 'login';
   const login = await request(base, key, '/auth/v1/token?grant_type=password', {
     method: 'POST', body: { email, password },
   });
@@ -102,6 +106,7 @@ async function main() {
   const token = login.body.access_token;
   // Cross-user denial remains valid when CSA-060/061 later allow own-row reads.
   const foreignId = randomUUID();
+  smokeStage = 'profile-isolation';
   sql(devDb, `insert into auth.users(id) values ('${foreignId}'); insert into public.profiles(id,display_name) values ('${foreignId}','Synthetic foreign student') on conflict (id) do update set display_name=excluded.display_name; insert into public.user_roles(user_id,role_id) select '${foreignId}',id from public.roles where code='student';`);
   const ownProfile = await request(base, key, '/rest/v1/profiles?select=id,display_name,locale', { token });
   assert.equal(ownProfile.status, 200);
@@ -118,11 +123,36 @@ async function main() {
   assert.equal(foreignUpdate.status, 200);
   assert.deepEqual(foreignUpdate.body, [], 'Cross-user update returns no foreign row');
   assert.equal(sql(devDb, `select display_name from public.profiles where id='${foreignId}';`), 'Synthetic foreign student');
-  const protectedUpdate = await request(base, key, `/rest/v1/profiles?id=eq.${studentId}`, {
+  smokeStage = 'profile-preferences';
+  const invalidAvatar = await request(base, key, `/rest/v1/profiles?id=eq.${studentId}`, {
     token, method: 'PATCH', body: { avatar_path: 'forged/private/path' },
   });
-  assert.equal(protectedUpdate.status, 403, 'Avatar storage references cannot be browser-controlled');
+  assert.equal(invalidAvatar.status, 400, 'Avatar references must stay in the owner folder');
+  assert.equal(invalidAvatar.body.code, '23514');
+  const foreignAvatar = await request(base, key, `/rest/v1/profiles?id=eq.${studentId}`, {
+    token, method: 'PATCH', body: { avatar_path: `${foreignId}/avatar.png` },
+  });
+  assert.equal(foreignAvatar.status, 400, 'Another student avatar folder must be rejected');
+  assert.equal(foreignAvatar.body.code, '23514');
+  const preferences = await request(base, key, `/rest/v1/profiles?id=eq.${studentId}`, {
+    token, method: 'PATCH', body: { avatar_path: `${studentId}/avatar.png`, email_notifications_enabled: false },
+  });
+  assert.equal(preferences.status, 200, 'Owner can update approved presentation preferences');
+  assert.equal(preferences.body[0].id, studentId);
+  assert.equal(preferences.body[0].avatar_path, `${studentId}/avatar.png`);
+  assert.equal(preferences.body[0].email_notifications_enabled, false);
+  const foreignPreferences = await request(base, key, `/rest/v1/profiles?id=eq.${foreignId}`, {
+    token, method: 'PATCH', body: { avatar_path: `${studentId}/avatar.png`, email_notifications_enabled: false },
+  });
+  assert.equal(foreignPreferences.status, 200);
+  assert.deepEqual(foreignPreferences.body, [], 'Foreign preferences remain inaccessible');
+  assert.equal(sql(devDb, `select avatar_path is null and email_notifications_enabled from public.profiles where id='${foreignId}';`), 't');
+  const protectedUpdate = await request(base, key, `/rest/v1/profiles?id=eq.${studentId}`, {
+    token, method: 'PATCH', body: { created_at: '2026-01-01T00:00:00Z' },
+  });
+  assert.equal(protectedUpdate.status, 403, 'Protected profile columns remain unwritable');
   assert.equal(protectedUpdate.body.code, '42501');
+  smokeStage = 'role-isolation';
   const authenticated = await request(base, key, `/rest/v1/user_roles?select=id&user_id=eq.${foreignId}`, { token });
   if (authenticated.status === 403) assert.equal(authenticated.body.code, '42501');
   else {
@@ -135,6 +165,7 @@ async function main() {
   });
   assert.equal(assignment.status, 403, 'Student cannot directly assign an elevated role');
   assert.equal(assignment.body.code, '42501');
+  smokeStage = 'storage-api';
   const storage = await request(base, key, '/storage/v1/bucket', { token });
   assert.equal(storage.status, 200, 'Real Storage API is reachable');
   assert.deepEqual(storage.body, [], 'Synthetic student has no visible buckets');
@@ -153,6 +184,6 @@ async function main() {
 }
 
 main().catch(error => {
-  console.error(/^(Auth security|Receipt Storage|PDF Storage|Journey|Storage recovery) smoke failed at /.test(error.message) ? error.message : 'Supabase foundation smoke check failed; no private response data logged.');
+  console.error(/^(Auth security|Receipt Storage|PDF Storage|Journey|Storage recovery) smoke failed at /.test(error.message) ? error.message : `Supabase foundation smoke check failed at ${smokeStage}; no private response data logged.`);
   process.exitCode = 1;
 });

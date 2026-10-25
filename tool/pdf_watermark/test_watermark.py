@@ -53,6 +53,54 @@ class Tests(unittest.TestCase):
             with self.assertRaises(WatermarkError): self.run_generation(limits=limits)
         with self.assertRaises(WatermarkError): generate(self.source,display_name='Name',license_id=self.identity,source_sha256='0'*64)
         with self.assertRaises(WatermarkError): generate(b'broken',display_name='Name',license_id=self.identity,source_sha256=hashlib.sha256(b'broken').hexdigest())
+    def test_internal_chapters_survive_in_watermarked_bytes(self):
+        writer = PdfWriter()
+        writer.append(io.BytesIO(self.source))
+        parent = writer.add_outline_item('Introduction', 0)
+        writer.add_outline_item('Practice', 2, parent=parent)
+        stream = io.BytesIO(); writer.write(stream); source = stream.getvalue()
+        output = generate(source, display_name='Synthetic Student', license_id=self.identity,
+                          policy_id='14000000-0000-4000-8000-000000000002',
+                          source_sha256=hashlib.sha256(source).hexdigest())
+        reader = PdfReader(io.BytesIO(output))
+        self.assertEqual(reader.outline[0].title, 'Introduction')
+        self.assertEqual(reader.get_destination_page_number(reader.outline[0]), 0)
+        self.assertEqual(reader.outline[1][0].title, 'Practice')
+        self.assertEqual(reader.get_destination_page_number(reader.outline[1][0]), 2)
+        for page in reader.pages:
+            self.assertIn(self.identity, page.extract_text())
+            self.assertIn('Acendra Product', page.extract_text())
+        with self.assertRaises(WatermarkError):
+            generate(source, display_name='Student', license_id=self.identity,
+                     source_sha256=hashlib.sha256(source).hexdigest())
+
+    def test_external_and_chained_outline_actions_still_reject(self):
+        from pypdf.generic import TextStringObject
+        for action in [
+            DictionaryObject({NameObject('/S'): NameObject('/URI'),
+                              NameObject('/URI'): TextStringObject('https://untrusted.invalid')}),
+            DictionaryObject({NameObject('/S'): NameObject('/GoTo'),
+                              NameObject('/D'): TextStringObject('local'),
+                              NameObject('/Next'): DictionaryObject()}),
+        ]:
+            writer = PdfWriter(); writer.append(io.BytesIO(self.source))
+            entry = writer.add_outline_item('Chapter', 0).get_object()
+            entry[NameObject('/A')] = action
+            stream = io.BytesIO(); writer.write(stream); source = stream.getvalue()
+            with self.assertRaises(WatermarkError):
+                generate(source, display_name='Student', license_id=self.identity,
+                         policy_id='14000000-0000-4000-8000-000000000002',
+                         source_sha256=hashlib.sha256(source).hexdigest())
+
+    def test_policy_version_keeps_legacy_marks_and_rejects_unknown_policy(self):
+        legacy = self.run_generation()
+        branded = self.run_generation(policy_id='14000000-0000-4000-8000-000000000002')
+        self.assertNotIn('Acendra Product', PdfReader(io.BytesIO(legacy)).pages[0].extract_text())
+        for page in PdfReader(io.BytesIO(branded)).pages:
+            self.assertIn('Acendra Product - Licensed to Synthetic Student', page.extract_text())
+            self.assertIn(self.identity, page.extract_text())
+        with self.assertRaises(WatermarkError):
+            self.run_generation(policy_id='unsupported')
     def test_unsafe_and_tagged_and_encrypted(self):
         for kind in ['js','attachment','tagged','encrypted','action']:
             writer=PdfWriter(); writer.append(io.BytesIO(self.source))
@@ -189,6 +237,10 @@ class LinuxSupervisorTests(unittest.TestCase):
         data=fixture(); kwargs=dict(display_name='Student',license_id='44444444-4444-4444-8444-444444444444',source_sha256=hashlib.sha256(data).hexdigest())
         result=generate_isolated(data,kwargs)
         self.assertIn(kwargs['license_id'],PdfReader(io.BytesIO(result)).pages[0].extract_text())
+        branded=generate_isolated(data,{**kwargs,'policy_id':'14000000-0000-4000-8000-000000000002'})
+        for page in PdfReader(io.BytesIO(branded)).pages:
+            self.assertIn('Acendra Product',page.extract_text())
+            self.assertIn(kwargs['license_id'],page.extract_text())
         with self.assertRaises(WatermarkError): generate_isolated(data,{**kwargs,'limits':Limits(max_output_bytes=1)})
 
     def test_wall_timeout_kills_child_and_cleans_up(self):
