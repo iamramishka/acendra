@@ -12,10 +12,17 @@ typedef ReceiptFilePicker = Future<ReceiptFile?> Function();
 
 /// Client validation is a UX guard; the backend must inspect receipt contents.
 String? receiptFileError(String name, int size) {
-  if (!['jpg', 'jpeg', 'pdf'].contains(name.split('.').last.toLowerCase())) {
-    return 'Only JPG and PDF files are accepted.';
+  if (![
+    'jpg',
+    'jpeg',
+    'png',
+    'pdf',
+  ].contains(name.split('.').last.toLowerCase())) {
+    return 'Only JPEG, PNG and PDF files are accepted.';
   }
   if (size == 0) return 'The selected file is empty.';
-  if (size > maxReceiptBytes) return 'File is too large. Maximum size is 5 MB.';
+  if (size > maxReceiptBytes) {
+    return 'File is too large. Maximum size is 5 MiB.';
+  }
   return null;
 }

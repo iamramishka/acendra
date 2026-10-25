@@ -29,6 +29,9 @@ class ReceiptResubmissionForm extends ConsumerStatefulWidget {
     required this.orderId,
     this.rejectionReason,
     this.filePicker,
+    this.initialUpload = false,
+    this.onSubmitted,
+    this.layoutBuilder,
   });
 
   /// The order for which the receipt is being resubmitted.
@@ -39,6 +42,9 @@ class ReceiptResubmissionForm extends ConsumerStatefulWidget {
 
   /// Injectable selection boundary for widget tests.
   final ReceiptFilePicker? filePicker;
+  final bool initialUpload;
+  final VoidCallback? onSubmitted;
+  final Widget Function(Widget content, Widget submit)? layoutBuilder;
 
   @override
   ConsumerState<ReceiptResubmissionForm> createState() =>
@@ -101,6 +107,7 @@ class _ReceiptResubmissionFormState
         _submitted = true;
         _file = null;
       });
+      widget.onSubmitted?.call();
     } catch (error) {
       if (!mounted ||
           widget.orderId != submittedOrder ||
@@ -190,110 +197,125 @@ class _ReceiptResubmissionFormState
     final surfaceSecondary = ext?.surfaceSecondary ?? cs.surfaceContainerLow;
     final textSecondary = ext?.textSecondary ?? cs.onSurfaceVariant;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 640),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Header badge ──────────────────────────────────────────────────
-            const StatusBadge(
-              variant: BadgeVariant.error,
-              label: 'Receipt Rejected',
+    final submit = SizedBox(
+      width: double.infinity,
+      child: AppButton(
+        label: _isSubmitting
+            ? 'Submitting…'
+            : widget.initialUpload
+            ? 'Submit Receipt for Review'
+            : 'Submit New Receipt',
+        variant: ButtonVariant.primary,
+        size: ButtonSize.large,
+        onPressed:
+            _file == null ||
+                _isSubmitting ||
+                _submitted ||
+                ref.watch(checkoutActorProvider) == null
+            ? null
+            : _submit,
+      ),
+    );
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Header badge ──────────────────────────────────────────────────
+        if (!widget.initialUpload)
+          const StatusBadge(
+            variant: BadgeVariant.error,
+            label: 'Receipt Rejected',
+          ),
+
+        const SizedBox(height: AppSpacing.md),
+
+        // ── Rejection reason box ──────────────────────────────────────────
+        if (widget.rejectionReason != null) ...[
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: cs.errorContainer.withAlpha(80),
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              border: Border.all(color: cs.error.withAlpha(80)),
             ),
-
-            const SizedBox(height: AppSpacing.md),
-
-            // ── Rejection reason box ──────────────────────────────────────────
-            if (widget.rejectionReason != null) ...[
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(AppSpacing.md),
-                decoration: BoxDecoration(
-                  color: cs.errorContainer.withAlpha(80),
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                  border: Border.all(color: cs.error.withAlpha(80)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.info_outline_rounded,
-                          size: 16,
-                          color: cs.error,
-                        ),
-                        const SizedBox(width: AppSpacing.xs),
-                        Text(
-                          'Reason for rejection',
-                          style: tt.labelMedium?.copyWith(
-                            color: cs.error,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
+                    Icon(Icons.info_outline_rounded, size: 16, color: cs.error),
+                    const SizedBox(width: AppSpacing.xs),
                     Text(
-                      widget.rejectionReason!,
-                      style: tt.bodyMedium?.copyWith(
-                        color: cs.onErrorContainer,
+                      'Reason for rejection',
+                      style: tt.labelMedium?.copyWith(
+                        color: cs.error,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-            ],
-
-            // ── Instruction text ──────────────────────────────────────────────
-            Text(
-              'Please upload a new receipt showing the bank transfer details. '
-              'Make sure the reference ID is clearly visible.',
-              style: tt.bodyMedium?.copyWith(color: textSecondary),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  widget.rejectionReason!,
+                  style: tt.bodyMedium?.copyWith(color: cs.onErrorContainer),
+                ),
+              ],
             ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+        ],
 
-            const SizedBox(height: AppSpacing.lg),
-
-            // ── File picker ───────────────────────────────────────────────────
-            _FilePicker(
-              fileName: _fileName,
-              fileError: _fileError,
-              borderColor: borderColor,
-              surfaceSecondary: surfaceSecondary,
-              onTap: _isPicking || _isSubmitting || _submitted
-                  ? null
-                  : _pickFile,
-            ),
-
-            const SizedBox(height: AppSpacing.md),
-
-            Text(
-              _submitted
-                  ? 'Receipt submitted for verification. Course access remains pending until payment is independently verified.'
-                  : 'Selecting a file does not upload it. Submit it for secure inspection and payment verification. A receipt does not grant course access.',
-              style: tt.bodyMedium,
-            ),
-            const SizedBox(height: AppSpacing.xl),
-
-            // ── Submit button ─────────────────────────────────────────────────
-            SizedBox(
-              width: double.infinity,
-              child: AppButton(
-                label: _isSubmitting ? 'Submitting…' : 'Submit New Receipt',
-                variant: ButtonVariant.primary,
-                size: ButtonSize.large,
-                onPressed: _file == null || _isSubmitting || _submitted
-                    ? null
-                    : _submit,
-              ),
-            ),
-          ],
+        // ── Instruction text ──────────────────────────────────────────────
+        Text(
+          widget.initialUpload
+              ? 'Upload Payment Receipt'
+              : 'Please upload a new receipt showing the bank transfer details. '
+                    'Make sure the reference ID is clearly visible.',
+          style: tt.bodyMedium?.copyWith(color: textSecondary),
         ),
-      ),
+
+        const SizedBox(height: AppSpacing.lg),
+
+        // ── File picker ───────────────────────────────────────────────────
+        _FilePicker(
+          fileName: _fileName,
+          fileError: _fileError,
+          borderColor: borderColor,
+          surfaceSecondary: surfaceSecondary,
+          onTap: _isPicking || _isSubmitting || _submitted ? null : _pickFile,
+        ),
+        if (_file != null)
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: _isSubmitting ? null : () => setState(_clearSelection),
+              icon: const Icon(Icons.close),
+              label: const Text('Remove'),
+            ),
+          ),
+
+        const SizedBox(height: AppSpacing.md),
+
+        Text(
+          _submitted
+              ? 'Receipt submitted for verification. Course access remains pending until payment is independently verified.'
+              : 'Selecting a file does not upload it. Submit it for secure inspection and payment verification. A receipt does not grant course access.',
+          style: tt.bodyMedium,
+        ),
+        const SizedBox(height: AppSpacing.xl),
+
+        // ── Submit button ─────────────────────────────────────────────────
+        if (widget.layoutBuilder == null) submit,
+      ],
     );
+    return widget.layoutBuilder?.call(content, submit) ??
+        SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 640),
+            child: content,
+          ),
+        );
   }
 }
 
@@ -372,7 +394,7 @@ class _FilePicker extends StatelessWidget {
                 )
               else
                 Text(
-                  'Tap to select receipt image\n(JPG or PDF, max 5 MB)',
+                  'Choose File\nJPEG, PNG or PDF · up to 5 MiB',
                   style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                   textAlign: TextAlign.center,
                 ),
