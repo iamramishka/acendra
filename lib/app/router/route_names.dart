@@ -18,6 +18,8 @@ abstract final class RouteNames {
   static const String checkoutSuccess = '/checkout/:courseId/success';
   static const String checkoutPending = '/checkout/:courseId/pending';
   static const String checkoutFailure = '/checkout/:courseId/failure';
+  static const String paymentReturn = '/payments/return';
+  static const String paymentCancel = '/payments/cancel';
   static const String profile = '/profile';
   static const String profileEdit = '/profile/edit';
   static const String orders = '/orders';

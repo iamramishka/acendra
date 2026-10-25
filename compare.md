@@ -603,6 +603,18 @@ Check results (code-only, 2026-10-18):
 - Not verified: `support@acedra.com` mailbox.
 
 Result: FAIL (code-only). NOT FIXED: files are in `checkout/presentation` and the router, which Codex holds under CSA-265.
+Implementation follow-up, 2026-10-25 — CSA-277 / issue #221:
+Return/cancel and legacy payment pages now read the owner-scoped order using a
+URL locator, show Transaction Details, refresh backend status, and link to Order
+History. Return/cancel hints never override payment status. Pending online retry
+uses the existing checkout recovery flow; bank instructions and the unverified
+support mailbox were removed from the online status pages. Order History opens
+the status view for unpaid online orders. The trusted initializer binds the
+application order locator on return/cancel URLs; staging points to protected
+/payments/return and /payments/cancel routes. No settlement or entitlement logic
+changed. Fresh verification and remaining release gates: docs/tasks/CSA-277.md.
+The supplied site redirected to sign-in; authenticated visual comparison and
+real PayHere sandbox return remain unverified in this session.
 
 ---
 
