@@ -13,18 +13,29 @@ class CheckoutStepBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         for (var i = 0; i < _labels.length; i++) ...[
           if (i > 0)
             Expanded(
-              child: Divider(
-                thickness: 2,
-                color: i <= currentIndex
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.outlineVariant,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 14),
+                child: Divider(
+                  height: 0,
+                  thickness: 2,
+                  color: i <= currentIndex
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.outlineVariant,
+                ),
               ),
             ),
-          _Step(label: _labels[i], index: i, currentIndex: currentIndex),
+          Expanded(
+            child: _Step(
+              label: _labels[i],
+              index: i,
+              currentIndex: currentIndex,
+            ),
+          ),
         ],
       ],
     );
@@ -71,6 +82,7 @@ class _Step extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             label,
+            textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               fontWeight: current ? FontWeight.bold : FontWeight.normal,
             ),
