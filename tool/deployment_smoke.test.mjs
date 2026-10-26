@@ -54,6 +54,34 @@ for (const [name, overrides, message] of [
 
 // ---- Nginx config rollout (review findings on PR 177) ----------------------
 const setupSsl = readFileSync(new URL('../server/setup-ssl.sh', import.meta.url), 'utf8').replace(/\r/g, '');
+const nginxSite = readFileSync(new URL('../server/nginx.conf', import.meta.url), 'utf8');
+
+test('site and bootstrap suppress versions per server without conflicting with the parent http scope', () => {
+  const bootstrap = setupSsl.split('cat > "$NGINX_SITE" <<NGINXEOF\n')[1].split('\nNGINXEOF')[0];
+  for (const source of [nginxSite, bootstrap]) {
+    let depth = 0;
+    let servers = 0;
+    let protectedServers = 0;
+    for (const line of source.split('\n')) {
+      const code = line.split('#')[0].trim();
+      if (/^server\s*\{/.test(code)) servers++;
+      if (/^server_tokens\s/.test(code)) {
+        assert.equal(depth, 1, 'site includes must not redefine the parent http directive');
+        assert.equal(code, 'server_tokens off;');
+        protectedServers++;
+      }
+      depth += (code.match(/\{/g) ?? []).length - (code.match(/\}/g) ?? []).length;
+    }
+    assert.ok(servers > 0);
+    assert.equal(protectedServers, servers, 'every HTTP/HTTPS server must hide its version');
+  }
+});
+
+test('IP requests redirect to the certificate hostname and preserve the requested path', () => {
+  assert.match(nginxSite, /server_name 3-25-99-105\.sslip\.io 3\.25\.99\.105;/);
+  assert.match(nginxSite, /return 301 https:\/\/3-25-99-105\.sslip\.io\$request_uri;/);
+  assert.doesNotMatch(nginxSite, /return 301 https:\/\/\$host/);
+});
 const deployStep = workflow.split('      - name: Upload release and Nginx config to server')[1]
   .split('      - name: Smoke test')[0].replace(/\r/g, '');
 const remoteScript = deployStep.split('bash -s << EOF\n')[1].split('\n          EOF')[0]

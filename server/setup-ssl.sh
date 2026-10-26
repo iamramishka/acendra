@@ -27,8 +27,8 @@ chown -R www-data:www-data "$CERTBOT_WEBROOT"
 
 echo "==> Installing temporary HTTP-only Nginx config for ACME challenge ..."
 cat > "$NGINX_SITE" <<NGINXEOF
-server_tokens off;
 server {
+    server_tokens off;
     listen 80;
     server_name $DOMAIN;
     location /.well-known/acme-challenge/ { root $CERTBOT_WEBROOT; }
