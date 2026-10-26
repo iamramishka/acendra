@@ -30,7 +30,10 @@ export function createHandler({env,fetch: request = globalThis.fetch,enabled = f
     if (!/^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(incoming.headers.get('Content-Type')??'')) return respond(415,'UNSUPPORTED_MEDIA_TYPE');
     let body; try {body=await json(incoming.body,2048);} catch {return respond(400,'INVALID_REQUEST');}
     const queue=body?.queue===true;
-    if (!body || Object.keys(body).length!==1 || (!queue && !uuid(body.order_id))) return respond(400,'INVALID_REQUEST');
+    const instructions=body?.instructions===true;
+    if (!body || (instructions
+      ? queue || Object.keys(body).length!==2 || !uuid(body.order_id)
+      : Object.keys(body).length!==1 || (!queue && !uuid(body.order_id)))) return respond(400,'INVALID_REQUEST');
     try {
       const auth=await request(config.url+'/auth/v1/user',{headers:{Authorization:bearer,apikey:config.key},redirect:'error',signal:AbortSignal.timeout(15000)});
       if (!auth.ok) return respond(401,'AUTH_REQUIRED');
@@ -40,10 +43,16 @@ export function createHandler({env,fetch: request = globalThis.fetch,enabled = f
       const claims=JSON.parse(atob(payload.padEnd(Math.ceil(payload.length/4)*4,'=')));
       if(!uuid(user?.id)||user.is_anonymous===true||claims.sub!==user.id||claims.role!=='authenticated'||!uuid(claims.session_id)||!['aal1','aal2'].includes(claims.aal)) return respond(401,'AUTH_REQUIRED');
       if(queue && claims.aal!=='aal2') return respond(403,'MFA_REQUIRED');
-      const rpc=await request(config.url+'/rest/v1/rpc/csa179_read_bank_transfer',{method:'POST',headers:{Authorization:'Bearer '+config.service,apikey:config.service,'Content-Type':'application/json'},
-        body:JSON.stringify({p_actor:user.id,p_session_id:claims.session_id,p_aal:claims.aal,p_order:queue?null:body.order_id,p_queue:queue}),redirect:'error',signal:AbortSignal.timeout(15000)});
+      const rpc=await request(config.url+'/rest/v1/rpc/'+(instructions?'csa276_read_bank_instructions':'csa179_read_bank_transfer'),{method:'POST',headers:{Authorization:'Bearer '+config.service,apikey:config.service,'Content-Type':'application/json'},
+        body:JSON.stringify({p_actor:user.id,p_session_id:claims.session_id,p_aal:claims.aal,p_order:queue?null:body.order_id,...(instructions?{}:{p_queue:queue})}),redirect:'error',signal:AbortSignal.timeout(15000)});
       const result=await json(rpc.body,131072);
       if(!rpc.ok) return respond(result?.code==='42501'?403:result?.code==='P0002'?404:503,result?.code==='42501'?'FORBIDDEN':result?.code==='P0002'?'ORDER_NOT_FOUND':'SERVICE_UNAVAILABLE');
+      if(instructions) {
+        if(result?.order_id!==body.order_id || result?.payment_method!=='bank_transfer' || result?.status!=='pending_payment' || !result?.bank_instructions) return respond(503,'SERVICE_UNAVAILABLE');
+        const b=result.bank_instructions;
+        return respond(200,null,{order_id:result.order_id,order_number:result.order_number,course:{id:result.course?.id,title:result.course?.title},amount_minor:result.amount_minor,currency_code:result.currency_code,payment_method:result.payment_method,status:result.status,next_action:result.next_action,
+          bank_instructions:{bank_name:b.bank_name,account_holder:b.account_holder,account_number:b.account_number,branch_name:b.branch_name,currency_code:b.currency_code}});
+      }
       const safe=item=>({order_id:item.order_id,order_number:item.order_number,course_title:item.course_title,status:item.status,submission_id:item.submission_id,submitted_at:item.submitted_at,rejection_reason:item.rejection_reason,
         ...(queue?{amount_minor:item.amount_minor,currency:item.currency}:{})});
       if(queue && (!Array.isArray(result?.items)||result.items.length>100)) return respond(503,'SERVICE_UNAVAILABLE');

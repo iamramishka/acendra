@@ -660,6 +660,18 @@ Check results (code-only, 2026-10-18):
 
 Result: PARTIAL. Layout-only items fixed in `bank_transfer/**`; PNG, refresh and single-screen upload remain (see above).
 
+Implementation follow-up, 2026-10-25 — CSA-276 / issue #219:
+The remaining COM-012 defects are implemented in the isolated review branch:
+combined instructions/upload, sticky Submit Receipt for Review, JPEG/PNG/PDF
+through 5 MiB (picker + validation + correct binary MIME), file removal,
+confirmed-submit status navigation, and owner-scoped recovery of the immutable
+backend instruction snapshot. All four copy controls are retained. Native SQL,
+handler and widget evidence is recorded in docs/tasks/CSA-276.md. The historical
+2026-10-18 results above describe the old implementation. Deployment requires
+the new migration and function/client release; operational read/upload activation
+remains separately gated. The supplied reference site redirected to login, so
+its authenticated bank-transfer view could not be visually compared this run.
+
 ---
 
 ### COM-013 — Bank payment status timeline

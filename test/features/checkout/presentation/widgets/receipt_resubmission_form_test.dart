@@ -208,7 +208,7 @@ void main() {
   for (final entry in <String, int>{
     'empty.jpg': 0,
     'large.pdf': maxReceiptBytes + 1,
-    'receipt.png': 10,
+    'receipt.svg': 10,
   }.entries) {
     testWidgets('rejects invalid selection ${entry.key}', (tester) async {
       await tester.pumpWidget(
@@ -229,7 +229,7 @@ void main() {
               ? 'empty'
               : entry.value > maxReceiptBytes
               ? 'too large'
-              : 'Only JPG and PDF',
+              : 'Only JPEG, PNG and PDF',
         ),
         findsOneWidget,
       );
