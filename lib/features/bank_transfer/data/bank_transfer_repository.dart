@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:acendra/features/bank_transfer/data/models/receipt_submission_dto.dart';
 import 'package:acendra/features/bank_transfer/domain/entities/receipt_submission.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -69,30 +70,11 @@ class SupabaseBankTransferRepository implements BankTransferRepository {
   @override
   Future<ReceiptSubmission> status(String orderId) async {
     final data = await _request('bank-transfer-read', {'order_id': orderId});
-    if (data['order_id'] != orderId) {
+    try {
+      return receiptSubmissionFromJson(data, orderId);
+    } catch (_) {
       throw const BankTransferFailure('Order status could not be confirmed.');
     }
-    final status = switch (data['status']) {
-      'awaiting_receipt' => ReceiptStatus.awaitingReceipt,
-      'submitted' => ReceiptStatus.submitted,
-      'under_review' => ReceiptStatus.underReview,
-      'approved' => ReceiptStatus.approved,
-      'rejected' => ReceiptStatus.rejected,
-      _ => throw const BankTransferFailure(
-        'Order status could not be confirmed.',
-      ),
-    };
-    return ReceiptSubmission(
-      orderId: orderId,
-      orderNumber: data['order_number'] as String,
-      courseTitle: data['course_title'] as String,
-      status: status,
-      submissionId: data['submission_id'] as String?,
-      rejectionReason: data['rejection_reason'] as String?,
-      submittedAt: data['submitted_at'] == null
-          ? null
-          : DateTime.parse(data['submitted_at'] as String),
-    );
   }
 
   @override

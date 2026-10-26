@@ -455,7 +455,7 @@ void main() {
               .onPressed,
           isNull,
         );
-        expect(find.text('Transfer Status'), findsNothing);
+        expect(find.text('Payment Status'), findsNothing);
       },
     );
 
@@ -481,7 +481,7 @@ void main() {
             .go(RouteNames.receiptStatus.replaceFirst(':orderId', _kOrderId));
         await tester.pumpAndSettle();
 
-        expect(find.text('Transfer Status'), findsWidgets);
+        expect(find.text('Payment Status'), findsWidgets);
       },
     );
   });

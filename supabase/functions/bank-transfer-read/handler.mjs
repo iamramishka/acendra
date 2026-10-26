@@ -54,7 +54,8 @@ export function createHandler({env,fetch: request = globalThis.fetch,enabled = f
           bank_instructions:{bank_name:b.bank_name,account_holder:b.account_holder,account_number:b.account_number,branch_name:b.branch_name,currency_code:b.currency_code}});
       }
       const safe=item=>({order_id:item.order_id,order_number:item.order_number,course_title:item.course_title,status:item.status,submission_id:item.submission_id,submitted_at:item.submitted_at,rejection_reason:item.rejection_reason,
-        ...(queue?{amount_minor:item.amount_minor,currency:item.currency}:{})});
+        amount_minor:item.amount_minor,currency:item.currency,
+        ...(!queue?{order_created_at:item.order_created_at}:{})});
       if(queue && (!Array.isArray(result?.items)||result.items.length>100)) return respond(503,'SERVICE_UNAVAILABLE');
       return respond(200,null,queue?{items:result.items.map(safe)}:safe(result));
     } catch {return respond(503,'SERVICE_UNAVAILABLE');}

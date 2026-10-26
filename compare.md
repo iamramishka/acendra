@@ -16,10 +16,10 @@ Scope: student-facing screens only (the prototype has no admin screens)
 |---|---|---|
 | COM-007 | Auth | Not started: live checklist, show/hide toggle, 5-char rule, signed-in "Change password" path |
 | COM-009 | Catalog | Not started: sticky footer, "open order" state, lock/play icons, back navigation |
-| COM-010 | Payment | Not started: step bar, raw course id in summary, single bank screen, sticky total, back button |
-| COM-011 | Payment | Failed, blocked by CSA-265: order loaded from `state.extra`, no Refresh, bank copy on PayHere page |
-| COM-012 | Payment | PNG rejected, instructions lost on refresh, upload on separate screen (CSA-265 files) |
-| COM-013 | Payment | Amount/date not returned by backend, D-6 copy in a CSA-265 file |
+| COM-010 | Payment | IN_REVIEW under CSA-278 (#224): artifact checkout, country suggestions, stored-order total, friendly status and single bank path; merge/live acceptance pending |
+| COM-011 | Payment | MERGED #222 (2026-10-26): owner status recovery, refresh/history and full-page return bridge; ordered rollout and live payment acceptance remain |
+| COM-012 | Payment | MERGED #220 (2026-10-26): JPEG/PNG/PDF single-screen upload and instruction recovery; migration/function/client rollout and live acceptance remain |
+| COM-013 | Payment | IN_REVIEW under CSA-278 (#224): exact owner amount/order date, status card/timeline and refresh; ordered backend release and live acceptance pending |
 | COM-015 | Student | "Sample content" notice remains, `com015` migration not run |
 | COM-016 | Student | Cards open resume lesson not overview, migration not run |
 | COM-020 | Learning | IN_REVIEW — CSA-271: v2 watermark and active reader implemented; 22 local browser checks and artifact comparison passed. Hosted deployment, CI/review and dev merge gates remain. |
@@ -510,6 +510,15 @@ Result: —
 
 ### COM-010 — Secure checkout
 
+2026-10-26 update — CSA-278 / #224 supersedes the historical gaps below. The
+actual artifact checkout was inspected. The follow-up restores the semantic
+step bar, course-aware summary, friendly status, searchable Sri Lanka country
+default and constrained sticky total/action, while preserving guarded checkout
+and D-5 billing. Local layout tests cover 320/390/768/1440 light/dark. The
+deployed app is current but its authenticated checkout remains unavailable in
+this session. See [CSA-278](docs/tasks/CSA-278.md) for synthetic browser evidence,
+verification and remaining merge/deployment gates. Result: IN_REVIEW.
+
 Prototype layout: header "🔒 Secure Checkout" + logo → **3-step bar** (Order ✓ ·
 Payment · Confirm) → "Complete Your Purchase" → card **Order Summary** (art,
 title, category, lessons, Total) → card **Select Payment Method** (radio cards:
@@ -687,6 +696,15 @@ its authenticated bank-transfer view could not be visually compared this run.
 ---
 
 ### COM-013 — Bank payment status timeline
+
+2026-10-26 update — CSA-278 / #224 supersedes the historical gaps below. The
+actual artifact bank-status screen was inspected. The additive owner-only read
+now supplies exact decimal-string amount, currency and order creation time;
+the client preserves browser precision and distinguishes Ordered from Submitted
+On. Status card/timeline, rejected-receipt recovery, refresh and exits are retained
+or aligned. D-6's approved review-time copy remains; no email promise is invented.
+See [CSA-278](docs/tasks/CSA-278.md). Required merges, hosted CI, ordered backend
+release and authenticated deployed visual acceptance remain. Result: IN_REVIEW.
 
 Prototype layout: header "Payment Status" → status card (large clock icon,
 "Awaiting Verification" / "Receipt Needed", pill) → card **Order Details** (course,
