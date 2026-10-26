@@ -17,8 +17,8 @@ Scope: student-facing screens only (the prototype has no admin screens)
 | COM-007 | Auth | Not started: live checklist, show/hide toggle, 5-char rule, signed-in "Change password" path |
 | COM-009 | Catalog | Not started: sticky footer, "open order" state, lock/play icons, back navigation |
 | COM-010 | Payment | IN_REVIEW under CSA-278 (#224): artifact checkout, country suggestions, stored-order total, friendly status and single bank path; merge/live acceptance pending |
-| COM-011 | Payment | Failed, blocked by CSA-265: order loaded from `state.extra`, no Refresh, bank copy on PayHere page |
-| COM-012 | Payment | PNG rejected, instructions lost on refresh, upload on separate screen (CSA-265 files) |
+| COM-011 | Payment | MERGED #222 (2026-10-26): owner status recovery, refresh/history and full-page return bridge; ordered rollout and live payment acceptance remain |
+| COM-012 | Payment | MERGED #220 (2026-10-26): JPEG/PNG/PDF single-screen upload and instruction recovery; migration/function/client rollout and live acceptance remain |
 | COM-013 | Payment | IN_REVIEW under CSA-278 (#224): exact owner amount/order date, status card/timeline and refresh; ordered backend release and live acceptance pending |
 | COM-015 | Student | "Sample content" notice remains, `com015` migration not run |
 | COM-016 | Student | Cards open resume lesson not overview, migration not run |
