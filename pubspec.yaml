@@ -12,13 +12,13 @@ dependencies:
     sdk: flutter
   flutter_riverpod: ^3.4.3
   riverpod_annotation: ^4.0.7
-  go_router: ^18.1.0
+  go_router: ^18.1.1
   supabase_flutter: ^2.18.3
   google_fonts: ^8.2.1
   video_player: ^2.9.2
   pdfx: ^2.9.0
-  # Browser file input; already present transitively, now used directly.
-  web: ^1.1.1
+  # Browser file input; web >=1.1.2 requires Dart 3.13 (Flutter 3.44 uses 3.12).
+  web: '1.1.1'
 
 dev_dependencies:
   flutter_test:
