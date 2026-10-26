@@ -1,112 +1,16 @@
-import 'package:acendra/app/router/route_names.dart';
-import 'package:acendra/app/theme/app_spacing.dart';
-import 'package:acendra/app/theme/app_theme_extension.dart';
-import 'package:acendra/core/widgets/buttons/app_button.dart';
+import 'package:acendra/features/checkout/presentation/screens/order_status_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
+/// Provider return hints do not override the owner-scoped backend order status.
 class PaymentSuccessScreen extends StatelessWidget {
-  const PaymentSuccessScreen({
-    super.key,
-    required this.courseId,
-    required this.courseTitle,
-    required this.orderNumber,
-  });
-
-  final String courseId;
-  final String courseTitle;
-  final String orderNumber;
-
+  const PaymentSuccessScreen({super.key, required this.orderId, this.courseId});
+  final String? orderId;
+  final String? courseId;
   @override
-  Widget build(BuildContext context) {
-    final ext = Theme.of(context).extension<AppThemeExtension>()!;
-    final tt = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Payment Verification'),
-        leading: const SizedBox.shrink(),
-        automaticallyImplyLeading: false,
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.xl,
-          ),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: ext.successContainer,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.schedule, size: 80, color: ext.success),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                Text(
-                  'Payment verification pending',
-                  style: tt.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  'Check your account for confirmed access to:',
-                  style: tt.bodyMedium?.copyWith(color: ext.textSecondary),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  courseTitle,
-                  style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.xs,
-                  ),
-                  decoration: BoxDecoration(
-                    color: cs.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(AppRadius.chip),
-                  ),
-                  child: Text(
-                    'Order #$orderNumber',
-                    style: tt.bodySmall?.copyWith(color: ext.textSecondary),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xxl),
-                SizedBox(
-                  width: double.infinity,
-                  child: AppButton(
-                    label: 'Check My Courses',
-                    onPressed: () => context.go(RouteNames.myCourses),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                SizedBox(
-                  width: double.infinity,
-                  child: AppButton(
-                    label: 'Browse More Courses',
-                    variant: ButtonVariant.outlined,
-                    onPressed: () => context.go(RouteNames.marketplace),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => OrderStatusScreen(
+    orderId: orderId,
+    expectedCourseId: courseId,
+    onlineOnly: true,
+    cancelledReturn: false,
+  );
 }

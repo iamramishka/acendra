@@ -167,35 +167,27 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: 'success',
                 builder: (_, state) {
-                  final extra = state.extra as Map<String, dynamic>? ?? {};
                   return PaymentSuccessScreen(
                     courseId: state.pathParameters['courseId']!,
-                    courseTitle: extra['courseTitle'] as String? ?? '',
-                    orderNumber: extra['orderNumber'] as String? ?? '',
+                    orderId: state.uri.queryParameters['order_id'],
                   );
                 },
               ),
               GoRoute(
                 path: 'pending',
                 builder: (_, state) {
-                  final extra = state.extra as Map<String, dynamic>? ?? {};
                   return PaymentPendingScreen(
                     courseId: state.pathParameters['courseId']!,
-                    courseTitle: extra['courseTitle'] as String? ?? '',
-                    orderNumber: extra['orderNumber'] as String? ?? '',
-                    bankName: extra['bankName'] as String?,
-                    accountNumber: extra['accountNumber'] as String?,
+                    orderId: state.uri.queryParameters['order_id'],
                   );
                 },
               ),
               GoRoute(
                 path: 'failure',
                 builder: (_, state) {
-                  final extra = state.extra as Map<String, dynamic>? ?? {};
                   return PaymentFailureScreen(
                     courseId: state.pathParameters['courseId']!,
-                    courseTitle: extra['courseTitle'] as String?,
-                    reason: extra['reason'] as String?,
+                    orderId: state.uri.queryParameters['order_id'],
                   );
                 },
               ),
@@ -208,6 +200,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: RouteNames.profileEdit,
             builder: (_, _) => const ProfileEditScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.paymentReturn,
+            builder: (_, state) => PaymentPendingScreen(
+              orderId: state.uri.queryParameters['order_id'],
+            ),
+          ),
+          GoRoute(
+            path: RouteNames.paymentCancel,
+            builder: (_, state) => PaymentFailureScreen(
+              orderId: state.uri.queryParameters['order_id'],
+            ),
           ),
           GoRoute(
             path: RouteNames.orders,
