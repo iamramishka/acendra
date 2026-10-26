@@ -129,7 +129,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                     Material(
                       type: MaterialType.transparency,
                       child: SizedBox(
-                        width: 300,
+                        width: 220,
                         child: DropdownButton<CourseSort>(
                           isExpanded: true,
                           itemHeight: null,
@@ -175,15 +175,13 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
             else
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                sliver: SliverToBoxAdapter(
-                  child: CourseGrid(
-                    courses: courses,
-                    categories: categories.asData?.value ?? [],
-                    onCourseTap: (course) => context.go(
-                      RouteNames.courseDetail.replaceFirst(
-                        ':courseId',
-                        Uri.encodeComponent(course.id),
-                      ),
+                sliver: CourseGrid(
+                  courses: courses,
+                  categories: categories.asData?.value ?? [],
+                  onCourseTap: (course) => context.go(
+                    RouteNames.courseDetail.replaceFirst(
+                      ':courseId',
+                      Uri.encodeComponent(course.id),
                     ),
                   ),
                 ),

@@ -60,6 +60,6 @@ def generate_isolated(source, kwargs):
     kwargs accepts the same trusted metadata/font/limits as generate; it cannot
     override process constraints. Source never returned on worker failure.
     """
-    if type(kwargs) is not dict or set(kwargs)-{'display_name','license_id','source_sha256','limits','trusted_font_path'}:
+    if type(kwargs) is not dict or set(kwargs)-{'display_name','license_id','source_sha256','limits','trusted_font_path','policy_id'}:
         raise WatermarkError('Invalid trusted job metadata')
     return supervised_generate(source,**kwargs)

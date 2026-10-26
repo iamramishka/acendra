@@ -83,10 +83,7 @@ class SettingsScreen extends ConsumerWidget {
                                 .setLocale(v),
                       items: const [
                         DropdownMenuItem(value: 'en', child: Text('English')),
-                        DropdownMenuItem(
-                          value: 'si',
-                          child: Text('සිංහල'),
-                        ),
+                        DropdownMenuItem(value: 'si', child: Text('සිංහල')),
                       ],
                     ),
             ),

@@ -105,7 +105,7 @@ check('preparing descriptor never opens original and strips private fields', asy
   const h = harness({ result: { state: 'preparing', lesson_id: lesson, resource_id: null, object_path: secret } });
   const response = await h.handler(request({ descriptor: true }));
   assert.equal(response.status, 202); assert.equal(h.storage.length, 0);
-  assert.deepEqual(await response.json(), { data: { lesson_id: lesson, mode: 'proxied_stream', state: 'preparing', resource_id: null } });
+  assert.deepEqual(await response.json(), { data: { lesson_id: lesson, mode: 'proxied_stream', state: 'preparing', resource_id: null, watermark_applied: false } });
 });
 check('preparing response to byte request fails closed without original fallback', async () => {
   const h = harness({ result: { state: 'preparing', lesson_id: lesson, resource_id: null, object_path: secret } });
