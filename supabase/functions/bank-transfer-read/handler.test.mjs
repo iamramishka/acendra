@@ -17,3 +17,24 @@ test('untrusted origins denied even while disabled',async()=>{const incoming=req
 test('Auth verified user must match the exact bearer subject',async()=>{let calls=0;const handler=createHandler({env,enabled:true,fetch:async()=>{calls++;return Response.json({id:'44444444-4444-4444-8444-444444444444'});}});assert.equal((await handler(req({order_id:order}))).status,401);assert.equal(calls,1);});
 test('oversized request fails before privileged calls',async()=>{const handler=createHandler({env,enabled:true,fetch:()=>{throw Error('unexpected');}});assert.equal((await handler(req({order_id:order,padding:'a'.repeat(2048)}))).status,400);});
 test('queue response strips bank evidence and storage paths',async()=>{const handler=createHandler({env,enabled:true,fetch:async url=>url.endsWith('/user')?Response.json({id:actor}):Response.json({items:[{submission_id:session,order_id:order,status:'submitted',amount_minor:'12345',currency:'LKR',verified_credit:'SECRET',object_path:'SECRET'}]})});const response=await handler(req({queue:true}));assert.equal(response.status,200);assert.equal(JSON.stringify(await response.json()).includes('SECRET'),false);});
+
+test('instruction recovery uses owner-scoped RPC and returns checkout snapshot only', async () => {
+  let args, rpcUrl;
+  const snapshot = {order_id:order,order_number:'ACD-1',course:{id:session,title:'Course'},amount_minor:12345,currency_code:'LKR',payment_method:'bank_transfer',status:'pending_payment',next_action:'show_bank_instructions',bank_instructions:{bank_name:'Bank',account_holder:'Holder',account_number:'123',branch_name:'Branch',currency_code:'LKR'}};
+  const handler = createHandler({env,enabled:true,fetch:async(url,options)=>{
+    if(url.endsWith('/user')) return Response.json({id:actor});
+    rpcUrl=url; args=JSON.parse(options.body);
+    return Response.json({...snapshot,private_notes:'SECRET',buyer_id:actor});
+  }});
+  const response=await handler(req({order_id:order,instructions:true},'aal1'));
+  assert.equal(response.status,200);
+  assert.ok(rpcUrl.endsWith('/rpc/csa276_read_bank_instructions'));
+  assert.deepEqual(args,{p_actor:actor,p_session_id:session,p_aal:'aal1',p_order:order});
+  assert.deepEqual((await response.json()).data,snapshot);
+});
+test('instruction request cannot mix queue or inject actor',async()=>{
+  for(const body of [{queue:true,instructions:true},{order_id:order,instructions:true,actor_id:actor},{order_id:order,instructions:false}]) {
+    const handler=createHandler({env,enabled:true,fetch:()=>{throw Error('must not authenticate');}});
+    assert.equal((await handler(req(body))).status,400);
+  }
+});

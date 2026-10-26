@@ -1,4 +1,5 @@
 import 'package:acendra/app/theme/app_theme_extension.dart';
+import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/app/theme/app_colors.dart';
 import 'package:acendra/features/bank_transfer/presentation/screens/bank_transfer_screen.dart';
 import 'package:acendra/features/checkout/domain/entities/checkout_order.dart';
@@ -57,7 +58,7 @@ void main() {
       find.textContaining('Payment instructions are unavailable'),
       findsOneWidget,
     );
-    expect(find.text("I've made the transfer"), findsNothing);
+    expect(find.text("Submit Receipt for Review"), findsNothing);
   });
   testWidgets('matching order renders exact trusted amount and destination', (
     tester,
@@ -147,10 +148,16 @@ void main() {
     await tester.tap(find.text('Continue to Bank Transfer'));
     await tester.pumpAndSettle();
     expect(find.text('Trusted Bank'), findsOneWidget);
-    await tester.ensureVisible(find.text("I've made the transfer"));
-    await tester.tap(find.text("I've made the transfer"));
-    await tester.pumpAndSettle();
-    expect(find.text('Receipt flow order-1'), findsOneWidget);
+    await tester.ensureVisible(find.text("Submit Receipt for Review"));
+    expect(
+      tester
+          .widget<AppButton>(
+            find.widgetWithText(AppButton, 'Submit Receipt for Review'),
+          )
+          .onPressed,
+      isNull,
+    );
+    expect(find.text('Receipt flow order-1'), findsNothing);
     expect(find.textContaining('Transfer noted'), findsNothing);
   });
 }

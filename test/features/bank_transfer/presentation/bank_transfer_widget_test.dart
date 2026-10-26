@@ -79,7 +79,7 @@ void main() {
       );
 
       await tester.pumpAndSettle();
-      expect(find.text("I've made the transfer"), findsOneWidget);
+      expect(find.text("Submit Receipt for Review"), findsOneWidget);
       await tester.pumpAndSettle();
       expect(find.textContaining('ORD-001'), findsWidgets);
       await tester.pumpAndSettle();
@@ -121,7 +121,7 @@ void main() {
         find.textContaining('Payment instructions are unavailable'),
         findsOneWidget,
       );
-      expect(find.text("I've made the transfer"), findsNothing);
+      expect(find.text("Submit Receipt for Review"), findsNothing);
     });
   });
 
