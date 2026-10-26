@@ -1,6 +1,8 @@
 @TestOn('browser')
 library;
 
+import 'dart:ui_web' as ui_web;
+import 'package:acendra/features/checkout/presentation/services/payment_return_location.dart';
 import 'package:acendra/app/router/app_router.dart';
 import 'package:acendra/app/router/route_names.dart';
 import 'package:acendra/app/theme/app_theme.dart';
@@ -16,7 +18,35 @@ import '../../features/checkout/com011_payment_status_test.dart'
 
 void main() => registerPaymentReturnRegressionTests();
 
+class _ReturnPlatformLocation implements ui_web.PlatformLocation {
+  _ReturnPlatformLocation(this.uri);
+  final Uri uri;
+  @override
+  String get hash => uri.fragment.isEmpty ? '' : '#${uri.fragment}';
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 void registerPaymentReturnRegressionTests() {
+  for (final path in ['/payments/return', '/payments/cancel']) {
+    test(
+      'external $path enters the real default hash strategy with its order locator',
+      () {
+        final source = Uri.parse(
+          'https://app.example.test$path?order_id=order-1',
+        );
+        expect(
+          ui_web.HashUrlStrategy(_ReturnPlatformLocation(source)).getPath(),
+          '/',
+        );
+        final redirected = source.resolveUri(paymentReturnRedirect(source)!);
+        expect(
+          ui_web.HashUrlStrategy(_ReturnPlatformLocation(redirected)).getPath(),
+          '$path?order_id=order-1',
+        );
+      },
+    );
+  }
   for (final path in [RouteNames.paymentReturn, RouteNames.paymentCancel]) {
     testWidgets('signed-out $path requires login', (tester) async {
       final container = ProviderContainer(
