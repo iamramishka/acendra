@@ -38,3 +38,15 @@ test('instruction request cannot mix queue or inject actor',async()=>{
     assert.equal((await handler(req(body))).status,400);
   }
 });
+
+test('student status returns exact order amount/date but never private receipt data',async()=>{
+  const record={order_id:order,order_number:'ACD-1',course_title:'Course',status:'submitted',amount_minor:'9007199254740991',currency:'LKR',order_created_at:'2026-10-26T01:02:03Z',object_path:'SECRET',verified_credit:'SECRET'};
+  const handler=createHandler({env,enabled:true,fetch:async url=>url.endsWith('/user')?Response.json({id:actor}):Response.json(record)});
+  const response=await handler(req({order_id:order},'aal1'));
+  assert.equal(response.status,200);
+  const data=(await response.json()).data;
+  assert.equal(data.amount_minor,record.amount_minor);
+  assert.equal(data.currency,'LKR');
+  assert.equal(data.order_created_at,record.order_created_at);
+  assert.equal(JSON.stringify(data).includes('SECRET'),false);
+});
