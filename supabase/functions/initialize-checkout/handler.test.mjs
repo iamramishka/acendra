@@ -82,3 +82,26 @@ test('Auth and privileged RPC requests reject redirects', async () => {
   assert.equal(f.calls.length, 2);
   for (const call of f.calls) assert.equal(call.options.redirect, 'error');
 });
+
+test('COM-011 return and cancel URLs bind the canonical application order, never the attempt',async()=>{
+  const f=fixture();
+  const response=await f.handler(f.req);
+  const fields=(await response.json()).data.checkout.fields;
+  for(const key of ['return_url','cancel_url']) {
+    const url=new URL(fields[key]);
+    assert.equal(url.origin,'https://example.test');
+    assert.equal(url.searchParams.get('order_id'),order);
+    assert.notEqual(url.searchParams.get('order_id'),attempt);
+  }
+  assert.equal(fields.notify_url,config.notifyUrl);
+});
+
+test('COM-011 preserves trusted return queries and replaces an existing locator',async()=>{
+  const f=fixture();
+  const custom={...config,returnUrl:'https://example.test/return?source=checkout&order_id=old',cancelUrl:'https://example.test/cancel?source=checkout'};
+  const handler=createHandler({env:name=>({SUPABASE_URL:'https://db.test',SUPABASE_ANON_KEY:'public',SUPABASE_SERVICE_ROLE_KEY:'private'}[name]),fetch:async(url,options)=>url.includes('/auth/')?Response.json({id:actor,email:'verified@example.test'}):Response.json({replayed:false,order_id:order,attempt:{attemptId:attempt,orderId:attempt,method:'online',provider:'payhere',merchantId:'123456',environment:'sandbox',currency:'LKR',amountMinor:'10001',title:'Stored course'}}),onlineCheckoutEnabled:true,paymentConfig:custom});
+  const fields=(await (await handler(f.req)).json()).data.checkout.fields;
+  for(const field of ['return_url','cancel_url']) {
+    const url=new URL(fields[field]);assert.equal(url.searchParams.get('source'),'checkout');assert.deepEqual(url.searchParams.getAll('order_id'),[order]);
+  }
+});

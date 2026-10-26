@@ -128,17 +128,18 @@ class OrderCard extends StatelessWidget {
         child: const Text('Go to Course'),
       );
     }
-    if (!order.isAwaiting) return null;
+    if (!order.isAwaiting && order.isBankTransfer) return null;
     return OutlinedButton(
       onPressed: () => context.push(
         order.isBankTransfer
             ? '/bank-transfer/${order.id}/status'
-            : '/checkout/${order.courseId}',
+            : RouteNames.orderStatus.replaceFirst(
+                ':orderId',
+                Uri.encodeComponent(order.id),
+              ),
       ),
       style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
-      child: Text(
-        order.isBankTransfer ? 'View Payment Status' : 'Resume Checkout',
-      ),
+      child: const Text('View Payment Status'),
     );
   }
 }

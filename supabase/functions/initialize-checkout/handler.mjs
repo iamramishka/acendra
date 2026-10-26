@@ -150,6 +150,13 @@ export function createHandler({ env, fetch: request = globalThis.fetch, onlineCh
         return respond(503, 'SERVICE_UNAVAILABLE');
       }
       const checkout = adapter.createCheckout(stored.attempt, customer);
+      // A browser redirect carries a locator only. The client must read this
+      // application's owner-scoped order; the provider order_id is an attempt.
+      for (const field of ['return_url', 'cancel_url']) {
+        const destination = new URL(checkout.fields[field]);
+        destination.searchParams.set('order_id', orderId);
+        checkout.fields[field] = destination.href;
+      }
       return respond(stored.replayed ? 200 : 201, undefined, {
         order_id: stored.order_id, attempt_id: stored.attempt.attemptId, status: 'pending_payment', checkout,
       });

@@ -11,7 +11,8 @@ const baseline = { APP_ENV:'staging', PAYHERE_ENVIRONMENT:'sandbox', SUPABASE_UR
 const env = values => key => values[key];
 test('reviewed project sandbox uses only server sandbox credentials and harmless return',()=>{
   const config=stagingSandboxConfiguration(env(baseline));
-  assert.equal(config.environment,'sandbox'); assert.equal(config.returnUrl,`${STAGING_APP_ORIGIN}/dashboard/courses`);
+  assert.equal(config.environment,'sandbox'); assert.equal(config.returnUrl,`${STAGING_APP_ORIGIN}/payments/return`);
+  assert.equal(config.cancelUrl,`${STAGING_APP_ORIGIN}/payments/cancel`);
   assert.equal(config.notifyUrl,`${STAGING_SUPABASE_URL}/functions/v1/payment-provider-webhook`);
   assert.ok(Object.isFrozen(config));
 });
