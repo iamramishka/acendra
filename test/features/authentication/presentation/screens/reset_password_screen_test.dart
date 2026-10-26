@@ -2,10 +2,12 @@ import 'package:acendra/features/authentication/data/auth_repository.dart';
 import 'package:acendra/app/theme/app_theme.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/features/authentication/domain/auth_failure.dart';
+import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:acendra/features/authentication/presentation/screens/reset_password_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class _FakeAuthRepository extends AuthRepository {
   _FakeAuthRepository({this.shouldThrow}) : super.forTesting();
@@ -19,6 +21,19 @@ class _FakeAuthRepository extends AuthRepository {
 
 Widget _wrap({AuthFailure? throws}) => ProviderScope(
   overrides: [
+    currentSessionProvider.overrideWithValue(
+      Session(
+        accessToken: 'synthetic-recovery',
+        tokenType: 'bearer',
+        user: const User(
+          id: 'student-a',
+          appMetadata: {},
+          userMetadata: {},
+          aud: 'authenticated',
+          createdAt: '2026-10-22',
+        ),
+      ),
+    ),
     authRepositoryProvider.overrideWithValue(
       _FakeAuthRepository(shouldThrow: throws),
     ),
