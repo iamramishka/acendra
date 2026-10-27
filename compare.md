@@ -20,7 +20,7 @@ Scope: student-facing screens only (the prototype has no admin screens)
 | COM-011 | Payment | MERGED #222 (2026-10-26): owner status recovery, refresh/history and full-page return bridge; ordered rollout and live payment acceptance remain |
 | COM-012 | Payment | MERGED #220 (2026-10-26): JPEG/PNG/PDF single-screen upload and instruction recovery; migration/function/client rollout and live acceptance remain |
 | COM-013 | Payment | IN_REVIEW under CSA-278 (#224): exact owner amount/order date, status card/timeline and refresh; ordered backend release and live acceptance pending |
-| COM-015 | Student | "Sample content" notice remains, `com015` migration not run |
+| COM-015 | Student | IN_REVIEW — CSA-280 (#228): personal Home and real discovery; current dev deployed first, new Home PR/live acceptance pending |
 | COM-016 | Student | Cards open resume lesson not overview, migration not run |
 | COM-020 | Learning | IN_REVIEW — CSA-271: v2 watermark and active reader implemented; 22 local browser checks and artifact comparison passed. Hosted deployment, CI/review and dev merge gates remain. |
 | COM-021 | Account | DONE 2026-10-21. Avatar displayed in header. Language selector (EN/SI) syncs to DB. Inline edit merged. |
@@ -826,6 +826,10 @@ Check results (code-only, 2026-10-18):
 - A progress read exists (csa127/csa133 migrations); a Home summary read still has to be designed. D-7 is open.
 
 Result: PARTIAL (2026-10-18, commit fbbb3e5). D-7 decided: personal section on top (greeting, Continue Learning, owned courses), existing sections kept below. The "sample content" notice remains because those sections are still sample data. Depends on the unrun com015 migration for progress.
+
+---
+
+2026-10-27 CSA-280 review: the actual artifact Home was inspected. Implementation now follows its greeting, Continue Learning, owned-course cards and Recently Accessed hierarchy, while retaining D-7 discovery below with real catalog/category reads. The sample runtime notice/actions are removed; unavailable progress is explicit. Resume validates the next lesson, and recent entries use saved timestamps/PDF pages without fabricating page totals. Existing shared header now uses its avatar fallback. Current dev ce9819a was deployed first through successful run 40334926117 (release 20261027-055952); the hosted com015 RPC was verified present and matched reviewed source, superseding the old unrun-migration note. The new Home change remains IN_REVIEW: 148 affected tests pass; build/browser/current-head CI and independent approval are tracked in docs/tasks/CSA-280.md. Authenticated deployed Home acceptance is not claimed.
 
 ---
 

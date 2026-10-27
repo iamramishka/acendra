@@ -7,6 +7,7 @@ import 'package:acendra/features/dashboard/presentation/providers/dashboard_prov
 import 'package:acendra/features/dashboard/presentation/screens/dashboard_home_screen.dart';
 import 'package:acendra/features/dashboard/presentation/widgets/dashboard_category_chip.dart';
 import 'package:acendra/features/dashboard/presentation/widgets/dashboard_course_card.dart';
+import 'package:acendra/features/dashboard/presentation/widgets/dashboard_hero_carousel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -30,6 +31,16 @@ Widget _app(Widget child, {bool dark = false, double scale = 1}) => MaterialApp(
   home: child,
 );
 
+const DashboardHomeData _fixture = (
+  slides: sampleHeroSlides,
+  categories: sampleCategories,
+  courses: sampleCourses,
+  highlights: sampleWhyLearnItems,
+);
+Widget _fixtureScope({required Widget child}) => ProviderScope(
+  overrides: [dashboardHomeProvider.overrideWith((ref) => _fixture)],
+  child: child,
+);
 void main() {
   testWidgets('screen composes all four overridden source providers', (
     tester,
@@ -38,8 +49,12 @@ void main() {
       ProviderScope(
         overrides: [
           heroSlidesProvider.overrideWithValue([sampleHeroSlides[1]]),
-          dashboardCategoriesProvider.overrideWithValue([sampleCategories[1]]),
-          featuredCoursesProvider.overrideWithValue([sampleCourses[1]]),
+          dashboardCategoriesProvider.overrideWith(
+            (ref) async => [sampleCategories[1]],
+          ),
+          featuredCoursesProvider.overrideWith(
+            (ref) async => [sampleCourses[1]],
+          ),
           whyLearnItemsProvider.overrideWithValue([sampleWhyLearnItems[1]]),
         ],
         child: _app(const DashboardHomeScreen()),
@@ -52,7 +67,7 @@ void main() {
     expect(find.byType(DashboardCourseCard), findsOneWidget);
     expect(find.text(sampleCourses[1].title), findsOneWidget);
     expect(find.text(sampleWhyLearnItems[1].title), findsOneWidget);
-    expect(find.text(DashboardCopy.previewNotice), findsOneWidget);
+    expect(find.textContaining('sample content'), findsNothing);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
@@ -67,6 +82,7 @@ void main() {
         child: _app(const DashboardHomeScreen()),
       ),
     );
+    await tester.pump();
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
     expect(find.bySemanticsLabel(DashboardCopy.loading), findsOneWidget);
     pending.complete(_empty);
@@ -121,7 +137,7 @@ void main() {
       );
       addTearDown(router.dispose);
       await tester.pumpWidget(
-        ProviderScope(
+        _fixtureScope(
           child: MaterialApp.router(
             routerConfig: router,
             builder: (context, child) => MediaQuery(
@@ -133,7 +149,10 @@ void main() {
       );
       await tester.pumpAndSettle();
       final target = useHero
-          ? find.text(sampleHeroSlides.first.ctaLabel)
+          ? find.descendant(
+              of: find.byType(DashboardHeroCarousel),
+              matching: find.text(sampleHeroSlides.first.ctaLabel),
+            )
           : find.text(DashboardCopy.viewAll).first;
       await tester.ensureVisible(target);
       await tester.tap(target);
@@ -151,6 +170,8 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          dashboardCategoriesProvider.overrideWith((ref) async => []),
+          featuredCoursesProvider.overrideWith((ref) async => []),
           heroSlidesProvider.overrideWith((ref) {
             if (++attempts == 1) throw StateError('source unavailable');
             return [sampleHeroSlides.first];
@@ -169,21 +190,35 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('default sample actions show previews without course routing', (
+  testWidgets('course and category actions use real catalog identities', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      ProviderScope(child: _app(const DashboardHomeScreen())),
+    final router = GoRouter(
+      routes: [
+        GoRoute(path: '/', builder: (_, _) => const DashboardHomeScreen()),
+        GoRoute(
+          path: '/marketplace',
+          builder: (_, _) => const Scaffold(body: Text('Catalog')),
+        ),
+        GoRoute(
+          path: '/marketplace/:id',
+          builder: (_, state) =>
+              Scaffold(body: Text(state.pathParameters['id']!)),
+        ),
+      ],
     );
-    await tester.pumpAndSettle();
-    final category = find.byType(DashboardCategoryChip).first;
-    await tester.ensureVisible(category);
-    await tester.tap(category);
-    await tester.pumpAndSettle();
-    expect(find.text(DashboardCopy.previewCategory), findsOneWidget);
-    ScaffoldMessenger.of(
-      tester.element(find.byType(DashboardHomeScreen)),
-    ).hideCurrentSnackBar();
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      _fixtureScope(
+        child: MaterialApp.router(
+          routerConfig: router,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(disableAnimations: true),
+            child: child!,
+          ),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
     final course = find.byTooltip(
       DashboardCopy.openCourse(sampleCourses.first.title),
@@ -191,18 +226,27 @@ void main() {
     await tester.ensureVisible(course);
     await tester.tap(course);
     await tester.pumpAndSettle();
-    expect(find.text(DashboardCopy.previewCourse), findsOneWidget);
-    expect(tester.takeException(), isNull);
+    expect(
+      router.routeInformationProvider.value.uri.path,
+      '/marketplace/${sampleCourses.first.id}',
+    );
+    router.go('/');
+    await tester.pumpAndSettle();
+    final category = find.byType(DashboardCategoryChip).first;
+    await tester.ensureVisible(category);
+    await tester.tap(category);
+    await tester.pumpAndSettle();
+    expect(router.routeInformationProvider.value.uri.path, '/marketplace');
+    expect(find.textContaining('sample category'), findsNothing);
     await tester.pumpWidget(const SizedBox());
   });
-
   testWidgets('screen callbacks receive original category/course identities', (
     tester,
   ) async {
     Object? selected;
     var browseCalls = 0;
     await tester.pumpWidget(
-      ProviderScope(
+      _fixtureScope(
         child: _app(
           DashboardHomeScreen(
             onBrowseCourses: () => browseCalls++,
@@ -213,7 +257,12 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text(sampleHeroSlides.first.ctaLabel));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(DashboardHeroCarousel),
+        matching: find.text(sampleHeroSlides.first.ctaLabel),
+      ),
+    );
     expect(browseCalls, 1);
     final category = find.byType(DashboardCategoryChip).first;
     await tester.ensureVisible(category);
@@ -238,7 +287,7 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
         await tester.pumpWidget(
-          ProviderScope(
+          _fixtureScope(
             child: _app(const DashboardHomeScreen(), dark: dark, scale: 2),
           ),
         );
