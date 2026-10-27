@@ -89,7 +89,7 @@ void main() {
         );
         expect(find.text('Sign in'), findsNothing);
         expect(find.byTooltip('Account menu'), findsOneWidget);
-        expect(find.byIcon(Icons.menu), findsOneWidget);
+        expect(find.byType(CircleAvatar), findsOneWidget);
         await tester.tap(find.byTooltip('Account menu'));
         await tester.pumpAndSettle();
         expect(find.text('Admin'), findsNothing);
