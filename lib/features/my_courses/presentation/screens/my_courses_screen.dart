@@ -23,9 +23,11 @@ class _MyCoursesScreenState extends ConsumerState<MyCoursesScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(myCoursesProvider);
-    final progress =
-        ref.watch(courseProgressProvider).asData?.value ??
-        const <String, CourseProgress>{};
+    final progressState = ref.watch(courseProgressProvider);
+    // Do not present stale progress or apply stale filters during a retry.
+    final progress = progressState.isLoading || progressState.hasError
+        ? const <String, CourseProgress>{}
+        : progressState.asData?.value ?? const <String, CourseProgress>{};
 
     return Scaffold(
       appBar: AppBar(title: const Text('My Courses')),
@@ -44,15 +46,75 @@ class _MyCoursesScreenState extends ConsumerState<MyCoursesScreen> {
               onAction: () => context.go('/marketplace'),
             );
           }
+          final completeSummary = courses.every(
+            (c) => progress.containsKey(c.courseId),
+          );
+          final activeFilter = completeSummary ? _filter : ProgressFilter.all;
           final shown = courses.where((c) {
             final p = progress[c.courseId];
             // Without progress data only "All" can be answered honestly.
-            return _filter == ProgressFilter.all ||
-                (p != null && p.matches(_filter));
+            return activeFilter == ProgressFilter.all ||
+                (p != null && p.matches(activeFilter));
           }).toList();
           return Column(
             children: [
-              if (progress.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.md,
+                  AppSpacing.md,
+                  AppSpacing.md,
+                  0,
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Your learning library',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+              ),
+              if (progressState.isLoading)
+                Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Semantics(
+                    liveRegion: true,
+                    child: const Text('Loading your progress…'),
+                  ),
+                )
+              else if (progressState.hasError || !completeSummary)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.md,
+                    AppSpacing.sm,
+                    AppSpacing.md,
+                    0,
+                  ),
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.sm),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              progressState.hasError
+                                  ? "Couldn't load your progress. You can still open your courses."
+                                  : 'Progress unavailable for some courses. You can still open them.',
+                            ),
+                            TextButton.icon(
+                              onPressed: () =>
+                                  ref.invalidate(courseProgressProvider),
+                              icon: const Icon(Icons.refresh),
+                              label: const Text('Retry progress'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              if (completeSummary)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
                     AppSpacing.md,
@@ -68,7 +130,7 @@ class _MyCoursesScreenState extends ConsumerState<MyCoursesScreen> {
                         for (final f in ProgressFilter.values)
                           ChoiceChip(
                             label: Text(_label(f)),
-                            selected: f == _filter,
+                            selected: f == activeFilter,
                             onSelected: (_) => setState(() => _filter = f),
                           ),
                       ],
@@ -113,20 +175,29 @@ class _CourseGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final columns = _columnCount(MediaQuery.sizeOf(context).width);
-
-    return GridView.builder(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: columns,
-        crossAxisSpacing: AppSpacing.md,
-        mainAxisSpacing: AppSpacing.md,
-        mainAxisExtent: 208,
-      ),
-      itemCount: courses.length,
-      itemBuilder: (context, index) {
-        final course = courses[index];
-        return _CourseTile(course: course, progress: progress[course.courseId]);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final textScale = MediaQuery.textScalerOf(context).scale(14) / 14;
+        final columns = textScale > 1.3
+            ? 1
+            : _columnCount(constraints.maxWidth);
+        return GridView.builder(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columns,
+            crossAxisSpacing: AppSpacing.md,
+            mainAxisSpacing: AppSpacing.md,
+            mainAxisExtent: 400 * textScale.clamp(1, double.infinity),
+          ),
+          itemCount: courses.length,
+          itemBuilder: (context, index) {
+            final course = courses[index];
+            return _CourseTile(
+              course: course,
+              progress: progress[course.courseId],
+            );
+          },
+        );
       },
     );
   }
@@ -143,6 +214,8 @@ class _CourseTile extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
     final p = progress;
+    void openOverview() =>
+        context.go('/learn/${Uri.encodeComponent(course.courseId)}');
     final label = p == null
         ? 'Open Course'
         : p.isCompleted
@@ -154,33 +227,27 @@ class _CourseTile extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => context.go(p?.resumePath ?? '/learn/${course.courseId}'),
+        onTap: openOverview,
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  SizedBox(
-                    width: 56,
-                    height: 40,
-                    child: CourseThumbnail(
-                      courseId: course.courseId,
-                      title: course.title,
-                      imageUrl: course.thumbnailUrl,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      course.title,
-                      style: tt.titleMedium,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
+              SizedBox(
+                width: double.infinity,
+                height: 140,
+                child: CourseThumbnail(
+                  courseId: course.courseId,
+                  title: course.title,
+                  imageUrl: course.thumbnailUrl,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                course.title,
+                style: tt.titleMedium,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
@@ -202,9 +269,9 @@ class _CourseTile extends StatelessWidget {
               ],
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  label,
-                  style: tt.labelLarge?.copyWith(color: cs.primary),
+                child: FilledButton(
+                  onPressed: openOverview,
+                  child: Text(label),
                 ),
               ),
             ],
