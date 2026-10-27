@@ -65,7 +65,7 @@ export function createMediaSurface(host, options, emit, dependencies = {}) {
     player.setAttribute('preload', 'metadata');
     player.setAttribute('aria-label', 'Lesson video player');
     player.setAttribute('video-title', options.title ?? 'Lesson video');
-    player.style.cssText = 'display:block;width:100%;height:100%;background:#000;--media-control-height:48px;';
+    player.style.cssText = 'display:block;width:100%;height:100%;background:#000;--media-button-padding:14px;--media-button-icon-height:20px;--media-button-icon-width:20px;';
     function listen(name, callback) {listeners.push([name, callback]); player.addEventListener(name, callback);}
     listen('error', fail);
     listen('loadedmetadata', () => {

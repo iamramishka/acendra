@@ -47,6 +47,8 @@ void main() {
         expect(data['trackingDisabled'], isTrue);
         expect(data['cookiesDisabled'], isTrue);
         expect(data['fullscreenAvailable'], isTrue);
+        expect(data['controlTargetWidth'], greaterThanOrEqualTo(44));
+        expect(data['controlTargetHeight'], greaterThanOrEqualTo(44));
       },
     );
   }

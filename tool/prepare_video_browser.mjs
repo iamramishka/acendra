@@ -40,11 +40,20 @@ window.com018Fixture = async function(captions) {
       tracks()[0].mode = 'disabled';
     }
     player.pause();
+    function findControl(root) {
+      const direct = root.querySelector?.('media-fullscreen-button');
+      if (direct) return direct;
+      for (const node of [root, ...root.querySelectorAll?.('*') ?? []]) {
+        if (node.shadowRoot) {const found = findControl(node.shadowRoot); if (found) return found;}
+      }
+    }
+    const target = findControl(player).getBoundingClientRect();
     return {duration: player.duration, position: player.currentTime,
       rate: player.playbackRate, paused: player.paused, captionTracks: tracks().length,
       cue, captionsDisabled: !captions || tracks()[0].mode === 'disabled',
       trackingDisabled: player.hasAttribute('disable-tracking'),
       cookiesDisabled: player.hasAttribute('disable-cookies'),
+      controlTargetWidth: target.width, controlTargetHeight: target.height,
       fullscreenAvailable: typeof player.requestFullscreen === 'function'};
   } finally {surface.destroy(); host.remove();}
 };
