@@ -21,7 +21,7 @@ Scope: student-facing screens only (the prototype has no admin screens)
 | COM-012 | Payment | MERGED #220 (2026-10-26): JPEG/PNG/PDF single-screen upload and instruction recovery; migration/function/client rollout and live acceptance remain |
 | COM-013 | Payment | IN_REVIEW under CSA-278 (#224): exact owner amount/order date, status card/timeline and refresh; ordered backend release and live acceptance pending |
 | COM-015 | Student | IN_REVIEW — CSA-280 (#228): personal Home and real discovery; current dev deployed first, new Home PR/live acceptance pending |
-| COM-016 | Student | Cards open resume lesson not overview, migration not run |
+| COM-016 | Student | CSA-281 IN_REVIEW: overview navigation, progress failure/retry and large cards implemented; direct artifact/hosted acceptance pending. See docs/tasks/CSA-281.md. |
 | COM-020 | Learning | IN_REVIEW — CSA-271: v2 watermark and active reader implemented; 22 local browser checks and artifact comparison passed. Hosted deployment, CI/review and dev merge gates remain. |
 | COM-021 | Account | DONE 2026-10-21. Avatar displayed in header. Language selector (EN/SI) syncs to DB. Inline edit merged. |
 | COM-022 | Account | DONE 2026-10-21. Language (EN/SI) DropdownButton + Email Notifications SwitchListTile added to Settings. Migration `20261020000100_com022_email_notifications.sql` adds `email_notifications_enabled boolean not null default true` to `profiles`, grant included. |
@@ -858,6 +858,19 @@ Check:
 - [ ] Empty filter shows a message and an Explore button.
 
 Result: PARTIAL (2026-10-18, commit fbbb3e5). FIXED: filter chips, progress bar, Continue/Start/Review per card, one-call progress RPC com015_my_course_progress (migration NOT run or tested). NOT DONE: card goes to resume lesson, not overview.
+
+Update 2026-10-27, CSA-281 / Issue #230 (IN_REVIEW): card taps and action
+buttons now open the existing course overview even when a resumable lesson is
+known. The library retains real progress, filters and Explore empty states, and
+adds the recorded subtitle, larger artwork and explicit action buttons. Loading,
+failure/retry and incomplete-summary feedback keep enrolled courses accessible;
+unavailable progress never becomes zero or a misleading empty filter. The old
+migration/deployment note above is historical: latest dev 4408862 was already
+deployed before these edits; CSA-280 records hosted COM015 ledger verification.
+No migration was applied for this task. Direct artifact and authenticated hosted
+comparison are unverified because the artifact could not be loaded and local
+browser access is disabled. Checkboxes above remain open. See
+[CSA-281 evidence](docs/tasks/CSA-281.md) for actual test/build results and limits.
 
 ---
 
