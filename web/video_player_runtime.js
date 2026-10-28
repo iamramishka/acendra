@@ -56,6 +56,7 @@ export function createMediaSurface(host, options, emit, dependencies = {}) {
   Promise.resolve().then(load).then(() => {
     if (destroyed) return;
     player = makePlayer();
+    player.className = 'acendra-lesson-video';
     for (const name of ['disable-tracking', 'disable-cookies', 'no-volume-pref', 'no-muted-pref']) {
       player.setAttribute(name, '');
     }

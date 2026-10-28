@@ -8,6 +8,8 @@ import 'package:web/web.dart' as web;
 
 @JS('com018Fixture')
 external JSPromise<JSObject> _fixture(JSBoolean captions);
+@JS('com018Stage')
+external JSString? get _stage;
 
 void main() {
   setUpAll(() async {
@@ -28,15 +30,15 @@ void main() {
     await loaded.future.timeout(const Duration(seconds: 20));
   });
   for (final captions in [false, true]) {
-    testWidgets(
+    test(
       'real synthetic HLS: playback, seek, speed and captions=$captions',
-      (tester) async {
-        final result = await tester.runAsync(
-          () => _fixture(
-            captions.toJS,
-          ).toDart.timeout(const Duration(seconds: 40)),
+      () async {
+        final result = await _fixture(captions.toJS).toDart.timeout(
+          const Duration(seconds: 40),
+          onTimeout: () =>
+              throw StateError('Video fixture stalled at ${_stage?.toDart}'),
         );
-        final data = result!.dartify() as Map;
+        final data = result.dartify() as Map;
         expect(data['duration'], greaterThanOrEqualTo(11));
         expect(data['position'], greaterThan(3.2));
         expect(data['rate'], 1.5);

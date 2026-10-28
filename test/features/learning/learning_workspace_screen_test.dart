@@ -169,7 +169,14 @@ void main() {
           find.text('This lesson content is currently unavailable.'),
           findsOneWidget,
         );
-        expect(find.text('Next'), findsOneWidget);
+        // COM-019 replaced Next with the combined footer action. This fixture
+        // deliberately has no loaded progress, so saving must remain disabled.
+        final forward = find.widgetWithText(
+          FilledButton,
+          'Mark Complete & Continue',
+        );
+        expect(forward, findsOneWidget);
+        expect(tester.widget<FilledButton>(forward).onPressed, isNull);
         expect(tester.takeException(), isNull);
       },
     );
