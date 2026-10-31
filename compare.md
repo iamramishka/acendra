@@ -12,6 +12,14 @@ Scope: student-facing screens only (the prototype has no admin screens)
 
 ## Current status and pending work (rechecked 2026-10-31)
 
+**Fresh navigation follow-up (CSA-285):** Home, empty My Courses, Explore
+search/categories, course details, actual course reload, fresh-tab course links
+and Back were tested in the live browser. Profile → Settings renders but retains
+the Profile URL; refresh returns to Profile. A bounded source repair passes 39
+related tests and awaits review/release. See [live evidence and limits](docs/tasks/CSA-285-LIVE-NAVIGATION.md).
+The older “navigation unverified” notice is superseded; Settings refresh remains
+a confirmed deployed defect until the repair is released.
+
 This matrix supersedes the old pending index, summary verdicts and work order.
 Baseline: fetched `origin/dev` at `cff285a` (PR237 documentation merge, including PR235). Live GitHub records confirm the merged
 fixes below; do not assign them again as missing implementation. **MERGED does

@@ -1,5 +1,17 @@
 # Compare audit status reconciliation — 2026-10-29
 
+## Navigation follow-up — 2026-10-31, CSA-285
+
+Fresh live browser checks verified Home, the empty My Courses state, Explore
+search/categories, course details, actual course reload, fresh-tab direct links
+and Back. Profile → Settings exposed a new refresh defect: Settings displays
+while the address remains `/#/profile`, so reload returns to Profile. The bounded
+source repair and 39 passing related tests are recorded in
+[CSA-285](CSA-285-LIVE-NAVIGATION.md). Settings refresh remains a deployed defect
+until that repair is reviewed and released. This supersedes a blanket
+“navigation unverified” label without claiming every navigation path passes.
+Earlier dated smoke results below retain their original limited scope.
+
 ## Deployment verification update — 2026-10-31
 
 Local documentation assignment under AGENTS.md section 8; not a GitHub claim. Owner CODEX; status IN_REVIEW. Authority: owner requested this document update after deployment verification, then explicitly authorized push and merge into dev. Scope: current deployment notices in compare.md and TASKS.md, plus this evidence record. Branch docs/csa-237-deployment-verification; isolated worktree C:/Users/ramis/.codex/worktrees/compare-pending-oct31/acendra; base origin/dev cff285a554625b4956776c8f10ccf83c25142921. Open issues, PR201/202/238, task records and worktrees checked; PR238 changes two separate readiness documents with no file overlap; the existing compare.md overlap warning below remains applicable. Approval authority: project owner/designated maintainer. Verification criteria: current run/commit evidence, consistent notices, working links, unchanged historical checkboxes and git diff --check. No implementation files or other agent worktrees are modified.

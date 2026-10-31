@@ -25,7 +25,18 @@ class SettingsScreen extends ConsumerWidget {
         prefsAsync.asData?.value.emailNotificationsEnabled ?? true;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(
+        title: const Text('Settings'),
+        leading: BackButton(
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(RouteNames.profile);
+            }
+          },
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
