@@ -3,14 +3,14 @@
 
 Status: Draft audit (IN_REVIEW) — not a task claim
 Prepared by: CLAUDE
-Date: 2026-10-18; status reconciled 2026-10-29
+Date: 2026-10-18; status reconciled 2026-10-31
 Prototype: "Acedra Mobile Prototype" artifact — https://claude.ai/artifact/NDAfFDE3QHzxMNTRXqf4RJ
 Original code audit: branch `feat/csa-158-172-dashboard-receipts-ui` at `9ba9c0d`
 Scope: student-facing screens only (the prototype has no admin screens)
 
 ---
 
-## Current status and pending work (rechecked 2026-10-29)
+## Current status and pending work (rechecked 2026-10-31)
 
 This matrix supersedes the old pending index, summary verdicts and work order.
 Baseline: fetched `origin/dev` at `50c1673`. Live GitHub records confirm the merged
@@ -62,6 +62,11 @@ backend watermark worker was found on the inspected EC2 host, while hosted
 trusted watermark runtime. These are the latest recorded hosted observations
 (2026-10-27), not a fresh server inspection on 2026-10-29.
 
+Rechecked 2026-10-31: remote dev, merged PRs and PR235 checks are unchanged.
+The original local `dev` checkout is at `e4ab889`; this updated audit is in
+[documentation PR236](https://github.com/iamramishka/acendra/pull/236), awaiting
+review/integration. Use fetched remote dev for current implementation status.
+No new hosted acceptance is claimed.
 Evidence/assignment: [dated reconciliation](docs/tasks/CSA-COMPARE-STATUS-20261029.md).
 No application, hosted setting or GitHub issue status is changed by this audit.
 
@@ -1175,7 +1180,7 @@ Note: payment filter date pickers are intentionally stubbed (`// TODO`); that is
 
 ---
 
-## 5. Remaining work order (2026-10-29)
+## 5. Remaining work order (2026-10-31)
 
 1. COM-018 / CSA-283: required independent review and integration of PR235 with
    passing required checks; record/resolve the preview failure.
@@ -1205,6 +1210,6 @@ ownership, scope and shared-file coordination.
   phone mockup only).
 - Backend behaviour (RLS, Edge Functions) was read only where a screen depends on it.
 
-- The 2026-10-29 status check reads live GitHub and existing source/task evidence.
+- The 2026-10-31 status check reads live GitHub and existing source/task evidence.
   No new application/browser/payment/hosted-content test is claimed. Historical
   local environment failures are not current CI failures. No release gate is waived.

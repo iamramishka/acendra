@@ -32,11 +32,11 @@ Methodology:
 
 ---
 
-## Comparison audit reconciliation — 2026-10-29
+## Comparison audit reconciliation — 2026-10-31
 
 Current student-screen status: [compare.md](compare.md) and the
 [coordination/evidence record](docs/tasks/CSA-COMPARE-STATUS-20261029.md).
-COM IDs are audit identifiers, not replacement CSA implementation claims.
+COM IDs are audit identifiers, not replacement CSA implementation claims. Rechecked 2026-10-31: remote dev and PR235 state are unchanged. Documentation PR236 awaits integration; the original local dev checkout e4ab889 is older than remote dev.
 
 COM-006–013, COM-015–017 and COM-020 source fixes are merged into dev (PRs linked
 in compare.md); do not assign them again as missing implementation. Latest dev
