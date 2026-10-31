@@ -2,10 +2,65 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 import {createMediaSurface, mountVideoLease, validateVideoLease} from '../web/video_player_runtime.js';
 
 const now = Date.now();
 const lease = {url: 'https://stream.mux.com/Synthetic123.m3u8?token=a.b.c', expiresAt: now + 120000};
+
+test('default lazy loader retries after failure and shares in-flight and successful imports', () => {
+  // Exercise the unchanged production module, intercepting only the browser
+  // import boundary. A separate VM process keeps its module cache isolated.
+  execFileSync(process.execPath, ['--experimental-vm-modules', '--input-type=module', '-e', `
+    import assert from 'node:assert/strict';
+    import {readFileSync} from 'node:fs';
+    import vm from 'node:vm';
+    let attempts = 0, release;
+    const gate = new Promise(resolve => {release = resolve;});
+    const context = vm.createContext({
+      setTimeout, clearTimeout, setInterval, clearInterval,
+      customElements: {whenDefined: async () => {}},
+    });
+    const bundle = new vm.SyntheticModule([], () => {}, {context});
+    await bundle.link(() => {});
+    await bundle.evaluate();
+    const module = new vm.SourceTextModule(readFileSync(process.argv[1], 'utf8'), {
+      context,
+      importModuleDynamically: async () => {
+        attempts++;
+        if (attempts === 1) {await gate; throw Error('temporary network failure');}
+        return bundle;
+      },
+    });
+    await module.link(() => {});
+    await module.evaluate();
+    let creates = 0;
+    class Player extends EventTarget {
+      constructor() {super(); this.style = {};}
+      setAttribute() {} removeAttribute() {} pause() {} load() {} remove() {}
+    }
+    function mount() {
+      return module.namespace.createMediaSurface({append(player) {
+        queueMicrotask(() => player.dispatchEvent(new Event('loadedmetadata')));
+      }}, {src: 'synthetic'}, () => {}, {makePlayer() {creates++; return new Player();}});
+    }
+    const first = mount(), concurrent = mount();
+    const failed = Promise.all([assert.rejects(first.ready), assert.rejects(concurrent.ready)]);
+    await new Promise(resolve => setTimeout(resolve, 0));
+    assert.equal(attempts, 1, 'concurrent mounts share an in-flight import');
+    release();
+    await failed;
+    assert.equal(creates, 0);
+    const retry = mount();
+    try {await assert.doesNotReject(retry.ready, 'Retry must recover after the network returns');} finally {retry.destroy();}
+    assert.equal(attempts, 2, 'Retry performs a fresh import after failure');
+    const cached = mount();
+    try {await cached.ready;} finally {cached.destroy();}
+    assert.equal(attempts, 2, 'successful bundle remains cached');
+    assert.equal(creates, 2);
+  `, fileURLToPath(new URL('../web/video_player_runtime.js', import.meta.url))], {stdio: 'pipe'});
+});
 
 test('Mux vendor is pinned to the reviewed exact distribution', () => {
   assert.equal(createHash('sha256').update(readFileSync(new URL('../web/vendor/mux-player/mux-player.js', import.meta.url))).digest('hex'),

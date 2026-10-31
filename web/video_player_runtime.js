@@ -1,7 +1,11 @@
 // Feature-owned, lazy, same-origin Mux adapter. Bearer URLs never enter events.
 let playerBundle;
 async function loadPlayer() {
-  playerBundle ??= import('./vendor/mux-player/mux-player.js');
+  playerBundle ??= import('./vendor/mux-player/mux-player.js').catch(error => {
+    // Share an in-flight/successful import, but allow Retry after download failure.
+    playerBundle = undefined;
+    throw error;
+  });
   await playerBundle;
   await customElements.whenDefined('mux-player');
 }
