@@ -13,14 +13,16 @@ Scope: student-facing screens only (the prototype has no admin screens)
 ## Current status and pending work (rechecked 2026-10-31)
 
 This matrix supersedes the old pending index, summary verdicts and work order.
-Baseline: fetched `origin/dev` at `50c1673`. Live GitHub records confirm the merged
+Baseline: fetched `origin/dev` at `eef7442` (PR236 documentation merge). Live GitHub records confirm the merged
 fixes below; do not assign them again as missing implementation. **MERGED does
 not mean all hosted acceptance is DONE.**
 
-Latest dev [Flutter baseline](https://github.com/iamramishka/acendra/actions/runs/40479255626)
+Last completed successful [Flutter baseline](https://github.com/iamramishka/acendra/actions/runs/40479255626)
 and [production deployment](https://github.com/iamramishka/acendra/actions/runs/40480086239)
 succeeded for exact `50c1673` on 2026-10-27. This confirms workflow/deployment
-state, not successful transactions or enabled protected-content services.
+state, not successful transactions or enabled protected-content services. Current dev
+`eef7442` baseline [41180303674](https://github.com/iamramishka/acendra/actions/runs/41180303674)
+was in progress at this snapshot; its completed deployment is not yet recorded.
 
 | Task | Implementation / integration | Remaining work |
 |---|---|---|
@@ -41,15 +43,20 @@ state, not successful transactions or enabled protected-content services.
 | COM-015 | MERGED [#229](https://github.com/iamramishka/acendra/pull/229) | Real personal Home/discovery replaces runtime sample data. Empty-library live checks recorded; enrolled resume/recent/PDF, full desktop and final refresh acceptance remain partial. |
 | COM-016 | MERGED [#231](https://github.com/iamramishka/acendra/pull/231) | Cards/actions open overview; progress failure/retry and large cards implemented. Direct artifact and authenticated hosted acceptance remain. |
 | COM-017 | MERGED [#233](https://github.com/iamramishka/acendra/pull/233) | Course identity, saved activity, progress, curriculum and retries improved. Direct artifact and authenticated saved-progress acceptance remain. |
-| COM-018 | IN_REVIEW [#235](https://github.com/iamramishka/acendra/pull/235) | Original lesson/footer exists. Speed/captions, Overview/Resources and protected PDF links are implemented only in open PR235; approval/merge and hosted video acceptance remain. |
+| COM-018 | IN_REVIEW [#235](https://github.com/iamramishka/acendra/pull/235) | Speed/captions, Overview/Resources and protected PDF links are implemented in open PR235. Retry defect fixed in 686eca0 with passing required CI; independent approval/merge and hosted video acceptance remain. |
 | COM-019 | Previously recorded DONE | Completion-footer tests exist; passing dev CI supersedes the old local Chrome-capacity hold. |
 | COM-020 | MERGED [#206](https://github.com/iamramishka/acendra/pull/206) | Contents/bookmarks, zoom/fit-width, restoration and watermark code merged. Trusted watermark runtime deployment, matching hosted proxy, confinement/font/queue/retention, explicit activation approval and live protected-byte acceptance remain. |
 | COM-021 | Previously recorded DONE | No new implementation gap identified; profile/avatar/language evidence retained. |
 | COM-022 | Previously recorded DONE | No new implementation gap identified; language/notification evidence retained. |
 | COM-023 | Previously recorded DONE | No new implementation gap identified; state/error/tap-target evidence retained. |
 
-PR235 required Flutter/Supabase workflows pass on `d09346e`; GitHub reports
-REVIEW_REQUIRED and the Vercel preview reports failure. Review/merge remains open.
+PR235 is now at `686eca0`: the confirmed P2 lazy-player retry defect is fixed.
+Six runtime tests pass; broader runtime/authorization verification has 22 passes
+and one hosted-browser skip, documented in PR235's CSA-283 record.
+[Supabase CI](https://github.com/iamramishka/acendra/actions/runs/41179851404) and
+[Flutter CI](https://github.com/iamramishka/acendra/actions/runs/41179851422) both pass
+on the repaired head. GitHub still requires independent review; Vercel preview fails.
+These repaired-head workflows supersede the earlier CI evidence on `d09346e`.
 
 [CSA-280](docs/tasks/CSA-280.md) records the hosted COM015/payment migration ledger
 through `20261026000100` and matching RPC bodies. The old “migration not run”
@@ -62,11 +69,11 @@ backend watermark worker was found on the inspected EC2 host, while hosted
 trusted watermark runtime. These are the latest recorded hosted observations
 (2026-10-27), not a fresh server inspection on 2026-10-29.
 
-Rechecked 2026-10-31: remote dev, merged PRs and PR235 checks are unchanged.
-The original local `dev` checkout is at `e4ab889`; this updated audit is in
-[documentation PR236](https://github.com/iamramishka/acendra/pull/236), awaiting
-review/integration. Use fetched remote dev for current implementation status.
-No new hosted acceptance is claimed.
+Rechecked after the video repair on 2026-10-31:
+[documentation PR236](https://github.com/iamramishka/acendra/pull/236) is merged.
+The original local checkout remains older than fetched remote dev; use this
+matrix for implementation status. COM-018 still awaits integration and hosted
+acceptance. No new hosted acceptance is claimed.
 Evidence/assignment: [dated reconciliation](docs/tasks/CSA-COMPARE-STATUS-20261029.md).
 No application, hosted setting or GitHub issue status is changed by this audit.
 
@@ -966,7 +973,7 @@ Historical result: VERIFIED locally 2026-10-20 (localhost:9090, branch `feat/com
 
 ### COM-018 — Video lesson
 
-**Status 2026-10-29: IN_REVIEW PR #235.** Original lesson/footer exists. Speed/captions, Overview/Resources and protected PDF links are implemented only in open PR235; approval/merge and hosted video acceptance remain.
+**Status 2026-10-29: IN_REVIEW PR #235.** Speed/captions, Overview/Resources and protected PDF links are implemented in open PR235. Retry defect fixed in 686eca0 with passing required CI; independent approval/merge and hosted video acceptance remain.
 
 Prototype layout: header (course title) → 16:10 player (play overlay, time, seek,
 **speed 1/1.25/1.5/2x**, **CC**) → "Lesson 08" + title + "Video Lesson" + status
@@ -1183,7 +1190,7 @@ Note: payment filter date pickers are intentionally stubbed (`// TODO`); that is
 ## 5. Remaining work order (2026-10-31)
 
 1. COM-018 / CSA-283: required independent review and integration of PR235 with
-   passing required checks; record/resolve the preview failure.
+   passing required checks (now green on 686eca0); record/resolve the preview failure.
 2. COM-020 / CSA-271: deploy/verify the trusted watermark runtime and matching
    proxy, confinement, licensed font, queue/storage/retention and authorization;
    obtain explicit activation approval, then check delivered PDF bytes.
