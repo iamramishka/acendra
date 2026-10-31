@@ -43,3 +43,7 @@ PR236 is merged at eef7442; earlier statements that it awaits integration are hi
 
 All23 COM IDs remain accounted for:12 merged implementations, nine historical DONE, one accepted MATCH and COM-018 IN_REVIEW. Remaining work: video review/integration and hosted acceptance; trusted PDF runtime/activation; payment/receipt/entitlement acceptance; remaining authenticated/responsive/student-progress acceptance; COM-004 policy pages/durable consent follow-up. No new browser, payment, password, hosted-worker or production acceptance is claimed.
 Verification passed after worktree recovery: all 23 entries and status counts, 11 merged PR ancestors, relative links, unchanged historical checkboxes and git diff --check. No application source or tests changed.
+
+## PR237 review correction — 2026-10-31
+
+Owner CODEX; status IN_REVIEW. The owner approved completing review and merging PR237. Reuse the existing isolated docs/csa-compare-status-oct31 worktree and the same three-file scope. PR235 merged at eabec68016f868595f7d1ee3da2d9f49fbb3fe42 after the earlier snapshot; merge current dev before correcting the current matrix and TASKS notice. Historical evidence remains dated; no hosted acceptance or activation is inferred. Verification: current GitHub merge/CI records, 23 summary rows, local links, unchanged historical checkboxes, documentation-only diff and fresh required CI. Earlier IN_REVIEW/video-integration counts above are historical.
