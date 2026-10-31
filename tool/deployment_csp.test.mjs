@@ -5,12 +5,21 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
+import { assessHeaders } from './csa187_headers.mjs';
 
 const nginx = readFileSync(new URL('../server/nginx.conf', import.meta.url), 'utf8');
 const policy = nginx.match(/add_header Content-Security-Policy "([^"]+)" always;/)?.[1];
 assert.ok(policy, 'use the enforced production policy');
 const directives = new Map(policy.split(';').map(value => value.trim().split(/\s+/))
   .filter(([name]) => name).map(([name, ...sources]) => [name, sources]));
+
+test('production Nginx policy passes the actual response security checker', () => {
+  const headers = new Headers([...nginx.matchAll(/add_header\s+([\w-]+)\s+"([^"]+)"\s+always;/g)]
+    .map(([, name, value]) => [name, value]));
+  assert.deepEqual(assessHeaders(headers, 'https://3-25-99-105.sslip.io'), []);
+  assert.ok(directives.get('script-src').includes("'wasm-unsafe-eval'"),
+    'retain WASM compilation without JavaScript eval');
+});
 
 test('protected playback permits only the Mux media boundary and blob media', () => {
   // Mux documents changing CDN subdomains, so allow its HTTPS host boundary
@@ -38,7 +47,9 @@ test('browser allows Mux and blob playback while blocking unrelated media and fe
 }, async () => {
   const hosts = ['stream.mux.com', 'cdn.mux.com', 'unrelated.invalid',
     'stream.mux.com.evil.invalid', 'evilmux.com'];
-  const html = `<!doctype html><html><body><pre id="result">pending</pre><script>
+  const html = `<!doctype html><html><body><pre id="result">pending</pre>
+    <script>window.inlineScriptRan = true;</script><script src="/probe.js"></script></body></html>`;
+  const probe = `
     fetch('/started', { method: 'POST' });
     const violations = [];
     document.addEventListener('securitypolicyviolation', event => {
@@ -53,10 +64,18 @@ test('browser allows Mux and blob playback while blocking unrelated media and fe
     const video = document.createElement('video');
     video.src = URL.createObjectURL(new Blob([], { type: 'video/mp4' }));
     document.body.append(video); video.load();
+    let evalRan = false;
+    try { evalRan = new Function('return true')(); } catch {}
+    let wasmCompiled = false;
+    try {
+      await WebAssembly.compile(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0]));
+      wasmCompiled = true;
+    } catch {}
     setTimeout(() => fetch('/results', {
-      method: 'POST', body: JSON.stringify(violations),
+      method: 'POST', body: JSON.stringify({ violations, evalRan, wasmCompiled,
+        inlineScriptRan: window.inlineScriptRan === true }),
     }), 1000);
-  </script></body></html>`;
+  `;
   let completeResult;
   const received = new Promise(resolveResult => { completeResult = resolveResult; });
   let reportStarted;
@@ -82,6 +101,11 @@ test('browser allows Mux and blob playback while blocking unrelated media and fe
         response.end();
         completeResult(body);
       });
+      return;
+    }
+    if (request.url === '/probe.js') {
+      response.writeHead(200, { 'Content-Type': 'text/javascript' });
+      response.end(`(async () => { ${probe} })();`);
       return;
     }
     if (request.url !== '/') {
@@ -125,7 +149,10 @@ test('browser allows Mux and blob playback while blocking unrelated media and fe
     await Promise.race([started, earlyExit, deadline(60000, 'startup')]);
     clearTimeout(timer);
     const result = await Promise.race([received, earlyExit, deadline(20000, 'execution')]);
-    const violations = JSON.parse(result);
+    const { violations, evalRan, inlineScriptRan, wasmCompiled } = JSON.parse(result);
+    assert.equal(inlineScriptRan, false, 'inline JavaScript must be blocked');
+    assert.equal(evalRan, false, 'JavaScript eval must be blocked');
+    assert.equal(wasmCompiled, true, 'CanvasKit needs WASM compilation');
     for (const host of hosts.slice(0, 2)) {
       assert.ok(!violations.some(item => item.url === `https://${host}/synthetic.mp4`),
         `${host} unexpectedly blocked: ${result}`);
