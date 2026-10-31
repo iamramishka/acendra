@@ -17,7 +17,7 @@ class VideoControls extends StatelessWidget {
   final VideoProgress progress;
   final VoidCallback onPlayPause;
   final ValueChanged<Duration> onSeek;
-  final VoidCallback onFullscreen;
+  final VoidCallback? onFullscreen;
   final double speed;
   final ValueChanged<double>? onSpeed;
   final bool isFullscreen;
@@ -25,7 +25,9 @@ class VideoControls extends StatelessWidget {
   String _formatDuration(Duration d) {
     final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
     final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-    return '$minutes:$seconds';
+    return d.inHours > 0
+        ? '${d.inHours}:$minutes:$seconds'
+        : '$minutes:$seconds';
   }
 
   @override
@@ -42,77 +44,93 @@ class VideoControls extends StatelessWidget {
     return Container(
       color: Colors.black.withValues(alpha: 0.65),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Semantics(
-            label: isPlaying ? 'Pause' : 'Play',
-            button: true,
-            child: IconButton(
-              icon: Icon(
-                isPlaying ? Icons.pause : Icons.play_arrow,
-                color: Colors.white,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            spacing: 8,
+            children: [
+              Text(
+                _formatDuration(progress.position),
+                style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
-              onPressed: onPlayPause,
+              Text(
+                _formatDuration(progress.duration),
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ],
+          ),
+          SizedBox(
+            width: double.infinity,
+            child: Semantics(
+              label: 'Seek',
+              child: Slider(
+                value: posMs,
+                min: 0,
+                max: sliderMax,
+                activeColor: primaryColor,
+                inactiveColor: Colors.white24,
+                onChanged: totalMs > 0
+                    ? (value) => onSeek(Duration(milliseconds: value.round()))
+                    : null,
+              ),
             ),
           ),
-          Text(
-            _formatDuration(progress.position),
-            style: const TextStyle(color: Colors.white, fontSize: 12),
-          ),
-          Expanded(
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                activeTrackColor: primaryColor,
-                thumbColor: primaryColor,
-                inactiveTrackColor: Colors.white24,
-                overlayColor: primaryColor.withValues(alpha: 0.2),
-                trackHeight: 3,
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-              ),
-              child: Semantics(
-                label: 'Seek',
-                child: Slider(
-                  value: posMs,
-                  min: 0,
-                  max: sliderMax,
-                  onChanged: totalMs > 0
-                      ? (v) => onSeek(Duration(milliseconds: v.round()))
-                      : null,
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Semantics(
+                label: isPlaying ? 'Pause' : 'Play',
+                button: true,
+                child: IconButton(
+                  icon: Icon(
+                    isPlaying ? Icons.pause : Icons.play_arrow,
+                    color: Colors.white,
+                  ),
+                  onPressed: onPlayPause,
                 ),
               ),
-            ),
-          ),
-          Text(
-            _formatDuration(progress.duration),
-            style: const TextStyle(color: Colors.white, fontSize: 12),
-          ),
-          if (onSpeed != null)
-            PopupMenuButton<double>(
-              tooltip: 'Playback speed',
-              initialValue: speed,
-              onSelected: onSpeed,
-              itemBuilder: (_) => [
-                for (final s in const [1.0, 1.25, 1.5, 2.0])
-                  PopupMenuItem(value: s, child: Text('${s}x')),
-              ],
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Text(
-                  '${speed}x',
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
+              if (onSpeed != null)
+                PopupMenuButton<double>(
+                  tooltip: 'Playback speed',
+                  initialValue: speed,
+                  onSelected: onSpeed,
+                  itemBuilder: (_) => [
+                    for (final s in const [1.0, 1.25, 1.5, 2.0])
+                      PopupMenuItem(value: s, child: Text('${s}x')),
+                  ],
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minWidth: 48,
+                      minHeight: 48,
+                    ),
+                    child: Center(
+                      widthFactor: 1,
+                      heightFactor: 1,
+                      child: Text(
+                        '${speed}x',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          Semantics(
-            label: isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen',
-            button: true,
-            child: IconButton(
-              icon: Icon(
-                isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
-                color: Colors.white,
-              ),
-              onPressed: onFullscreen,
-            ),
+              if (onFullscreen != null)
+                Semantics(
+                  label: isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen',
+                  button: true,
+                  child: IconButton(
+                    icon: Icon(
+                      isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
+                      color: Colors.white,
+                    ),
+                    onPressed: onFullscreen,
+                  ),
+                ),
+            ],
           ),
         ],
       ),

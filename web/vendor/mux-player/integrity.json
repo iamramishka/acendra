@@ -1,0 +1,10 @@
+{
+  "package": "@mux/mux-player",
+  "version": "3.14.1",
+  "source": "https://registry.npmjs.org/@mux/mux-player/-/mux-player-3.14.1.tgz",
+  "gitCommit": "ef41d8beebc55644e63b5279feca173b164c764e",
+  "file": "dist/mux-player.js",
+  "sha256": "8c20096c3370a05e7ce09d797b4ca8da0db7485850a6c3bec6f420864a8ee24d",
+  "license": "MIT",
+  "checkedAt": "2026-10-27"
+}
