@@ -10,7 +10,7 @@ import 'package:acendra/features/learning/presentation/widgets/image_lesson_view
 import 'package:acendra/features/learning/presentation/widgets/text_lesson_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:acendra/features/pdf_reader/presentation/widgets/protected_pdf_lesson.dart';
-import 'package:acendra/features/video_player/presentation/widgets/authorized_video_widget.dart';
+import 'package:acendra/features/learning/presentation/widgets/video_lesson_panel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -177,6 +177,8 @@ class _LearningWorkspaceScreenState
           ),
         Expanded(
           child: _LessonContentArea(
+            sections: state.sections,
+            onResource: _openLesson,
             content: state.currentContent,
             isLoading: state.isLoading,
             onPrevious: currentIndex > 0 ? onPrevious : null,
@@ -238,7 +240,11 @@ class _LearningWorkspaceScreenState
             children: [
               contentArea,
               Positioned(
-                bottom: AppSpacing.xl,
+                // Keep curriculum access above the sticky completion footer.
+                bottom:
+                    AppSpacing.xl +
+                    kMinInteractiveDimension +
+                    2 * AppSpacing.md,
                 right: AppSpacing.md,
                 child: FloatingActionButton.small(
                   heroTag: 'curriculum_fab',
@@ -328,6 +334,8 @@ class _LessonContentArea extends StatelessWidget {
   const _LessonContentArea({
     required this.content,
     required this.isLoading,
+    required this.sections,
+    required this.onResource,
     this.onPrevious,
     this.onNext,
     this.forwardLabel,
@@ -338,6 +346,8 @@ class _LessonContentArea extends StatelessWidget {
   });
 
   final LessonContent? content;
+  final List<CurriculumSection> sections;
+  final ValueChanged<String> onResource;
   final bool isLoading;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
@@ -381,9 +391,13 @@ class _LessonContentArea extends StatelessWidget {
       'video' => Column(
         children: [
           Expanded(
-            child: AuthorizedVideoWidget(
+            child: VideoLessonPanel(
+              key: ValueKey(content!.id),
               lessonId: content!.id,
               title: content!.title,
+              sectionId: content!.sectionId,
+              sections: sections,
+              onResource: onResource,
               initialVideoSeconds: initialVideoSeconds,
               onVideoSeconds: onVideoSeconds,
             ),

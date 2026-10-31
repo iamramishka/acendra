@@ -1,0 +1,6 @@
+/* Feature-local touch targets include Mux's compact center-play template. */
+.acendra-lesson-video::part(button) {
+  min-width: 48px;
+  min-height: 48px;
+  box-sizing: border-box;
+}
