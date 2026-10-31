@@ -272,7 +272,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               leading: const Icon(Icons.settings_outlined),
               title: const Text('Settings'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push(RouteNames.settings),
+              onTap: () => context.go(RouteNames.settings),
             ),
             const SizedBox(height: 32),
             Padding(
