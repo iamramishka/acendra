@@ -32,6 +32,22 @@ Methodology:
 
 ---
 
+## Comparison audit reconciliation — 2026-10-31
+
+Current student-screen status: [compare.md](compare.md) and the
+[coordination/evidence record](docs/tasks/CSA-COMPARE-STATUS-20261029.md).
+COM IDs are audit identifiers, not replacement CSA implementation claims. Rechecked 2026-10-31: remote dev and PR235 state are unchanged. Documentation PR236 awaits integration; the original local dev checkout e4ab889 is older than remote dev.
+
+COM-006–013, COM-015–017 and COM-020 source fixes are merged into dev (PRs linked
+in compare.md); do not assign them again as missing implementation. Latest dev
+50c1673 has passing Flutter CI and a successful production deployment. COM-018's
+CSA-283 follow-up remains IN_REVIEW in PR235. CSA-271's hosted watermark runtime
+and activation, and documented financial/content/live acceptance, remain open.
+Source integration does not satisfy those release gates. Historical task sections
+below retain their original milestone context.
+
+---
+
 # 1. PURPOSE
 
 TASKS.md defines the master implementation

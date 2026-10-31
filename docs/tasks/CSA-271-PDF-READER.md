@@ -1,5 +1,7 @@
 # CSA-271 — COM-020 protected PDF reader
 
+> Current integration (2026-10-29): MERGED into dev. Operational/live acceptance remains as listed in the dated reconciliation at the end of this record. Earlier submission-time merge/CI gates are superseded.
+
 Owner: CODEX. Status: IN_REVIEW. Priority: P1.
 Issue: https://github.com/iamramishka/acendra/issues/205
 PR: https://github.com/iamramishka/acendra/pull/206 (base dev).
@@ -415,3 +417,11 @@ PDF lifecycle checks pass locally after conflict resolution. Both full hosted
 workflows must pass on the resulting combined commit; the previous green runs
 39841636269/39841636136 and approval apply to 3e0f740. GitHub dismisses stale
 approval on push, so fresh independent approval remains required.
+
+## Status reconciliation — 2026-10-29
+
+Live GitHub state and dev ancestry confirm [PR #206](https://github.com/iamramishka/acendra/pull/206) is MERGED into dev, included in deployed `50c1673` ([successful production run](https://github.com/iamramishka/acendra/actions/runs/40480086239)). Earlier pending integration/CI/review statements in this record describe submission time, not the current merge state.
+
+Remaining COM-020 boundary: Contents/bookmarks, zoom/fit-width, restoration and watermark code merged. Trusted watermark runtime deployment, matching hosted proxy, confinement/font/queue/retention, explicit activation approval and live protected-byte acceptance remain.
+
+See [current matrix](../../compare.md) and [reconciliation evidence](CSA-COMPARE-STATUS-20261029.md). No new operational/browser test or blanket DONE decision is made by this documentation update.
