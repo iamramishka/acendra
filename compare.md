@@ -13,16 +13,16 @@ Scope: student-facing screens only (the prototype has no admin screens)
 ## Current status and pending work (rechecked 2026-10-31)
 
 This matrix supersedes the old pending index, summary verdicts and work order.
-Baseline: fetched `origin/dev` at `eabec68` (PR235 video merge). Live GitHub records confirm the merged
+Baseline: fetched `origin/dev` at `cff285a` (PR237 documentation merge, including PR235). Live GitHub records confirm the merged
 fixes below; do not assign them again as missing implementation. **MERGED does
 not mean all hosted acceptance is DONE.**
 
 Earlier successful [Flutter baseline](https://github.com/iamramishka/acendra/actions/runs/40479255626)
 and [production deployment](https://github.com/iamramishka/acendra/actions/runs/40480086239)
 succeeded for exact `50c1673` on 2026-10-27. This confirms workflow/deployment
-state, not successful transactions or enabled protected-content services. Current dev
+state, not successful transactions or enabled protected-content services. PR235 merge
 `eabec68` baseline [41181269114](https://github.com/iamramishka/acendra/actions/runs/41181269114)
-passed; its production deployment is pending. Last completed successful deployment remains `50c1673`.
+passed. PR235 deployment [41181852957](https://github.com/iamramishka/acendra/actions/runs/41181852957) succeeded. Latest production deployment [41186883246](https://github.com/iamramishka/acendra/actions/runs/41186883246) succeeded for exact `cff285a` (PR237) on 2026-10-31. Fresh HTTPS, redirect, security-header and merged-asset checks passed. **Requested navigation smoke check PASS:** after a fresh reload of the PR237 deployment, Home, My Courses (empty state), Explore, course details/Back and Settings loaded successfully; a fresh authorized admin login reached Home. This covers page navigation, not enrolled lessons, playback or settings persistence. See the [dated verification evidence](docs/tasks/CSA-COMPARE-STATUS-20261029.md#deployment-verification-update--2026-10-31).
 
 | Task | Implementation / integration | Remaining work |
 |---|---|---|

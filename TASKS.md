@@ -39,7 +39,7 @@ Current student-screen status: [compare.md](compare.md) and the
 COM IDs are audit identifiers, not replacement CSA implementation claims. Rechecked after repair on 2026-10-31: PR236 is merged at eef7442. PR235 is approved and merged at eabec68 from reviewed head 7fe1eb5 with passing required workflows; hosted video acceptance remains gated. The original local checkout is older than remote dev.
 
 COM-006–013, COM-015–018 and COM-020 source fixes are merged into dev (PRs linked
-in compare.md); do not assign them again as missing implementation. Last completed successful frontend deployment is 50c1673; current dev eabec68 Flutter CI passed and its production deployment is pending. COM-018's
+in compare.md); do not assign them again as missing implementation. Latest frontend deployment [41186883246](https://github.com/iamramishka/acendra/actions/runs/41186883246) succeeded for cff285a (PR237); PR235 deployment also succeeded. Fresh HTTPS, redirect, security-header and merged-asset checks passed. Requested post-PR237 navigation smoke check PASS: fresh browser reload, Home, My Courses empty state, Explore, course details/Back, Settings and fresh admin login to Home verified. Enrolled content and settings persistence are outside this smoke check. See the dated evidence record above. COM-018's
 CSA-283 source is merged through PR235; hosted playback/privacy acceptance remains open. CSA-271's hosted watermark runtime
 and activation, and documented financial/content/live acceptance, remain open.
 Source integration does not satisfy those release gates. Historical task sections
