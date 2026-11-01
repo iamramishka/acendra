@@ -276,14 +276,10 @@ void main() {
           expect(find.text('2 of 3 lessons completed'), findsOneWidget);
           expect(find.text('Completed'), findsOneWidget);
           expect(find.text('Module finished'), findsOneWidget);
-          // pumpAndSettle drains animations, not the snackbar's display timer.
-          // Let the confirmation close before opening the next module so it
-          // cannot obscure that lesson's sticky completion button.
-          await tester.pump(const Duration(seconds: 5));
-          await tester.pumpAndSettle();
-          expect(find.text('Module finished'), findsNothing);
+          // Resume immediately while the completion notice is still visible.
           await _tap(tester, 'Resume');
           expect(app.path, '$_overview/c');
+          expect(find.text('Module finished'), findsNothing);
           await _tap(tester, 'Mark Complete');
           expect(app.path, _overview);
           expect(find.text('100%'), findsOneWidget);

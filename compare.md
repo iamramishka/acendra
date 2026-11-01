@@ -1253,3 +1253,13 @@ Synthetic repository reconstruction does not establish hosted database durabilit
 or an authenticated full browser refresh. Hosted app opened at Sign in; enrolled
 test-student sign-in and a course authorized for completion changes remain needed.
 Existing COM-017 hosted checkboxes and other release gates remain unchanged.
+
+Review follow-up (2026-11-01): the module-finished notice could survive into
+the next lesson and obscure its completion button. The earlier five-second
+test wait masked that interaction. Explicit overview-to-lesson navigation now
+dismisses the old notice; the full journeys Resume immediately and require a
+hit-testable next completion button. Two new native regressions reproduced the
+defect before the fix and pass afterward; 45 focused checks pass. Current
+repair CI evidence is maintained in [issue #250](https://github.com/iamramishka/acendra/issues/250)
+and [PR #252](https://github.com/iamramishka/acendra/pull/252), separately from the
+pre-repair source run above. Hosted acceptance remains pending.
