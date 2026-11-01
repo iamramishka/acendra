@@ -132,3 +132,25 @@ when complete. Required independent approval, managed-service acceptance and
 hosted activation remain gates. Historical billing failures above belong to the
 old head; no billing/protection setting, live data, activation or deployment was
 changed in this repair. Status remains IN_REVIEW for acceptance.
+
+### Supabase ledger collision repair and release build
+
+Current-head hosted Supabase run 41270030753 reached the migration step and
+failed with SQLSTATE 23505 at the authoring migration. Investigation found two
+files with version 20261020000100: merged COM-022 notifications and the unmerged
+CSA-268 authoring migration. Native direct SQL replay does not maintain Supabase's
+version ledger, explaining why it did not catch this integration defect.
+
+The task's own unpublished authoring migration is renamed, byte-for-byte, to
+20261020000101_csa268_course_authoring.sql. The merged notifications migration,
+archival migration and all SQL behavior are unchanged; authoring still runs
+before archival. No hosted migration ledger is altered. A new executable
+migration-version regression fails with both filenames before the rename and
+passes afterwards. This is safe for fresh replay; any environment with an
+independently applied unpublished October authoring migration requires explicit
+ledger reconciliation before activation. No such environment is assumed here.
+
+Standard flutter build web --release --no-pub passed (188.0 seconds), including
+Wasm dry run. The existing missing Cupertino icon-font warning remains. Fresh
+required hosted checks must run on the renamed-migration head; the failed run
+above is retained as failure evidence rather than called a pass.
