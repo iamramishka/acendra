@@ -1244,7 +1244,11 @@ of client state against retained saved records, and failed read/save recovery.
 The full journey runs at 390/768/1440 in light and dark. The existing required
 Chrome CI command includes this browser-only suite.
 
-Result: IN_REVIEW; execution evidence is maintained in the linked task record.
+Result: automated scope PASS / overall IN_REVIEW. All 10 new journey cases and
+all 95 Chrome checks passed in [CI run 41268781316](https://github.com/iamramishka/acendra/actions/runs/41268781316)
+on source `a48b738`; the full native suite and static analysis also passed.
+Fresh local focused regressions: 49 passed. Detailed evidence and the initial
+test-harness correction are maintained in the linked task record.
 Synthetic repository reconstruction does not establish hosted database durability
 or an authenticated full browser refresh. Hosted app opened at Sign in; enrolled
 test-student sign-in and a course authorized for completion changes remain needed.
