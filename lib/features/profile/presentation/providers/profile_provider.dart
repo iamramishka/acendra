@@ -1,5 +1,7 @@
 import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:acendra/features/profile/data/profile_repository.dart';
+import 'package:acendra/features/profile/data/avatar_picker.dart';
+import 'package:acendra/features/profile/domain/avatar_file.dart';
 import 'package:acendra/features/profile/domain/profile_failure.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -34,7 +36,108 @@ final profileEditProvider = AsyncNotifierProvider<ProfileEditNotifier, void>(
   ProfileEditNotifier.new,
 );
 
+/// Signed URL of the user's avatar (null when none or unavailable).
+final avatarUrlProvider = FutureProvider<String?>((ref) async {
+  ref.watch(currentSessionProvider);
+  return ref.read(profileRepositoryProvider).fetchAvatarUrl();
+});
+
+/// Picker seam so tests can avoid the browser file chooser.
+final avatarPickerProvider = Provider<Future<AvatarFile?> Function()>(
+  (ref) => pickAvatarFile,
+);
+
+/// Picks and uploads a new avatar image (COM-021).
+class AvatarUploadNotifier extends AsyncNotifier<void> {
+  @override
+  Future<void> build() async {}
+
+  /// Returns true when a new photo was uploaded; false if cancelled/failed.
+  Future<bool> changePhoto() async {
+    state = const AsyncLoading();
+    var uploaded = false;
+    state = await AsyncValue.guard(() async {
+      final AvatarFile? file;
+      try {
+        file = await ref.read(avatarPickerProvider)();
+      } on FormatException catch (e) {
+        throw ProfileUpdateFailed(e.message);
+      } on UnsupportedError {
+        throw const ProfileUpdateFailed('Photo upload needs a web browser.');
+      }
+      if (file == null) return;
+      await ref.read(profileRepositoryProvider).uploadAvatar(file);
+      uploaded = true;
+    });
+    if (uploaded) ref.invalidate(avatarUrlProvider);
+    return uploaded;
+  }
+}
+
+final avatarUploadProvider = AsyncNotifierProvider<AvatarUploadNotifier, void>(
+  AvatarUploadNotifier.new,
+);
+
 /// Convenience: returns the current error if the edit failed.
 ProfileFailure? profileEditError(AsyncValue<void> state) {
   return state.error is ProfileFailure ? state.error as ProfileFailure : null;
 }
+
+// ---------------------------------------------------------------------------
+// Preferences: locale (D-4) and email notifications (D-8)
+// ---------------------------------------------------------------------------
+
+class UserPreferences {
+  const UserPreferences({this.locale, this.emailNotificationsEnabled = true});
+  final String? locale;
+  final bool emailNotificationsEnabled;
+}
+
+/// Fetches locale and email notification preference from the profiles table.
+final userPreferencesProvider = FutureProvider<UserPreferences>((ref) async {
+  ref.watch(currentSessionProvider);
+  final prefs = await ref.read(profileRepositoryProvider).fetchPreferences();
+  return UserPreferences(
+    locale: prefs.locale,
+    emailNotificationsEnabled: prefs.emailNotificationsEnabled,
+  );
+});
+
+/// Notifier for updating locale (D-4: 'en' or 'si').
+class LocaleUpdateNotifier extends AsyncNotifier<void> {
+  @override
+  Future<void> build() async {}
+
+  Future<void> setLocale(String? locale) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => ref.read(profileRepositoryProvider).updateLocale(locale),
+    );
+    if (!state.hasError) ref.invalidate(userPreferencesProvider);
+  }
+}
+
+final localeUpdateProvider = AsyncNotifierProvider<LocaleUpdateNotifier, void>(
+  LocaleUpdateNotifier.new,
+);
+
+/// Notifier for updating email notification preference (D-8).
+class EmailNotificationsNotifier extends AsyncNotifier<void> {
+  @override
+  Future<void> build() async {}
+
+  Future<void> setEnabled(bool enabled) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => ref
+          .read(profileRepositoryProvider)
+          .updateEmailNotifications(enabled: enabled),
+    );
+    if (!state.hasError) ref.invalidate(userPreferencesProvider);
+  }
+}
+
+final emailNotificationsProvider =
+    AsyncNotifierProvider<EmailNotificationsNotifier, void>(
+      EmailNotificationsNotifier.new,
+    );

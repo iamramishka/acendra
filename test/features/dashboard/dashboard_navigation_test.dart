@@ -91,6 +91,7 @@ void main() {
           );
           expect(find.byTooltip(DashboardCopy.searchCourses), findsOneWidget);
           expect(find.byTooltip('Account menu'), findsOneWidget);
+          expect(find.byType(CircleAvatar), findsOneWidget);
           expect(
             find.byType(NavigationBar),
             compact ? findsOneWidget : findsNothing,

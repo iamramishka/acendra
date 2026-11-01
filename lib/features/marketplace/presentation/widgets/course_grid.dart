@@ -4,6 +4,7 @@ import 'package:acendra/features/marketplace/domain/entities/course_summary.dart
 import 'package:acendra/core/widgets/cards/course_thumbnail.dart';
 import 'package:flutter/material.dart';
 
+/// Lazy catalog sliver. Place directly in a CustomScrollView's slivers.
 class CourseGrid extends StatelessWidget {
   const CourseGrid({
     super.key,
@@ -17,56 +18,113 @@ class CourseGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
-    return LayoutBuilder(
+    final scaler = MediaQuery.textScalerOf(context);
+    double textHeight(TextStyle? style, int lines) {
+      final painter = TextPainter(
+        text: TextSpan(text: List.filled(lines, 'Ag').join('\n'), style: style),
+        textDirection: Directionality.of(context),
+        textScaler: scaler,
+      )..layout();
+      final height = painter.height;
+      painter.dispose();
+      return height;
+    }
+
+    // Reserve bounded text lines rather than a fixed aspect ratio: enlarged
+    // text needs taller cards even when the available column width is unchanged.
+    final extent =
+        160 + // Cover.
+        32 + // Vertical padding.
+        40 + // Text gaps and rounding allowance.
+        textHeight(tt.labelMedium, 1) +
+        textHeight(tt.titleLarge, 2) +
+        textHeight(tt.bodyMedium, 3) +
+        textHeight(tt.titleMedium, 2);
+    return SliverLayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth < AppBreakpoints.compact
+        final columns = constraints.crossAxisExtent < AppBreakpoints.compact
             ? 1
-            : constraints.maxWidth < AppBreakpoints.medium
+            : constraints.crossAxisExtent < AppBreakpoints.medium
             ? 2
             : 3;
-        final width = (constraints.maxWidth - (columns - 1) * 16) / columns;
-        return Wrap(
-          spacing: 16,
-          runSpacing: 16,
-          children: courses.map((course) {
+        return SliverGrid.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columns,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            mainAxisExtent: extent,
+          ),
+          itemCount: courses.length,
+          itemBuilder: (context, index) {
+            final course = courses[index];
             final matching = categories.where(
               (category) => category.id == course.categoryId,
             );
-            return SizedBox(
-              width: width,
-              child: Card(
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: onCourseTap == null
-                      ? null
-                      : () => onCourseTap!(course),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      SizedBox(
-                        height: 160,
-                        child: CourseThumbnail(
-                          courseId: course.id,
-                          title: course.title,
-                        ),
+            return Card(
+              margin: EdgeInsets.zero,
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: onCourseTap == null ? null : () => onCourseTap!(course),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(
+                      height: 160,
+                      child: CourseThumbnail(
+                        courseId: course.id,
+                        title: course.title,
                       ),
-                      Padding(
+                    ),
+                    Expanded(
+                      child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (matching.isNotEmpty)
-                              Text(matching.first.name, style: tt.labelMedium),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.circle,
+                                    size: 8,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      matching.first.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: tt.labelMedium,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             const SizedBox(height: 8),
-                            Text(course.title, style: tt.titleLarge),
+                            Text(
+                              course.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: tt.titleLarge,
+                            ),
                             const SizedBox(height: 8),
-                            Text(course.shortDescription, style: tt.bodyMedium),
+                            Text(
+                              course.shortDescription,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: tt.bodyMedium,
+                            ),
+                            const Spacer(),
                             const SizedBox(height: 16),
                             Row(
                               children: [
                                 Expanded(
                                   child: Text(
                                     course.formattedPrice,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                     style: tt.titleMedium,
                                   ),
                                 ),
@@ -76,12 +134,12 @@ class CourseGrid extends StatelessWidget {
                           ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             );
-          }).toList(),
+          },
         );
       },
     );

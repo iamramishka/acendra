@@ -92,7 +92,7 @@ class StudentListCard extends StatelessWidget {
               label: 'View Details',
               onPressed: onViewDetails,
               variant: ButtonVariant.secondary,
-              size: ButtonSize.small,
+              size: ButtonSize.medium,
             ),
           ],
         ),

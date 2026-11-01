@@ -19,6 +19,7 @@ class DashboardCategoryChip extends StatelessWidget {
       DashboardCategoryIcon.design => Icons.palette_outlined,
       DashboardCategoryIcon.business => Icons.business_center_outlined,
       DashboardCategoryIcon.languages => Icons.language,
+      DashboardCategoryIcon.general => Icons.menu_book_outlined,
     };
     return OutlinedButton.icon(
       style: OutlinedButton.styleFrom(

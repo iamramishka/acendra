@@ -29,7 +29,7 @@ export function createHandler({authorize,storage,env=()=>'',enabled=false}={}) {
     try {
       const result=await authorize({authorization:request.headers.get('Authorization'),lessonId,resourceId});
       if(!result||!['ready','preparing'].includes(result.state)||result.lesson_id!==lessonId)throw Error('Invalid authorization result');
-      if(result.state==='preparing'||resourceId===null){headers.set('Content-Type','application/json');return new Response(request.method==='HEAD'?null:JSON.stringify({data:{lesson_id:lessonId,mode:'proxied_stream',state:result.state,resource_id:result.state==='ready'?result.resource_id:null}}),{status:result.state==='preparing'?202:200,headers});}
+      if(result.state==='preparing'||resourceId===null){headers.set('Content-Type','application/json');return new Response(request.method==='HEAD'?null:JSON.stringify({data:{lesson_id:lessonId,mode:'proxied_stream',state:result.state,resource_id:result.state==='ready'?result.resource_id:null,watermark_applied:result.state==='ready'}}),{status:result.state==='preparing'?202:200,headers});}
       if(result.resource_id!==resourceId||!Number.isSafeInteger(result.size_bytes)||result.size_bytes<=0)throw Error('Invalid resource');
       let range;try{range=selection(request.headers.get('Range'),result.size_bytes);}catch{headers.set('Content-Range',`bytes */${result.size_bytes}`);return reply('INVALID_RANGE',416);}
       const length=range.end-range.start+1;

@@ -205,7 +205,10 @@ class _PaymentQueueRow extends StatelessWidget {
                 style: theme.textTheme.labelLarge,
               ),
               const SizedBox(height: AppSpacing.xs),
-              StatusBadge(label: item.status, variant: badgeVariant),
+              StatusBadge(
+                label: _statusLabel(item.status),
+                variant: badgeVariant,
+              ),
             ],
           ),
         ],
@@ -213,3 +216,12 @@ class _PaymentQueueRow extends StatelessWidget {
     );
   }
 }
+
+/// Maps backend status codes to user-facing labels; never show the raw code.
+String _statusLabel(String status) => switch (status) {
+  'approved' => 'Approved',
+  'rejected' => 'Rejected',
+  'processing' => 'Processing',
+  'pending' => 'Pending',
+  _ => 'Pending',
+};

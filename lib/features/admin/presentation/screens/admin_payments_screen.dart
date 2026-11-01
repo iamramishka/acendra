@@ -61,7 +61,7 @@ class AdminPaymentsScreen extends ConsumerWidget {
                   label: 'Receipt History',
                   onPressed: () => context.go('/admin/payments/history'),
                   variant: ButtonVariant.outlined,
-                  size: ButtonSize.small,
+                  size: ButtonSize.medium,
                   icon: const Icon(Icons.history_outlined, size: 16),
                 ),
                 const SizedBox(width: AppSpacing.sm),
@@ -92,9 +92,13 @@ class AdminPaymentsScreen extends ConsumerWidget {
             if (state.isLoading && state.records.isEmpty)
               _LoadingSkeleton()
             else if (state.records.isEmpty)
-              const Expanded(
+              Expanded(
                 child: AppEmptyState(
                   message: 'No payments found for the selected filters.',
+                  actionLabel: 'Clear filters',
+                  onAction: () => ref
+                      .read(adminPaymentsProvider.notifier)
+                      .applyFilter(const AdminPaymentsFilter()),
                 ),
               )
             else

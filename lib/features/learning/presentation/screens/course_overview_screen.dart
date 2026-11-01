@@ -1,6 +1,9 @@
 import 'package:acendra/app/theme/app_spacing.dart';
+import 'package:acendra/app/router/route_names.dart';
 import 'package:acendra/core/widgets/feedback/app_skeleton.dart';
 import 'package:acendra/core/widgets/feedback/app_state_views.dart';
+import 'package:acendra/core/widgets/cards/course_thumbnail.dart';
+import 'package:acendra/features/learning/presentation/providers/course_overview_metadata_provider.dart';
 import 'package:acendra/features/learning/domain/course_progress_summary.dart';
 import 'package:acendra/features/learning/presentation/providers/course_overview_provider.dart';
 import 'package:acendra/features/marketplace/domain/entities/curriculum_section.dart';
@@ -15,66 +18,126 @@ class CourseOverviewScreen extends ConsumerWidget {
 
   final String courseId;
 
-  void _open(BuildContext context, String lessonId) =>
-      context.go('/learn/$courseId/$lessonId');
+  void _open(BuildContext context, String lessonId) => context.go(
+    '/learn/${Uri.encodeComponent(courseId)}/${Uri.encodeComponent(lessonId)}',
+  );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(courseOverviewProvider(courseId));
-    return async.when(
-      loading: () => const Padding(
-        padding: EdgeInsets.all(AppSpacing.xl),
-        child: AppSkeleton(height: 120, semanticLabel: 'Loading course'),
-      ),
-      error: (_, _) => AppErrorState(
-        message: 'Could not load course content.',
-        actionLabel: 'Retry',
-        onRetry: () => ref.invalidate(courseOverviewProvider(courseId)),
-      ),
-      data: (summary) {
-        if (summary.totalLessons == 0) {
-          return const AppEmptyState(message: 'No lessons available yet.');
-        }
-        return ListView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          children: [
-            Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 720),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      '${summary.sections.length} modules · '
-                      '${summary.totalLessons} lessons',
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    _ProgressCard(summary: summary),
-                    const SizedBox(height: AppSpacing.md),
-                    _ContinueCard(
-                      summary: summary,
-                      onOpen: (id) => _open(context, id),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    Text(
-                      'Course Curriculum',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    for (final section in summary.sections)
-                      _ModuleTile(
-                        section: section,
-                        summary: summary,
-                        onOpen: (id) => _open(context, id),
-                      ),
-                  ],
+    final metadata = ref.watch(courseOverviewMetadataProvider(courseId));
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      children: [
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 720),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: () => context.go(RouteNames.myCourses),
+                    icon: const Icon(Icons.arrow_back),
+                    label: const Text('My Courses'),
+                  ),
                 ),
-              ),
+                if (metadata.asData?.value case final course?) ...[
+                  SizedBox(
+                    height: 160,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: CourseThumbnail(
+                        courseId: courseId,
+                        title: course.title,
+                        imageUrl: course.thumbnailUrl,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    course.title,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                ] else ...[
+                  Text(
+                    'Course overview',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  if (metadata.hasError) ...[
+                    const Text('Course details are unavailable.'),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton(
+                        onPressed: () => ref.invalidate(
+                          courseOverviewMetadataProvider(courseId),
+                        ),
+                        child: const Text('Retry course details'),
+                      ),
+                    ),
+                  ],
+                ],
+                const SizedBox(height: AppSpacing.md),
+                async.when(
+                  skipLoadingOnRefresh: false,
+                  loading: () => const Padding(
+                    padding: EdgeInsets.all(AppSpacing.xl),
+                    child: AppSkeleton(
+                      height: 120,
+                      semanticLabel: 'Loading course',
+                    ),
+                  ),
+                  error: (_, _) => AppErrorState(
+                    message: 'Could not load course content.',
+                    actionLabel: 'Retry',
+                    onRetry: () =>
+                        ref.invalidate(courseOverviewProvider(courseId)),
+                  ),
+                  data: (summary) {
+                    if (summary.totalLessons == 0) {
+                      return const AppEmptyState(
+                        message: 'No lessons available yet.',
+                      );
+                    }
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          '${summary.sections.length} '
+                          '${summary.sections.length == 1 ? 'module' : 'modules'} · '
+                          '${summary.totalLessons} '
+                          '${summary.totalLessons == 1 ? 'lesson' : 'lessons'}',
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        _ProgressCard(summary: summary),
+                        const SizedBox(height: AppSpacing.md),
+                        _ContinueCard(
+                          summary: summary,
+                          onOpen: (id) => _open(context, id),
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        Text(
+                          'Course Curriculum',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        for (final section in summary.sections)
+                          _ModuleTile(
+                            section: section,
+                            summary: summary,
+                            onOpen: (id) => _open(context, id),
+                          ),
+                      ],
+                    );
+                  },
+                ),
+              ],
             ),
-          ],
-        );
-      },
+          ),
+        ),
+      ],
     );
   }
 }
@@ -164,7 +227,9 @@ class _ModuleTile extends StatelessWidget {
     final status = summary.sectionStatus(section.id);
     return Card(
       child: ExpansionTile(
-        initiallyExpanded: status == SectionStatus.current,
+        initiallyExpanded: section.lessons.any(
+          (lesson) => lesson.id == summary.nextLesson?.id,
+        ),
         leading: Icon(
           status == SectionStatus.completed
               ? Icons.check_circle
@@ -180,7 +245,6 @@ class _ModuleTile extends StatelessWidget {
         children: [
           for (final lesson in section.lessons)
             ListTile(
-              dense: true,
               leading: Icon(
                 summary.isCompleted(lesson.id)
                     ? Icons.check_circle
@@ -190,10 +254,19 @@ class _ModuleTile extends StatelessWidget {
                 size: 20,
               ),
               title: Text(lesson.title),
-              subtitle: lesson.id == summary.nextLesson?.id
-                  ? const Text('In Progress')
-                  : null,
-              trailing: Text(lesson.typeLabel),
+              subtitle: Wrap(
+                spacing: AppSpacing.sm,
+                children: [
+                  Text(lesson.typeLabel),
+                  if (lesson.durationLabel case final duration?) Text(duration),
+                  if (summary.isCompleted(lesson.id))
+                    const Text('Completed')
+                  else if (lesson.id == summary.nextLesson?.id)
+                    Text(
+                      summary.isStarted(lesson.id) ? 'In Progress' : 'Up next',
+                    ),
+                ],
+              ),
               onTap: () => onOpen(lesson.id),
             ),
         ],

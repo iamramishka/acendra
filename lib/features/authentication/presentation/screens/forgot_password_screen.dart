@@ -6,6 +6,7 @@ import 'package:acendra/features/authentication/data/auth_repository.dart';
 import 'package:acendra/features/authentication/domain/auth_failure.dart';
 import 'package:acendra/features/authentication/domain/auth_input_rules.dart';
 import 'package:acendra/features/authentication/presentation/widgets/auth_form_widgets.dart';
+import 'package:acendra/features/authentication/presentation/widgets/forgot_password_hero.dart';
 import 'package:acendra/features/authentication/presentation/widgets/recovery_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -68,10 +69,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
     return AuthShell(
       onBack: () => context.go(RouteNames.login),
-      banner: const RecoveryHero(
-        icon: Icons.lock_outline,
-        badge: Icons.send_outlined,
-      ),
+      banner: const ForgotPasswordHero(),
       child: _emailSent
           ? _SuccessView(email: _emailController.text.trim())
           : _FormView(

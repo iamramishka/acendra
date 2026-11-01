@@ -180,7 +180,7 @@ class _StudentEnrollmentDetailsScreenState
                 label: '← Back to Students',
                 onPressed: () => context.go('/admin/students'),
                 variant: ButtonVariant.outlined,
-                size: ButtonSize.small,
+                size: ButtonSize.medium,
               ),
             ),
           ),
@@ -257,7 +257,7 @@ class _StudentEnrollmentDetailsScreenState
                                   ? null
                                   : _confirmDeactivate,
                               variant: ButtonVariant.destructive,
-                              size: ButtonSize.small,
+                              size: ButtonSize.medium,
                               isLoading: _isDeactivating,
                             ),
                         ],
@@ -576,7 +576,7 @@ class _EnrollmentCard extends StatelessWidget {
                     label: 'Revoke',
                     onPressed: onRevoke,
                     variant: ButtonVariant.destructive,
-                    size: ButtonSize.small,
+                    size: ButtonSize.medium,
                   ),
                 ],
               ],
@@ -594,10 +594,10 @@ class _PaymentMethodChip extends StatelessWidget {
   final String method;
 
   String _label(String method) => switch (method) {
-    'stripe' => 'Card',
+    'online' => 'Online',
     'bank_transfer' => 'Bank Transfer',
     'admin_grant' => 'Admin Grant',
-    _ => method,
+    _ => 'Payment',
   };
 
   @override

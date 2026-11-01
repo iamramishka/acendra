@@ -7,7 +7,7 @@ import 'receipt_file.dart';
 Future<ReceiptFile?> pickReceiptFile() async {
   final input = web.HTMLInputElement()
     ..type = 'file'
-    ..accept = '.jpg,.jpeg,.pdf'
+    ..accept = '.jpg,.jpeg,.png,.pdf'
     ..style.display = 'none';
   final result = Completer<ReceiptFile?>();
   var reading = false;

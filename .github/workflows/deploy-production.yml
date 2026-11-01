@@ -144,6 +144,9 @@ jobs:
           echo "Live: ${RELEASE_DIR}"
           EOF
 
+      - name: Verify deployed security policy
+        run: node tool/csa187_headers.mjs https://3-25-99-105.sslip.io
+
       - name: Smoke test
         run: |
           echo "Waiting for Nginx to settle ..."
@@ -154,8 +157,8 @@ jobs:
           HTTPS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://${DOMAIN}" || echo "000")
           echo "HTTPS status: ${HTTPS_STATUS}"
 
-          # Verify HTTP redirects to HTTPS (301 or 302).
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 --no-location "http://${DOMAIN}" || echo "000")
+          # Test the owner's IP entry point; TLS uses this server's certificate hostname.
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 --no-location "http://3.25.99.105/" || echo "000")
           echo "HTTP→HTTPS redirect status: ${HTTP_STATUS}"
 
           # Check required security headers on the HTTPS response.

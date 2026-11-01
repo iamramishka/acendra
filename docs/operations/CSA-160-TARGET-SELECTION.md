@@ -2,12 +2,17 @@
 
 Date: 2026-10-18, Asia/Colombo. Owner: CODEX. Coordination:
 [issue #160](https://github.com/iamramishka/acendra/issues/160).
-Decision preparation: IN_REVIEW. Production operations: BLOCKED.
+Decision documentation: MERGED through PR #187. Production operations: BLOCKED.
 
-Review update, 2026-10-19: GitHub reports private repository visibility. Actions
-jobs fail before starting due to account payment/spending-limit settings.
-Earlier public/included-runner observations are historical. Required checks and
-approval remain merge gates; no account or protection setting was changed.
+Review update, 2026-10-31: GitHub reports public repository visibility. PRs
+[#172](https://github.com/iamramishka/acendra/pull/172) and
+[#187](https://github.com/iamramishka/acendra/pull/187) are ancestors of `dev`
+`cff285a554625b4956776c8f10ccf83c25142921`. Its
+[Flutter baseline](https://github.com/iamramishka/acendra/actions/runs/41186415288)
+and [SSH deployment with smoke test](https://github.com/iamramishka/acendra/actions/runs/41186883246)
+succeeded. The 2026-10-19 private-repository/payment-limit failure is historical.
+Required checks and approval remain merge gates. No account or protection setting
+was changed. These runs do not establish the operational acceptance listed below.
 
 The project owner nominated `acendra.vercel.app`, then delegated the remaining
 target and operator choices to CODEX. These selections resolve that request;
@@ -29,7 +34,12 @@ These choices use existing resources without creating a hosted service, purchasi
 a plan or assuming access to an unknown backup device. No compliant commercial
 production configuration is demonstrated by this inventory.
 
-## Fresh metadata inventory
+## Historical metadata inventory, 2026-10-18
+
+Provider settings and workstation capabilities below were not refreshed in the
+2026-10-31 GitHub review. Their age must be considered before release decisions;
+the successful SSH deployment does not verify commercial hosting eligibility,
+production backend isolation, finance acceptance or complete backup recovery.
 
 Read-only inspection on 2026-10-18, using existing account configuration in memory.
 Secret values were not printed or included here. No user, payment or private

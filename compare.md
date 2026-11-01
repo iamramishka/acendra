@@ -3,16 +3,96 @@
 
 Status: Draft audit (IN_REVIEW) — not a task claim
 Prepared by: CLAUDE
-Date: 2026-10-18
+Date: 2026-10-18; navigation acceptance reconciled 2026-11-01
 Prototype: "Acedra Mobile Prototype" artifact — https://claude.ai/artifact/NDAfFDE3QHzxMNTRXqf4RJ
-Code audited: branch `feat/csa-158-172-dashboard-receipts-ui` at `9ba9c0d`
+Original code audit: branch `feat/csa-158-172-dashboard-receipts-ui` at `9ba9c0d`
 Scope: student-facing screens only (the prototype has no admin screens)
+
+---
+
+## Current status and pending work (rechecked 2026-10-31)
+
+**Navigation acceptance PASS (CSA-285; documented 2026-11-01):** Live checks on
+2026-10-31 verified owner-performed login/session restoration, Home, empty My
+Courses, Explore, course details/Back and Settings. PR244's Settings URL/refresh
+repair was deployed as `5fb7bb9`; actual Chrome refresh, Settings Back and browser
+Back/Forward passed with matching URLs. [Issue #243](https://github.com/iamramishka/acendra/issues/243)
+is closed. This supersedes “navigation unverified” and the earlier deployed
+Settings defect notice. See [dated evidence and limits](docs/tasks/CSA-285-LIVE-NAVIGATION.md#final-integration-and-hosted-acceptance--pass).
+Enrolled learning, preferences persistence, payments and protected playback remain
+separate acceptance areas; this does not claim a new browser run on 2026-11-01.
+
+This matrix supersedes the old pending index, summary verdicts and work order.
+Baseline: fetched `origin/dev` at `cff285a` (PR237 documentation merge, including PR235). Live GitHub records confirm the merged
+fixes below; do not assign them again as missing implementation. **MERGED does
+not mean all hosted acceptance is DONE.**
+
+Earlier successful [Flutter baseline](https://github.com/iamramishka/acendra/actions/runs/40479255626)
+and [production deployment](https://github.com/iamramishka/acendra/actions/runs/40480086239)
+succeeded for exact `50c1673` on 2026-10-27. This confirms workflow/deployment
+state, not successful transactions or enabled protected-content services. PR235 merge
+`eabec68` baseline [41181269114](https://github.com/iamramishka/acendra/actions/runs/41181269114)
+passed. PR235 deployment [41181852957](https://github.com/iamramishka/acendra/actions/runs/41181852957) succeeded. Latest production deployment [41186883246](https://github.com/iamramishka/acendra/actions/runs/41186883246) succeeded for exact `cff285a` (PR237) on 2026-10-31. Fresh HTTPS, redirect, security-header and merged-asset checks passed. **Requested navigation smoke check PASS:** after a fresh reload of the PR237 deployment, Home, My Courses (empty state), Explore, course details/Back and Settings loaded successfully; a fresh authorized admin login reached Home. This covers page navigation, not enrolled lessons, playback or settings persistence. See the [dated verification evidence](docs/tasks/CSA-COMPARE-STATUS-20261029.md#deployment-verification-update--2026-10-31).
+
+| Task | Implementation / integration | Remaining work |
+|---|---|---|
+| COM-001 | MATCH; owner accepted 2026-10-19 | Earlier visual acceptance limits retained below. |
+| COM-002 | Previously recorded DONE | Retain earlier shell/browser acceptance limits. |
+| COM-003 | Previously recorded DONE | Retain earlier sign-in/browser acceptance limits. |
+| COM-004 | Previously recorded DONE | Terms/Privacy are plain text; real policy pages and durable consent remain separate follow-up work. |
+| COM-005 | Previously recorded DONE | Retain earlier verification-email/browser acceptance limits. |
+| COM-006 | MERGED [#209](https://github.com/iamramishka/acendra/pull/209) | Hero implemented; browser evidence recorded. Final hosted recovery acceptance remains unrecorded. |
+| COM-007 | MERGED [#210](https://github.com/iamramishka/acendra/pull/210) | Checklist, show/hide and signed-in change flow implemented; six-character policy with no composition rule. Live Supabase recovery/change acceptance remains. |
+| COM-008 | MERGED [#204](https://github.com/iamramishka/acendra/pull/204) | Responsive SliverGrid, category/blurb and browser comparison implemented. Final authenticated hosted visual acceptance remains. |
+| COM-009 | MERGED [#212](https://github.com/iamramishka/acendra/pull/212) | Sticky footer, open-order state, icons and back navigation implemented. Final hosted course/order-state acceptance remains. |
+| COM-010 | MERGED [#227](https://github.com/iamramishka/acendra/pull/227) | Step bar, course summary, country suggestions, stored-order total and single bank path implemented. Hosted payment acceptance remains. |
+| COM-011 | MERGED [#222](https://github.com/iamramishka/acendra/pull/222) | Trusted order recovery, Refresh/history and full-page return bridge implemented. Actual provider return/webhook and payment acceptance remain. |
+| COM-012 | MERGED [#220](https://github.com/iamramishka/acendra/pull/220) | JPEG/PNG/PDF single-screen upload and instruction reload recovery implemented. Authorized live receipt/storage acceptance remains. |
+| COM-013 | MERGED [#227](https://github.com/iamramishka/acendra/pull/227) | Exact amount/order date, timeline, review copy and exits implemented. Hosted bank status/review acceptance remains. |
+| COM-014 | Previously recorded DONE | No new implementation gap identified; recorded RLS evidence retained. |
+| COM-015 | MERGED [#229](https://github.com/iamramishka/acendra/pull/229) | Real personal Home/discovery replaces runtime sample data. Empty-library live checks recorded; enrolled resume/recent/PDF, full desktop and final refresh acceptance remain partial. |
+| COM-016 | MERGED [#231](https://github.com/iamramishka/acendra/pull/231) | Cards/actions open overview; progress failure/retry and large cards implemented. Direct artifact and authenticated hosted acceptance remain. |
+| COM-017 | MERGED [#233](https://github.com/iamramishka/acendra/pull/233) | Course identity, saved activity, progress, curriculum and retries improved. Direct artifact and authenticated saved-progress acceptance remain. |
+| COM-018 | MERGED [#235](https://github.com/iamramishka/acendra/pull/235) | Speed/captions, Overview/Resources and protected PDF links are merged at eabec68, including the retry repair. Hosted playback, renewal/revocation and privacy acceptance remain gated. |
+| COM-019 | Previously recorded DONE | Completion-footer tests exist; passing dev CI supersedes the old local Chrome-capacity hold. |
+| COM-020 | MERGED [#206](https://github.com/iamramishka/acendra/pull/206) | Contents/bookmarks, zoom/fit-width, restoration and watermark code merged. Trusted watermark runtime deployment, matching hosted proxy, confinement/font/queue/retention, explicit activation approval and live protected-byte acceptance remain. |
+| COM-021 | Previously recorded DONE | No new implementation gap identified; profile/avatar/language evidence retained. |
+| COM-022 | Previously recorded DONE | No new implementation gap identified; language/notification evidence retained. |
+| COM-023 | Previously recorded DONE | No new implementation gap identified; state/error/tap-target evidence retained. |
+
+PR235 merged at `eabec68` from reviewed head `7fe1eb5`; the P2 lazy-player retry defect is fixed.
+Six runtime tests pass; broader runtime/authorization verification has 22 passes
+and one hosted-browser skip, documented in PR235's CSA-283 record.
+[Supabase CI](https://github.com/iamramishka/acendra/actions/runs/41179851404) and
+[Flutter CI](https://github.com/iamramishka/acendra/actions/runs/41179851422) both pass
+on the repaired head. Final reviewed-head Supabase [41180706014](https://github.com/iamramishka/acendra/actions/runs/41180706014) and Flutter [41180706076](https://github.com/iamramishka/acendra/actions/runs/41180706076) also passed. Independent approval and source integration are complete; Vercel preview still fails.
+These repaired-head workflows supersede the earlier CI evidence on `d09346e`.
+
+[CSA-280](docs/tasks/CSA-280.md) records the hosted COM015/payment migration ledger
+through `20261026000100` and matching RPC bodies. The old “migration not run”
+statements are historical. `bank-transfer-read` source was updated, but its
+entry point remained disabled: source deployment is not payment activation.
+
+[PDF issue #205](https://github.com/iamramishka/acendra/issues/205) records that no
+backend watermark worker was found on the inspected EC2 host, while hosted
+`pdf-content` was disabled/outdated. PDF.js is the browser renderer, not the
+trusted watermark runtime. These are the latest recorded hosted observations
+(2026-10-27), not a fresh server inspection on 2026-10-29.
+
+Rechecked after the video repair on 2026-10-31:
+[documentation PR236](https://github.com/iamramishka/acendra/pull/236) is merged.
+The original local checkout remains older than fetched remote dev; use this
+matrix for implementation status. COM-018 source is integrated; it still awaits hosted
+acceptance. No new hosted acceptance is claimed.
+Evidence/assignment: [dated reconciliation](docs/tasks/CSA-COMPARE-STATUS-20261029.md).
+No application, hosted setting or GitHub issue status is changed by this audit.
 
 ---
 
 ## 1. How to use this file
 
-1. Work through the COM tasks one at a time, in order.
+1. Use the current matrix and remaining work order in section 5; do not repeat
+   source fixes already merged into dev.
 2. For each task, open the prototype screen and the Flutter screen side by side
    at **390 px** width (the prototype's phone width), then repeat at 768 and 1440.
 3. Tick each checkbox under **Check** only after seeing it yourself in the running
@@ -37,6 +117,8 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | PARTIAL | Screen exists; layout and/or flow differ |
 | MISSING | Prototype screen has no Flutter equivalent |
 | CONFLICT | Prototype and app disagree on a rule; owner decision needed |
+| IN_REVIEW | Implementation submitted; acceptance/review/integration gates remain |
+| MERGED | Source integrated into dev; listed operational/live acceptance gates remain |
 
 ---
 
@@ -45,46 +127,47 @@ Prototype-only copy ("Sample Bank PLC", `-DEMO` order refs, `EXAMPLE-042`,
 | ID | Area | Prototype screen | Flutter source | Verdict | SRS | Priority |
 |---|---|---|---|---|---|---|
 | COM-001 | Foundation | Tokens, fonts, light/dark | `lib/app/theme/**` | MATCH | — | P2 |
-| COM-002 | Shell | 4-tab bottom nav | `lib/core/widgets/navigation/student_shell.dart` | PARTIAL | — | P1 |
-| COM-003 | Auth | Sign in | `authentication/.../login_screen.dart` | PARTIAL | UI-ST-002 | P2 |
-| COM-004 | Auth | Create account | `authentication/.../register_screen.dart` | PARTIAL + CONFLICT | UI-ST-003 | P1 |
-| COM-005 | Auth | Check your inbox | `authentication/.../verify_email_screen.dart` | PARTIAL | UI-ST-005 | P2 |
-| COM-006 | Auth | Forgot password | `authentication/.../forgot_password_screen.dart` | PARTIAL | UI-ST-004 | P2 |
-| COM-007 | Auth | Set / change password | `authentication/.../reset_password_screen.dart` | PARTIAL + CONFLICT | UI-ST-004 | P1 |
-| COM-008 | Catalog | Explore courses | `marketplace/.../marketplace_screen.dart` | PARTIAL | UI-ST-007/008 | P1 |
-| COM-009 | Catalog | Course details | `marketplace/.../course_detail_screen.dart` | PARTIAL | UI-ST-009/010 | P1 |
-| COM-010 | Payment | Secure checkout | `checkout/.../checkout_screen.dart` | PARTIAL | UI-ST-011 | P0 |
-| COM-011 | Payment | PayHere "Checking your payment" | `checkout/.../payment_pending/success/failure_screen.dart` | PARTIAL | UI-ST-014 | P0 |
-| COM-012 | Payment | Bank transfer + receipt upload | `bank_transfer/.../bank_transfer_screen.dart`, `checkout/.../receipt_resubmission_form.dart` | PARTIAL | UI-ST-012/013 | P0 |
-| COM-013 | Payment | Bank payment status timeline | `bank_transfer/.../receipt_status_screen.dart` | PARTIAL | UI-ST-014 | P1 |
-| COM-014 | Payment | Order history | none | MISSING | UI-ST-022 | P1 |
-| COM-015 | Student | Home | `dashboard/.../dashboard_home_screen.dart` | PARTIAL (different screen) | UI-ST-006 | P1 |
-| COM-016 | Student | My Courses | `my_courses/.../my_courses_screen.dart` | PARTIAL | UI-ST-015 | P1 |
-| COM-017 | Learning | Course overview + progress | none (workspace opens straight into a lesson) | MISSING | UI-ST-016 | P1 |
-| COM-018 | Learning | Video lesson | `learning/.../learning_workspace_screen.dart`, `video_player/**` | PARTIAL | UI-ST-017 | P2 |
-| COM-019 | Learning | Text & image lesson | `learning/.../text_lesson_viewer.dart` | PARTIAL | UI-ST-019 | P2 |
-| COM-020 | Learning | PDF reader | `pdf_reader/**` | PARTIAL + CONFLICT | UI-ST-018 | P1 |
-| COM-021 | Account | My profile | `profile/.../profile_screen.dart`, `profile_edit_screen.dart` | PARTIAL | UI-ST-020 | P2 |
-| COM-022 | Account | Settings | none | MISSING | UI-ST-021 | P1 |
-| COM-023 | Cross-cutting | Empty / loading / error / feedback | various | PARTIAL | — | P2 |
+| COM-002 | Shell | 4-tab bottom nav | `lib/core/widgets/navigation/student_shell.dart` | DONE 2026-10-20 | — | P1 |
+| COM-003 | Auth | Sign in | `authentication/.../login_screen.dart` | DONE 2026-10-20 | UI-ST-002 | P2 |
+| COM-004 | Auth | Create account | `authentication/.../register_screen.dart` | DONE 2026-10-20 | UI-ST-003 | P1 |
+| COM-005 | Auth | Check your inbox | `authentication/.../verify_email_screen.dart` | DONE 2026-10-20 | UI-ST-005 | P2 |
+| COM-006 | Auth | Forgot password | `authentication/.../forgot_password_screen.dart` | MERGED (PR #209; acceptance pending) | UI-ST-004 | P2 |
+| COM-007 | Auth | Set / change password | `authentication/.../reset_password_screen.dart` | MERGED (PR #210; acceptance pending) | UI-ST-004 | P1 |
+| COM-008 | Catalog | Explore courses | `marketplace/.../marketplace_screen.dart` | MERGED (PR #204; acceptance pending) | UI-ST-007/008 | P1 |
+| COM-009 | Catalog | Course details | `marketplace/.../course_detail_screen.dart` | MERGED (PR #212; acceptance pending) | UI-ST-009/010 | P1 |
+| COM-010 | Payment | Secure checkout | `checkout/.../checkout_screen.dart` | MERGED (PR #227; acceptance pending) | UI-ST-011 | P0 |
+| COM-011 | Payment | PayHere "Checking your payment" | `checkout/.../payment_pending/success/failure_screen.dart` | MERGED (PR #222; acceptance pending) | UI-ST-014 | P0 |
+| COM-012 | Payment | Bank transfer + receipt upload | `bank_transfer/.../bank_transfer_screen.dart`, `checkout/.../receipt_resubmission_form.dart` | MERGED (PR #220; acceptance pending) | UI-ST-012/013 | P0 |
+| COM-013 | Payment | Bank payment status timeline | `bank_transfer/.../receipt_status_screen.dart` | MERGED (PR #227; acceptance pending) | UI-ST-014 | P1 |
+| COM-014 | Payment | Order history | `orders/.../orders_screen.dart` | DONE 2026-10-20 | UI-ST-022 | P1 |
+| COM-015 | Student | Home | `dashboard/.../dashboard_home_screen.dart` | MERGED (PR #229; acceptance pending) | UI-ST-006 | P1 |
+| COM-016 | Student | My Courses | `my_courses/.../my_courses_screen.dart` | MERGED (PR #231; acceptance pending) | UI-ST-015 | P1 |
+| COM-017 | Learning | Course overview + progress | `learning/.../course_overview_screen.dart` | MERGED (PR #233; acceptance pending) | UI-ST-016 | P1 |
+| COM-018 | Learning | Video lesson | `learning/.../learning_workspace_screen.dart`, `video_player/**` | IN_REVIEW (PR #235) | UI-ST-017 | P2 |
+| COM-019 | Learning | Text & image lesson | `learning/.../text_lesson_viewer.dart` | DONE 2026-10-20 | UI-ST-019 | P2 |
+| COM-020 | Learning | PDF reader | `pdf_reader/**` | MERGED (PR #206; acceptance pending) | UI-ST-018 | P1 |
+| COM-021 | Account | My profile | `profile/.../profile_screen.dart`, `profile_edit_screen.dart` | DONE 2026-10-21 | UI-ST-020 | P2 |
+| COM-022 | Account | Settings | `settings/.../settings_screen.dart` | DONE 2026-10-21 | UI-ST-021 | P1 |
+| COM-023 | Cross-cutting | Empty / loading / error / feedback | various | DONE 2026-10-20 | — | P2 |
 
-Count: 1 MATCH, 18 PARTIAL, 4 MISSING (COM-014, 017, 022, plus Home is a
-different screen in practice), 3 with CONFLICT items.
+Summary table: 1 MATCH, 9 previously recorded DONE, 12 MERGED with listed
+acceptance/operational limits, and 1 IN_REVIEW (COM-018). All 23 IDs are accounted
+for. Historical DONE labels are retained, not newly certified by this check.
 
 ---
 
-## 3. Owner decisions needed first
+## 3. Recorded owner decisions and current implementation
 
-| Ref | Question | Prototype | App today | Blocks |
-|---|---|---|---|---|
-| D-1 | Minimum password length | 8 chars + letter + number | 6 chars, no other rule | COM-004, COM-007 |
-| D-2 | Bottom-nav tabs | Home · Explore · My Courses · Profile | Home · My Learning · Saved · Profile | COM-002 |
-| D-3 | Watermark format (SRS DEC-008 still open) | "Licensed to <name> · <id>" diagonal | none in reader | COM-020 |
-| D-4 | Interface languages (SRS DEC-013 still open) | English / Sinhala / Tamil selector | none | COM-021, COM-022 |
-| D-5 | Billing details on checkout | not shown | First/Last/Phone/Address/City/Country required (PayHere fields) | COM-010 |
-| D-6 | Receipt review time copy | none | "1–2 business days" | COM-013 |
-| D-7 | Home content | personal (resume, my courses, recent) | marketing carousel with **sample content** | COM-015 |
-| D-8 | Email notification preference | on/off toggle | none, no backend field | COM-022 |
+| Ref | Recorded decision / implementation | Remaining boundary |
+|---|---|---|
+| D-1 | Six characters, no composition rule; controls merged #210 | Hosted recovery/change acceptance |
+| D-2 | Home / Explore / My Courses / Profile implemented #186 | Existing browser acceptance limits |
+| D-3 | Acendra Product + name + opaque licence ID; v2 source merged #206 | Hosted runtime and activation approval |
+| D-4 | English/Sinhala implemented; Tamil excluded | No new language decision needed here |
+| D-5 | Keep billing fields; searchable country defaults to Sri Lanka, merged #227 | Hosted checkout acceptance |
+| D-6 | 1–2 business days review copy implemented #227 | Actual review/settlement acceptance |
+| D-7 | Personal-first Home with real discovery retained below, merged #229 | Enrolled-library/responsive live acceptance |
+| D-8 | Email notification preference field/control implemented | No email delivery claim |
 
 ### Owner answers (2026-10-18)
 
@@ -101,7 +184,11 @@ profile, collect them once and remember them, or keep the form but collapse it.
 
 ---
 
-## 4. Audit tasks
+## 4. Audit tasks — historical observations with current reconciliation
+
+Detailed gaps, line numbers, checkboxes and earlier results below are historical
+evidence. The matrix above and dated status notes take precedence. Unchecked
+visual boxes are preserved; merging does not prove a new browser comparison.
 
 ### COM-001 — Design tokens, fonts and theme
 
@@ -118,16 +205,28 @@ Gaps: none in tokens. Individual screens often use raw Material defaults instead
 of the prototype's card/radius/pill styles — tracked in each task below.
 
 Check:
-- [x] Light theme colours match on Sign in, Explore and Checkout. (code: every light token hex equals the prototype's; screens not viewed)
-- [x] Dark theme colours match on the same three screens. (code: every dark token hex equals the prototype's; screens not viewed)
-- [x] Headings render in Manrope, body text in Inter. (code: `app_typography.dart` uses GoogleFonts.manrope / interTextTheme; not seen rendered)
+- [ ] Light theme colours match on Sign in, Explore and Checkout. (code: every light token hex equals the prototype's. Seen 2026-10-19 on the live site: Sign in matches the prototype side by side; Explore renders in light; Checkout not viewed, see below)
+- [ ] Dark theme colours match on the same three screens. (code: every dark token hex equals the prototype's. Seen on the live site: Sign in and Explore render in dark; the prototype's dark screens were not opened; Checkout not viewed)
+- [x] Headings render in Manrope, body text in Inter. (seen 2026-10-19 on the live site: the page fetched Manrope SemiBold, Manrope Bold, Manrope ExtraBold and Inter Regular font files, read from their name tables)
 
-Result: PASS (code-only, 2026-10-18). Light and dark palettes match the
-prototype token for token; fonts match. Still open: a visual pass in the running app.
+Visual check (2026-10-19, http://3.25.99.105, 390 px, the build from the last
+approved production deploy, not this branch):
+- Sign in, light: background, Royal Blue button, navy headings and field styling look the same as the prototype.
+- Sign in and Explore, dark: render with the dark palette; the theme toggle works.
+- Not viewed: Checkout (needs a signed-in student and an order; no test account used).
+- Not viewed: the prototype's Explore and dark screens; 768 and 1440 px.
+- Not measured: Explore's page background looked whiter than Sign in's #F5F8FC in light; check the exact colour.
+- Noticed, outside COM-001: the live Sign in hero banner image carries "Create your account" artwork beside the "Welcome back" text.
+- Deploy: not pushed by this check. A "Deploy to Production" run for `dev` was still waiting for reviewer approval.
+
+Historical result: DONE (2026-10-19), accepted by the project owner as enough. Verified:
+fonts and Sign in (light) on the live site, plus the code-level token match.
+Not verified: Checkout, the prototype's dark and Explore screens, 768 and 1440 px.
+The unchecked boxes above are left unchecked on purpose.
 
 ---
 
-### COM-002 — Student shell and bottom navigation
+### COM-002 — Student shell and bottom navigation — DONE 2026-10-20
 
 Prototype layout: brand header (logo + "Acedra", profile avatar at right);
 4-tab bottom bar **Home · Explore · My Courses · Profile**; Order History and
@@ -162,16 +261,13 @@ Check:
       (or the course overview), not a dead button.
       (code: `learning_shell.dart:18` calls `context.pop()` with no fallback; not run)
 
-Fixed on `feat/com-001-005-prototype-alignment` (uncommitted): tabs are now
-Home · Explore · My Courses · Profile, learning back falls back to My Courses.
-Theme toggle still in the app bar (needs Settings, COM-022). Tests pass; not yet seen in a browser.
-Earlier result: FAIL (code-only, 2026-10-18). Tab set differs (blocked on D-2); Explore
-is not a mobile tab; theme toggle still in the app bar; learning back button has
-no fallback. Prototype tabs confirmed in its `NAVS` list.
+Fixed on `feat/csa-265-prototype-alignment`, MERGED to dev 2026-10-20 (PR #186, e0cc143): tabs are now Home · Explore · My Courses · Profile (`DashboardCopy` labels). Learning back falls back to My Courses. Theme toggle moved to Settings screen (COM-022 dependency resolved in PR #186).
+Browser check: not yet run (code in dev; CI/CD will deploy when baseline passes and reviewer approves).
+Earlier result: FAIL (code-only, 2026-10-18). Tab set differed; Explore not a mobile tab; theme toggle in app bar; learning back had no fallback.
 
 ---
 
-### COM-003 — Sign in
+### COM-003 — Sign in — DONE 2026-10-20
 
 Prototype layout: logo header → navy hero "Welcome back / Continue your learning
 journey." → title "Sign in to Acedra" + subtitle → Email (mail icon) → Password
@@ -207,15 +303,13 @@ Check:
 - [ ] Privacy / Terms links open real pages or are hidden.
       (code: FAIL — both `onPressed: () {}`)
 
-Fixed (uncommitted): fake Remember me and dead Privacy/Terms footer removed, shared
-prototype widgets used, stricter email check. Not yet seen in a browser.
-Earlier result: PARTIAL (code-only, 2026-10-18). Layout and copy match the prototype.
-Flow gaps: Remember me is a dead control, Privacy/Terms do nothing, email check
-is only "contains @ and .". Not run in a browser.
+Fixed on `feat/csa-265-prototype-alignment`, MERGED to dev 2026-10-20 (PR #186, e0cc143): fake Remember me removed, dead Privacy/Terms footer removed, shared prototype widgets used, stricter email validation.
+Browser check: not yet run (code in dev; CI/CD will deploy when baseline passes and reviewer approves).
+Earlier result: PARTIAL (code-only, 2026-10-18). Remember me was a dead control, Privacy/Terms did nothing, email check was "contains @ and ." only.
 
 ---
 
-### COM-004 — Create account
+### COM-004 — Create account — DONE 2026-10-20
 
 Prototype layout: logo header with back → navy hero "Create your account / Start
 learning with confidence." → Full name (user icon) → Email → Password ("At least 8
@@ -248,15 +342,13 @@ Check:
 - [ ] Success lands on Check your inbox with the email shown.
       (code: goes to verify-email and stores the email; not run)
 
-Fixed (uncommitted): hero, icons, back button, consent checkbox, "or" + card, password
-rule 8+ with letter and number. Terms/Privacy are plain text (no pages exist);
-consent is not stored server-side. Supabase Auth password policy not changed.
-Earlier result: FAIL (code-only, 2026-10-18). Missing hero, icons, consent checkbox,
-"or" divider and card link; password minimum 6 vs 8 (D-1). Not run in a browser.
+Fixed on `feat/csa-265-prototype-alignment`, MERGED to dev 2026-10-20 (PR #186, e0cc143): hero banner, field icons, back button, consent checkbox, "or" + card link. Password minimum 6 chars (D-1 final decision: 6 chars, no strength rules). Terms/Privacy are plain text (no real pages exist yet); consent is client-side only, not stored server-side.
+Browser check: not yet run (code in dev; CI/CD will deploy when baseline passes and reviewer approves).
+Earlier result: FAIL (code-only, 2026-10-18). Missing hero, icons, consent, "or" divider, card link; password minimum conflict on D-1.
 
 ---
 
-### COM-005 — Check your inbox (email verification)
+### COM-005 — Check your inbox (email verification) — DONE 2026-10-20
 
 Prototype layout: soft hero with mail tile + check badge → "Check your inbox" →
 masked email pill (`de••@example.com`) → helper text → **Resend Verification Email**
@@ -285,14 +377,15 @@ Check:
 - [ ] After a browser refresh the screen still offers a way to resend.
       (code: FAIL — Resend is hidden when `pendingVerificationEmailProvider` is null)
 
-Fixed (uncommitted): hero tile + badge, masked email pill, 30 s resend cooldown, spam
-info box, email field when the address is lost on refresh. Not yet seen in a browser.
-Earlier result: FAIL (code-only, 2026-10-18). All four gaps confirmed against the
-prototype source: layout, masking, 30 s cooldown, refresh behaviour. Not run in a browser.
+Fixed on `feat/csa-265-prototype-alignment`, MERGED to dev 2026-10-20 (PR #186, e0cc143): hero tile + badge, masked email pill (`maskEmail()`), 30 s resend cooldown (`resendCooldownSeconds = 30`), spam info box, fallback email entry when address is lost on refresh.
+Browser check: not yet run (code in dev; CI/CD will deploy when baseline passes and reviewer approves).
+Earlier result: FAIL (code-only, 2026-10-18). All four gaps confirmed: layout, masking, 30 s cooldown, refresh behaviour.
 
 ---
 
 ### COM-006 — Forgot password
+
+**Status 2026-10-29: MERGED PR #209.** Hero implemented; browser evidence recorded. Final hosted recovery acceptance remains unrecorded.
 
 Prototype layout: soft hero (lock tile + send badge) → "Forgot your password?" →
 Email → **Send Reset Link →** → **Back to Sign In** (outlined) → info box "If an
@@ -315,11 +408,27 @@ Check:
 - [ ] Success message does not confirm whether the account exists.
 - [ ] Reset link in the email opens `/reset-password` and works.
 
-Result: PARTIAL (2026-10-18, commit 3852c6e). FIXED: neutral success wording (no account confirmation), outlined Back to sign in, info text. NOT DONE: hero. Overlaps Codex CSA-265 (#183).
+Current result: IN_REVIEW (2026-10-22), CSA-272, [PR #209](https://github.com/iamramishka/acendra/pull/209).
+Hero now follows the observed artifact: gradient blue lock tile, cyan send badge,
+two floating dots and curved blue ribbon. Browser comparison passed at 390, 768
+and 1440 pixels in light and dark themes. Empty/malformed-email validation and
+Back to Sign In were verified in the local release app. Neutral success wording
+is covered by the synthetic repository test. The banner is a Flutter recreation;
+Material icons and existing form typography are retained, not a pixel-identical
+export. Actual reset-email delivery/link consumption remains unverified.
+Screenshots and exact command results: [CSA-272 evidence](docs/tasks/CSA-272.md).
+The earlier CI startup billing restriction is historical: both workflows passed
+at 1a30ec7. Current-dev integration requires fresh CI and independent approval.
+Vercel preview remains failed. No completed end-to-end recovery is claimed.
+
+Historical result: PARTIAL (2026-10-18, commit 3852c6e); generic recovery hero was
+subsequently integrated via CSA-265. This follow-up changes only its artwork.
 
 ---
 
 ### COM-007 — Set new password / Change password
+
+**Status 2026-10-29: MERGED PR #210.** Checklist, show/hide and signed-in change flow implemented; six-character policy with no composition rule. Live Supabase recovery/change acceptance remains.
 
 Prototype layout: soft hero (shield) → "Set a new password" (or "Change your
 password" when signed in) → New password → Confirm → **live checklist** (8+ chars,
@@ -345,11 +454,13 @@ Check:
 - [ ] From Settings (once COM-022 exists) the flow returns to Settings, still signed in.
 - [ ] From the email link the flow returns to Sign in.
 
-Result: —
+Historical result: —
 
 ---
 
-### COM-008 — Explore courses (catalog + search)
+### COM-008 — Explore courses (catalog + search) — IN_REVIEW 2026-10-21
+
+**Status 2026-10-29: MERGED PR #204.** Responsive SliverGrid, category/blurb and browser comparison implemented. Final authenticated hosted visual acceptance remains.
 
 Prototype layout: brand header → "Explore Courses / Discover skills worth
 mastering." → rounded search field → category chips (All Courses, …) → row with
@@ -359,31 +470,69 @@ price, chevron).
 Prototype flow: search and chips filter live; no results → "No courses found —
 Try a different word or category."
 
-Current app: `marketplace/presentation/screens/marketplace_screen.dart`
-- `SearchBar` + `FilterChip` row + `CourseGrid` (1/2/3 columns).
+Implementation: **CSA-270**, [issue #203](https://github.com/iamramishka/acendra/issues/203),
+[PR #204](https://github.com/iamramishka/acendra/pull/204), branch
+`feat/csa-270-catalog-sliver`. Source and verification recorded through `5a94172`.
+The PR is ready for review and **has not merged into dev**.
 
-Gaps:
-- Layout: no page title/subtitle, no result count, **no sort control**.
-- Layout: card shows `shortDescription` in the instructor slot
-  (`course_grid.dart` passes `instructorName: course.shortDescription`); no
-  category label on the card.
-- Flow: empty state always says "No courses available yet." (`:105`) even when
-  a search simply has no matches. Needs a separate "No courses found" state.
-- Flow: chip "All" vs prototype "All Courses" (copy only).
-- Performance: grid uses `shrinkWrap` inside a sliver; fine for small catalogs,
-  should become a `SliverGrid` before the catalog grows.
+Implemented in the PR:
+- `SliverLayoutBuilder` + `SliverGrid.builder` build visible/cached cards instead
+  of eagerly building the entire catalog. Actual available width selects 1/2/3
+  columns, including when the catalog is narrower than the browser window.
+- Title/subtitle, rounded search, category chips, count and sorting remain in
+  the recorded prototype order. Sorting supports Newest and both price directions;
+  Popular is not added because no popularity data contract exists.
+- Cards preserve real artwork delivery and its gradient fallback, category
+  dot/label, title, separate description, formatted price and chevron. Card height
+  accounts for enlarged text; titles and descriptions have bounded lines.
+- Search misses use "No courses found" separately from an empty catalog.
+  Card navigation opens the real course-detail screen.
+- `tool/catalog_preview.dart` supplies six clearly labeled synthetic courses and
+  matching curriculum details for offline QA. Checkout explicitly creates no
+  order. This preview is not used by production; its marker was checked absent
+  from the release JavaScript bundle.
 
-Check:
+Local automated verification (Flutter widget runner, **not Chrome**):
+- All **19 focused tests pass**, including search, category filters, both price
+  sort directions, detail navigation, offline checkout refusal, lazy scrolling
+  through 100 courses and a narrow container in a wide viewport.
+- The layout matrix covers **320, 390, 768 and 1440 px**, light/dark themes and
+  100%/200% text. This establishes widget-layout behavior, not artifact parity.
+- Full `flutter analyze --no-pub` passes. All eight changed/new Dart files format
+  cleanly. `flutter build web --release --no-pub` passes, including the Wasm
+  compatibility dry run; the pre-existing CupertinoIcons font warning remains.
+
+Browser acceptance checklist (left open until seen in the running browser):
 - [ ] Title, search, chips, count, sort and cards appear in prototype order.
 - [ ] Sort changes order correctly for both price directions.
 - [ ] Search with no match shows "No courses found", not "No courses available yet".
 - [ ] Tapping a card opens Course details.
 
-Result: PARTIAL (2026-10-18, commit 3852c6e). FIXED: title and subtitle, course count, sort (Newest, price both ways; no Popular, no data), separate "No courses found" state. NOT DONE: category label and blurb on card, SliverGrid. Overlaps Codex CSA-265 (#183).
+Remaining gates:
+- The remote artifact could not be opened, and interactive browser access is
+  disabled in Work settings. Chrome tests compiled after an import correction
+  but stalled before suite loading; a minimal standalone smoke test also stalled
+  before assertions. No browser checks or screenshots passed. Exact visual
+  comparison remains **INCONCLUSIVE**.
+- GitHub Actions cannot start because of an account-level billing/spending
+  restriction. Required approving review is outstanding. The full local format
+  check also finds nine unchanged baseline files outside CSA-270's scope.
+- Complete browser/prototype comparison, restore hosted checks, resolve baseline
+  formatting through the respective owners, obtain approval and merge PR #204.
+
+Historical result: **IN_REVIEW (2026-10-21)** — implementation and local checks complete;
+browser acceptance, CI, review and merge remain pending. Detailed commands,
+evidence and ownership are in [the CSA-270 task record](docs/tasks/CSA-270.md).
+
+Historical result (2026-10-18, `3852c6e`): header, count, sort and search-miss copy
+were fixed; card metadata and lazy-grid work were still recorded as pending.
+The newer CSA-270 entry above supersedes that pending-work description.
 
 ---
 
 ### COM-009 — Course details
+
+**Status 2026-10-29: MERGED PR #212.** Sticky footer, open-order state, icons and back navigation implemented. Final hosted course/order-state acceptance remains.
 
 Prototype layout: header "Course Details" with back → large course art →
 category + title + blurb → chips "N modules" "N lessons" → card **What You'll
@@ -421,11 +570,22 @@ Check:
 - [ ] Owned → Go to Course → course overview.
 - [ ] Back returns to the screen you came from.
 
-Result: —
+Historical result: —
 
 ---
 
 ### COM-010 — Secure checkout
+
+**Status 2026-10-29: MERGED PR #227.** Step bar, course summary, country suggestions, stored-order total and single bank path implemented. Hosted payment acceptance remains.
+
+2026-10-26 update — CSA-278 / #224 supersedes the historical gaps below. The
+actual artifact checkout was inspected. The follow-up restores the semantic
+step bar, course-aware summary, friendly status, searchable Sri Lanka country
+default and constrained sticky total/action, while preserving guarded checkout
+and D-5 billing. Local layout tests cover 320/390/768/1440 light/dark. The
+deployed app is current but its authenticated checkout remains unavailable in
+this session. See [CSA-278](docs/tasks/CSA-278.md) for synthetic browser evidence,
+verification and remaining merge/deployment gates. Result: IN_REVIEW.
 
 Prototype layout: header "🔒 Secure Checkout" + logo → **3-step bar** (Order ✓ ·
 Payment · Confirm) → "Complete Your Purchase" → card **Order Summary** (art,
@@ -470,11 +630,13 @@ Check:
 - [ ] Bank: lands on a single bank screen with instructions + upload.
 - [ ] Back works after a direct page load.
 
-Result: —
+Historical result: —
 
 ---
 
 ### COM-011 — PayHere payment status ("Checking your payment")
+
+**Status 2026-10-29: MERGED PR #222.** Trusted order recovery, Refresh/history and full-page return bridge implemented. Actual provider return/webhook and payment acceptance remain.
 
 Prototype layout: header "Payment Status" → spinning ring with shield →
 "Checking your payment" → pill "Verification in progress" → card **Transaction
@@ -519,11 +681,25 @@ Check results (code-only, 2026-10-18):
 - FAIL: `payment_pending_screen.dart:99` still lists bank steps ("We receive your receipt").
 - Not verified: `support@acedra.com` mailbox.
 
-Result: FAIL (code-only). NOT FIXED: files are in `checkout/presentation` and the router, which Codex holds under CSA-265.
+Historical result: FAIL (code-only). NOT FIXED: files are in `checkout/presentation` and the router, which Codex holds under CSA-265.
+Implementation follow-up, 2026-10-25 — CSA-277 / issue #221:
+Return/cancel and legacy payment pages now read the owner-scoped order using a
+URL locator, show Transaction Details, refresh backend status, and link to Order
+History. Return/cancel hints never override payment status. Pending online retry
+uses the existing checkout recovery flow; bank instructions and the unverified
+support mailbox were removed from the online status pages. Order History opens
+the status view for unpaid online orders. The trusted initializer binds the
+application order locator on return/cancel URLs; staging points to protected
+/payments/return and /payments/cancel routes. No settlement or entitlement logic
+changed. Fresh verification and remaining release gates: docs/tasks/CSA-277.md.
+The supplied site redirected to sign-in; authenticated visual comparison and
+real PayHere sandbox return remain unverified in this session.
 
 ---
 
 ### COM-012 — Bank transfer instructions + receipt upload
+
+**Status 2026-10-29: MERGED PR #220.** JPEG/PNG/PDF single-screen upload and instruction reload recovery implemented. Authorized live receipt/storage acceptance remains.
 
 Prototype layout: header "Bank Transfer" → "Complete Your Transfer" → soft card
 (course, **order reference with copy**, total) → card **Bank Transfer Details**
@@ -575,11 +751,34 @@ Check results (code-only, 2026-10-18):
 - FIXED: "use the exact amount and your order reference" guidance.
 - FIXED: back button falls back to the dashboard when there is nothing to pop.
 
-Result: PARTIAL. Layout-only items fixed in `bank_transfer/**`; PNG, refresh and single-screen upload remain (see above).
+Historical result: PARTIAL. Layout-only items fixed in `bank_transfer/**`; PNG, refresh and single-screen upload remain (see above).
+
+Implementation follow-up, 2026-10-25 — CSA-276 / issue #219:
+The remaining COM-012 defects are implemented in the isolated review branch:
+combined instructions/upload, sticky Submit Receipt for Review, JPEG/PNG/PDF
+through 5 MiB (picker + validation + correct binary MIME), file removal,
+confirmed-submit status navigation, and owner-scoped recovery of the immutable
+backend instruction snapshot. All four copy controls are retained. Native SQL,
+handler and widget evidence is recorded in docs/tasks/CSA-276.md. The historical
+2026-10-18 results above describe the old implementation. Deployment requires
+the new migration and function/client release; operational read/upload activation
+remains separately gated. The supplied reference site redirected to login, so
+its authenticated bank-transfer view could not be visually compared this run.
 
 ---
 
 ### COM-013 — Bank payment status timeline
+
+**Status 2026-10-29: MERGED PR #227.** Exact amount/order date, timeline, review copy and exits implemented. Hosted bank status/review acceptance remains.
+
+2026-10-26 update — CSA-278 / #224 supersedes the historical gaps below. The
+actual artifact bank-status screen was inspected. The additive owner-only read
+now supplies exact decimal-string amount, currency and order creation time;
+the client preserves browser precision and distinguishes Ordered from Submitted
+On. Status card/timeline, rejected-receipt recovery, refresh and exits are retained
+or aligned. D-6's approved review-time copy remains; no email promise is invented.
+See [CSA-278](docs/tasks/CSA-278.md). Required merges, hosted CI, ordered backend
+release and authenticated deployed visual acceptance remain. Result: IN_REVIEW.
 
 Prototype layout: header "Payment Status" → status card (large clock icon,
 "Awaiting Verification" / "Receipt Needed", pill) → card **Order Details** (course,
@@ -620,11 +819,11 @@ Check results (code-only, 2026-10-18):
 - NOT FIXED: D-6 "1–2 business days" and the "notified once approved" line are in `checkout/presentation/widgets/receipt_status_card.dart` (CSA-265 scope) and `_statusConfig` is not reached for those states.
 - The prototype's "we will email you" line was not added: nothing in the backend sends that email.
 
-Result: PARTIAL. Timeline, details, exit and error handling fixed; amount/date and View Orders blocked.
+Historical result: PARTIAL. Timeline, details, exit and error handling fixed; amount/date and View Orders blocked.
 
 ---
 
-### COM-014 — Order history (student)  — MISSING
+### COM-014 — Order history (student)  — DONE 2026-10-20
 
 Prototype layout: header "Order History" (Profile tab active) → "Your Purchases"
 → chips All · Paid · Awaiting Payment → order cards (art, "Order #ref", status
@@ -651,11 +850,22 @@ Check results (code-only, 2026-10-18):
 - Correction to the note above: a student-scoped read already exists. `csa092_orders_read_own` lets authenticated users SELECT their own orders, so the list may not need a migration. Needs a read-only repository and a new route.
 - Blocked by the router lock held by CSA-265.
 
-Result: DONE code-only (2026-10-18, commit 6f769dc). /orders with All/Paid/Awaiting filters, empty and error states, linked from Profile and bank status. Uses own-orders RLS read. NOT DONE: second-account check, browser check.
+Historical result: DONE 2026-10-20 (commit 6f769dc, merged to dev). /orders with All/Paid/Awaiting filters, empty and error states, linked from Profile and bank status.
+
+RLS second-account isolation verified 2026-10-20 via `supabase/tests/database/csa092_orders_payment_attempts.test.sql`:
+- Policy `csa092_orders_read_own`: `buyer_id=(select auth.uid()) and csa060_account_eligible()` — correct uid-scoped predicate.
+- Test "buyer A sees own order only" (line 50): JWT set to buyer A, count=1.
+- Test "foreign guessed order hidden" (line 51): buyer A cannot see buyer B's order.
+- Test "buyer B isolation ignores forged admin claim" (line 59): buyer B with forged `super_admin` JWT still returns only their own order.
+- Banned-account denial also tested (line 63).
+
+NOT DONE: browser check (code in dev; CI/CD will deploy when baseline passes and production reviewer approves).
 
 ---
 
 ### COM-015 — Home
+
+**Status 2026-10-29: MERGED PR #229.** Real personal Home/discovery replaces runtime sample data. Empty-library live checks recorded; enrolled resume/recent/PDF, full desktop and final refresh acceptance remain partial.
 
 Prototype layout: brand header + avatar → greeting ("Good morning") + "Welcome
 back, <name>" → navy **Continue learning** card (course, current lesson, % bar,
@@ -691,11 +901,17 @@ Check results (code-only, 2026-10-18):
 - Confirmed: `ContinueLearningCard` is not used by any screen or test.
 - A progress read exists (csa127/csa133 migrations); a Home summary read still has to be designed. D-7 is open.
 
-Result: PARTIAL (2026-10-18, commit fbbb3e5). D-7 decided: personal section on top (greeting, Continue Learning, owned courses), existing sections kept below. The "sample content" notice remains because those sections are still sample data. Depends on the unrun com015 migration for progress.
+Historical result: PARTIAL (2026-10-18, commit fbbb3e5). D-7 decided: personal section on top (greeting, Continue Learning, owned courses), existing sections kept below. The "sample content" notice remains because those sections are still sample data. Depends on the unrun com015 migration for progress.
+
+---
+
+2026-10-27 CSA-280 review: the actual artifact Home was inspected. Implementation now follows its greeting, Continue Learning, owned-course cards and Recently Accessed hierarchy, while retaining D-7 discovery below with real catalog/category reads. The sample runtime notice/actions are removed; unavailable progress is explicit. Resume validates the next lesson, and recent entries use saved timestamps/PDF pages without fabricating page totals. Existing shared header now uses its avatar fallback. Current dev ce9819a was deployed first through successful run 40334926117 (release 20261027-055952); the hosted com015 RPC was verified present and matched reviewed source, superseding the old unrun-migration note. The new Home change remains IN_REVIEW: 148 affected tests pass; build/browser/current-head CI and independent approval are tracked in docs/tasks/CSA-280.md. Authenticated deployed Home acceptance is not claimed.
 
 ---
 
 ### COM-016 — My Courses
+
+**Status 2026-10-29: MERGED PR #231.** Cards/actions open overview; progress failure/retry and large cards implemented. Direct artifact and authenticated hosted acceptance remain.
 
 Prototype layout: brand header → "My Courses / Your learning library" → chips All
 · In Progress · Not Started · Completed → large cards (art, category, title,
@@ -719,11 +935,26 @@ Check:
 - [ ] Each card shows real progress and the right button label.
 - [ ] Empty filter shows a message and an Explore button.
 
-Result: PARTIAL (2026-10-18, commit fbbb3e5). FIXED: filter chips, progress bar, Continue/Start/Review per card, one-call progress RPC com015_my_course_progress (migration NOT run or tested). NOT DONE: card goes to resume lesson, not overview.
+Historical result: PARTIAL (2026-10-18, commit fbbb3e5). FIXED: filter chips, progress bar, Continue/Start/Review per card, one-call progress RPC com015_my_course_progress (migration NOT run or tested). NOT DONE: card goes to resume lesson, not overview.
+
+Update 2026-10-27, CSA-281 / Issue #230 (IN_REVIEW): card taps and action
+buttons now open the existing course overview even when a resumable lesson is
+known. The library retains real progress, filters and Explore empty states, and
+adds the recorded subtitle, larger artwork and explicit action buttons. Loading,
+failure/retry and incomplete-summary feedback keep enrolled courses accessible;
+unavailable progress never becomes zero or a misleading empty filter. The old
+migration/deployment note above is historical: latest dev 4408862 was already
+deployed before these edits; CSA-280 records hosted COM015 ledger verification.
+No migration was applied for this task. Direct artifact and authenticated hosted
+comparison are unverified because the artifact could not be loaded and local
+browser access is disabled. Checkboxes above remain open. See
+[CSA-281 evidence](docs/tasks/CSA-281.md) for actual test/build results and limits.
 
 ---
 
-### COM-017 — Course overview with progress — MISSING
+### COM-017 — Course overview with progress
+
+**Status 2026-10-29: MERGED PR #233.** Course identity, saved activity, progress, curriculum and retries improved. Direct artifact and authenticated saved-progress acceptance remain.
 
 Prototype layout: back "My Courses" → course art + title + "N modules · N
 lessons" → card **Your Learning Progress** (big %, bar) → card **Continue
@@ -746,11 +977,13 @@ Check:
 - [ ] Module and lesson markers reflect saved progress after reload.
 - [ ] Resume opens the right lesson.
 
-Result: implemented in f8ac6c9 (course overview, lesson header, complete-and-continue); not re-verified this session.
+Historical result: VERIFIED locally 2026-10-20 (localhost:9090, branch `feat/com-007-password-reset`). Course overview at `/learn/:courseId` shows progress %, "1 of N lessons completed", Continue Learning card with correct next lesson, expandable curriculum with module/lesson markers (✓ for completed, play icon for In Progress, empty circle for not started). Progress updated correctly after Mark Complete. Compilation fix required: `receipt_review_history_screen.dart` lines 235/244 were missing `cs:` param on `_DateRow` — fixed in this session. MERGED to dev 2026-10-20 (8ddfda2). Deploy pending CI pass + production reviewer approval.
 
 ---
 
 ### COM-018 — Video lesson
+
+**Status 2026-10-31: MERGED PR #235 at eabec68.** Speed/captions, Overview/Resources, protected PDF links and retry repair are integrated. Hosted video acceptance and activation remain gated.
 
 Prototype layout: header (course title) → 16:10 player (play overlay, time, seek,
 **speed 1/1.25/1.5/2x**, **CC**) → "Lesson 08" + title + "Video Lesson" + status
@@ -776,7 +1009,7 @@ Check:
 - [ ] Mark Complete & Continue saves progress and opens the next lesson.
 - [ ] Resources tab opens the PDF in the reader.
 
-Result: see f8ac6c9 (lesson header); not re-verified this session.
+Historical result: VERIFIED locally 2026-10-20. "Lesson 01 · Video Lesson" header, "In Progress" pill, "1/4 · 25%" progress counter, "Mark Complete & Continue" sticky footer all present and working. Tapping the button marks Lesson 01 complete, advances to Lesson 02, and updates the course overview to 25%. Video player shows "Video access is temporarily unavailable" (no Mux asset in local seed — expected, not a code bug). Speed/CC controls not checked (need a real video stream). MERGED to dev 2026-10-20 (087beba). Deploy pending CI pass + production reviewer approval.
 
 ---
 
@@ -799,40 +1032,84 @@ Check:
 - [ ] Header shows lesson number, type and status.
 - [ ] Complete & Continue advances; last lesson returns to overview.
 
-Result: see f8ac6c9; not re-verified this session.
+Historical result: DONE 2026-10-21. The code was correct (merged in `f44526a`). Added 4 widget tests to `test/features/learning/learning_workspace_screen_test.dart`: (1) "Mark Complete & Continue" appears for an incomplete non-last text lesson; (2) "Mark Complete" appears for the last incomplete lesson; (3) neither button appears when the lesson is already completed; (4) tapping "Mark Complete" when `completeAndContinue` returns `moduleFinished` shows a "Module finished" SnackBar. Extended `_StubLearningNotifier` with configurable `completeOutcome` and a `completeAndContinue` override. Added `_lessonContent2` and `_wrapWithRouter` (GoRouter setup) helpers. `flutter analyze` on test file: No issues found. Browser tests (`@TestOn('browser')`) require `--platform chrome`; local Chrome environment exhausted with 35 stuck instances from concurrent test runs; CI will verify.
 
 ---
 
 ### COM-020 — PDF reader
 
+**Status 2026-10-29: MERGED PR #206.** Contents/bookmarks, zoom/fit-width, restoration and watermark code merged. Trusted watermark runtime deployment, matching hosted proxy, confinement/font/queue/retention, explicit activation approval and live protected-byte acceptance remain.
+
 Prototype layout: header (back, document title, **Contents**, **Bookmark**) →
-page on grey canvas with **personal watermark** → note "This guide shows your name
-as a watermark on every page." → **footer**: ‹ page / total › · − zoom % + ·
-fit-to-width. Contents sheet lists chapters (current highlighted) and bookmarks.
+page on grey canvas with **personal diagonal watermark** → disclosure
+“This guide shows your name as a watermark on every page.” → footer:
+‹ page / total › · − zoom % + · fit-to-width. Contents lists chapters
+(current highlighted) and bookmarks. No download/print controls.
 
-Current app: `pdf_reader/presentation/widgets/**`
-- Page navigation, zoom presets (fit page, fit width, 100/150/200),
-  bookmarks + bookmarks panel, search bar, loading/error states, reading position.
+Historical result: **IN_REVIEW — CSA-271 / issue #205 / [PR #206](https://github.com/iamramishka/acendra/pull/206), 2026-10-22**. This supersedes the
+2026-10-18 “contents missing / global watermark flag off” implementation note.
 
-Gaps:
-- **No watermark and no watermark disclosure** in the reader (no "watermark"
-  string anywhere in `pdf_reader/`). SRS FR-PDF-SEC-005/006 are MUST; SRS also
-  says delivery uses **server-watermarked derivatives**, so the watermark should
-  come from the backend file, not a Flutter overlay. Format is open (D-3 /
-  DEC-008). The disclosure line can be added now.
-- Layout: no document **contents/outline** sheet (only bookmarks).
-- Layout: controls placement differs (prototype puts nav + zoom in one bottom bar).
-- App has search, which the prototype lacks — keep.
-- Do not add download/print controls (SRS: avoid unnecessary download/print).
+- The active `ProtectedPdfLesson` now connects `PdfLessonReader` to the existing
+  contents sheet. It reads internal chapters from the authenticated derivative,
+  highlights the closest current chapter, jumps to pages and saves bookmarks.
+- Owner D-3 branding is implemented as a new immutable **v2** server policy:
+  **Acendra Product - Licensed to <display name> - <opaque licence ID>**.
+  Both the translucent diagonal mark and footer are permanent PDF page content.
+  No auth UUID, email or client overlay is substituted. V1 generation remains
+  compatible; migration `20261021000100_csa271_pdf_policy_v2.sql` reserves fresh
+  v2 objects and refuses v1 resource reuse, without rewriting existing objects.
+- The worker preserves inspected internal GoTo outlines/named destinations for
+  v2. External, scripted and chained actions remain rejected. Every proxy request
+  still rechecks current authorization; originals/signed URLs are never fallback.
+- Disclosure requires `watermark_applied: true` in the authenticated ready
+  descriptor **and** successful derivative delivery. Older descriptors remain
+  readable without claiming a watermark. Delivery is disabled by default;
+  explicit server opt-in is gated on the approved worker/runtime deployment.
+- Header Contents/Bookmark, grey canvas, page navigation, 100–300% zoom and true
+  fit-to-width use the active reader. Footer groups wrap at narrow widths while
+  retaining touch targets. Legacy search components remain intact.
+- Reading position and bookmarks are scoped to student + lesson. Page 1 now
+  replaces an older saved page; stale/out-of-range positions safely reset.
+- The missing PDF.js runtime is bundled at the same origin with pinned integrity
+  and notices; no CDN allowance, dependency lockfile or CSP weakening is added.
 
-Check:
-- [ ] Watermark visible and readable on every page (after D-3), not covering text.
-- [ ] Disclosure line shown.
-- [ ] Contents sheet jumps to chapters; bookmarks list works.
-- [ ] Zoom, fit-to-width, page nav work at 390 px without horizontal page scroll.
-- [ ] Reopening the PDF returns to the last page.
+Verified locally:
+- [x] Real generated v2 fixture: four pages, branded diagonal/footer watermark,
+  original selectable text and internal chapter destinations preserved.
+- [x] Python worker: 15 passed, one non-root Linux-only test skipped on Windows.
+  A supported v1 sample remains byte-identical to the dev generator.
+- [x] Node PDF authorization/proxy/worker/assets/request and runtime-gate regressions: 150 passed; hosted-only wrapper explicitly skipped on Windows.
+- [x] Active reader/repository/progress and existing PDF widget suites: 132 passed
+  serially, including chapter/bookmark jumps, zoom/reset, page restoration,
+  account/lesson storage separation, dark theme, sheet disposal and 320/390/768/1440 px with 1×/2× text.
+- [x] Full Dart analyzer: no issues with a task-local `DART_DATA_HOME` after
+  Windows performance-socket cleanup crashed the default analyzer process.
+- [x] Finding-repair release web build passed, including Wasm dry run (290.1 s).
+- [x] 43 ordered migrations applied in disposable PostgreSQL 17; private-storage
+  and entitlement/policy-version SQL suites passed with synthetic Auth/Storage.
 
-Result: PARTIAL (2026-10-18, commit e67a76e + follow-up). DONE: single footer bar (page, zoom, fit-to-width), 44 px targets. Watermark disclosure is built but switched OFF (kPdfWatermarkApplied=false) because delivered PDFs are not watermarked yet (CSA-139, D-3). NOT DONE: contents sheet. Zoom not seen in a browser.
+- [x] 2026-10-22: reference artifact inspected in the working in-app browser;
+  inset page, grouped footer, numbered chapters and explicit Close aligned to it.
+  **22 browser checks passed** with the production reader/PDF.js and real v2
+  synthetic fixture: chapters, bookmarks, 100–300% zoom, fit width, reopening,
+  page-1 reload, separate student progress, keyboard Close, dark theme and visible
+  controls at 320/390/768/1440px. [Screenshots and evidence](docs/tasks/CSA-271-PDF-READER.md#2026-10-22-browser-follow-up).
+  This is local interactive verification; the automated Chrome runner did not
+  reach assertions. Sample document content and prototype phone chrome differ.
+- [x] Follow-up: corrected 40px desktop buttons to 48px minima; Windows, Linux
+  and macOS regressions passed. The CI wrapper now skips only an absent Flutter
+  SDK, and rejects broken installations. Earlier browser captures are f722d55;
+  the new direct UI check was blocked by browser URL security policy.
+
+Acceptance still open:
+- [ ] Hosted migration, private Storage, updated policy-aware non-root worker,
+  licensed locale font, isolation, retention/purge and representative content /
+  accessibility acceptance. Stop old workers before adopting v2 reservations.
+- [ ] Required CI/review, then approved PR merge to dev. No gate is bypassed.
+
+Exact commands, SQL evidence, browser outcome and PR link are maintained in
+`docs/tasks/CSA-271-PDF-READER.md`. This follow-up changes COM-020 only; other
+comparison rows retain their existing task owners and pending PRs.
 
 ---
 
@@ -858,38 +1135,36 @@ Check:
 - [ ] Email is read-only.
 - [ ] Order History and Settings rows open their screens.
 
-Result: PARTIAL (2026-10-18, commit 0f52388). FIXED: email read-only with note, Settings link; Order History link added in 6f769dc. NOT DONE: photo, language (D-4), inline edit.
+Historical result: DONE 2026-10-21.
+- Inline edit: view + edit merged into `ProfileScreen` in commit 6d08ed1 (owner).
+- Photo: Change Photo calls `avatarUploadProvider`; CircleAvatar now shows the uploaded photo via `avatarUrlProvider` (falls back to initials when no photo). 18/18 profile tests pass.
+- Language: `DropdownButtonFormField<AppLanguage>` (English/සිංහල) was already present; on Save Changes, locale is now also persisted to DB via `localeUpdateProvider` (best-effort sync alongside localStorage `preferredLanguageProvider`).
+- Email read-only with note, Settings link, Order History link: all present.
 
 ---
 
-### COM-022 — Settings — MISSING
+### COM-022 — Settings — DONE 2026-10-21
 
 Prototype layout: header "Settings" (Profile tab active) → **Appearance**: theme
 segmented control Light / Dark / System → **Preferences**: Language select, Email
 Notifications switch → **Account & Security**: Change Password → red **Sign Out**
 card.
 
-Current app: no route or screen. Theme is a toggle button in app bars
-(`ThemeToggleButton`). `theme_mode_provider.dart` starts on System, but
-`toggle()` only flips light↔dark, so **System cannot be chosen again** once
-toggled, and the choice is **not persisted** across reloads. `setMode()`
-already exists for a three-way control;
-sign-out is on Profile and in the account menu. SRS requires **UI-ST-021 Account
-Settings**.
+Historical result: DONE 2026-10-21. `/settings` screen delivers all four sections:
+- **Appearance**: Light / Dark / System SegmentedButton, persisted in localStorage.
+- **Preferences**: Language DropdownButton (English / සිංහල → `locale` 'en'/'si' on `profiles`); Email Notifications SwitchListTile (`email_notifications_enabled` on `profiles`).
+- **Account & Security**: Change Password → returns to Settings; Sign Out.
 
-Needs:
-- Theme: three-way control using the existing `themeModeProvider`.
-- Language: blocked on D-4.
-- Email notifications: blocked on D-8 (no backend preference).
-- Change password: link to the signed-in variant of COM-007.
+Migration `20261020000100_com022_email_notifications.sql` adds `email_notifications_enabled boolean not null default true` to `profiles` with `grant update (email_notifications_enabled) on table public.profiles to authenticated`. `locale` column and its grant were already present. `fetchPreferences()`, `updateLocale()`, `updateEmailNotifications()` added to `ProfileRepository`; `UserPreferences`, `userPreferencesProvider`, `localeUpdateProvider`, `emailNotificationsProvider` added to `profile_provider.dart`.
 
 Check:
-- [ ] Route exists, reachable from Profile.
-- [ ] Light / Dark / System each apply and persist after reload.
-- [ ] Change Password returns here signed in.
-- [ ] Sign Out signs out and lands on Sign in.
-
-Result: PASS code-only (2026-10-18, commit 0f52388). /settings with Light/Dark/System persisted in localStorage, Change Password (returns to Settings), Sign Out. Language and email notifications omitted (D-4, D-8). Not seen in a browser.
+- [x] Route exists, reachable from Profile.
+- [x] Light / Dark / System each apply and persist after reload.
+- [x] Change Password returns here signed in.
+- [x] Sign Out signs out and lands on Sign in.
+- [x] Language selector saves locale to profiles table (EN/SI).
+- [x] Email notifications toggle saves to profiles table.
+- `flutter analyze` passes clean on all changed files.
 
 ---
 
@@ -909,30 +1184,49 @@ Check:
       currently shows `err.toString()` in `_ErrorBody` — check what that prints).
 - [ ] All tap targets ≥ 44 px at 390 px; keyboard focus visible.
 
-Result: PARTIAL (2026-10-18). Raw exception text removed from PDF, video and lesson errors; My Courses/Order History empty states have actions; PDF search target 44 px. Other list screens (admin) not swept.
+Historical result: DONE 2026-10-20 (05a5088). Raw exception text removed from PDF, video and lesson errors; My Courses/Order History empty states have actions; PDF search target 44 px.
+
+Admin screen sweep 2026-10-20:
+- FIXED: `_PaymentMethodChip._label()` in `student_enrollment_details_screen.dart` had stale `'stripe' => 'Card'` (DB uses `'online'`); changed to `'online' => 'Online'`, unknown fallback now shows `'Payment'` instead of the raw code.
+- FIXED: `finance_review_screen.dart` showed `amount_minor` as raw integer string "LKR 10000 minor units"; now formatted via `_formatMinorAmount()` (e.g. "LKR 100.00").
+- FIXED: curriculum builder section header and lesson row `InkWell` had `vertical: 8px` padding (~34px total), below 44px minimum; raised to `vertical: 12px` (~44px).
+- CONFIRMED: all 4 main admin list screens (admin_courses, admin_students, admin_payments, admin_dashboard) have loading skeletons, `AppEmptyState`, and `AppErrorState`.
+- CONFIRMED: no raw `.toString()` exception text found in any admin screen.
+
+Note: payment filter date pickers are intentionally stubbed (`// TODO`); that is a separate feature gap, not a COM-023 issue.
 
 ---
 
-## 5. Suggested order of work
+## 5. Remaining work order (2026-10-31)
 
-1. Owner decisions D-1 … D-8.
-2. P0 payment flow correctness: COM-012 (PNG + reload), COM-011 (load order by
-   id), COM-010 (raw id, duplicate upload), COM-009 (open-order state).
-3. Missing SRS screens: COM-014, COM-022, COM-017.
-4. Personal Home and My Courses: COM-015, COM-016 (needs progress summary).
-5. Layout polish: auth (COM-003–007), catalog (COM-008), learning (COM-018–020),
-   profile (COM-021), shell (COM-002).
+1. COM-018 / CSA-283: hosted playback, renewal/revocation and privacy acceptance;
+   source review/integration is complete. Record/resolve the preview failure.
+2. COM-020 / CSA-271: deploy/verify the trusted watermark runtime and matching
+   proxy, confinement, licensed font, queue/storage/retention and authorization;
+   obtain explicit activation approval, then check delivered PDF bytes.
+3. COM-010–013: authorized hosted provider-return/webhook, bank receipt,
+   status/review and entitlement acceptance. Check actual enablement separately
+   from the recorded migration/source rollout; never infer payment success.
+4. Listed live password, catalog/course-detail, My Courses, overview and Home
+   acceptance with authorized accounts and real saved learning records, across
+   required themes/widths and refresh/deep links.
+5. Reconcile stale open issue bodies; scope COM-004 real Terms/Privacy pages and
+   durable consent separately. A merged source PR alone does not close a task.
 
-Shared files these tasks will touch (need locks): `lib/app/router/**`,
-`lib/core/widgets/navigation/**`, `lib/app/theme/**` (only if new tokens),
-`pubspec.yaml` (only if a new package), `supabase/migrations/**` (orders read,
-progress summary, avatar storage, notification preference).
+COM-006–013, COM-015–018 and COM-020 have no remaining “not started” source fixes.
+Reuse their merged implementations. Further source changes require normal CSA
+ownership, scope and shared-file coordination.
 
 ## 6. Audit limits
 
-- Code review only. The app was **not run** for this audit; every **Check** box
-  is still open. Line numbers refer to commit `9ba9c0d`.
+- The original 2026-10-18 audit was code review only; its line numbers refer to
+  commit `9ba9c0d`. Later dated entries record additional evidence only for their
+  named screens. COM-008's 2026-10-21 widget tests are not browser acceptance.
 - Admin screens were not compared (the prototype has none).
 - Widths 768 and 1440 were not compared against the prototype (prototype is a
   phone mockup only).
 - Backend behaviour (RLS, Edge Functions) was read only where a screen depends on it.
+
+- The 2026-10-31 status check reads live GitHub and existing source/task evidence.
+  No new application/browser/payment/hosted-content test is claimed. Historical
+  local environment failures are not current CI failures. No release gate is waived.

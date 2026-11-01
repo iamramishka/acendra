@@ -107,7 +107,7 @@ class StudentShell extends ConsumerWidget {
             },
           ),
           const SizedBox(width: 8),
-          const AccountMenu(icon: Icon(Icons.menu)),
+          const AccountMenu(),
           const SizedBox(width: 8),
         ],
       ),

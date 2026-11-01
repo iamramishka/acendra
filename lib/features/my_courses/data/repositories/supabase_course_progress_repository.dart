@@ -28,13 +28,12 @@ final courseProgressRepositoryProvider = Provider<CourseProgressRepository>(
   (ref) => SupabaseCourseProgressRepository(Supabase.instance.client),
 );
 
-/// Progress is an enhancement: if it cannot be read, screens still list the
-/// student's courses and simply omit progress.
+/// Preserve failures so the library can explain unavailable progress and retry
+/// independently of the enrolled-course list.
 final courseProgressProvider =
-    FutureProvider.autoDispose<Map<String, CourseProgress>>((ref) async {
-      try {
-        return await ref.read(courseProgressRepositoryProvider).summary();
-      } catch (_) {
-        return const {};
-      }
-    });
+    FutureProvider.autoDispose<Map<String, CourseProgress>>(
+      (ref) => ref.watch(courseProgressRepositoryProvider).summary(),
+      // An explicit retry keeps failures visible rather than continuously
+      // returning to loading on Riverpod's automatic retry timer.
+      retry: (_, _) => null,
+    );

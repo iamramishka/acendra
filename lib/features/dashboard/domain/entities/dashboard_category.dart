@@ -1,5 +1,5 @@
 /// Semantic icon keys; the presentation layer chooses the Flutter icons.
-enum DashboardCategoryIcon { development, design, business, languages }
+enum DashboardCategoryIcon { development, design, business, languages, general }
 
 /// Dashboard presentation metadata without changing the marketplace category.
 class DashboardCategory {

@@ -28,7 +28,21 @@ class ReceiptStatusScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transfer Status'),
+        title: const Text('Payment Status'),
+        actions: [
+          IconButton(
+            tooltip: 'Refresh Payment Status',
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              final identity = ref.read(bankSessionIdentityProvider);
+              if (identity != null) {
+                ref.invalidate(
+                  receiptSubmissionRequestProvider((identity, orderId)),
+                );
+              }
+            },
+          ),
+        ],
         leading: BackButton(
           onPressed: () => context.canPop()
               ? context.pop()
@@ -46,7 +60,10 @@ class ReceiptStatusScreen extends ConsumerWidget {
         data: (submission) => _StatusBody(
           submission: submission,
           onUploadTap: () => context.push(
-            RouteNames.receiptResubmit.replaceFirst(':orderId', orderId),
+            (submission.status == ReceiptStatus.awaitingReceipt
+                    ? RouteNames.bankTransfer
+                    : RouteNames.receiptResubmit)
+                .replaceFirst(':orderId', orderId),
           ),
         ),
       ),
