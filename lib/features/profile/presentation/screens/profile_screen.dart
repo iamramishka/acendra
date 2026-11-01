@@ -1,5 +1,6 @@
 import 'package:acendra/app/router/route_names.dart';
 import 'package:acendra/features/authentication/presentation/providers/logout_provider.dart';
+import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 import 'package:acendra/features/profile/presentation/providers/profile_provider.dart';
 import 'package:acendra/features/settings/presentation/providers/language_provider.dart';
 import 'package:flutter/material.dart';
@@ -44,11 +45,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       (_nameChanged || _languageChanged) && (!_nameChanged || _validName);
 
   Future<void> _save() async {
+    final actor = ref.read(currentSessionProvider)?.user.id;
     final name = _nameController.text.trim();
     if (_nameChanged && name.isNotEmpty) {
       await ref
           .read(profileEditProvider.notifier)
           .updateDisplayName(displayName: name);
+      if (!mounted || actor != ref.read(currentSessionProvider)?.user.id) {
+        return;
+      }
       final editState = ref.read(profileEditProvider);
       if (editState.hasError) {
         final err = profileEditError(editState);
@@ -70,6 +75,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           .read(localeUpdateProvider.notifier)
           .setLocale(_pendingLanguage!.code);
     }
+    if (!mounted || actor != ref.read(currentSessionProvider)?.user.id) return;
     setState(() => _pendingLanguage = null);
     if (mounted) {
       ScaffoldMessenger.of(
@@ -98,6 +104,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(currentSessionProvider, (previous, next) {
+      if (previous?.user.id == next?.user.id) return;
+      final name =
+          (next?.user.userMetadata?['full_name'] as String?)?.trim() ?? '';
+      setState(() {
+        _baseName = name;
+        _nameController.text = name;
+        _emailController.text = next?.user.email ?? '';
+        _pendingLanguage = null;
+      });
+    });
     ref.listen<String?>(displayNameProvider, (prev, next) {
       if (!_nameChanged) {
         final name = next?.trim() ?? '';
@@ -110,10 +127,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     });
 
     final displayName = ref.watch(displayNameProvider);
+    final avatarUrl = ref.watch(avatarUrlProvider).asData?.value;
     final email = ref.watch(currentEmailProvider);
     final logoutState = ref.watch(logoutProvider);
     final currentLang = ref.watch(preferredLanguageProvider);
-    final avatarUrl = ref.watch(avatarUrlProvider).asData?.value;
 
     final initials = _initials(displayName ?? email);
     final cs = Theme.of(context).colorScheme;
@@ -146,10 +163,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 children: [
                   CircleAvatar(
                     radius: 48,
+                    foregroundImage: avatarUrl == null
+                        ? null
+                        : NetworkImage(avatarUrl),
+                    onForegroundImageError: avatarUrl == null
+                        ? null
+                        : (_, _) {},
                     backgroundColor: Colors.white.withValues(alpha: 0.15),
-                    backgroundImage: avatarUrl != null
-                        ? NetworkImage(avatarUrl)
-                        : null,
                     child: avatarUrl == null
                         ? Text(
                             initials,

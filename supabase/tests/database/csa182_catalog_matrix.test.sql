@@ -25,6 +25,7 @@ from pg_attribute a where a.attrelid='public.profiles'::regclass and a.attnum>0 
 select pg_temp.assert_ok(has_column_privilege('authenticated','public.profiles',column_name,'UPDATE'),'approved profile update '||column_name)
 from unnest(array['display_name','locale','avatar_path','email_notifications_enabled']) column_name;
 select pg_temp.assert_ok(exists(select 1 from pg_constraint where conrelid='public.profiles'::regclass and conname='profiles_avatar_path_own_folder' and convalidated),'avatar own-folder constraint enforced');
+select pg_temp.assert_ok(exists(select 1 from storage.buckets where id='avatars' and not public and file_size_limit between 1 and 5242880),'avatar bucket remains private and bounded');
 select pg_temp.assert_ok(p.proconfig @> array['search_path=""'],'definer empty search path '||p.oid::regprocedure)
 from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname in ('public','app_private') and p.proname like 'csa%' and p.prosecdef;
 select '1..'||last_value from csa182_assertions;

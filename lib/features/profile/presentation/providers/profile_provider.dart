@@ -54,9 +54,10 @@ class AvatarUploadNotifier extends AsyncNotifier<void> {
 
   /// Returns true when a new photo was uploaded; false if cancelled/failed.
   Future<bool> changePhoto() async {
+    final actor = ref.read(currentSessionProvider)?.user.id;
     state = const AsyncLoading();
     var uploaded = false;
-    state = await AsyncValue.guard(() async {
+    final result = await AsyncValue.guard(() async {
       final AvatarFile? file;
       try {
         file = await ref.read(avatarPickerProvider)();
@@ -66,9 +67,20 @@ class AvatarUploadNotifier extends AsyncNotifier<void> {
         throw const ProfileUpdateFailed('Photo upload needs a web browser.');
       }
       if (file == null) return;
+      if (!ref.mounted) return;
+      if (actor != ref.read(currentSessionProvider)?.user.id) {
+        throw const ProfileUpdateFailed(
+          'Your account changed. Choose the photo again.',
+        );
+      }
       await ref.read(profileRepositoryProvider).uploadAvatar(file);
+      if (!ref.mounted || actor != ref.read(currentSessionProvider)?.user.id) {
+        return;
+      }
       uploaded = true;
     });
+    if (!ref.mounted) return false;
+    state = result;
     if (uploaded) ref.invalidate(avatarUrlProvider);
     return uploaded;
   }

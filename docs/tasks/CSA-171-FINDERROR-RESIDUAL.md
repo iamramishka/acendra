@@ -1,5 +1,12 @@
 # Issue 171 — finderror residual repairs and integration
 
+> Historical implementation snapshot. Issue #171 closed after PR #165 merged and
+> its CI reconciliation passed. The incomplete analyzer and 13-test baseline
+> below were superseded by that follow-up. Payment reporting and artwork source
+> subsequently merged through PRs #194/#197. See the
+> [2026-10-20 status reconciliation](../reviews/CSA-269-FINDERROR-STATUS.md)
+> for remaining operational acceptance; the original evidence is preserved below.
+
 Owner: CODEX. Status: IN_REVIEW. Authorization: project owner requested fixes
 and explicitly authorized taking over and integrating PR #165 on 2026-10-17.
 Coordination: GitHub issue #171; previous owners/scopes recorded in #164 and #166.

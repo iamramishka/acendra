@@ -1,7 +1,9 @@
-> Repair status (2026-10-17): historical observations below are retained for traceability.
-> Current implementation and verification status for all 25 findings is recorded in
-> [CSA-171-FINDERROR-RESIDUAL.md](docs/tasks/CSA-171-FINDERROR-RESIDUAL.md).
-> Live deployment and reporting activation have not been performed.
+> Status reconciliation (2026-10-20): the 25 observations below are historical.
+> Current source versus operational acceptance is recorded in
+> [CSA-269-FINDERROR-STATUS.md](docs/reviews/CSA-269-FINDERROR-STATUS.md).
+> The earlier [repair record](docs/tasks/CSA-171-FINDERROR-RESIDUAL.md) is retained
+> as dated evidence; its adapter/artwork and failing-baseline statements have
+> been superseded by later merges. Hosted activation is not inferred from a merge.
 
 # Acedra — Bug Report / Issue Log
 
