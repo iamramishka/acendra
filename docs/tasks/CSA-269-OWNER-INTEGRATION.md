@@ -174,3 +174,16 @@ parent first, retarget to dev and require the normal protected integration
 checks before acceptance. No workflow/protection/billing setting was changed.
 No deployment, provider activation, hosted ledger or student data was changed.
 Status IN_REVIEW; independent maintainer approval remains required.
+
+### Final profile-save regression
+
+A new delayed-locale widget regression reproduces a remaining stale-result
+bug on d23672f: account A starts a language save, the screen switches to B,
+then A's completion shows Profile updated under B. RED expected no success
+message but found one. The final account check now runs after the locale await,
+before clearing form state or confirming success. The regression and all six
+avatar/account cases pass after the fix. Full affected-suite/analysis reruns
+are in progress; their final results are recorded in the PR follow-up.
+No locale policy, persistence contract, database or Settings source changes.
+The preceding Supabase run 41270917367 passed; final-head verification is
+separately dispatched rather than attributing that result to the new commit.

@@ -28,6 +28,12 @@ Session session(String id) => Session(
 class _Repository extends ProfileRepository {
   _Repository() : super.forTesting();
   int uploads = 0;
+  Completer<void>? localeSave;
+  @override
+  Future<void> updateLocale(String? locale) async {
+    await localeSave?.future;
+  }
+
   @override
   Future<void> uploadAvatar(AvatarFile file) async {
     uploads++;
@@ -35,6 +41,44 @@ class _Repository extends ProfileRepository {
 }
 
 void main() {
+  testWidgets(
+    'late language save cannot confirm an update for another account',
+    (tester) async {
+      final repository = _Repository()..localeSave = Completer<void>();
+      final container = ProviderContainer(
+        overrides: [
+          currentSessionProvider.overrideWith((ref) => ref.watch(_session)),
+          profileRepositoryProvider.overrideWithValue(repository),
+        ],
+      );
+      addTearDown(container.dispose);
+      container.read(_session.notifier).state = session('same-user');
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(home: ProfileScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(
+        find.byKey(const Key('profile-language-field')),
+      );
+      await tester.tap(find.byKey(const Key('profile-language-field')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('සිංහල').last);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Save Changes'));
+      await tester.tap(find.text('Save Changes'));
+      await tester.pump();
+      container.read(_session.notifier).state = session('other-user');
+      await tester.pumpAndSettle();
+      repository.localeSave!.complete();
+      await tester.pumpAndSettle();
+      expect(find.text('Profile updated'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('switching accounts discards unsaved profile fields', (
     tester,
   ) async {

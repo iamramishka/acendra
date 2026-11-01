@@ -75,7 +75,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           .read(localeUpdateProvider.notifier)
           .setLocale(_pendingLanguage!.code);
     }
-    if (!mounted) return;
+    if (!mounted || actor != ref.read(currentSessionProvider)?.user.id) return;
     setState(() => _pendingLanguage = null);
     if (mounted) {
       ScaffoldMessenger.of(
