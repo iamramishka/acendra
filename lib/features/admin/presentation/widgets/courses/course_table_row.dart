@@ -61,7 +61,7 @@ class CourseTableRow extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  '${course.currency} ${course.price.toStringAsFixed(0)}',
+                  '${course.currency} ${course.priceText}',
                   style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                 ),
               ],
@@ -101,7 +101,7 @@ class CourseTableRow extends StatelessWidget {
               ),
               const SizedBox(width: AppSpacing.sm),
               AppButton(
-                label: 'Delete',
+                label: 'Archive',
                 onPressed: onDelete,
                 variant: ButtonVariant.destructive,
                 size: ButtonSize.medium,

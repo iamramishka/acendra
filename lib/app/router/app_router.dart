@@ -325,6 +325,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     builder: (_, state) => LessonEditorScreen(
                       courseId: state.pathParameters['courseId']!,
                       lessonId: state.pathParameters['lessonId']!,
+                      sectionId: state.uri.queryParameters['section_id'],
                     ),
                   ),
                 ],
