@@ -116,3 +116,61 @@ The primary checkout advanced independently after snapshot `31aaddc`; those late
 local changes are not silently copied into this PR. Original worktrees and the
 primary checkout remain untouched by this task. No source merge, deployment,
 hosted activation, sandbox cleanup or production acceptance was performed.
+
+## Current-dev reconciliation — 2026-11-01
+
+Owner: CODEX, continuing #200 / PR #202 under the request to fix actionable
+open issues. Worktree: C:/Users/ramis/.codex/worktrees/csa269-current-integration/acendra.
+Branch: fix/csa-269-owner-changes-integration. Prior head 13aa7b9 is retained;
+published CSA-268 head 8d90690 (including current dev 6d0e8c9) is merged without
+rewriting either history. Original worktrees and pending PR249/252 are untouched.
+
+Most historical owner UI changes are already in current dev. Five conflicts
+were reviewed individually. The resolution preserves:
+
+- CSA-268's repaired single empty-state action, trusted curriculum operations,
+  revision/session checks and selected lesson parent.
+- Current Admin Grant payment filtering; the old snapshot removed this action.
+- Current My Courses thumbnails, overview-first navigation, saved-progress
+  behavior and accessibility sizes rather than the older direct-resume tile.
+- Current Settings navigation and accessible sign-out control with error/retry.
+- Current column grants including email notification preferences, plus the
+  incoming assertion that the avatar bucket remains private and bounded.
+
+The original merged avatar migration 20261019000100 is retained unchanged. The
+old dependent-branch rename to 20261020000300 is removed, avoiding replay of
+identical policy/constraint SQL under a different Supabase ledger identity.
+All migration blobs now match the parent PR exactly; this PR adds no migration.
+CSA-268's unique authoring version is inherited unchanged.
+
+Remaining functional source changes are the original profile/account boundary
+repairs: discard dirty form fields after account changes, reject stale avatar
+picker dispatch after account/logout/disposal, and suppress late form results.
+The automatic merge duplicated the avatarUrl declaration and configured both
+foreground and background images. The duplicate declaration was caught by the
+first compile attempt; the combined source now declares it once and renders
+one image with the existing incoming foreground error handler.
+
+Fresh verification:
+
+- Locked dependency restore succeeds; no dependency changes.
+- Corrected serialized Profile/Settings/My Courses suite: 63 pass, zero failures.
+  The initial compile failure and interrupted first run are not called passes.
+- Default analysis: no issues (264.1 seconds).
+- Formatting: all 422 Dart files unchanged; diff against the parent passes
+  whitespace checks; no unresolved merge conflicts.
+- All 47 migrations replay on a new task-owned native PostgreSQL 17 cluster.
+  Five SQL suites pass: avatar isolation, catalog permission matrix (344
+  assertions), course authoring, archival and publication. Native Auth/Storage
+  shims include storage.foldername and the normal authenticated Storage DML
+  grants; RLS remains enabled and the new cross-account test exercises it.
+  This is not a claim of hosted Supabase acceptance. Database server stopped.
+- Inherited duplicate migration-version regression passes.
+
+Required full Flutter/Chrome/build and managed Supabase verification will be
+explicitly dispatched for this branch, since its stacked base is outside the
+normal pull_request branch filter. Keep PR202 stacked on PR201; merge the
+parent first, retarget to dev and require the normal protected integration
+checks before acceptance. No workflow/protection/billing setting was changed.
+No deployment, provider activation, hosted ledger or student data was changed.
+Status IN_REVIEW; independent maintainer approval remains required.

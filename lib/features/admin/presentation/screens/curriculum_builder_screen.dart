@@ -244,9 +244,15 @@ class _CurriculumBuilderScreenState
                     ref.invalidate(adminCurriculumProvider(widget.courseId)),
               ),
               data: (sections) => sections.isEmpty
-                  ? const AppEmptyState(
-                      message: 'No sections yet. Add your first section below.',
-                    )
+                  ? _adding
+                        ? const SizedBox.shrink()
+                        : AppEmptyState(
+                            message: 'No sections yet. Add your first section.',
+                            actionLabel: 'Add Section',
+                            onAction: _busy
+                                ? null
+                                : () => setState(() => _adding = true),
+                          )
                   : ReorderableListView.builder(
                       itemCount: sections.length,
                       buildDefaultDragHandles: false,
@@ -279,7 +285,7 @@ class _CurriculumBuilderScreenState
                 ),
               ],
             ),
-          ] else
+          ] else if (!data.hasValue || data.requireValue.isNotEmpty)
             AppButton(
               label: 'Add Section',
               variant: ButtonVariant.secondary,

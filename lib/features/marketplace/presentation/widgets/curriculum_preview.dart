@@ -60,16 +60,19 @@ class _LessonTile extends StatelessWidget {
     return ListTile(
       dense: true,
       leading: Icon(
-        isEnrolled || lesson.isPreview
+        lesson.isUnlockedFor(owned: isEnrolled)
             ? _typeIcon(lesson.lessonType)
             : Icons.lock_outline,
         size: 18,
+        semanticLabel: lesson.isUnlockedFor(owned: isEnrolled)
+            ? lesson.typeLabel
+            : 'Locked',
       ),
       title: Text(lesson.title),
-      subtitle: lesson.durationSeconds == null
+      subtitle: lesson.durationLabel == null
           ? null
-          : Text('${(lesson.durationSeconds! / 60).ceil()} min'),
-      trailing: lesson.isPreview
+          : Text(lesson.durationLabel!),
+      trailing: lesson.isPreview && !isEnrolled
           ? Chip(
               label: const Text('Preview'),
               padding: EdgeInsets.zero,

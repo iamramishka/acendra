@@ -78,3 +78,79 @@ After two brace-only profile lint fixes, all 17 affected profile tests passed
 again; the preceding 197-case combined run and six SQL suites remain recorded
 with their exact scope. Hosted full suites/approval and managed-service acceptance
 remain separate requirements.
+
+
+## Current-dev integration repair — 2026-11-01
+
+Owner: CODEX, continuing #199 / PR #201 under the owner's request to fix
+open issues. Active isolated worktree:
+C:/Users/ramis/.codex/worktrees/csa268-current-integration/acendra.
+Branch remains fix/csa-268-review-completion. Prior head abe19a5 is preserved;
+current upstream dev 6d0e8c9 is deliberately merged without rewriting history.
+The original implementation worktrees and dependent PR #202 are untouched.
+
+The one conflicting source file was the curriculum builder. Upstream added an
+empty-state shortcut and larger controls; CSA-268 added persistent mutations,
+original revisions, selected lesson parents and session guards. The resolution
+retains the trusted builder, its existing medium-size controls/ListTiles and the
+upstream shortcut. Empty curricula expose exactly one Add Section action; the
+shortcut is hidden while the form is open, and the footer remains available for
+nonempty curricula. No blanket conflict-resolution command was used.
+
+RED: upstream's empty-state shortcut regression failed on the original PR source
+because it found zero matching actions. GREEN: all 46 publishing-journey cases
+pass, including saved section appearance, empty-state navigation, cancel/reopen
+and account-switch clearing without either repository receiving a stale write.
+The first all-admin run had 178 passes and one failure: the incoming test still
+expected two Add Section actions. Its expectation now requires one and its save
+assertion remains intact. The complete 46-case journey rerun passes; this gives
+179 distinct passing admin cases across the two runs, not a claim that the first
+run was green.
+
+Fresh checks:
+
+- Locked dependency restore succeeds; no dependency versions changed.
+- Default flutter analyze --no-pub: no issues (52.4 seconds).
+- dart format --output=none --set-exit-if-changed lib test: 421 files unchanged.
+- Authoring/publication HTTP handler tests: 75 pass, no skips.
+- Full tooling suite: 952 pass, 14 conditional/environment skips, zero failures.
+  The first run had one unrelated vendor-integrity failure caused by Windows
+  core.autocrlf rewriting the pinned Mux bundle. Restoring exact Git blob bytes
+  locally makes the unchanged integrity assertion pass. No hash assertion or
+  vendor source was modified; permanent checkout attributes need a separate fix.
+- All 47 migrations replayed on a fresh task-owned PostgreSQL 17 cluster;
+  authoring, archival and publication SQL suites pass. The native-only bootstrap
+  also needed a synthetic storage.foldername helper for the existing avatar
+  migration. No hosted Auth/Storage equivalence is claimed.
+- Real PostgreSQL concurrency suites: seven tests pass with no skips, proving
+  competing stale writes, revoked assignment/authority, duplicate publication
+  and pending media rejection. The disposable database server was stopped.
+- git diff --check passes; all merge conflict markers are resolved.
+
+Release build and exact-head hosted CI results are recorded in the PR follow-up
+when complete. Required independent approval, managed-service acceptance and
+hosted activation remain gates. Historical billing failures above belong to the
+old head; no billing/protection setting, live data, activation or deployment was
+changed in this repair. Status remains IN_REVIEW for acceptance.
+
+### Supabase ledger collision repair and release build
+
+Current-head hosted Supabase run 41270030753 reached the migration step and
+failed with SQLSTATE 23505 at the authoring migration. Investigation found two
+files with version 20261020000100: merged COM-022 notifications and the unmerged
+CSA-268 authoring migration. Native direct SQL replay does not maintain Supabase's
+version ledger, explaining why it did not catch this integration defect.
+
+The task's own unpublished authoring migration is renamed, byte-for-byte, to
+20261020000101_csa268_course_authoring.sql. The merged notifications migration,
+archival migration and all SQL behavior are unchanged; authoring still runs
+before archival. No hosted migration ledger is altered. A new executable
+migration-version regression fails with both filenames before the rename and
+passes afterwards. This is safe for fresh replay; any environment with an
+independently applied unpublished October authoring migration requires explicit
+ledger reconciliation before activation. No such environment is assumed here.
+
+Standard flutter build web --release --no-pub passed (188.0 seconds), including
+Wasm dry run. The existing missing Cupertino icon-font warning remains. Fresh
+required hosted checks must run on the renamed-migration head; the failed run
+above is retained as failure evidence rather than called a pass.

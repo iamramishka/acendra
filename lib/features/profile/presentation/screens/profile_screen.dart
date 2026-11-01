@@ -70,6 +70,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       ref
           .read(preferredLanguageProvider.notifier)
           .setLanguage(_pendingLanguage!);
+      // Best-effort DB sync (failures are swallowed; localStorage is the local source).
+      await ref
+          .read(localeUpdateProvider.notifier)
+          .setLocale(_pendingLanguage!.code);
     }
     if (!mounted) return;
     setState(() => _pendingLanguage = null);
@@ -166,13 +170,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ? null
                         : (_, _) {},
                     backgroundColor: Colors.white.withValues(alpha: 0.15),
-                    child: Text(
-                      initials,
-                      style: tt.headlineMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                    child: avatarUrl == null
+                        ? Text(
+                            initials,
+                            style: tt.headlineMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          )
+                        : null,
                   ),
                   const SizedBox(height: 8),
                   TextButton(
@@ -286,7 +292,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               leading: const Icon(Icons.settings_outlined),
               title: const Text('Settings'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push(RouteNames.settings),
+              onTap: () => context.go(RouteNames.settings),
             ),
             const SizedBox(height: 32),
             Padding(

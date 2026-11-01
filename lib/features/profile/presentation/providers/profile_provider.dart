@@ -94,3 +94,62 @@ final avatarUploadProvider = AsyncNotifierProvider<AvatarUploadNotifier, void>(
 ProfileFailure? profileEditError(AsyncValue<void> state) {
   return state.error is ProfileFailure ? state.error as ProfileFailure : null;
 }
+
+// ---------------------------------------------------------------------------
+// Preferences: locale (D-4) and email notifications (D-8)
+// ---------------------------------------------------------------------------
+
+class UserPreferences {
+  const UserPreferences({this.locale, this.emailNotificationsEnabled = true});
+  final String? locale;
+  final bool emailNotificationsEnabled;
+}
+
+/// Fetches locale and email notification preference from the profiles table.
+final userPreferencesProvider = FutureProvider<UserPreferences>((ref) async {
+  ref.watch(currentSessionProvider);
+  final prefs = await ref.read(profileRepositoryProvider).fetchPreferences();
+  return UserPreferences(
+    locale: prefs.locale,
+    emailNotificationsEnabled: prefs.emailNotificationsEnabled,
+  );
+});
+
+/// Notifier for updating locale (D-4: 'en' or 'si').
+class LocaleUpdateNotifier extends AsyncNotifier<void> {
+  @override
+  Future<void> build() async {}
+
+  Future<void> setLocale(String? locale) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => ref.read(profileRepositoryProvider).updateLocale(locale),
+    );
+    if (!state.hasError) ref.invalidate(userPreferencesProvider);
+  }
+}
+
+final localeUpdateProvider = AsyncNotifierProvider<LocaleUpdateNotifier, void>(
+  LocaleUpdateNotifier.new,
+);
+
+/// Notifier for updating email notification preference (D-8).
+class EmailNotificationsNotifier extends AsyncNotifier<void> {
+  @override
+  Future<void> build() async {}
+
+  Future<void> setEnabled(bool enabled) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => ref
+          .read(profileRepositoryProvider)
+          .updateEmailNotifications(enabled: enabled),
+    );
+    if (!state.hasError) ref.invalidate(userPreferencesProvider);
+  }
+}
+
+final emailNotificationsProvider =
+    AsyncNotifierProvider<EmailNotificationsNotifier, void>(
+      EmailNotificationsNotifier.new,
+    );

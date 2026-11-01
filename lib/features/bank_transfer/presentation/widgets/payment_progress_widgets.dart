@@ -47,8 +47,7 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
-/// Course, order reference, method and submission time for a bank transfer.
-/// Amount is not shown: the student status read does not return it.
+/// Trusted order details; order creation and receipt submission are distinct.
 class BankOrderDetailsCard extends StatelessWidget {
   const BankOrderDetailsCard({super.key, required this.submission});
 
@@ -59,6 +58,7 @@ class BankOrderDetailsCard extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
     final ext = Theme.of(context).extension<AppThemeExtension>()!;
     final submitted = submission.submittedAt?.toLocal();
+    final ordered = submission.orderCreatedAt?.toLocal();
 
     Widget cell(String label, String value) => Expanded(
       child: Column(
@@ -92,7 +92,20 @@ class BankOrderDetailsCard extends StatelessWidget {
                 'Order Reference',
                 submission.orderNumber == '---' ? '—' : submission.orderNumber,
               ),
+              cell('Amount', submission.formattedAmount ?? 'Unavailable'),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               cell('Payment Method', 'Bank Transfer'),
+              cell(
+                'Ordered',
+                ordered == null
+                    ? 'Unavailable'
+                    : '${ordered.day}/${ordered.month}/${ordered.year}',
+              ),
             ],
           ),
           if (submitted != null) ...[

@@ -173,6 +173,7 @@ class AuthPasswordField extends StatefulWidget {
     this.hint,
     this.errorText,
     this.onChanged,
+    this.onSubmitted,
     this.textInputAction = TextInputAction.next,
     this.autofillHints = const [AutofillHints.password],
   });
@@ -182,6 +183,7 @@ class AuthPasswordField extends StatefulWidget {
   final String? hint;
   final String? errorText;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
   final TextInputAction textInputAction;
   final Iterable<String> autofillHints;
 
@@ -203,6 +205,7 @@ class _AuthPasswordFieldState extends State<AuthPasswordField> {
         textInputAction: widget.textInputAction,
         errorText: widget.errorText,
         onChanged: widget.onChanged,
+        onSubmitted: widget.onSubmitted,
         keyboardType: TextInputType.visiblePassword,
         autofillHints: widget.autofillHints,
         obscureText: _obscure,

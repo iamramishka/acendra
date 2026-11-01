@@ -85,8 +85,51 @@ class _StatusHeader extends StatelessWidget {
       ReceiptStatus.rejected => (BadgeVariant.error, 'Rejected'),
     };
 
-    return Row(
-      children: [StatusBadge(label: label, variant: variant)],
+    final title = switch (submission.status) {
+      ReceiptStatus.awaitingReceipt => 'Receipt Needed',
+      ReceiptStatus.submitted ||
+      ReceiptStatus.underReview => 'Awaiting Verification',
+      ReceiptStatus.approved => 'Transfer confirmed',
+      ReceiptStatus.rejected => 'Receipt needs attention',
+    };
+    final cs = Theme.of(context).colorScheme;
+    final ext = Theme.of(context).extension<AppThemeExtension>();
+    final pending =
+        submission.status == ReceiptStatus.submitted ||
+        submission.status == ReceiptStatus.underReview;
+    final icon = switch (submission.status) {
+      ReceiptStatus.approved => Icons.verified_user_outlined,
+      ReceiptStatus.rejected => Icons.error_outline,
+      _ => Icons.schedule,
+    };
+    return Column(
+      children: [
+        Center(
+          child: Container(
+            width: 88,
+            height: 88,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: pending
+                  ? ext?.warningContainer ?? cs.tertiaryContainer
+                  : cs.surfaceContainerHighest,
+            ),
+            child: Icon(
+              icon,
+              size: 44,
+              color: pending ? ext?.warning ?? cs.tertiary : cs.primary,
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Text(
+          title,
+          style: Theme.of(context).textTheme.headlineSmall,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: AppSpacing.md),
+        StatusBadge(label: label, variant: variant),
+      ],
     );
   }
 }

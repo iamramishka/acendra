@@ -1,6 +1,8 @@
 @TestOn('browser')
 library;
 
+import 'com011_payment_return_test.dart'
+    show registerPaymentReturnRegressionTests;
 import 'package:acendra/app/router/app_router.dart';
 import 'package:acendra/app/router/route_names.dart';
 import 'package:acendra/app/theme/app_theme.dart';
@@ -60,6 +62,7 @@ Widget _app({required bool sessionRestored, required bool isAuthenticated}) =>
     );
 
 void main() {
+  registerPaymentReturnRegressionTests();
   registerLessonRouteRegressionTests();
   for (final path in [RouteNames.dashboardHome, RouteNames.savedCourses]) {
     testWidgets('signed-out deep link $path requires login', (tester) async {

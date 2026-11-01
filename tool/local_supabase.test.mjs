@@ -3,7 +3,22 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { createLayout, renderConfig, publicClientConfig, allowedCommand, isLocalDockerEndpoint, pinLocalDockerEndpoint, prepareSnapshot, safeLintSummary } from './local_supabase.mjs';
+import { createLayout, renderConfig, publicClientConfig, allowedCommand, isLocalDockerEndpoint, pinLocalDockerEndpoint, prepareSnapshot, safeLintSummary, safeTestErrorLocations } from './local_supabase.mjs';
+
+test('database failure locations exclude notices and unknown paths without exposing messages', () => {
+  const known = new Set(['csa174_audit_integrity.test.sql', 'csa060_profile_rls.test.sql']);
+  const output = [
+    'psql:/work/csa174_audit_integrity.test.sql:69: NOTICE: audit checks passed',
+    'psql:/work/csa060_profile_rls.test.sql:25: ERROR: private diagnostic',
+    'psql:/work/csa060_profile_rls.test.sql:26: WARNING: private warning',
+    'psql:/work/csa060_profile_rls.test.sql:27: FATAL: private fatal',
+    'psql:/work/csa999_unknown.test.sql:8: ERROR: unknown private diagnostic',
+  ].join('\n');
+  assert.deepEqual(safeTestErrorLocations(output, known), [
+    'SQL location csa060_profile_rls.test.sql:25',
+    'SQL location csa060_profile_rls.test.sql:27',
+  ]);
+});
 
 test('lint failure summary excludes raw messages, SQL, unknown identifiers and credentials', () => {
   const known = new Set(['public.csa104_finalize_payment']);

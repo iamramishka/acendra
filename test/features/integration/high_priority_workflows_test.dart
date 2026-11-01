@@ -18,9 +18,10 @@ library;
 //
 // Workflow 3: Checkout → bank transfer → receipt status
 //   Checkout screen with a pending bank-transfer order → tap "Continue Bank
-//   Transfer" → BankTransferScreen renders instructions → tap "I've made the
-//   transfer" → navigates to receipt status screen.
+//   Transfer" → instructions and receipt upload render together; status
+//   navigation requires a confirmed receipt submission (COM-012).
 
+import 'package:acendra/core/widgets/buttons/app_button.dart';
 import 'package:acendra/app/router/app_router.dart';
 import 'package:acendra/app/router/route_names.dart';
 import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
@@ -419,12 +420,12 @@ void main() {
 
         expect(find.text('Bank Transfer'), findsWidgets);
         expect(find.text('Log in to your bank'), findsOneWidget);
-        expect(find.text("I've made the transfer"), findsOneWidget);
+        expect(find.text("Submit Receipt for Review"), findsOneWidget);
       },
     );
 
     testWidgets(
-      '"I\'ve made the transfer" navigates to receipt status screen',
+      'bank instructions require receipt submission before status navigation',
       (tester) async {
         await tester.pumpWidget(
           _authenticatedApp(
@@ -446,11 +447,15 @@ void main() {
             .go(RouteNames.bankTransfer.replaceFirst(':orderId', _kOrderId));
         await tester.pumpAndSettle();
 
-        await tester.tap(find.text("I've made the transfer"));
-        await tester.pumpAndSettle();
-
-        // Receipt status screen should now be visible.
-        expect(find.text('Transfer Status'), findsWidgets);
+        expect(
+          tester
+              .widget<AppButton>(
+                find.widgetWithText(AppButton, 'Submit Receipt for Review'),
+              )
+              .onPressed,
+          isNull,
+        );
+        expect(find.text('Payment Status'), findsNothing);
       },
     );
 
@@ -476,7 +481,7 @@ void main() {
             .go(RouteNames.receiptStatus.replaceFirst(':orderId', _kOrderId));
         await tester.pumpAndSettle();
 
-        expect(find.text('Transfer Status'), findsWidgets);
+        expect(find.text('Payment Status'), findsWidgets);
       },
     );
   });

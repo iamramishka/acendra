@@ -138,6 +138,12 @@ class _PaymentFilterBarState extends State<PaymentFilterBar> {
                 selected: widget.filter.method == PaymentMethod.bankTransfer,
                 onTap: () => _onMethodTap(PaymentMethod.bankTransfer),
               ),
+              const SizedBox(width: AppSpacing.sm),
+              AdminFilterChip(
+                label: 'Admin Grant',
+                selected: widget.filter.method == PaymentMethod.adminGrant,
+                onTap: () => _onMethodTap(PaymentMethod.adminGrant),
+              ),
             ],
           ),
         ),

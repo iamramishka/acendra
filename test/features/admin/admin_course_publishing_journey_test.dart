@@ -17,6 +17,7 @@ import 'package:acendra/features/admin/presentation/screens/course_editor_screen
 import 'package:acendra/features/admin/presentation/screens/curriculum_builder_screen.dart';
 import 'package:acendra/features/admin/presentation/screens/lesson_editor_screen.dart';
 import 'package:acendra/core/widgets/feedback/app_skeleton.dart';
+import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -1048,7 +1049,7 @@ void main() {
       expect(find.text('Getting Started'), findsOneWidget);
     });
 
-    testWidgets('tapping Add Section reveals the section title form', (
+    testWidgets('empty-state Add Section reveals the section title form', (
       tester,
     ) async {
       final repo = _FakeAdminCourseRepository();
@@ -1057,11 +1058,48 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Add Section'));
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AppEmptyState),
+          matching: find.text('Add Section'),
+        ),
+      );
       await tester.pump();
 
       expect(find.text('Section Title'), findsOneWidget);
     });
+
+    testWidgets(
+      'cancel restores one empty-state action and session switch clears the form',
+      (tester) async {
+        final repo = _FakeAdminCourseRepository();
+        await tester.pumpWidget(
+          _wrap(const CurriculumBuilderScreen(courseId: 'course-draft'), repo),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Add Section'), findsOneWidget);
+        await tester.tap(find.text('Add Section'));
+        await tester.pump();
+        expect(find.text('Add Section'), findsNothing);
+        await tester.enterText(find.byType(TextField), 'Private unsaved title');
+        await tester.tap(find.text('Cancel'));
+        await tester.pumpAndSettle();
+        expect(find.text('Add Section'), findsOneWidget);
+        await tester.tap(find.text('Add Section'));
+        await tester.pump();
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(CurriculumBuilderScreen)),
+        );
+        final replacement = _FakeAdminCourseRepository();
+        container.read(_selectedRepository.notifier).state = replacement;
+        await tester.pumpAndSettle();
+        expect(find.text('Private unsaved title'), findsNothing);
+        expect(find.text('Add Section'), findsOneWidget);
+        expect(await repo.getCurriculum('course-draft'), isEmpty);
+        expect(await replacement.getCurriculum('course-draft'), isEmpty);
+        expect(tester.takeException(), isNull);
+      },
+    );
 
     testWidgets('saved section title appears in the curriculum list', (
       tester,
@@ -1072,6 +1110,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      // Empty courses expose one action; save uses the trusted repository.
+      expect(find.text('Add Section'), findsOneWidget);
       await tester.tap(find.text('Add Section'));
       await tester.pump();
 

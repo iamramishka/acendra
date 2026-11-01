@@ -32,6 +32,21 @@ Methodology:
 
 ---
 
+## Comparison audit reconciliation — 2026-10-31
+
+Current student-screen status: [compare.md](compare.md) and the
+[coordination/evidence record](docs/tasks/CSA-COMPARE-STATUS-20261029.md).
+COM IDs are audit identifiers, not replacement CSA implementation claims. Rechecked after repair on 2026-10-31: PR236 is merged at eef7442. PR235 is approved and merged at eabec68 from reviewed head 7fe1eb5 with passing required workflows; hosted video acceptance remains gated. The original local checkout is older than remote dev.
+
+COM-006–013, COM-015–018 and COM-020 source fixes are merged into dev (PRs linked
+in compare.md); do not assign them again as missing implementation. Latest frontend deployment [41186883246](https://github.com/iamramishka/acendra/actions/runs/41186883246) succeeded for cff285a (PR237); PR235 deployment also succeeded. Fresh HTTPS, redirect, security-header and merged-asset checks passed. Requested post-PR237 navigation smoke check PASS: fresh browser reload, Home, My Courses empty state, Explore, course details/Back, Settings and fresh admin login to Home verified. Enrolled content and settings persistence are outside this smoke check. See the dated evidence record above. COM-018's
+CSA-283 source is merged through PR235; hosted playback/privacy acceptance remains open. CSA-271's hosted watermark runtime
+and activation, and documented financial/content/live acceptance, remain open.
+Source integration does not satisfy those release gates. Historical task sections
+below retain their original milestone context.
+
+---
+
 # 1. PURPOSE
 
 TASKS.md defines the master implementation
@@ -2956,5 +2971,15 @@ INTEGRATION - VERIFIED.
   Scope, acceptance and evidence: [task record](docs/tasks/CSA-266-PAYMENT-REPORTING.md).
   Owner deferred refund/net figures to a separate confirmed-refund ledger task.
   Production deployment and financial mutations are excluded.
+
+## CSA-270 — COM-008 lazy catalog and browser verification
+
+- [ ] CSA-270 [P1] [X] [IN_REVIEW]
+  Owner: CODEX; issue #203; branch `feat/csa-270-catalog-sliver`.
+  Isolated worktree: C:/Users/ramis/.codex/worktrees/csa270-catalog-sliver/acendra.
+  Scope, dependencies, acceptance and evidence: [task record](docs/tasks/CSA-270.md).
+  PR #204; 19 catalog checks, full analysis and release build pass locally.
+  Hosted CI, required review and browser acceptance remain gates.
+  Owner requested merge to dev; production deployment is excluded.
 
 END OF TASKS.md

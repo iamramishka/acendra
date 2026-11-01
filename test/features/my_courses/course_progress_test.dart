@@ -1,4 +1,7 @@
 import 'package:acendra/features/dashboard/presentation/widgets/dashboard_personal_section.dart';
+import 'package:acendra/features/dashboard/domain/entities/student_home.dart';
+import 'package:acendra/features/dashboard/presentation/providers/student_home_provider.dart';
+import 'package:acendra/features/marketplace/domain/entities/lesson_item.dart';
 import 'package:acendra/features/my_courses/data/repositories/supabase_course_progress_repository.dart';
 import 'package:acendra/features/my_courses/domain/entities/course_progress.dart';
 import 'package:acendra/features/my_courses/presentation/screens/my_courses_screen.dart';
@@ -31,12 +34,37 @@ CourseProgress _p(int done, int total, {bool opened = false}) => CourseProgress(
 
 Widget _app(Widget child, CourseProgressRepository progress) => ProviderScope(
   overrides: [
+    studentHomeProvider.overrideWith(
+      (ref) async => StudentHome(
+        courses: [fakeEnrolledCourse],
+        progress: await progress.summary(),
+        nextLessons: {
+          'course-1': const HomeLesson(
+            course: fakeEnrolledCourse,
+            lesson: LessonItem(
+              id: 'l-next',
+              title: 'Next lesson',
+              lessonType: 'video',
+              position: 4,
+              isPreview: false,
+            ),
+            number: 4,
+          ),
+        },
+      ),
+    ),
     myCoursesRepositoryProvider.overrideWithValue(
       FakeMyCoursesRepository(result: [fakeEnrolledCourse]),
     ),
     courseProgressRepositoryProvider.overrideWithValue(progress),
   ],
-  child: MaterialApp(home: Scaffold(body: child)),
+  child: MaterialApp(
+    home: Scaffold(
+      body: child is DashboardPersonalSection
+          ? SingleChildScrollView(child: child)
+          : child,
+    ),
+  ),
 );
 
 void main() {
@@ -108,8 +136,9 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('Good morning'), findsOneWidget);
-      expect(find.text('Continue Learning'), findsOneWidget);
-      expect(find.text('3 of 10 lessons completed'), findsOneWidget);
+      expect(find.text('Resume Learning'), findsOneWidget);
+      expect(find.text('Next lesson'), findsOneWidget);
+      expect(find.text('3 of 10 lessons completed'), findsNWidgets(2));
     });
   });
 }

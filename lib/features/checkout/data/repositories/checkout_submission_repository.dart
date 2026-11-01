@@ -154,11 +154,11 @@ class CheckoutSubmissionRepository {
   }) async {
     final extension = name.split('.').last.toLowerCase();
     if (!_uuid.hasMatch(orderId) ||
-        !{'jpg', 'jpeg', 'pdf'}.contains(extension) ||
+        !{'jpg', 'jpeg', 'png', 'pdf'}.contains(extension) ||
         bytes.isEmpty ||
         bytes.length > 5 * 1024 * 1024) {
       throw const CheckoutFlowException(
-        'Select a JPG or PDF receipt up to 5 MB.',
+        'Select a JPEG, PNG or PDF receipt up to 5 MiB.',
       );
     }
     // Send a safe ASCII transport filename, never a path or user-controlled header.
@@ -166,7 +166,11 @@ class CheckoutSubmissionRepository {
       'Idempotency-Key': key,
       'X-Order-Id': orderId,
       'X-Receipt-Name': 'receipt.$extension',
-      'Content-Type': extension == 'pdf' ? 'application/pdf' : 'image/jpeg',
+      'Content-Type': switch (extension) {
+        'pdf' => 'application/pdf',
+        'png' => 'image/png',
+        _ => 'image/jpeg',
+      },
     }, bytes);
     if (data['order_id'] != orderId.toLowerCase() ||
         data['status'] != 'submitted' ||

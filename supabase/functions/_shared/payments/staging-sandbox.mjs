@@ -14,10 +14,10 @@ export function stagingSandboxConfiguration(env) {
     merchantId: env('PAYHERE_SANDBOX_MERCHANT_ID'),
     merchantSecret: env('PAYHERE_SANDBOX_MERCHANT_SECRET'),
     appId: env('PAYHERE_SANDBOX_APP_ID'), appSecret: env('PAYHERE_SANDBOX_APP_SECRET'),
-    // Browser return only opens the authenticated course list; it cannot settle
-    // a payment. The provider notification alone enters verified settlement.
-    returnUrl: `${STAGING_APP_ORIGIN}/dashboard/courses`,
-    cancelUrl: `${STAGING_APP_ORIGIN}/marketplace`,
+    // These authenticated pages read order status; redirects cannot settle a
+    // payment. initialize-checkout binds the application order locator.
+    returnUrl: `${STAGING_APP_ORIGIN}/payments/return`,
+    cancelUrl: `${STAGING_APP_ORIGIN}/payments/cancel`,
     notifyUrl: `${STAGING_SUPABASE_URL}/functions/v1/payment-provider-webhook`,
   });
   try { createPayHereAdapter(config); return config; } catch { return undefined; }

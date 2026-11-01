@@ -13,7 +13,10 @@ import 'package:acendra/features/checkout/domain/entities/payment_handoff.dart';
 import 'package:acendra/features/checkout/data/repositories/checkout_submission_repository.dart';
 import 'package:acendra/features/checkout/data/repositories/student_order_repository.dart';
 import 'package:acendra/features/marketplace/presentation/providers/marketplace_provider.dart';
-import 'package:acendra/features/marketplace/presentation/widgets/course_art.dart';
+import 'package:acendra/core/widgets/cards/course_thumbnail.dart';
+import 'package:acendra/features/checkout/domain/entities/countries.dart';
+import 'package:acendra/features/checkout/domain/entities/checkout_status_label.dart';
+import 'package:acendra/features/checkout/presentation/widgets/checkout_step_bar.dart';
 import 'package:acendra/features/checkout/presentation/providers/payment_launcher_provider.dart';
 import 'package:acendra/features/checkout/presentation/providers/checkout_actor_provider.dart';
 import 'package:acendra/features/checkout/presentation/providers/checkout_provider.dart';
@@ -36,7 +39,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
   final _cityController = TextEditingController();
-  final _countryController = TextEditingController();
+  final _countryController = TextEditingController(text: kDefaultCountry);
+  final _countryFocus = FocusNode();
 
   // Validation error strings
   String? _firstNameError;
@@ -59,6 +63,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     _addressController.dispose();
     _cityController.dispose();
     _countryController.dispose();
+    _countryFocus.dispose();
     super.dispose();
   }
 
@@ -228,6 +233,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       setState(() {
         _paymentKey = null;
         _paymentOrderId = null;
+        for (final controller in [
+          _firstNameController,
+          _lastNameController,
+          _phoneController,
+          _addressController,
+          _cityController,
+        ]) {
+          controller.clear();
+        }
+        _countryController.text = kDefaultCountry;
       });
     });
     final checkoutState = ref.watch(checkoutProvider);
@@ -274,83 +289,89 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Secure Checkout'),
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.lock_outline, size: 20),
+            SizedBox(width: AppSpacing.sm),
+            Flexible(child: Text('Secure Checkout')),
+          ],
+        ),
         leading: BackButton(onPressed: back),
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
           padding: const EdgeInsets.all(16),
           color: Theme.of(context).colorScheme.surface,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Total Amount',
-                style: Theme.of(context).textTheme.labelMedium,
-              ),
-              Text(
-                order?.formattedAmount ??
+          child: Center(
+            heightFactor: 1,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: _CheckoutFooter(
+                amount:
+                    order?.formattedAmount ??
+                    openOrder?.formattedAmount ??
                     course?.asData?.value.formattedPrice ??
                     'Unavailable',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              AppButton(
-                label: canResume
-                    ? 'Resume Payment'
-                    : openOrder != null
-                    ? 'Payment Status'
-                    : order != null &&
-                          order.paymentMethod == PaymentMethod.online
-                    ? 'Pay Now'
-                    : effectiveMethod == PaymentMethod.online
-                    ? 'Continue to PayHere'
-                    : 'Continue to Bank Transfer',
-                isLoading: waiting,
-                onPressed: waiting || blocked
-                    ? null
-                    : () {
-                        if (canResume) {
-                          ref
-                              .read(checkoutProvider.notifier)
-                              .resumeOnlineOrder(
-                                courseId: widget.courseId,
-                                orderId: openOrder!.id,
-                              );
-                        } else if (openOrder != null) {
-                          context.push(
-                            RouteNames.orderStatus.replaceFirst(
-                              ':orderId',
-                              openOrder.id,
-                            ),
-                          );
-                        } else if (order == null) {
-                          _onProceed(selectedMethod);
-                        } else if (order.courseId != widget.courseId) {
-                          ref.read(checkoutProvider.notifier).reset();
-                        } else if (order.paymentMethod ==
-                            PaymentMethod.online) {
-                          _onPayNow();
-                        } else {
-                          context.push(
-                            RouteNames.bankTransfer.replaceFirst(
-                              ':orderId',
-                              order.orderId,
-                            ),
-                          );
-                        }
-                      },
-              ),
-              if (blocked)
-                TextButton(
-                  onPressed: () {
-                    ref.invalidate(courseDetailProvider(widget.courseId));
-                    ref.invalidate(openCourseOrderProvider(widget.courseId));
-                  },
-                  child: const Text('Retry checkout details'),
+                action: AppButton(
+                  label: canResume
+                      ? 'Resume Payment'
+                      : openOrder != null
+                      ? 'Payment Status'
+                      : order != null &&
+                            order.paymentMethod == PaymentMethod.online
+                      ? 'Pay Now'
+                      : effectiveMethod == PaymentMethod.online
+                      ? 'Continue to PayHere'
+                      : 'Continue to Bank Transfer',
+                  isLoading: waiting,
+                  onPressed: waiting || blocked
+                      ? null
+                      : () {
+                          if (canResume) {
+                            ref
+                                .read(checkoutProvider.notifier)
+                                .resumeOnlineOrder(
+                                  courseId: widget.courseId,
+                                  orderId: openOrder!.id,
+                                );
+                          } else if (openOrder != null) {
+                            context.push(
+                              RouteNames.orderStatus.replaceFirst(
+                                ':orderId',
+                                openOrder.id,
+                              ),
+                            );
+                          } else if (order == null) {
+                            _onProceed(selectedMethod);
+                          } else if (order.courseId != widget.courseId) {
+                            ref.read(checkoutProvider.notifier).reset();
+                          } else if (order.paymentMethod ==
+                              PaymentMethod.online) {
+                            _onPayNow();
+                          } else {
+                            context.push(
+                              RouteNames.bankTransfer.replaceFirst(
+                                ':orderId',
+                                order.orderId,
+                              ),
+                            );
+                          }
+                        },
                 ),
-            ],
+                retry: blocked
+                    ? TextButton(
+                        onPressed: () {
+                          ref.invalidate(courseDetailProvider(widget.courseId));
+                          ref.invalidate(
+                            openCourseOrderProvider(widget.courseId),
+                          );
+                        },
+                        child: const Text('Retry checkout details'),
+                      )
+                    : null,
+              ),
+            ),
           ),
         ),
       ),
@@ -400,12 +421,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Wrap(
-              alignment: WrapAlignment.spaceAround,
-              spacing: 16,
-              runSpacing: 8,
-              children: [Text('✓ Order'), Text('2 Payment'), Text('3 Confirm')],
-            ),
+            const CheckoutStepBar(),
             const SizedBox(height: 24),
             Text(
               'Complete Your Purchase',
@@ -426,7 +442,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   if (order != null) ...[
-                    Text(order.courseTitle, style: theme.textTheme.bodyLarge),
+                    _CourseSummary(
+                      courseId: widget.courseId,
+                      title: order.courseTitle,
+                    ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
                       order.formattedAmount,
@@ -448,15 +467,24 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           data: (course) => Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const CourseArt(height: 100),
-                              const SizedBox(height: 12),
-                              Text(
-                                course.title,
-                                style: theme.textTheme.titleLarge,
+                              _CourseSummary(
+                                courseId: course.id,
+                                title: course.title,
+                                lessonCount: course.totalLessons,
+                                category: ref
+                                    .watch(categoriesProvider)
+                                    .asData
+                                    ?.value
+                                    .where(
+                                      (category) =>
+                                          category.id == course.categoryId,
+                                    )
+                                    .map((category) => category.name)
+                                    .firstOrNull,
                               ),
-                              Text(
-                                '${course.totalLessons} lessons · Online Course',
-                              ),
+                              const SizedBox(height: AppSpacing.md),
+                              const Divider(),
+                              const Text('Total Amount'),
                               Text(
                                 course.formattedPrice,
                                 style: theme.textTheme.headlineSmall,
@@ -478,7 +506,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Payment Method',
+                      'Select Payment Method',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -607,15 +635,60 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         ),
                         const SizedBox(width: AppSpacing.md),
                         Expanded(
-                          child: AppTextField(
-                            label: 'Country',
-                            hint: 'Sri Lanka',
-                            controller: _countryController,
-                            errorText: _countryError,
-                            onChanged: (_) {
-                              if (_countryError != null) {
-                                setState(() => _countryError = null);
-                              }
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              return RawAutocomplete<String>(
+                                textEditingController: _countryController,
+                                focusNode: _countryFocus,
+                                optionsViewOpenDirection:
+                                    OptionsViewOpenDirection.up,
+                                optionsBuilder: (value) =>
+                                    countrySuggestions(value.text),
+                                fieldViewBuilder:
+                                    (context, controller, focus, onSubmit) =>
+                                        AppTextField(
+                                          label: 'Country',
+                                          hint: kDefaultCountry,
+                                          controller: controller,
+                                          focusNode: focus,
+                                          errorText: _countryError,
+                                          onChanged: (_) {
+                                            if (_countryError != null) {
+                                              setState(
+                                                () => _countryError = null,
+                                              );
+                                            }
+                                          },
+                                          onSubmitted: (_) => onSubmit(),
+                                        ),
+                                optionsViewBuilder:
+                                    (context, select, options) => Align(
+                                      alignment: Alignment.bottomLeft,
+                                      child: Material(
+                                        elevation: 4,
+                                        borderRadius: BorderRadius.circular(
+                                          AppRadius.md,
+                                        ),
+                                        child: ConstrainedBox(
+                                          constraints: BoxConstraints(
+                                            maxHeight: 180,
+                                            maxWidth: constraints.maxWidth,
+                                          ),
+                                          child: ListView(
+                                            padding: EdgeInsets.zero,
+                                            shrinkWrap: true,
+                                            children: [
+                                              for (final option in options)
+                                                ListTile(
+                                                  title: Text(option),
+                                                  onTap: () => select(option),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                              );
                             },
                           ),
                         ),
@@ -625,16 +698,6 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 ),
               ),
             ],
-
-            // ── Section 4: Bank Instructions ──────────────────────────────────
-            if (order != null &&
-                order.paymentMethod == PaymentMethod.bankTransfer &&
-                order.bankInstructions != null) ...[
-              const SizedBox(height: AppSpacing.lg),
-              _BankInstructionsCard(instructions: order.bankInstructions!),
-            ],
-
-            const SizedBox(height: AppSpacing.xl),
 
             const SizedBox(height: AppSpacing.xl),
           ],
@@ -666,6 +729,98 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
+class _CheckoutFooter extends StatelessWidget {
+  const _CheckoutFooter({
+    required this.amount,
+    required this.action,
+    this.retry,
+  });
+  final String amount;
+  final Widget action;
+  final Widget? retry;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final total = Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Total Amount', style: Theme.of(context).textTheme.labelMedium),
+          Text(amount, style: Theme.of(context).textTheme.titleMedium),
+        ],
+      );
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (constraints.maxWidth >= 340 &&
+              MediaQuery.textScalerOf(context).scale(1) <= 1.3)
+            Row(
+              children: [
+                Expanded(flex: 2, child: total),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(flex: 3, child: action),
+              ],
+            )
+          else
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                total,
+                const SizedBox(height: AppSpacing.sm),
+                action,
+              ],
+            ),
+          ?retry,
+        ],
+      );
+    },
+  );
+}
+
+class _CourseSummary extends StatelessWidget {
+  const _CourseSummary({
+    required this.courseId,
+    required this.title,
+    this.lessonCount,
+    this.category,
+  });
+  final String courseId, title;
+  final int? lessonCount;
+  final String? category;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      SizedBox(
+        width: 72,
+        height: 72,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          child: CourseThumbnail(title: title, courseId: courseId),
+        ),
+      ),
+      const SizedBox(width: AppSpacing.md),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: Theme.of(context).textTheme.titleMedium),
+            if (category != null) Text(category!),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              lessonCount == null
+                  ? 'Online Course'
+                  : '$lessonCount lessons · Online Course',
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
 class _StatusBadge extends StatelessWidget {
   const _StatusBadge({required this.status});
 
@@ -674,7 +829,7 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final label = status.replaceAll('_', ' ').toUpperCase();
+    final label = checkoutStatusLabel(status);
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -691,95 +846,6 @@ class _StatusBadge extends StatelessWidget {
           color: cs.onSecondaryContainer,
           fontWeight: FontWeight.w600,
         ),
-      ),
-    );
-  }
-}
-
-class _BankInstructionsCard extends StatelessWidget {
-  const _BankInstructionsCard({required this.instructions});
-
-  final BankInstructions instructions;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: cs.outline),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.account_balance_outlined, color: cs.primary, size: 20),
-              const SizedBox(width: AppSpacing.sm),
-              Text(
-                'Bank Transfer Instructions',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          _BankInfoRow(label: 'Bank', value: instructions.bankName),
-          _BankInfoRow(
-            label: 'Account Holder',
-            value: instructions.accountHolder,
-          ),
-          _BankInfoRow(
-            label: 'Account Number',
-            value: instructions.accountNumber,
-          ),
-          _BankInfoRow(label: 'Branch', value: instructions.branch),
-          _BankInfoRow(label: 'Currency', value: instructions.currency),
-        ],
-      ),
-    );
-  }
-}
-
-class _BankInfoRow extends StatelessWidget {
-  const _BankInfoRow({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 130,
-            child: Text(
-              label,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: cs.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

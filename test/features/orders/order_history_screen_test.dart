@@ -62,7 +62,7 @@ void main() {
     );
     expect(find.text('Order #A1'), findsOneWidget);
     expect(find.text('Go to Course'), findsOneWidget);
-    expect(find.text('View Payment Status'), findsOneWidget);
+    expect(find.text('View Payment Status'), findsNWidgets(2));
     expect(find.text('pending_verification'), findsNothing);
   });
 
