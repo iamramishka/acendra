@@ -1230,3 +1230,36 @@ ownership, scope and shared-file coordination.
 - The 2026-10-31 status check reads live GitHub and existing source/task evidence.
   No new application/browser/payment/hosted-content test is claimed. Historical
   local environment failures are not current CI failures. No release gate is waived.
+
+## Course overview and completion test — 2026-11-01 (CSA-286)
+
+Requested scope: saved progress, Continue Learning, lesson advancement and
+refresh (COM-017/018/019). Assignment and current evidence:
+[CSA-286](docs/tasks/CSA-286.md), [issue #250](https://github.com/iamramishka/acendra/issues/250).
+
+New browser journey tests connect the real overview, workspace, notifier and
+router to synthetic repository I/O. They exercise exact saved-lesson Resume,
+acknowledged save before advancement, module/course completion, reconstruction
+of client state against retained saved records, and failed read/save recovery.
+The full journey runs at 390/768/1440 in light and dark. The existing required
+Chrome CI command includes this browser-only suite.
+
+Result: automated scope PASS / overall IN_REVIEW. All 10 new journey cases and
+all 95 Chrome checks passed in [CI run 41268781316](https://github.com/iamramishka/acendra/actions/runs/41268781316)
+on source `a48b738`; the full native suite and static analysis also passed.
+Fresh local focused regressions: 49 passed. Detailed evidence and the initial
+test-harness correction are maintained in the linked task record.
+Synthetic repository reconstruction does not establish hosted database durability
+or an authenticated full browser refresh. Hosted app opened at Sign in; enrolled
+test-student sign-in and a course authorized for completion changes remain needed.
+Existing COM-017 hosted checkboxes and other release gates remain unchanged.
+
+Review follow-up (2026-11-01): the module-finished notice could survive into
+the next lesson and obscure its completion button. The earlier five-second
+test wait masked that interaction. Explicit overview-to-lesson navigation now
+dismisses the old notice; the full journeys Resume immediately and require a
+hit-testable next completion button. Two new native regressions reproduced the
+defect before the fix and pass afterward; 45 focused checks pass. Current
+repair CI evidence is maintained in [issue #250](https://github.com/iamramishka/acendra/issues/250)
+and [PR #252](https://github.com/iamramishka/acendra/pull/252), separately from the
+pre-repair source run above. Hosted acceptance remains pending.
