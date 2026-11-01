@@ -161,7 +161,7 @@ class _App {
           Session(
             accessToken: 'synthetic',
             tokenType: 'bearer',
-            user: User(
+            user: const User(
               id: 'synthetic-student',
               appMetadata: {},
               userMetadata: {},
