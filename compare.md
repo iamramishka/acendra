@@ -1230,3 +1230,22 @@ ownership, scope and shared-file coordination.
 - The 2026-10-31 status check reads live GitHub and existing source/task evidence.
   No new application/browser/payment/hosted-content test is claimed. Historical
   local environment failures are not current CI failures. No release gate is waived.
+
+## Course overview and completion test — 2026-11-01 (CSA-286)
+
+Requested scope: saved progress, Continue Learning, lesson advancement and
+refresh (COM-017/018/019). Assignment and current evidence:
+[CSA-286](docs/tasks/CSA-286.md), [issue #250](https://github.com/iamramishka/acendra/issues/250).
+
+New browser journey tests connect the real overview, workspace, notifier and
+router to synthetic repository I/O. They exercise exact saved-lesson Resume,
+acknowledged save before advancement, module/course completion, reconstruction
+of client state against retained saved records, and failed read/save recovery.
+The full journey runs at 390/768/1440 in light and dark. The existing required
+Chrome CI command includes this browser-only suite.
+
+Result: IN_REVIEW; execution evidence is maintained in the linked task record.
+Synthetic repository reconstruction does not establish hosted database durability
+or an authenticated full browser refresh. Hosted app opened at Sign in; enrolled
+test-student sign-in and a course authorized for completion changes remain needed.
+Existing COM-017 hosted checkboxes and other release gates remain unchanged.
