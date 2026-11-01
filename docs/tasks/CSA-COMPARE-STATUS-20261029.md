@@ -2,15 +2,18 @@
 
 ## Navigation follow-up — 2026-10-31, CSA-285
 
-Fresh live browser checks verified Home, the empty My Courses state, Explore
-search/categories, course details, actual course reload, fresh-tab direct links
-and Back. Profile → Settings exposed a new refresh defect: Settings displays
-while the address remains `/#/profile`, so reload returns to Profile. The bounded
-source repair and 39 passing related tests are recorded in
-[CSA-285](CSA-285-LIVE-NAVIGATION.md). Settings refresh remains a deployed defect
-until that repair is reviewed and released. This supersedes a blanket
-“navigation unverified” label without claiming every navigation path passes.
-Earlier dated smoke results below retain their original limited scope.
+Final acceptance documented 2026-11-01 for browser checks executed 2026-10-31:
+**PASS**. Owner-performed login and the resulting signed-in session, Home, empty
+My Courses, Explore, course details/Back and Settings were verified live. PR244
+fixed the Profile/Settings URL mismatch and deployed as `5fb7bb9` through
+[successful rollout 41211605981](https://github.com/iamramishka/acendra/actions/runs/41211605981).
+Actual authenticated Chrome refresh retained Settings and its URL; Settings Back
+returned to Profile, and browser Back/Forward restored matching pages and URLs.
+[CSA-285](CSA-285-LIVE-NAVIGATION.md#final-integration-and-hosted-acceptance--pass)
+records the evidence and separate enrolled-content/payment/preferences limits;
+[issue #243](https://github.com/iamramishka/acendra/issues/243) is closed. Earlier
+browser-disabled, pending-rollout and Settings-defect statements are historical.
+This documentation update performs no new live test or deployment.
 
 ## Deployment verification update — 2026-10-31
 

@@ -3,7 +3,7 @@
 
 Status: Draft audit (IN_REVIEW) — not a task claim
 Prepared by: CLAUDE
-Date: 2026-10-18; status reconciled 2026-10-31
+Date: 2026-10-18; navigation acceptance reconciled 2026-11-01
 Prototype: "Acedra Mobile Prototype" artifact — https://claude.ai/artifact/NDAfFDE3QHzxMNTRXqf4RJ
 Original code audit: branch `feat/csa-158-172-dashboard-receipts-ui` at `9ba9c0d`
 Scope: student-facing screens only (the prototype has no admin screens)
@@ -12,13 +12,15 @@ Scope: student-facing screens only (the prototype has no admin screens)
 
 ## Current status and pending work (rechecked 2026-10-31)
 
-**Fresh navigation follow-up (CSA-285):** Home, empty My Courses, Explore
-search/categories, course details, actual course reload, fresh-tab course links
-and Back were tested in the live browser. Profile → Settings renders but retains
-the Profile URL; refresh returns to Profile. A bounded source repair passes 39
-related tests and awaits review/release. See [live evidence and limits](docs/tasks/CSA-285-LIVE-NAVIGATION.md).
-The older “navigation unverified” notice is superseded; Settings refresh remains
-a confirmed deployed defect until the repair is released.
+**Navigation acceptance PASS (CSA-285; documented 2026-11-01):** Live checks on
+2026-10-31 verified owner-performed login/session restoration, Home, empty My
+Courses, Explore, course details/Back and Settings. PR244's Settings URL/refresh
+repair was deployed as `5fb7bb9`; actual Chrome refresh, Settings Back and browser
+Back/Forward passed with matching URLs. [Issue #243](https://github.com/iamramishka/acendra/issues/243)
+is closed. This supersedes “navigation unverified” and the earlier deployed
+Settings defect notice. See [dated evidence and limits](docs/tasks/CSA-285-LIVE-NAVIGATION.md#final-integration-and-hosted-acceptance--pass).
+Enrolled learning, preferences persistence, payments and protected playback remain
+separate acceptance areas; this does not claim a new browser run on 2026-11-01.
 
 This matrix supersedes the old pending index, summary verdicts and work order.
 Baseline: fetched `origin/dev` at `cff285a` (PR237 documentation merge, including PR235). Live GitHub records confirm the merged
