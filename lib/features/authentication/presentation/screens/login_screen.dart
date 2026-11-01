@@ -39,6 +39,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _submit() async {
+    if (_isLoading) return;
+
     final emailErr = _validateEmail(_emailController.text);
     final passErr = _passwordController.text.isEmpty
         ? 'Enter your password'
@@ -119,6 +121,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             hint: 'Enter your password',
             controller: _passwordController,
             textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _submit(),
             errorText: _passwordError,
             onChanged: (_) => setState(() => _passwordError = null),
           ),
