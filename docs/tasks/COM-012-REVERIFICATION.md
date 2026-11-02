@@ -25,6 +25,8 @@ https://acendra.vercel.app redirects to /#/login in this session. Owner confirms
 - Broader affected Flutter suite attempted with concurrency 1, but the Dart runtime aborted with out-of-memory and DartWorker thread-start errors. An earlier focused attempt also exhausted memory; the subsequent focused retry above passed. No broader pass is claimed.
 - `flutter analyze --no-pub`: no issues, exit 0.
 - Added browser picker regressions for JPEG and PDF byte preservation alongside existing PNG/size/cancel checks. `flutter test --no-pub --platform chrome test/browser/receipt_file_picker.browser.dart --reporter expanded` remained at loading/compilation without test output and was interrupted after a bounded attempt; browser execution remains unverified.
-- Release web build result pending below.
+- `flutter build web --release --no-pub`: failed, exit 1. Wasm dry run succeeded, then dart2js aborted with DartWorker thread-start failure (process exit -1073740791). No successful release build is claimed.
 
 The handler fixtures use a synthetic inspector and mocked Auth/SQL/Storage. They prove boundary behavior, not actual malicious-file detection, hosted bucket privacy or hosted RLS. No fresh database/Supabase Storage integration result is claimed. Hosted JPEG/PNG/PDF upload, browser refresh against staging, anonymous/other-student direct object denial and authenticated visual comparison remain blocked on an approved inspector, operational activation and test accounts. No paid purchase, deployment, gate bypass or live database/storage mutation was performed. Earlier PR #220 evidence is historical, not a current hosted result.
+
+Draft review: https://github.com/iamramishka/acendra/pull/259. Current-head CI and maintainer review remain required; task is not DONE. Existing saved owner credentials were used only in the publishing command; default account settings were not changed.
