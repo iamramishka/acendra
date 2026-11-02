@@ -6,19 +6,53 @@ const bytes=new Uint8Array([137,80,78,71,13,10,26,10,0]); // Synthetic signature
 const token='a.'+Buffer.from(JSON.stringify({sub:actor,role:'authenticated',session_id:session,aal:'aal1'})).toString('base64url')+'.c';
 const request=(data=bytes,extra={})=>new Request('https://app.test/receipt',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'image/png','X-Order-Id':order,'X-Receipt-Name':'receipt.png','Idempotency-Key':'key',...extra},body:data});
 function fixture(options={}){
+ const extension=options.extension??'png',mime=options.mime??'image/png',uploaded=options.bytes??bytes;
  const calls=[];let inspections=0;
  const inspector={policyReference:'synthetic-policy-v1',timeoutMs:1000,inspect:async({sha256,size,mime})=>{inspections++;return {safe:true,parseable:true,encrypted:false,withinResourceLimits:true,sha256,size,mime,policyReference:'synthetic-policy-v1',...options.inspection};}};
  const fetch=async(url,init)=>{calls.push({url,init});
-  if(url.includes('/auth/'))return Response.json({id:actor});
-  if(url.includes('csa108_'))return Response.json({upload_id:asset,submission_id:submission,receipt_asset_id:asset,bucket:'bank-receipts',object_path:`${actor}/${order}/${submission}/${asset}.png`,replayed:!!options.replayed,finalized:!!options.finalized,...options.prepared},{status:options.prepareStatus??200});
+  if(url.includes('/auth/'))return Response.json({id:actor}, {status:options.authStatus??200});
+  if(url.includes('csa108_'))return Response.json({upload_id:asset,submission_id:submission,receipt_asset_id:asset,bucket:'bank-receipts',object_path:`${actor}/${order}/${submission}/${asset}.${extension}`,replayed:!!options.replayed,finalized:!!options.finalized,...options.prepared},{status:options.prepareStatus??200});
   if(url.includes('csa109_'))return Response.json({order_id:order,submission_id:submission,status:'submitted',replayed:!!options.replayed},{status:options.finalStatus??200});
   if(init.method==='POST')return Response.json(options.uploadError??{}, {status:options.uploadStatus??200});
-  return new Response(options.stored??bytes,{status:options.readStatus??200,headers:{'Content-Type':'image/png'}});
+  return new Response(options.stored??uploaded,{status:options.readStatus??200,headers:{'Content-Type':mime}});
  };
  const handler=createHandler({env:n=>({SUPABASE_URL:'https://db.test',SUPABASE_ANON_KEY:'public',SUPABASE_SERVICE_ROLE_KEY:'private'}[n]),fetch,receiptUploadsEnabled:options.enabled??true,inspector:options.noInspector?undefined:inspector});
  return {handler,calls,get inspections(){return inspections;}};
 }
 test('default disabled no external effects',async()=>{const f=fixture({enabled:false});assert.equal((await f.handler(request())).status,503);assert.equal(f.calls.length,0);});
+// Synthetic format signatures exercise transport; they do not replace approved parsing/scanning.
+for (const [extension,mime,data] of [
+ ['jpg','image/jpeg',new Uint8Array([255,216,255,1])],
+ ['jpeg','image/jpeg',new Uint8Array([255,216,255,1])],
+ ['png','image/png',bytes],
+ ['pdf','application/pdf',new TextEncoder().encode('%PDF-1.7\nsynthetic')],
+]) test(`COM-012 ${extension} is inspected, privately stored and safely finalized`,async()=>{
+ const f=fixture({extension,mime,bytes:data});
+ const response=await f.handler(request(data,{'Content-Type':mime,'X-Receipt-Name':`receipt.${extension}`}));
+ assert.equal(response.status,201);
+ assert.equal(f.inspections,2);
+ const preparation=f.calls.find(c=>c.url.includes('csa108_'));
+ const reserved=JSON.parse(preparation.init.body);
+ assert.equal(reserved.p_mime,mime);
+ assert.equal(reserved.p_extension,extension);
+ const upload=f.calls.find(c=>c.url.includes('/storage/')&&c.init.method==='POST');
+ assert.equal(upload.url,`https://db.test/storage/v1/object/bank-receipts/${actor}/${order}/${submission}/${asset}.${extension}`);
+ assert.equal(upload.init.headers['Content-Type'],mime);
+ assert.equal(upload.init.headers['x-upsert'],'false');
+ assert.deepEqual(upload.init.body,data);
+ assert.equal(response.headers.get('Cache-Control'),'no-store');
+ const body=await response.text();
+ assert.ok(!body.includes('object_path')&&!body.includes('bank-receipts')&&!body.includes('private'));
+});
+test('COM-012 unauthenticated upload never reaches Auth or storage',async()=>{
+ const f=fixture();const incoming=request();incoming.headers.delete('Authorization');
+ assert.equal((await f.handler(incoming)).status,401);assert.equal(f.calls.length,0);
+});
+test('COM-012 rejected Auth never inspects or accesses private storage',async()=>{
+ const f=fixture({authStatus:401});
+ assert.equal((await f.handler(request())).status,401);assert.equal(f.inspections,0);
+ assert.equal(f.calls.length,1);assert.ok(f.calls[0].url.includes('/auth/'));
+});
 test('valid synthetic upload verifies actual bytes before safe finalization',async()=>{const f=fixture();const r=await f.handler(request());assert.equal(r.status,201);const result=await r.json();assert.equal(result.data.status,'submitted');assert.ok(!JSON.stringify(result).includes('object_path'));assert.equal(f.inspections,2);assert.deepEqual(f.calls.map(c=>c.url.includes('/rpc/')?c.url.split('/').at(-1):c.url.includes('/auth/')?'auth':c.init.method),['auth','csa108_prepare_receipt','POST','GET','csa109_finalize_receipt']);assert.equal(f.calls[2].init.headers['x-upsert'],'false');for(const c of f.calls)assert.equal(c.init.redirect,'error');});
 for(const [name,data,headers] of [['MIME spoof',bytes,{'Content-Type':'application/pdf'}],['extension spoof',bytes,{'X-Receipt-Name':'receipt.pdf'}],['unsafe path',bytes,{'X-Receipt-Name':'../receipt.png'}],['missing signature',new Uint8Array([1,2,3]),{}],['oversize',new Uint8Array(5242881),{}]])test('rejects '+name,async()=>{const f=fixture();assert.ok([400,413].includes((await f.handler(request(data,headers))).status));assert.equal(f.calls.length,0);});
 for(const [name,inspection] of [['unsafe',{safe:false}],['encrypted',{encrypted:true}],['unparseable',{parseable:false}],['resource limit',{withinResourceLimits:false}],['wrong digest',{sha256:'0'.repeat(64)}],['wrong policy',{policyReference:'other'}]])test('fails closed inspector '+name,async()=>{const f=fixture({inspection});assert.equal((await f.handler(request())).status,422);assert.equal(f.calls.length,1);});
