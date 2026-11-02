@@ -150,6 +150,20 @@ class _LearningWorkspaceScreenState
       }
     }
 
+    final isVideo = state.currentContent?.lessonType == 'video';
+    final lessonHeader =
+        state.currentLessonId != null &&
+            !state.isLoading &&
+            state.currentContent != null
+        ? _LessonHeader(
+            lessonNumber: currentIndex + 1,
+            typeLabel: flat[currentIndex].typeLabel,
+            completed: completed,
+            summary: summary,
+            title: isVideo ? state.currentContent!.title : null,
+            onMarkIncomplete: busy ? null : () => notifier.setCompleted(false),
+          )
+        : null;
     final contentArea = Column(
       children: [
         if (state.progressError != null)
@@ -165,18 +179,10 @@ class _LearningWorkspaceScreenState
               ],
             ),
           ),
-        if (state.currentLessonId != null &&
-            !state.isLoading &&
-            state.currentContent != null)
-          _LessonHeader(
-            lessonNumber: currentIndex + 1,
-            typeLabel: flat[currentIndex].typeLabel,
-            completed: completed,
-            summary: summary,
-            onMarkIncomplete: busy ? null : () => notifier.setCompleted(false),
-          ),
+        if (!isVideo && lessonHeader != null) lessonHeader,
         Expanded(
           child: _LessonContentArea(
+            videoHeader: isVideo ? lessonHeader : null,
             sections: state.sections,
             onResource: _openLesson,
             content: state.currentContent,
@@ -336,6 +342,7 @@ class _LessonContentArea extends StatelessWidget {
     required this.isLoading,
     required this.sections,
     required this.onResource,
+    this.videoHeader,
     this.onPrevious,
     this.onNext,
     this.forwardLabel,
@@ -348,6 +355,7 @@ class _LessonContentArea extends StatelessWidget {
   final LessonContent? content;
   final List<CurriculumSection> sections;
   final ValueChanged<String> onResource;
+  final Widget? videoHeader;
   final bool isLoading;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
@@ -398,6 +406,7 @@ class _LessonContentArea extends StatelessWidget {
               sectionId: content!.sectionId,
               sections: sections,
               onResource: onResource,
+              lessonHeader: videoHeader,
               initialVideoSeconds: initialVideoSeconds,
               onVideoSeconds: onVideoSeconds,
             ),
@@ -549,6 +558,7 @@ class _LessonHeader extends StatelessWidget {
     required this.typeLabel,
     required this.completed,
     required this.summary,
+    this.title,
     this.onMarkIncomplete,
   });
 
@@ -556,6 +566,7 @@ class _LessonHeader extends StatelessWidget {
   final String typeLabel;
   final bool completed;
   final CourseProgressSummary summary;
+  final String? title;
   final VoidCallback? onMarkIncomplete;
 
   @override
@@ -572,6 +583,10 @@ class _LessonHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (title != null) ...[
+            Text(title!, style: tt.headlineSmall),
+            const SizedBox(height: AppSpacing.sm),
+          ],
           Wrap(
             spacing: AppSpacing.sm,
             crossAxisAlignment: WrapCrossAlignment.center,
@@ -598,25 +613,49 @@ class _LessonHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.xs),
-          Semantics(
-            label:
-                'Course progress ${summary.percent} percent, '
-                '${summary.completedLessons} of ${summary.totalLessons} '
-                'lessons completed',
-            child: Row(
-              children: [
-                Expanded(
-                  child: LinearProgressIndicator(value: summary.percent / 100),
+          if (title != null)
+            Card(
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Course Progress', style: tt.titleMedium),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      '${summary.completedLessons} of ${summary.totalLessons} lessons completed',
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    LinearProgressIndicator(value: summary.percent / 100),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text('${summary.percent}% complete', style: tt.labelMedium),
+                  ],
                 ),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  '${summary.completedLessons}/${summary.totalLessons} · '
-                  '${summary.percent}%',
-                  style: tt.labelSmall,
-                ),
-              ],
+              ),
+            )
+          else
+            Semantics(
+              label:
+                  'Course progress ${summary.percent} percent, '
+                  '${summary.completedLessons} of ${summary.totalLessons} '
+                  'lessons completed',
+              child: Row(
+                children: [
+                  Expanded(
+                    child: LinearProgressIndicator(
+                      value: summary.percent / 100,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Text(
+                    '${summary.completedLessons}/${summary.totalLessons} · '
+                    '${summary.percent}%',
+                    style: tt.labelSmall,
+                  ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );

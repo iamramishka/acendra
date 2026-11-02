@@ -138,6 +138,8 @@ void main() {
     'same-module PDF opens its protected reader route and rechecks lesson access',
     (tester) async {
       final (router, _, lessons) = await mount(tester, _Progress());
+      await tester.ensureVisible(find.text('Resources'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Resources'));
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.text('Synthetic PDF').last);
