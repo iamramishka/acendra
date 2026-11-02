@@ -32,8 +32,8 @@ class _Views implements ui_web.PlatformViewRegistry {
 @JS('acendraMuxVideo')
 external set _runtime(JSObject value);
 const _lesson = '22222222-2222-4222-8222-222222222222';
-Session _session(String id) => Session(
-  accessToken: 'synthetic-$id',
+Session _session(String id, {String? token}) => Session(
+  accessToken: token ?? 'synthetic-$id',
   tokenType: 'bearer',
   user: User(
     id: id,
@@ -69,6 +69,7 @@ void main() {
   }
 
   int mounts = 0, destroys = 0;
+  final resumes = <int>[];
   JSFunction? emit;
   setUp(() {
     final views = _Views();
@@ -87,11 +88,13 @@ void main() {
           return null;
         });
     mounts = destroys = 0;
+    resumes.clear();
     emit = null;
     _runtime =
         {
               'mount': ((JSObject host, JSObject lease, JSFunction callback) {
                 mounts++;
+                resumes.add((lease.dartify() as Map)['resumeSeconds'] as int);
                 emit = callback;
                 return {
                       'ready': JSPromise<JSAny?>(
@@ -180,6 +183,66 @@ void main() {
       expect(requests, 2);
     },
   );
+  testWidgets('renewed access resumes the last reported position', (
+    tester,
+  ) async {
+    var requests = 0;
+    await mount(tester, (_) async {
+      requests++;
+      return _response();
+    });
+    await settle(tester);
+    emit!.callAsFunction(null, {'kind': 'progress', 'seconds': 37}.jsify());
+    emit!.callAsFunction(null, {'kind': 'expired'}.jsify());
+    await settle(tester);
+    await tester.tap(find.text('Retry'));
+    await settle(tester);
+    expect(requests, 2);
+    expect(resumes, [0, 37]);
+  });
+  testWidgets(
+    'token renewal retains position but another account starts separately',
+    (tester) async {
+      final (container, identity) = await mount(
+        tester,
+        (_) async => _response(),
+      );
+      await settle(tester);
+      emit!.callAsFunction(null, {'kind': 'progress', 'seconds': 37}.jsify());
+      container.read(identity.notifier).state = _session(
+        'A',
+        token: 'renewed-A',
+      );
+      await settle(tester);
+      expect(resumes, [0, 37]);
+      expect(destroys, 1);
+      container.read(identity.notifier).state = _session('B');
+      await settle(tester);
+      expect(resumes, [0, 37, 0]);
+      expect(destroys, 2);
+    },
+  );
+  testWidgets('revocation denies renewal without mounting another player', (
+    tester,
+  ) async {
+    var requests = 0;
+    await mount(tester, (_) async {
+      if (++requests > 1) {
+        throw const FunctionException(status: 403, details: 'private detail');
+      }
+      return _response();
+    });
+    await settle(tester);
+    emit!.callAsFunction(null, {'kind': 'expired'}.jsify());
+    await settle(tester);
+    await tester.tap(find.text('Retry'));
+    await settle(tester);
+    expect(requests, 2);
+    expect(mounts, 1);
+    expect(destroys, 1);
+    expect(find.textContaining('do not currently have access'), findsOneWidget);
+    expect(find.textContaining('private detail'), findsNothing);
+  });
   testWidgets(
     'expiry removes the player and Retry obtains fresh authorization',
     (tester) async {

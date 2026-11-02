@@ -44,10 +44,15 @@ class AuthorizedVideoWidget extends ConsumerStatefulWidget {
 class _AuthorizedWebState extends ConsumerState<AuthorizedVideoWidget> {
   String? _actor, _token, _lesson;
   int _generation = 0;
+  int? _resumeSeconds;
 
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(currentSessionProvider);
+    // Renew credentials without losing this actor/lesson's latest position.
+    if (_actor != session?.user.id || _lesson != widget.lessonId) {
+      _resumeSeconds = widget.initialVideoSeconds;
+    }
     if (_actor != session?.user.id ||
         _token != session?.accessToken ||
         _lesson != widget.lessonId) {
@@ -63,8 +68,11 @@ class _AuthorizedWebState extends ConsumerState<AuthorizedVideoWidget> {
       key: ValueKey(_generation),
       lessonId: widget.lessonId,
       title: widget.title,
-      initialVideoSeconds: widget.initialVideoSeconds,
-      onVideoSeconds: widget.onVideoSeconds,
+      initialVideoSeconds: _resumeSeconds,
+      onVideoSeconds: (seconds) {
+        _resumeSeconds = seconds;
+        widget.onVideoSeconds?.call(seconds);
+      },
     );
   }
 }
@@ -88,9 +96,11 @@ class _WebLeaseState extends ConsumerState<_WebLease> {
   AuthorizedVideo? _video;
   String? _error;
   int _request = 0;
+  int? _resumeSeconds;
   @override
   void initState() {
     super.initState();
+    _resumeSeconds = widget.initialVideoSeconds;
     Future.microtask(_authorize);
   }
 
@@ -140,8 +150,11 @@ class _WebLeaseState extends ConsumerState<_WebLease> {
       key: ValueKey(_request),
       video: video,
       title: widget.title,
-      resumeSeconds: widget.initialVideoSeconds,
-      onProgress: widget.onVideoSeconds,
+      resumeSeconds: _resumeSeconds,
+      onProgress: (seconds) {
+        _resumeSeconds = seconds;
+        widget.onVideoSeconds?.call(seconds);
+      },
       onFailure: (expired) {
         if (!mounted || _video == null) return;
         setState(() {

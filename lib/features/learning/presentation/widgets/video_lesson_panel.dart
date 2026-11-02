@@ -16,12 +16,14 @@ class VideoLessonPanel extends StatefulWidget {
     required this.sectionId,
     required this.sections,
     required this.onResource,
+    this.lessonHeader,
     this.initialVideoSeconds,
     this.onVideoSeconds,
   });
   final String lessonId, title, sectionId;
   final List<CurriculumSection> sections;
   final ValueChanged<String> onResource;
+  final Widget? lessonHeader;
   final int? initialVideoSeconds;
   final ValueChanged<int>? onVideoSeconds;
   @override
@@ -75,19 +77,23 @@ class _VideoLessonPanelState extends State<VideoLessonPanel>
               Center(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: maxPlayerWidth),
-                  child: AspectRatio(
-                    aspectRatio: 16 / 10,
-                    child: AuthorizedVideoWidget(
-                      key: ValueKey(widget.lessonId),
-                      lessonId: widget.lessonId,
-                      title: widget.title,
-                      initialVideoSeconds: widget.initialVideoSeconds,
-                      onVideoSeconds: widget.onVideoSeconds,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(AppRadius.card),
+                    child: AspectRatio(
+                      aspectRatio: 16 / 10,
+                      child: AuthorizedVideoWidget(
+                        key: ValueKey(widget.lessonId),
+                        lessonId: widget.lessonId,
+                        title: widget.title,
+                        initialVideoSeconds: widget.initialVideoSeconds,
+                        onVideoSeconds: widget.onVideoSeconds,
+                      ),
                     ),
                   ),
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
+              if (widget.lessonHeader != null) widget.lessonHeader!,
               TabBar(
                 controller: _tabs,
                 tabs: const [
@@ -98,7 +104,9 @@ class _VideoLessonPanelState extends State<VideoLessonPanel>
               const SizedBox(height: AppSpacing.md),
               if (_tabs.index == 0) ...[
                 Text(
-                  widget.title,
+                  widget.lessonHeader == null
+                      ? widget.title
+                      : 'About This Lesson',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: AppSpacing.sm),
