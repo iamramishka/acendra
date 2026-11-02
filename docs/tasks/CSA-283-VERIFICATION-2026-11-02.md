@@ -79,20 +79,30 @@ dpl_2Kuw8agsEzEexmJjDzD1jwzVXtyC, source Git commit
 - No build events/logs returned, and the full deployment API reports no builds.
   Failure precedes application compilation. This is not evidence of a Dart,
   Mux import or video-player source build failure.
-- Installed marketplace configurations include Supabase, Prisma and Neon.
-  The public integration-resource read endpoint rejects the account token with
-  HTTP 403: "Only integrations can query resources". The available evidence does
-  not identify which resource/action failed; do not guess or disconnect one.
+- The deployment-specific integrations endpoint identifies resource
+  `store_It7GV5DHrq5qJYsA`, named `supabase-fulvous-park`, external Supabase
+  project `hinhjzgogmmugnfvjdtl`. Its initial/final status is suspended and the
+  failing action is `branch-project` / "Supabase Preview Branch", preview target.
+  The store notification confirms "Project has been paused" and directs the
+  operator to Supabase to unpause it. Its billing state is active; that does not
+  make the paused backend active or authorize a paid branch/reactivation.
+- This resource differs from approved staging project `worrsweluwjmppwsygre`.
+  The general integration-resource endpoint returns HTTP 403 for the account
+  token, but the deployment-specific and storage endpoints supply the evidence
+  above. No resource/secret values are exposed in the evidence.
 - The dashboard in the task browser requires Vercel sign-in. Native-browser
   fallback was unavailable. No integration, secret, plan, alias, deployment or
   readiness setting was changed, and the failed check was not masked.
 
-Preview resolution remains blocked on an authorized Vercel dashboard/operator
-identifying the failed provisioning resource/action, repairing that integration
-within the existing plan, then retrying the preview. Retain the exact deployment
-ID and error above for provider support. A successful CLI-hosted alias does not
-clear this separate Git-preview failure. Do not add a speculative Flutter build
-configuration to address a failure that occurs before the build starts.
+Fresh current-state reconciliation: Vercel project `acendra` now has no Git link,
+and the paused store reports zero connected projects. The current READY alias is
+a CLI deployment of dev `6d0e8c9`, not a new failing Git preview. The recorded
+failed deployment is historical and remains ERROR; it was not rewritten as
+successful. Do not reconnect Git, revive this unrelated paused backend or add a
+speculative Flutter build configuration to clear an old status. Automated Git
+previews are currently not configured. Reintroducing them requires a separate
+approved preview/backend configuration; this follow-up does not replace the
+current operator's CLI release arrangement or deploy the new source changes.
 
 ## Fresh verification
 
@@ -124,7 +134,7 @@ configuration to address a failure that occurs before the build starts.
 
 Remaining final checks and PR handoff are recorded below. Hosted Mux signing,
 30-minute playback, four-minute seamless renewal, real entitlement revocation,
-privacy/network acceptance and the failed Vercel preview remain unverified.
+privacy/network acceptance and a newly configured Git preview remain unverified.
 The authorize-video entry is still deliberately gated (503 by default). Dummy
 media authorization does not waive that approved activation gate. Already
 delivered/buffered media cannot be recalled by revoking a new authorization.
@@ -138,3 +148,30 @@ alone completed successfully. The two actual HLS cases were independently run
 in the task browser using the production renderer. No combined multi-selector
 success is claimed. Local diagnostic server and temporary forwarders are not
 part of the application or a deployed preview.
+
+## Final source verification and handoff
+
+Source commit: `2acb716`. PR: https://github.com/iamramishka/acendra/pull/258.
+The final evidence-only commit changes this record; its head checks rerun
+independently and are not substituted for the tested source result below.
+
+- Exact-source Flutter CI 41489053385 succeeded:
+  https://github.com/iamramishka/acendra/actions/runs/41489053385.
+- 1,305 native tests with coverage and 85 primary browser checks passed.
+- Tooling: 912 cases, 905 passed, seven environment skips, zero failures. The
+  COM-018 real HLS/workspace/lifecycle Chrome wrapper passed, including the new
+  renewal/revocation cases. The unmodified vendor integrity case passes in Linux
+  CI; the separate Windows checkout issue remains owned by PR255.
+- Local `flutter build web --release --no-pub` exited 0. The existing Cupertino
+  font-family warning is retained; no dependency/assets were changed to hide it.
+- Final local `flutter analyze --no-pub`: no issues. Final formatting: 421 files,
+  zero changes. Scoped diff whitespace check passed.
+- The duplicate local full native run was stopped during resource pressure after
+  CI had already passed the full suite. A concurrent provider CLI probe reported
+  an out-of-memory error; its successful read-only retry used PowerShell HTTP.
+  No failed/partial local full-suite run is presented as a pass. Only owned test
+  processes were stopped; no unrelated user process or configuration changed.
+
+Approval authority remains the project owner/designated independent reviewer.
+Status IN_REVIEW: source changes are reviewable; no merge, deployment, provider
+reactivation, real student mutation or hosted video acceptance is claimed.
