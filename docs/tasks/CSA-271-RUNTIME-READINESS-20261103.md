@@ -321,3 +321,40 @@ disabled proxy deployment and final activation/live student acceptance remain
 required. See [runtime README](../../infra/pdf-sandbox/README.md) for the exact
 contracts and commands. The instance-local busy flag is explicitly not a global
 concurrency control, and no permissive production substitute was installed.
+
+## Approved included-quota hosted stage
+
+The owner approved one Linux CI image build and up to two synthetic Vercel jobs
+**within verified included quota**. This does not approve charges, plan upgrades,
+permission expansion, production content transfer or PDF activation.
+
+Fresh checks identified an existing owner token separate from the CLI's active
+collaborator identity. Using that existing token, without changing authentication
+configuration/scopes, verified the owner has GitHub Pro and current November
+Actions usage of 266 Linux minutes, approximately USD 1.596 of gross usage, fully
+discounted. Current GitHub documentation expresses Pro included compute as USD 18;
+one standard Linux build bounded to 20 minutes fits the observed allowance with
+reserve for the in-progress workflow. Live enumeration of all 80 owned repositories
+found 47 unexpired artifacts totaling 1,068,314 bytes. Reserving at most 300 MiB for
+one image archive stays below the 1 GB included artifact allowance. These are
+point-in-time checks; refresh before starting the single build.
+
+CODEX temporarily owns the new `.github/workflows/csa271-pdf-image-trial.yml` for
+this explicit one-build approval, plus image verification support under
+`infra/pdf-sandbox/**` and this evidence. Other existing workflows are unchanged.
+Open PRs were rechecked; none owns this new workflow. It triggers only on this
+task branch and the exact approved build commit message, uses pinned existing
+checkout/artifact actions, a standard Ubuntu runner, `contents: read`, no secrets,
+20-minute timeout, a 300 MiB artifact ceiling and one-day retention. No PR is opened
+at this stage because that would automatically start unrelated baseline workflows.
+
+Vercel remains Hobby, but fresh official VCR documentation lists image storage at
+USD 0.10/GB without a verified included allowance. Accordingly, image publication
+and the two dependent Sandbox jobs are held under the owner's no-extra-charge
+condition. No assumption that Hobby Sandbox compute allowances cover separately
+priced VCR storage is permitted. The independent Linux build can proceed within
+the verified GitHub allowance; no paid registry substitute or architecture change
+is silently selected.
+
+Sources: [GitHub included usage](https://docs.github.com/en/billing/reference/product-usage-included),
+[VCR pricing](https://vercel.com/docs/container-registry/limits-and-pricing).

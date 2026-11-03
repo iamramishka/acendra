@@ -1,0 +1,68 @@
+name: CSA-271 bounded PDF image build
+
+on:
+  push:
+    branches: [fix/csa-271-runtime-readiness]
+    paths: ['.github/workflows/csa271-pdf-image-trial.yml']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: csa271-approved-image-trial
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: >-
+      github.repository == 'iamramishka/acendra' &&
+      github.event.head_commit.message == 'ci(pdf): run approved bounded Linux image build'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Prepare allowlisted context
+        id: context
+        shell: bash
+        run: |
+          set -euo pipefail
+          context=$(node infra/pdf-sandbox/prepare_context.mjs | tail -n 1)
+          test -f "$context/CONTEXT-MANIFEST.json"
+          echo "path=$context" >> "$GITHUB_OUTPUT"
+      - name: Build Linux amd64 image
+        shell: bash
+        env:
+          CONTEXT: ${{ steps.context.outputs.path }}
+        run: |
+          set -euo pipefail
+          docker build --platform linux/amd64 --tag csa271-pdf:trial "$CONTEXT"
+      - name: Verify real non-root Python supervisor and font
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm --network none --memory 1g --cpus 1 --pids-limit 64 \
+            --cap-drop ALL --security-opt no-new-privileges \
+            --mount "type=bind,source=$GITHUB_WORKSPACE/tool/pdf_watermark/test_watermark.py,target=/tmp/test_watermark.py,readonly" \
+            --env PYTHONPATH=/opt/acendra/pdf_watermark \
+            --env CSA148_TEST_FONT=/opt/acendra/font/FreeSerif.ttf \
+            --entrypoint /opt/acendra/venv/bin/python csa271-pdf:trial \
+            -c 'import os,sys,unittest; assert os.getuid()!=0; suite=unittest.defaultTestLoader.discover("/tmp",pattern="test_watermark.py"); result=unittest.TextTestRunner(verbosity=2).run(suite); sys.exit(0 if result.wasSuccessful() and not result.skipped else 1)'
+      - name: Export bounded source-only image
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/pdf-image-trial
+          docker image inspect csa271-pdf:trial > build/pdf-image-trial/image-metadata.json
+          docker save csa271-pdf:trial | gzip -1 > build/pdf-image-trial/image.tar.gz
+          test "$(stat -c %s build/pdf-image-trial/image.tar.gz)" -le 314572800
+          cp "$(find build -maxdepth 2 -name CONTEXT-MANIFEST.json -print -quit)" build/pdf-image-trial/
+          sha256sum build/pdf-image-trial/image.tar.gz > build/pdf-image-trial/SHA256SUMS
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: csa271-reviewed-linux-image
+          path: build/pdf-image-trial/
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
