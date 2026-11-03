@@ -118,6 +118,22 @@ void main() {
           );
           await tester.pumpAndSettle();
           expect(find.text('Synthetic Bank'), findsOneWidget);
+          expect(
+            find.text('Follow the bank transfer instructions below.'),
+            findsOneWidget,
+          );
+          expect(find.text('Order Reference'), findsOneWidget);
+          expect(find.text('ACD-123'), findsOneWidget);
+          expect(find.text('Total Amount'), findsOneWidget);
+          expect(find.text('Log in to your bank'), findsNothing);
+          for (final label in [
+            'order reference',
+            'bank',
+            'account holder',
+            'account number',
+          ]) {
+            expect(find.byTooltip('Copy $label'), findsOneWidget);
+          }
           expect(find.text('Upload Payment Receipt'), findsOneWidget);
           expect(tester.widget<AppButton>(submit).onPressed, isNull);
           expect(

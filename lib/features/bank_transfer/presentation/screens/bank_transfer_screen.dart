@@ -113,88 +113,63 @@ class BankTransferScreen extends ConsumerWidget {
                 children: [
                   Text('Complete Your Transfer', style: tt.headlineSmall),
                   const SizedBox(height: AppSpacing.md),
-                  // ── Order badge ───────────────────────────────────────────
-                  Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                  Text(
+                    'Follow the bank transfer instructions below.',
+                    style: tt.bodyMedium?.copyWith(color: ext.textSecondary),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(AppRadius.card),
+                      border: Border.all(color: cs.outlineVariant),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Flexible(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.md,
-                              vertical: AppSpacing.xs,
-                            ),
-                            decoration: BoxDecoration(
-                              color: cs.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(
-                                AppRadius.chip,
-                              ),
-                            ),
-                            child: Text(
-                              'Order #$orderNumber  •  $formattedAmount',
-                              style: tt.bodySmall?.copyWith(
-                                color: ext.textSecondary,
-                              ),
-                            ),
+                        Text(
+                          courseTitle,
+                          style: tt.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        _CopyButton(
-                          label: 'order reference',
-                          value: orderNumber,
+                        const SizedBox(height: AppSpacing.md),
+                        Text(
+                          'Order Reference',
+                          style: tt.bodySmall?.copyWith(
+                            color: ext.textSecondary,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(orderNumber, style: tt.titleMedium),
+                            ),
+                            _CopyButton(
+                              label: 'order reference',
+                              value: orderNumber,
+                            ),
+                          ],
+                        ),
+                        const Divider(),
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          'Total Amount',
+                          style: tt.bodySmall?.copyWith(
+                            color: ext.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          formattedAmount,
+                          style: tt.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.md),
-
-                  Text(
-                    courseTitle,
-                    style: tt.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-
-                  const SizedBox(height: AppSpacing.xl),
-
-                  // ── Step list ─────────────────────────────────────────────
-                  _StepTile(
-                    step: 1,
-                    label: 'Log in to your bank',
-                    detail:
-                        'Use your bank\'s mobile app, internet banking, or visit a branch.',
-                    ext: ext,
-                    tt: tt,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  _StepTile(
-                    step: 2,
-                    label: 'Transfer the exact amount',
-                    detail:
-                        'Make sure you transfer exactly $formattedAmount. '
-                        'Incorrect amounts will delay verification.',
-                    ext: ext,
-                    tt: tt,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  _StepTile(
-                    step: 3,
-                    label: 'Use Order #$orderNumber as reference',
-                    detail:
-                        'Enter the order number in the transfer reference / narration field.',
-                    ext: ext,
-                    tt: tt,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  _StepTile(
-                    step: 4,
-                    label: 'Save your receipt',
-                    detail:
-                        'Keep a screenshot or PDF of the transfer confirmation.',
-                    ext: ext,
-                    tt: tt,
-                  ),
-
                   const SizedBox(height: AppSpacing.xl),
 
                   // ── Bank account details ──────────────────────────────────
@@ -212,6 +187,16 @@ class BankTransferScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: AppSpacing.xl),
 
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(AppRadius.card),
+                      border: Border.all(color: cs.outlineVariant),
+                    ),
+                    child: form,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
                   // ── Disclaimer ────────────────────────────────────────────
                   Container(
                     padding: const EdgeInsets.all(AppSpacing.md),
@@ -242,9 +227,6 @@ class BankTransferScreen extends ConsumerWidget {
                   ),
 
                   const SizedBox(height: AppSpacing.xl),
-
-                  form,
-                  const SizedBox(height: AppSpacing.xl),
                 ],
               ),
             ),
@@ -256,65 +238,6 @@ class BankTransferScreen extends ConsumerWidget {
 }
 
 // ── Private widgets ───────────────────────────────────────────────────────────
-
-class _StepTile extends StatelessWidget {
-  const _StepTile({
-    required this.step,
-    required this.label,
-    required this.detail,
-    required this.ext,
-    required this.tt,
-  });
-
-  final int step;
-  final String label;
-  final String detail;
-  final AppThemeExtension ext;
-  final TextTheme tt;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: cs.primaryContainer,
-            shape: BoxShape.circle,
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            '$step',
-            style: tt.labelMedium?.copyWith(
-              color: cs.onPrimaryContainer,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                detail,
-                style: tt.bodySmall?.copyWith(color: ext.textSecondary),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 class _BankDetailsCard extends StatelessWidget {
   const _BankDetailsCard({
@@ -352,6 +275,11 @@ class _BankDetailsCard extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Transfer the exact amount to this account.',
+            style: tt.bodySmall?.copyWith(color: ext.textSecondary),
           ),
           const SizedBox(height: AppSpacing.md),
           _DetailRow(

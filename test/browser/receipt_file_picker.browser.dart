@@ -19,6 +19,19 @@ void select(String name, Uint8List bytes) {
 }
 
 void main() {
+  for (final entry in {
+    'receipt.jpeg': [255, 216, 255, 1],
+    'receipt.pdf': [37, 80, 68, 70, 45, 49, 46, 55],
+  }.entries) {
+    test('browser picker preserves ${entry.key} bytes', () async {
+      final pending = pickReceiptFile();
+      select(entry.key, Uint8List.fromList(entry.value));
+      final file = await pending;
+      expect(file!.name, entry.key);
+      expect(file.bytes, entry.value);
+      expect(web.document.querySelector('input[type=file]'), isNull);
+    });
+  }
   test('browser picker reads exact bytes and removes the input', () async {
     final pending = pickReceiptFile();
     expect(input.accept, '.jpg,.jpeg,.png,.pdf');

@@ -20,34 +20,43 @@ void main() {
       expect(receiptFileError(name, 1), isNotNull);
     }
   });
-  test(
-    'COM-012 PNG upload uses image/png and safe transport filename',
-    () async {
-      const order = '11111111-1111-4111-8111-111111111111';
-      var calls = 0;
-      final repo = CheckoutSubmissionRepository((name, headers, body) async {
-        calls++;
-        expect(name, 'upload-bank-receipt');
-        expect(headers['Content-Type'], 'image/png');
-        expect(headers['X-Receipt-Name'], 'receipt.png');
-        return const FunctionResponse(
-          status: 201,
-          data: {
-            'data': {
-              'order_id': order,
-              'submission_id': '22222222-2222-4222-8222-222222222222',
-              'status': 'submitted',
+  for (final format in {
+    'PNG': 'image/png',
+    'JPEG': 'image/jpeg',
+    'pdf': 'application/pdf',
+  }.entries) {
+    test(
+      'COM-012 ${format.key} uses correct MIME and safe transport filename',
+      () async {
+        const order = '11111111-1111-4111-8111-111111111111';
+        var calls = 0;
+        final repo = CheckoutSubmissionRepository((name, headers, body) async {
+          calls++;
+          expect(name, 'upload-bank-receipt');
+          expect(headers['Content-Type'], format.value);
+          expect(
+            headers['X-Receipt-Name'],
+            'receipt.${format.key.toLowerCase()}',
+          );
+          return const FunctionResponse(
+            status: 201,
+            data: {
+              'data': {
+                'order_id': order,
+                'submission_id': '22222222-2222-4222-8222-222222222222',
+                'status': 'submitted',
+              },
             },
-          },
+          );
+        });
+        await repo.submitReceipt(
+          orderId: order,
+          name: 'private.${format.key}',
+          bytes: Uint8List(1),
+          key: 'same-key',
         );
-      });
-      await repo.submitReceipt(
-        orderId: order,
-        name: 'private.PNG',
-        bytes: Uint8List(1),
-        key: 'same-key',
-      );
-      expect(calls, 1);
-    },
-  );
+        expect(calls, 1);
+      },
+    );
+  }
 }
