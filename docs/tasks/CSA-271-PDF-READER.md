@@ -425,3 +425,13 @@ Live GitHub state and dev ancestry confirm [PR #206](https://github.com/iamramis
 Remaining COM-020 boundary: Contents/bookmarks, zoom/fit-width, restoration and watermark code merged. Trusted watermark runtime deployment, matching hosted proxy, confinement/font/queue/retention, explicit activation approval and live protected-byte acceptance remain.
 
 See [current matrix](../../compare.md) and [reconciliation evidence](CSA-COMPARE-STATUS-20261029.md). No new operational/browser test or blanket DONE decision is made by this documentation update.
+
+## Runtime readiness follow-up — 2026-11-03
+
+The owner clarified that the frontend uses Vercel only. Fresh inspection confirms
+current Vercel PDF.js assets, private PDF bucket configuration, hosted v2 policy
+and service-only resolver/queue permissions, but an older explicitly disabled
+hosted proxy. No current trusted worker deployment is identified. The reference
+artifact was inspected again; live protected-PDF acceptance remains unavailable.
+See the [fresh evidence and bounded deployment proposal](CSA-271-RUNTIME-READINESS-20261103.md).
+No activation, production configuration or task-DONE decision is implied.

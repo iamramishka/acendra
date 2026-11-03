@@ -1,0 +1,10 @@
+{
+  "name": "acendra-pdf-sandbox-runtime",
+  "private": true,
+  "type": "module",
+  "description": "CSA-271 private controller adapter; never bundled into Flutter",
+  "engines": { "node": ">=22.0.0" },
+  "scripts": { "test": "node --test sdk.test.mjs ../../tool/pdf_sandbox.test.mjs" },
+  "dependencies": { "@vercel/sandbox": "3.9.1" },
+  "overrides": { "zod": "4.6.7" }
+}

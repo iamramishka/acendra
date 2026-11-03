@@ -1,0 +1,6 @@
+# CPython 3.13, linux/amd64 wheel hashes; generated from PyPI downloads.
+charset-normalizer==3.5.2 --hash=sha256:7218e8f32b0956cfcd048fd42d9d5779809745ca1d86113ca56f66e7ae1549c4
+pillow==13.0.0 --hash=sha256:5f56499c1a74d2b862beb0c33b8016f99d095858455df9d21583bbbc1c15b582
+pypdf==6.21.4 --hash=sha256:33e4fb41ca352810eb4e9838aa0d82d6888a5f8bf682f43e99cce5faa666255c
+reportlab==4.4.9 --hash=sha256:68e2d103ae8041a37714e8896ec9b79a1c1e911d68c3bd2ea17546568cf17bfd
+uharfbuzz==0.53.3 --hash=sha256:dca9a2e071c0c59ba8f382356f31a2518ac3dc7cc77e4f3519defc454c5b9a97

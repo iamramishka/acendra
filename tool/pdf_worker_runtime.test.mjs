@@ -21,3 +21,12 @@ test('storage writes are immutable and redirects forbidden',async()=>{
  assert.deepEqual(await runtime.storage.upload({path:'derivatives/synthetic.pdf',bytes:new Uint8Array([1])}),{created:false});
  assert.equal(options.headers['x-upsert'],'false');assert.equal(options.redirect,'error');
 });
+
+test('trusted sandbox adapter replaces local Python without inheriting native configuration', async()=>{
+ const generate=async()=>new Uint8Array([1]);
+ const minimal=name=>({SUPABASE_URL:'https://example.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'synthetic'})[name];
+ const runtime=createWorkerRuntime({env:minimal,generate});
+ assert.equal(runtime.generate,generate);
+ assert.throws(()=>createWorkerRuntime({env:minimal}));
+ assert.throws(()=>createWorkerRuntime({env:minimal,generate:'untrusted'}));
+});

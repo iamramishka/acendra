@@ -3,10 +3,11 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { runPdfJob } from './pdf_worker.mjs';
 const limit=50*1024*1024;
-export function createWorkerRuntime({env=name=>process.env[name],fetch:request=globalThis.fetch}={}) {
+export function createWorkerRuntime({env=name=>process.env[name],fetch:request=globalThis.fetch,generate:transformer}={}) {
  const base=env('SUPABASE_URL'),key=env('SUPABASE_SERVICE_ROLE_KEY'),python=env('PDF_WORKER_PYTHON'),font=env('PDF_WORKER_FONT');
  const url=new URL(base);
- if(url.protocol!=='https:'||url.username||url.password||url.search||url.hash||url.pathname!=='/'||!key||!python||!font)throw Error('PDF_WORKER_CONFIGURATION_REQUIRED');
+ if(url.protocol!=='https:'||url.username||url.password||url.search||url.hash||url.pathname!=='/'||!key||
+    (transformer===undefined?(!python||!font):typeof transformer!=='function'))throw Error('PDF_WORKER_CONFIGURATION_REQUIRED');
  const headers={Authorization:`Bearer ${key}`,apikey:key};
  async function rpc(name,args={}) {
   const response=await request(`${url.origin}/rest/v1/rpc/${name}`,{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify(args),redirect:'error',signal:AbortSignal.timeout(15000)});
@@ -35,7 +36,7 @@ export function createWorkerRuntime({env=name=>process.env[name],fetch:request=g
    child.stdin.end(JSON.stringify({source:Buffer.from(source).toString('base64'),identity:{...identity,trusted_font_path:font}}));
   });
  }
- return {rpc,storage,generate};
+ return {rpc,storage,generate:transformer??generate};
 }
 if(process.argv[1]===fileURLToPath(import.meta.url)) {
  if(process.env.PDF_WORKER_ENABLED!=='true'){process.stderr.write('PDF_WORKER_DISABLED\n');process.exitCode=1;}
