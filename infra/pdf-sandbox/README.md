@@ -79,9 +79,11 @@ docker build --platform linux/amd64 -t acendra-pdf-local <printed-context-direct
 ```
 
 This is a local build command, not approval to push an image or run paid compute.
-Docker/WSL were unavailable during this Windows verification. The image has not
-been built or executed. Vercel custom images require a ready linux/amd64 image in
-VCR; publishing that image is a later authorized step.
+Docker/WSL were unavailable during Windows verification. The subsequently approved
+[Linux CI build](https://github.com/iamramishka/acendra/actions/runs/41573527802)
+passed, including all 16 real non-root Python supervisor/font tests without skips.
+This does not verify bubblewrap inside Vercel. Vercel custom images require a
+ready linux/amd64 image in VCR; no image has been published there.
 
 ## Remaining integration contract
 
@@ -130,8 +132,12 @@ Proposed trial ceiling: two VM-create attempts, each one vCPU/2 GiB and at most
 90 seconds per VM. Internal SDK retries cannot create a third VM. No public
 ports, persistent document snapshots, real documents or production activation.
 Verify remaining included quota before running; do not upgrade plans. This code
-has not been run against Vercel. A local Docker build could not run because its
-daemon is unavailable. An included-quota Linux CI build or another approved
-builder is needed first; the GitHub billing API inspection returned HTTP 404
-and reported missing `user` scope, so CI capacity is currently unverified. Do not
-silently broaden OAuth scopes or start a billable build to bypass that gap.
+has not been run against Vercel. GitHub quota was verified using an existing
+owner token, without expanding permissions, and the single approved Linux build
+succeeded. The main Vercel pricing table confirms Hobby includes 10 GB of VCR
+storage, but current remaining VCR/Sandbox usage is still unverified: the billing
+usage API returned 404 and the connected Usage page timed out. The owner approved
+the two jobs only within verified included quota, so publication and sandbox
+creation remain on hold pending those account counters. See the dated readiness
+record for evidence. Do not broaden scopes, upgrade plans or infer zero usage
+from an unavailable API.

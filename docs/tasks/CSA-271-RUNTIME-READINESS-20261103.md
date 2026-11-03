@@ -348,13 +348,54 @@ checkout/artifact actions, a standard Ubuntu runner, `contents: read`, no secret
 20-minute timeout, a 300 MiB artifact ceiling and one-day retention. No PR is opened
 at this stage because that would automatically start unrelated baseline workflows.
 
-Vercel remains Hobby, but fresh official VCR documentation lists image storage at
-USD 0.10/GB without a verified included allowance. Accordingly, image publication
-and the two dependent Sandbox jobs are held under the owner's no-extra-charge
-condition. No assumption that Hobby Sandbox compute allowances cover separately
-priced VCR storage is permitted. The independent Linux build can proceed within
-the verified GitHub allowance; no paid registry substitute or architecture change
-is silently selected.
+Vercel remains Hobby. The registry-specific limits/pricing page initially showed
+USD 0.10/GB without an included allowance, so publication was held. Subsequent
+inspection of the main Vercel plan comparison confirmed **10 GB/month included
+VCR image storage on Hobby**. That resolves the plan-allowance ambiguity, not
+the remaining account balance. Current VCR/Sandbox usage still needs verification;
+no zero-usage assumption or paid registry substitute is permitted.
 
 Sources: [GitHub included usage](https://docs.github.com/en/billing/reference/product-usage-included),
 [VCR pricing](https://vercel.com/docs/container-registry/limits-and-pricing).
+
+### Observed Linux build result and remaining quota gate
+
+Approved build source: `8b1fc008b51cc381ce99963d9e9781770b374e57`, containing the
+prototype `20728ea` and the bounded workflow. The branch was pushed using the
+existing owner token through an ephemeral process environment; no persistent
+Git authentication setting, OAuth scope or Actions secret changed. Immediately
+before push the Actions gross usage snapshot was USD 1.638, leaving more than
+the reserved USD 2 within the observed USD 18 Pro allowance. Only the new bounded
+workflow ran; no PR/baseline/deployment workflow was deliberately started.
+
+[Run 41573527802](https://github.com/iamramishka/acendra/actions/runs/41573527802)
+completed **successfully**. The Linux amd64 Docker image built, and all **16**
+watermark tests passed in 1.560 seconds with no skips under the actual non-root
+Python supervisor and GNU FreeSerif font. The container had no network, a 1 GiB
+container ceiling, one CPU, PID limit 64, all capabilities dropped and no new
+privileges; the parser retained its own stricter 512 MiB/60-second limits.
+This verifies real Linux resource supervision/font behavior. It does not verify
+the separate bubblewrap launcher or Vercel microVM configuration.
+
+The run produced the private `csa271-reviewed-linux-image` artifact, ID
+`13202511276`, size **72,797,489 bytes**, one-day retention. GitHub's artifact ZIP
+digest is `sha256:721c3e2d6457a69e9e440ddddc96ead609ba9015ac17425058f88c0b6c0b6e96`.
+Build logs were retrieved and the successful native test outcomes inspected.
+The full image download stalled; the slow task-owned read processes were stopped,
+and a bounded metadata fallback did not complete verification. No local archive
+checksum verification or registry image digest is claimed from that download.
+
+Official [Vercel plan comparison](https://vercel.com/pricing) confirms Hobby's
+10 GB/month VCR allowance as well as Sandbox included resources. A subsequent
+read-only request to the documented `/v1/billing/charges` API returned HTTP 404;
+the owning team is active Hobby but its response did not provide invoice-item
+usage counters. Both connected-browser attempts to open/read Usage timed out.
+Those failures do not establish that usage is zero or that the quota is exhausted.
+The owner has been asked for the remaining registry/Sandbox usage to satisfy
+their explicit included-quota-only condition.
+
+Hosted stage accounting: **one approved Linux build used; zero of two approved
+Sandbox creation attempts used; no VCR image published; no paid usage approved**.
+No extra build/rerun, new OAuth permission, real document transfer, Supabase
+mutation, public route or production PDF activation was performed. Approval for
+the two synthetic jobs persists, conditional on verifying the remaining quota.
