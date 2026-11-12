@@ -185,6 +185,14 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           if (!widget.changePassword) ...[
             const SizedBox(height: 12),
             AppButton(
+              label: 'Request a new reset link',
+              variant: ButtonVariant.outlined,
+              onPressed: _saving
+                  ? null
+                  : () => context.go(RouteNames.forgotPassword),
+            ),
+            const SizedBox(height: 12),
+            AppButton(
               label: 'Back to Sign In',
               variant: ButtonVariant.outlined,
               onPressed: back,

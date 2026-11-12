@@ -97,6 +97,11 @@ Future<({ProviderContainer container, GoRouter router, _Auth auth})> _pump(
         path: RouteNames.login,
         builder: (_, _) => const Scaffold(body: Text('Sign-in destination')),
       ),
+      GoRoute(
+        path: RouteNames.forgotPassword,
+        builder: (_, _) =>
+            const Scaffold(body: Text('Request-link destination')),
+      ),
     ],
   );
   addTearDown(container.dispose);
@@ -266,6 +271,12 @@ void main() {
     expect(app.auth.signOuts, 0);
     expect(find.text('Password updated.'), findsNothing);
     expect(find.textContaining('session has expired'), findsOneWidget);
+    await tester.ensureVisible(find.text('Request a new reset link'));
+    await tester.tap(find.text('Request a new reset link'));
+    await tester.pumpAndSettle();
+    expect(app.router.state.uri.path, RouteNames.forgotPassword);
+    expect(find.text('Request-link destination'), findsOneWidget);
+    expect(app.auth.updates, 0);
   });
 
   testWidgets(
