@@ -18,9 +18,14 @@ class CourseOverviewScreen extends ConsumerWidget {
 
   final String courseId;
 
-  void _open(BuildContext context, String lessonId) => context.go(
-    '/learn/${Uri.encodeComponent(courseId)}/${Uri.encodeComponent(lessonId)}',
-  );
+  void _open(BuildContext context, String lessonId) {
+    // Completion notices belong to the overview. Carrying one into the lesson
+    // can obscure its sticky completion controls.
+    ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
+    context.go(
+      '/learn/${Uri.encodeComponent(courseId)}/${Uri.encodeComponent(lessonId)}',
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
