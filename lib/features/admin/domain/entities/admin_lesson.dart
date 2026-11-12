@@ -1,4 +1,4 @@
-enum LessonType { video, pdf, text, quiz }
+enum LessonType { video, pdf, text, image, quiz }
 
 class AdminLesson {
   const AdminLesson({
@@ -11,8 +11,12 @@ class AdminLesson {
     required this.sortOrder,
     required this.isPreviewed,
     this.durationSeconds,
+    this.isPublished = false,
+    this.rawCourseUpdatedAt,
   });
 
+  final String? rawCourseUpdatedAt;
+  final bool isPublished;
   final String id;
   final String sectionId;
   final String courseId;
@@ -24,6 +28,8 @@ class AdminLesson {
   final int? durationSeconds;
 
   AdminLesson copyWith({
+    bool? isPublished,
+    String? rawCourseUpdatedAt,
     String? id,
     String? sectionId,
     String? courseId,
@@ -35,6 +41,8 @@ class AdminLesson {
     int? durationSeconds,
   }) {
     return AdminLesson(
+      isPublished: isPublished ?? this.isPublished,
+      rawCourseUpdatedAt: rawCourseUpdatedAt ?? this.rawCourseUpdatedAt,
       id: id ?? this.id,
       sectionId: sectionId ?? this.sectionId,
       courseId: courseId ?? this.courseId,

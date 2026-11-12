@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:acendra/features/authentication/presentation/providers/auth_state_provider.dart';
 // CSA-181 — Admin course publishing journey tests.
 // Widget-level integration tests covering the full admin course publishing flow
 // against fake repositories (no real Supabase needed).
@@ -5,6 +8,7 @@
 import 'dart:async';
 
 import 'package:acendra/features/admin/data/repositories/admin_course_repository.dart';
+import 'package:acendra/features/admin/data/repositories/admin_directory_client.dart';
 import 'package:acendra/features/admin/domain/entities/admin_course.dart';
 import 'package:acendra/features/admin/domain/entities/admin_lesson.dart';
 import 'package:acendra/features/admin/domain/entities/curriculum_section.dart';
@@ -16,6 +20,7 @@ import 'package:acendra/core/widgets/feedback/app_skeleton.dart';
 import 'package:acendra/core/widgets/feedback/app_state_views.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -30,6 +35,41 @@ class _FakeAdminCourseRepository implements AdminCourseRepository {
   }) : _courses = courses ?? _defaultCourses(),
        _curriculum = curriculum ?? _defaultCurriculum();
 
+  @override
+  Future<void> reorderSections(
+    String courseId,
+    List<String> ids, {
+    String? expectedUpdatedAt,
+  }) async {
+    final sections = _curriculum[courseId]!;
+    _curriculum[courseId] = [
+      for (var i = 0; i < ids.length; i++)
+        sections.firstWhere((s) => s.id == ids[i]).copyWith(sortOrder: i),
+    ];
+  }
+
+  @override
+  Future<void> reorderLessons(
+    String courseId,
+    String sectionId,
+    List<String> ids, {
+    String? expectedUpdatedAt,
+  }) async {
+    final section = _curriculum[courseId]!.firstWhere((s) => s.id == sectionId);
+    await upsertSection(
+      section.copyWith(
+        lessons: [
+          for (var i = 0; i < ids.length; i++)
+            section.lessons
+                .firstWhere((l) => l.id == ids[i])
+                .copyWith(sortOrder: i),
+        ],
+      ),
+    );
+  }
+
+  final publicationActions = <String>[];
+  final archiveActions = <({String courseId, String? revision})>[];
   final List<AdminCourse> _courses;
   final Map<String, List<AdminCurriculumSection>> _curriculum;
 
@@ -106,18 +146,30 @@ class _FakeAdminCourseRepository implements AdminCourseRepository {
   }
 
   @override
-  Future<void> deleteCourse(String courseId) async {
+  Future<void> archiveCourse(
+    String courseId, {
+    String? expectedUpdatedAt,
+  }) async {
+    archiveActions.add((courseId: courseId, revision: expectedUpdatedAt));
     _courses.removeWhere((c) => c.id == courseId);
   }
 
   @override
-  Future<void> publishCourse(String courseId) async {
+  Future<void> publishCourse(
+    String courseId, {
+    String? expectedUpdatedAt,
+  }) async {
+    publicationActions.add('publish:$courseId');
     final i = _courses.indexWhere((c) => c.id == courseId);
     if (i != -1) _courses[i] = _courses[i].copyWith(isPublished: true);
   }
 
   @override
-  Future<void> unpublishCourse(String courseId) async {
+  Future<void> unpublishCourse(
+    String courseId, {
+    String? expectedUpdatedAt,
+  }) async {
+    publicationActions.add('unpublish:$courseId');
     final i = _courses.indexWhere((c) => c.id == courseId);
     if (i != -1) _courses[i] = _courses[i].copyWith(isPublished: false);
   }
@@ -141,7 +193,10 @@ class _FakeAdminCourseRepository implements AdminCourseRepository {
   }
 
   @override
-  Future<void> deleteSection(String sectionId) async {
+  Future<void> deleteSection(
+    String sectionId, {
+    String? expectedUpdatedAt,
+  }) async {
     for (final key in _curriculum.keys) {
       final sections = List<AdminCurriculumSection>.from(_curriculum[key]!);
       sections.removeWhere((s) => s.id == sectionId);
@@ -179,7 +234,10 @@ class _FakeAdminCourseRepository implements AdminCourseRepository {
   }
 
   @override
-  Future<void> deleteLesson(String lessonId) async {
+  Future<void> deleteLesson(
+    String lessonId, {
+    String? expectedUpdatedAt,
+  }) async {
     for (final key in _curriculum.keys) {
       final sections = List<AdminCurriculumSection>.from(_curriculum[key]!);
       for (var i = 0; i < sections.length; i++) {
@@ -194,6 +252,27 @@ class _FakeAdminCourseRepository implements AdminCourseRepository {
 }
 
 // Returns a Future that never completes — keeps providers in loading state.
+class _UnavailableCourseRepository extends _FakeAdminCourseRepository {
+  int reads = 0;
+  @override
+  Future<List<AdminCourse>> listCourses() async {
+    reads++;
+    throw const AdminDataException('Course service unavailable. Retry.');
+  }
+
+  @override
+  Future<AdminCourse> getCourse(String courseId) async {
+    reads++;
+    throw const AdminDataException('Course service unavailable. Retry.');
+  }
+
+  @override
+  Future<List<AdminCurriculumSection>> getCurriculum(String courseId) async {
+    reads++;
+    throw const AdminDataException('Course service unavailable. Retry.');
+  }
+}
+
 class _NeverLoadingRepository extends _FakeAdminCourseRepository {
   @override
   Future<List<AdminCourse>> listCourses() =>
@@ -211,6 +290,48 @@ class _FailSaveAdminCourseRepository extends _FakeAdminCourseRepository {
       throw Exception('Server error');
 }
 
+class _FailPublicationRepository extends _FakeAdminCourseRepository {
+  bool fail = true;
+  @override
+  Future<void> publishCourse(
+    String courseId, {
+    String? expectedUpdatedAt,
+  }) async {
+    if (fail) throw Exception('Publication unavailable');
+    await super.publishCourse(courseId, expectedUpdatedAt: expectedUpdatedAt);
+  }
+}
+
+class _RevisionCheckingPublicationRepository extends _FailPublicationRepository
+    implements AdminCourseMutationRevisions {
+  String? revision;
+  int writes = 0;
+  @override
+  String? ownMutationRevision(String courseId) => revision;
+  @override
+  Future<void> updateCourse(AdminCourse course) async {
+    if (revision != null && course.rawUpdatedAt != revision) {
+      throw Exception('Stale revision');
+    }
+    await super.updateCourse(course);
+    revision = 'own-revision-${++writes}';
+  }
+}
+
+class _DelayedSaveRepository extends _FakeAdminCourseRepository {
+  final started = Completer<void>();
+  final complete = Completer<void>();
+  @override
+  Future<void> createCourse(AdminCourse course) async {
+    started.complete();
+    await complete.future;
+    await super.createCourse(course);
+  }
+}
+
+final _selectedRepository = StateProvider<AdminCourseRepository?>(
+  (ref) => null,
+);
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -218,7 +339,11 @@ class _FailSaveAdminCourseRepository extends _FakeAdminCourseRepository {
 // Wraps a screen in a minimal GoRouter that covers all admin paths screens
 // navigate to via context.go(), overrides the repo provider, and starts at
 // /test to avoid the admin shell or authentication guard.
-Widget _wrap(Widget screen, AdminCourseRepository repo) {
+Widget _wrap(
+  Widget screen,
+  AdminCourseRepository repo, {
+  Brightness brightness = Brightness.light,
+}) {
   final router = GoRouter(
     initialLocation: '/test',
     routes: [
@@ -254,9 +379,13 @@ Widget _wrap(Widget screen, AdminCourseRepository repo) {
   );
 
   return ProviderScope(
-    overrides: [adminCourseRepositoryProvider.overrideWithValue(repo)],
+    overrides: [
+      adminCourseRepositoryProvider.overrideWith(
+        (ref) => ref.watch(_selectedRepository) ?? repo,
+      ),
+    ],
     child: MaterialApp.router(
-      theme: ThemeData(useMaterial3: true),
+      theme: ThemeData(useMaterial3: true, brightness: brightness),
       routerConfig: router,
     ),
   );
@@ -266,7 +395,468 @@ Widget _wrap(Widget screen, AdminCourseRepository repo) {
 // Tests
 // ---------------------------------------------------------------------------
 
+class _UnusedSupabaseClient implements SupabaseClient {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+final _sessionState = StateProvider<Session?>((ref) => null);
+Session _session(
+  String userId,
+  String sessionId,
+  int expiry, {
+  String aal = 'aal2',
+}) {
+  final header = base64Url.encode(utf8.encode('{}'));
+  final claims = base64Url.encode(
+    utf8.encode(
+      jsonEncode({
+        'sub': userId,
+        'session_id': sessionId,
+        'aal': aal,
+        'exp': expiry,
+      }),
+    ),
+  );
+  return Session(
+    accessToken: '$header.$claims.signature',
+    tokenType: 'bearer',
+    user: User(
+      id: userId,
+      appMetadata: const {},
+      userMetadata: const {},
+      aud: 'authenticated',
+      createdAt: '2026-10-20T00:00:00Z',
+    ),
+  );
+}
+
 void main() {
+  testWidgets(
+    'archive confirmation preserves history and pins the displayed revision',
+    (tester) async {
+      final repo = _FakeAdminCourseRepository();
+      repo._courses[0] = repo._courses[0].copyWith(
+        rawUpdatedAt: '2026-10-20T00:00:00.123456Z',
+      );
+      final retained = await repo.getCurriculum('course-1');
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(_wrap(const AdminCoursesScreen(), repo));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Archive').first);
+      await tester.tap(find.text('Archive').first);
+      await tester.pumpAndSettle();
+      expect(find.text('Archive Course'), findsOneWidget);
+      expect(
+        find.textContaining('audit history will be preserved'),
+        findsOneWidget,
+      );
+      expect(repo.archiveActions, isEmpty);
+      await tester.tap(find.text('Archive').last);
+      await tester.pumpAndSettle();
+      expect(repo.archiveActions.single, (
+        courseId: 'course-1',
+        revision: '2026-10-20T00:00:00.123456Z',
+      ));
+      expect(
+        find.text('Course archived. Existing history has been preserved.'),
+        findsOneWidget,
+      );
+      expect(await repo.getCurriculum('course-1'), retained);
+      expect(find.text('Flutter for Beginners'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
+  for (final screen in <Widget>[
+    const AdminCoursesScreen(),
+    const CourseEditorScreen(courseId: 'course-draft'),
+    const CurriculumBuilderScreen(courseId: 'course-1'),
+    const LessonEditorScreen(courseId: 'course-1', lessonId: 'l1'),
+  ]) {
+    testWidgets(
+      'known admin failure immediately exposes retry on ${screen.runtimeType}',
+      (tester) async {
+        final repo = _UnavailableCourseRepository();
+        await tester.pumpWidget(_wrap(screen, repo));
+        await tester.pumpAndSettle();
+        expect(find.text('Course service unavailable. Retry.'), findsOneWidget);
+        expect(find.text('Retry'), findsOneWidget);
+        await tester.pump(const Duration(seconds: 30));
+        expect(repo.reads, 1);
+      },
+    );
+  }
+  for (final categories in <Map<String, String>>[
+    {},
+    {'other-category': 'Other category'},
+  ]) {
+    testWidgets(
+      'inactive category remains editable with ${categories.length} active categories',
+      (tester) async {
+        final repo = _FakeAdminCourseRepository(
+          courses: [
+            AdminCourse(
+              id: 'course-draft',
+              title: 'Old category course',
+              description: 'Description',
+              price: 10,
+              priceMinor: '1000',
+              categoryId: 'inactive-category',
+              categories: categories,
+              isPublished: false,
+              enrollmentCount: 0,
+              sectionCount: 0,
+              lessonCount: 0,
+              createdAt: DateTime(2026),
+              updatedAt: DateTime(2026),
+            ),
+          ],
+        );
+        await tester.pumpWidget(
+          _wrap(const CourseEditorScreen(courseId: 'course-draft'), repo),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), null);
+        expect(
+          find.text('Current category (inactive or unavailable)'),
+          findsOneWidget,
+        );
+        await tester.ensureVisible(
+          find.text('Current category (inactive or unavailable)'),
+        );
+        await tester.tap(
+          find.text('Current category (inactive or unavailable)'),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('No category').last);
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(find.text('Save'));
+        await tester.tap(find.text('Save'));
+        await tester.pumpAndSettle();
+        expect((await repo.getCourse('course-draft')).categoryId, null);
+      },
+    );
+  }
+
+  testWidgets(
+    'same-session token refresh retains unsaved form; account switch clears it',
+    (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            currentSessionProvider.overrideWith(
+              (ref) => ref.watch(_sessionState),
+            ),
+            _sessionState.overrideWith(
+              (ref) => _session('admin', 'same-session', 1),
+            ),
+            adminCourseClientProvider.overrideWithValue(
+              _UnusedSupabaseClient(),
+            ),
+          ],
+          child: const MaterialApp(
+            home: Scaffold(body: CourseEditorScreen(courseId: 'new')),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(CourseEditorScreen)),
+      );
+      await tester.enterText(
+        find.byType(TextField).first,
+        'Unsaved during token refresh',
+      );
+      await tester.enterText(find.byType(TextField).at(2), '19.99');
+      container.read(_sessionState.notifier).state = _session(
+        'admin',
+        'same-session',
+        2,
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Unsaved during token refresh'), findsOneWidget);
+      expect(find.text('19.99'), findsOneWidget);
+      container.read(_sessionState.notifier).state = _session(
+        'other-admin',
+        'other-session',
+        3,
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Unsaved during token refresh'), findsNothing);
+      expect(find.text('19.99'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'account switch while section delete dialog is open cancels old command',
+    (tester) async {
+      final repo = _FakeAdminCourseRepository();
+      final replacement = _FakeAdminCourseRepository();
+      await tester.pumpWidget(
+        _wrap(const CurriculumBuilderScreen(courseId: 'course-1'), repo),
+      );
+      await tester.pumpAndSettle();
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(CurriculumBuilderScreen)),
+      );
+      await tester.tap(find.byTooltip('Section actions'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Delete section'));
+      await tester.pumpAndSettle();
+      container.read(_selectedRepository.notifier).state = replacement;
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Delete'));
+      await tester.pumpAndSettle();
+      expect((await repo.getCurriculum('course-1')).length, 1);
+      expect((await replacement.getCurriculum('course-1')).length, 1);
+      expect(find.text('Getting Started'), findsOneWidget);
+    },
+  );
+
+  for (final width in [390.0, 1440.0]) {
+    testWidgets('course list preserves exact fractional price at $width', (
+      tester,
+    ) async {
+      tester.view.physicalSize = Size(width, 1000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final repo = _FakeAdminCourseRepository();
+      repo._courses[0] = repo._courses[0].copyWith(
+        price: 123.45,
+        priceMinor: '12345',
+      );
+      await tester.pumpWidget(_wrap(const AdminCoursesScreen(), repo));
+      await tester.pumpAndSettle();
+      expect(find.text('LKR 123.45'), findsOneWidget);
+      expect(find.text('LKR 123'), findsNothing);
+      expect(tester.takeException(), null);
+    });
+  }
+
+  testWidgets('metadata can be edited after own save and publication failure', (
+    tester,
+  ) async {
+    final repo = _RevisionCheckingPublicationRepository();
+    await tester.pumpWidget(
+      _wrap(const CourseEditorScreen(courseId: 'course-draft'), repo),
+    );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byType(Switch));
+    await tester.tap(find.byType(Switch));
+    await tester.ensureVisible(find.text('Save'));
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(repo.writes, 1);
+    await tester.ensureVisible(find.byType(TextField).first);
+    await tester.enterText(
+      find.byType(TextField).first,
+      'Updated after publication failure',
+    );
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    repo.fail = false;
+    await tester.ensureVisible(find.text('Save'));
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(repo.writes, 2);
+    expect(find.text('Course updated.'), findsOneWidget);
+    expect(
+      (await repo.getCourse('course-draft')).title,
+      'Updated after publication failure',
+    );
+  });
+  testWidgets(
+    'session change during save cannot show success or navigate new account',
+    (tester) async {
+      final repo = _DelayedSaveRepository();
+      await tester.pumpWidget(
+        _wrap(const CourseEditorScreen(courseId: 'new'), repo),
+      );
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).at(0), 'Old account draft');
+      await tester.enterText(find.byType(TextField).at(2), '10');
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(CourseEditorScreen)),
+      );
+      await tester.ensureVisible(find.text('Save'));
+      await tester.tap(find.text('Save'));
+      await tester.pump();
+      expect(repo.started.isCompleted, true);
+      container.read(_selectedRepository.notifier).state =
+          _FakeAdminCourseRepository();
+      await tester.pumpAndSettle();
+      repo.complete.complete();
+      await tester.pumpAndSettle();
+      expect(find.text('Course created.'), findsNothing);
+      expect(find.text('New Course'), findsOneWidget);
+      expect(find.text('Old account draft'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'retry after publication failure does not create duplicate course',
+    (tester) async {
+      final repo = _FailPublicationRepository();
+      await tester.pumpWidget(
+        _wrap(const CourseEditorScreen(courseId: 'new'), repo),
+      );
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).at(0), 'Retry publication');
+      await tester.enterText(find.byType(TextField).at(2), '10.99');
+      await tester.ensureVisible(find.byType(Switch));
+      await tester.tap(find.byType(Switch));
+      await tester.ensureVisible(find.text('Save'));
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Course details saved. Unable to change publication. Retry.'),
+        findsOneWidget,
+      );
+      expect(
+        repo._courses.where((c) => c.title == 'Retry publication').length,
+        1,
+      );
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      repo.fail = false;
+      await tester.ensureVisible(find.text('Save'));
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      expect(
+        repo._courses.where((c) => c.title == 'Retry publication').length,
+        1,
+      );
+      expect(
+        repo._courses
+            .firstWhere((c) => c.title == 'Retry publication')
+            .isPublished,
+        true,
+      );
+    },
+  );
+  for (final width in [390.0, 768.0, 1440.0]) {
+    for (final brightness in Brightness.values) {
+      testWidgets('course and lesson editors fit $width in $brightness', (
+        tester,
+      ) async {
+        tester.view.physicalSize = Size(width, 1000);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final repo = _FakeAdminCourseRepository();
+        await tester.pumpWidget(
+          _wrap(
+            const CourseEditorScreen(courseId: 'new'),
+            repo,
+            brightness: brightness,
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), null);
+        await tester.pumpWidget(const SizedBox());
+        await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          _wrap(
+            const LessonEditorScreen(
+              courseId: 'course-1',
+              lessonId: 'new',
+              sectionId: 's1',
+            ),
+            repo,
+            brightness: brightness,
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), null);
+      });
+    }
+  }
+  for (final isNew in [false, true]) {
+    testWidgets(
+      'lesson save preserves selected section and position (new: $isNew)',
+      (tester) async {
+        final repo = _FakeAdminCourseRepository(
+          curriculum: {
+            'course-1': [
+              const AdminCurriculumSection(
+                id: 'first',
+                courseId: 'course-1',
+                title: 'First',
+                sortOrder: 0,
+                lessons: [],
+              ),
+              const AdminCurriculumSection(
+                id: 'second',
+                courseId: 'course-1',
+                title: 'Second',
+                sortOrder: 1,
+                lessons: [
+                  AdminLesson(
+                    id: 'existing',
+                    sectionId: 'second',
+                    courseId: 'course-1',
+                    title: 'Existing',
+                    description: 'Metadata',
+                    lessonType: LessonType.text,
+                    sortOrder: 7,
+                    isPreviewed: false,
+                    isPublished: true,
+                  ),
+                ],
+              ),
+            ],
+          },
+        );
+        await tester.pumpWidget(
+          _wrap(
+            LessonEditorScreen(
+              courseId: 'course-1',
+              lessonId: isNew ? 'new' : 'existing',
+              sectionId: isNew ? 'second' : null,
+            ),
+            repo,
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(TextField).first, 'Saved lesson');
+        await tester.ensureVisible(find.text('Save'));
+        await tester.tap(find.text('Save'));
+        await tester.pumpAndSettle();
+        final sections = await repo.getCurriculum('course-1');
+        expect(sections.first.lessons, isEmpty);
+        final saved = sections.last.lessons.firstWhere(
+          (l) => l.title == 'Saved lesson',
+        );
+        expect(saved.sectionId, 'second');
+        expect(saved.sortOrder, isNew ? 8 : 7);
+        if (isNew) expect(saved.id, matches(RegExp(r'^[0-9a-f-]{36}$')));
+        if (!isNew) expect(saved.isPublished, true);
+      },
+    );
+  }
+  testWidgets(
+    'course editor preserves fractional price without changing publication',
+    (tester) async {
+      final repo = _FakeAdminCourseRepository();
+      final original = repo._courses[1];
+      repo._courses[1] = original.copyWith(price: 123.45, priceMinor: '12345');
+      await tester.pumpWidget(
+        _wrap(const CourseEditorScreen(courseId: 'course-draft'), repo),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('123.45'), findsOneWidget);
+      await tester.ensureVisible(find.text('Save'));
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      expect((await repo.getCourse('course-draft')).priceMinor, '12345');
+      expect(repo.publicationActions, isEmpty);
+    },
+  );
+
   for (final courseId in ['new', 'course-draft']) {
     testWidgets('Cancel leaves $courseId editor without saving', (
       tester,
@@ -479,6 +1069,38 @@ void main() {
       expect(find.text('Section Title'), findsOneWidget);
     });
 
+    testWidgets(
+      'cancel restores one empty-state action and session switch clears the form',
+      (tester) async {
+        final repo = _FakeAdminCourseRepository();
+        await tester.pumpWidget(
+          _wrap(const CurriculumBuilderScreen(courseId: 'course-draft'), repo),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Add Section'), findsOneWidget);
+        await tester.tap(find.text('Add Section'));
+        await tester.pump();
+        expect(find.text('Add Section'), findsNothing);
+        await tester.enterText(find.byType(TextField), 'Private unsaved title');
+        await tester.tap(find.text('Cancel'));
+        await tester.pumpAndSettle();
+        expect(find.text('Add Section'), findsOneWidget);
+        await tester.tap(find.text('Add Section'));
+        await tester.pump();
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(CurriculumBuilderScreen)),
+        );
+        final replacement = _FakeAdminCourseRepository();
+        container.read(_selectedRepository.notifier).state = replacement;
+        await tester.pumpAndSettle();
+        expect(find.text('Private unsaved title'), findsNothing);
+        expect(find.text('Add Section'), findsOneWidget);
+        expect(await repo.getCurriculum('course-draft'), isEmpty);
+        expect(await replacement.getCurriculum('course-draft'), isEmpty);
+        expect(tester.takeException(), isNull);
+      },
+    );
+
     testWidgets('saved section title appears in the curriculum list', (
       tester,
     ) async {
@@ -488,9 +1110,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // The empty-state shortcut and persistent footer expose the same action.
-      expect(find.text('Add Section'), findsNWidgets(2));
-      await tester.tap(find.text('Add Section').last);
+      // Empty courses expose one action; save uses the trusted repository.
+      expect(find.text('Add Section'), findsOneWidget);
+      await tester.tap(find.text('Add Section'));
       await tester.pump();
 
       await tester.enterText(find.byType(TextField), 'Module 1: Foundations');
@@ -614,6 +1236,7 @@ void main() {
         expect(publishSwitch, findsOneWidget);
 
         // Toggle to published.
+        await tester.ensureVisible(publishSwitch);
         await tester.tap(publishSwitch);
         await tester.pump();
 
@@ -622,6 +1245,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text('Course updated.'), findsOneWidget);
+        expect(repo.publicationActions, ['publish:course-draft']);
       },
     );
   });

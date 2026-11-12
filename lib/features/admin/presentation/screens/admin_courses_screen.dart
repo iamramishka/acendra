@@ -1,4 +1,5 @@
 import 'package:acendra/features/admin/data/repositories/admin_directory_client.dart';
+import 'package:acendra/features/admin/data/repositories/admin_course_repository.dart';
 import 'package:acendra/app/theme/app_breakpoints.dart';
 import 'package:acendra/app/theme/app_spacing.dart';
 import 'package:acendra/core/widgets/buttons/app_button.dart';
@@ -38,26 +39,40 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
     return courses.where((c) => c.title.toLowerCase().contains(q)).toList();
   }
 
-  Future<void> _confirmDelete(
+  Future<void> _confirmArchive(
     BuildContext context,
     String courseId,
     String title,
+    String? expectedUpdatedAt,
   ) async {
+    final repository = ref.read(adminCourseRepositoryProvider);
     final confirmed = await AppDialog.show(
       context,
-      title: 'Delete Course',
-      body: 'Delete "$title"? This cannot be undone.',
-      confirmLabel: 'Delete',
+      title: 'Archive Course',
+      body:
+          'Archive "$title"? It will be removed from sale and the active course list. Existing orders, enrollments, progress, media and audit history will be preserved. This requires a super-admin account with MFA.',
+      confirmLabel: 'Archive',
       cancelLabel: 'Cancel',
       confirmVariant: ButtonVariant.destructive,
     );
     if (confirmed == true && context.mounted) {
       try {
-        await ref.read(adminCoursesProvider.notifier).deleteCourse(courseId);
+        if (!identical(ref.read(adminCourseRepositoryProvider), repository)) {
+          return;
+        }
+        await repository.archiveCourse(
+          courseId,
+          expectedUpdatedAt: expectedUpdatedAt,
+        );
+        if (!context.mounted ||
+            !identical(ref.read(adminCourseRepositoryProvider), repository)) {
+          return;
+        }
+        ref.invalidate(adminCoursesProvider);
         if (context.mounted) {
           AppSnackbar.show(
             context,
-            'Course deleted.',
+            'Course archived. Existing history has been preserved.',
             variant: SnackbarVariant.success,
           );
         }
@@ -65,7 +80,7 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
         if (context.mounted) {
           AppSnackbar.show(
             context,
-            adminDataError(e, 'Failed to delete course.'),
+            adminDataError(e, 'Failed to archive course.'),
             variant: SnackbarVariant.error,
           );
         }
@@ -122,10 +137,13 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
 
   Widget _buildHeader(BuildContext context) {
     final tt = Theme.of(context).textTheme;
-    return Row(
+    return Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      spacing: AppSpacing.md,
+      runSpacing: AppSpacing.sm,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text('Courses', style: tt.headlineMedium),
-        const Spacer(),
         AppButton(
           label: 'Add Course',
           onPressed: () => context.go('/admin/courses/new/edit'),
@@ -194,8 +212,12 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
         onEdit: () => context.go('/admin/courses/${courses[i].id}/edit'),
         onCurriculum: () =>
             context.go('/admin/courses/${courses[i].id}/curriculum'),
-        onDelete: () =>
-            _confirmDelete(context, courses[i].id, courses[i].title),
+        onDelete: () => _confirmArchive(
+          context,
+          courses[i].id,
+          courses[i].title,
+          courses[i].rawUpdatedAt,
+        ),
       ),
     );
   }
@@ -208,8 +230,12 @@ class _AdminCoursesScreenState extends ConsumerState<AdminCoursesScreen> {
         onEdit: () => context.go('/admin/courses/${courses[i].id}/edit'),
         onCurriculum: () =>
             context.go('/admin/courses/${courses[i].id}/curriculum'),
-        onDelete: () =>
-            _confirmDelete(context, courses[i].id, courses[i].title),
+        onDelete: () => _confirmArchive(
+          context,
+          courses[i].id,
+          courses[i].title,
+          courses[i].rawUpdatedAt,
+        ),
       ),
     );
   }

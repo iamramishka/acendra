@@ -1,5 +1,16 @@
 # CSA-165 trusted publication
 
+## CSA268 integration — 2026-10-20
+
+Course-management UI now invokes this contract with the original raw course
+revision and an idempotency key. The deployed entrypoint uses the explicit
+server-only `ACENDRA_COURSE_PUBLICATION_ENABLED=true` release switch plus validated
+`ACENDRA_ADMIN_ALLOWED_ORIGINS`, replacing the unconditional source disable
+described in the historical baseline below. Defaults remain unavailable.
+No hosted setting is changed by source integration. Verified current super-admin,
+AAL2, readiness, revision, immutable audit and entitlement-preservation checks
+remain unchanged. See [CSA268 authoring](CSA-268-COURSE-MANAGEMENT.md).
+
 ## Current status — 2026-10-13
 
 Foundation reviewed and merged into dev via [PR #107](https://github.com/iamramishka/acendra/pull/107).

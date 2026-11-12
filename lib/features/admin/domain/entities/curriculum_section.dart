@@ -7,8 +7,12 @@ class AdminCurriculumSection {
     required this.title,
     required this.sortOrder,
     required this.lessons,
+    this.isPublished = false,
+    this.rawCourseUpdatedAt,
   });
 
+  final String? rawCourseUpdatedAt;
+  final bool isPublished;
   final String id;
   final String courseId;
   final String title;
@@ -16,6 +20,8 @@ class AdminCurriculumSection {
   final List<AdminLesson> lessons;
 
   AdminCurriculumSection copyWith({
+    bool? isPublished,
+    String? rawCourseUpdatedAt,
     String? id,
     String? courseId,
     String? title,
@@ -23,6 +29,8 @@ class AdminCurriculumSection {
     List<AdminLesson>? lessons,
   }) {
     return AdminCurriculumSection(
+      isPublished: isPublished ?? this.isPublished,
+      rawCourseUpdatedAt: rawCourseUpdatedAt ?? this.rawCourseUpdatedAt,
       id: id ?? this.id,
       courseId: courseId ?? this.courseId,
       title: title ?? this.title,
